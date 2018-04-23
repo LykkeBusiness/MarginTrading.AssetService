@@ -1,0 +1,1 @@
+# MarginTrading.SettingsService

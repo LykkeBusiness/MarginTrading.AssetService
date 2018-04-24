@@ -23,13 +23,7 @@ namespace MarginTrading.SettingsService.Client
         Task<List<TradingInstrumentContract>> AssignCollection(
             [NotNull] string tradingConditionId,
             [Body] string[] instruments);
-
-
-        [Post("/api/tradingInstruments/{tradingConditionId}")]
-        Task<TradingInstrumentContract> Insert(
-            [NotNull] string tradingConditionId,
-            [Body] TradingInstrumentContract instrument);
-
+        
 
         [Get("/api/tradingInstruments/{tradingConditionId}/{assetPairId}")]
         Task<TradingInstrumentContract> Get(
@@ -45,7 +39,7 @@ namespace MarginTrading.SettingsService.Client
 
 
         [Delete("/api/tradingInstruments/{tradingConditionId}/{assetPairId}")]
-        Task<TradingInstrumentContract> Delete(
+        Task Delete(
             [NotNull] string tradingConditionId,
             [NotNull] string assetPairId);
 

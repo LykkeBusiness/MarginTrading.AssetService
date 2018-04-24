@@ -1,8 +1,9 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
+﻿using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.StorageInterfaces.Entities;
 
 namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
 {
-    public interface ITradingConditionsRepository : IGenericCrudRepository<ITradingConditionEntity>
+    public interface ITradingConditionsRepository : IGenericCrudRepository<TradingCondition>
     {
         
     }

@@ -12,4 +12,15 @@
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="6.4.0" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005">
+      <HintPath>..\..\..\..\.nuget\packages\automapper\6.2.2\lib\netstandard1.3\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Lykke.RabbitMqBroker, Version=7.0.0.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\.nuget\packages\lykke.rabbitmqbroker\7.0.0\lib\netstandard2.0\Lykke.RabbitMqBroker.dll</HintPath>
+    </Reference>
+    <Reference Include="Lykke.SettingsReader, Version=1.0.43.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\.nuget\packages\lykke.settingsreader\1.0.43\lib\netstandard2.0\Lykke.SettingsReader.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

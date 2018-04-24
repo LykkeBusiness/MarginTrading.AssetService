@@ -36,7 +36,7 @@ namespace MarginTrading.SettingsService.Client
 
         [Post("/api/scheduleSettings/compiled")]
         Task<List<CompiledScheduleContract>> StateList(
-            [Body] string[] assetPairs);
+            [Body] string[] assetPairIds);
 
     }
 }

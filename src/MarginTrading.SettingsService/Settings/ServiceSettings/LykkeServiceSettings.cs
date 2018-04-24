@@ -1,4 +1,5 @@
 ﻿using JetBrains.Annotations;
+using MarginTrading.SettingsService.Core.Settings;
 
 namespace MarginTrading.SettingsService.Settings.ServiceSettings
 {
@@ -6,5 +7,7 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
     public class LykkeServiceSettings
     {
         public DbSettings Db { get; set; }
+        public RabbitMqSettings SettingsChangedRabbitMqSettings { get; set; }
+        public DefaultTradingInstrumentSettings TradingInstrumentDefaults { get; set; }
     }
 }

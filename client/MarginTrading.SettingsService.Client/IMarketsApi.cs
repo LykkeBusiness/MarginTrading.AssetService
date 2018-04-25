@@ -25,7 +25,7 @@ namespace MarginTrading.SettingsService.Client
 
 
         [Put("/api/markets/{marketId}")]
-        Task<AssetContract> Update(
+        Task<MarketContract> Update(
             [NotNull] string marketId,
             [Body] MarketContract market);
 

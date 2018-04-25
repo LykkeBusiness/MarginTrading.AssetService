@@ -13,7 +13,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         public MarketRepository(ILog log,
             IConvertService convertService,
             IReloadingManager<string> connectionStringManager)
-            : base(log, convertService, connectionStringManager, "Market")
+            : base(log, convertService, connectionStringManager, "Markets")
         {
 
         }

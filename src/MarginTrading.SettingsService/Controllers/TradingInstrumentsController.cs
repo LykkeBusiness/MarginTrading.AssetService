@@ -27,11 +27,13 @@ namespace MarginTrading.SettingsService.Controllers
         
         public TradingInstrumentsController(
             ITradingInstrumentsRepository tradingInstrumentsRepository,
+            ITradingService tradingService,
             IConvertService convertService,
             IEventSender eventSender,
             DefaultTradingInstrumentSettings defaultTradingInstrumentSettings)
         {
             _tradingInstrumentsRepository = tradingInstrumentsRepository;
+            _tradingService = tradingService;
             _convertService = convertService;
             _eventSender = eventSender;
             _defaultTradingInstrumentSettings = defaultTradingInstrumentSettings;
@@ -46,7 +48,9 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<List<TradingInstrumentContract>> List([FromQuery] string tradingConditionId)
         {
-            var data = await _tradingInstrumentsRepository.GetAsync(x => x.TradingConditionId == tradingConditionId);
+            var data = string.IsNullOrWhiteSpace(tradingConditionId)
+                ? await _tradingInstrumentsRepository.GetAsync()
+                : await _tradingInstrumentsRepository.GetAsync(x => x.TradingConditionId == tradingConditionId);
             
             return data.Select(x => _convertService.Convert<TradingInstrument, TradingInstrumentContract>(x)).ToList();
         }

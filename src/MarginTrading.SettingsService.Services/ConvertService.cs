@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
 using MarginTrading.SettingsService.Core.Services;
+using Newtonsoft.Json;
 
 namespace MarginTrading.SettingsService.Services
 {
@@ -15,6 +17,11 @@ namespace MarginTrading.SettingsService.Services
             return new MapperConfiguration(cfg =>
             {
                 // todo: add some global configurations here?
+                cfg.CreateMap<HashSet<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
+                cfg.CreateMap<string, HashSet<string>>().ConvertUsing(JsonConvert.DeserializeObject<HashSet<string>>);
+                cfg.CreateMap<List<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
+                cfg.CreateMap<string, List<string>>().ConvertUsing(JsonConvert.DeserializeObject<List<string>>);
+
             }).CreateMapper();
         }
 

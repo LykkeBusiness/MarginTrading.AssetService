@@ -5,6 +5,7 @@ using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories;
 using MarginTrading.SettingsService.AzureRepositories.Repositories;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.Services;
 using MarginTrading.SettingsService.Settings.ServiceSettings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
@@ -30,25 +31,15 @@ namespace MarginTrading.SettingsService.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            // TODO: Do not register entire settings in container, pass necessary settings to services which requires them
-            // ex:
-            //  builder.RegisterType<QuotesPublisher>()
-            //      .As<IQuotesPublisher>()
-            //      .WithParameter(TypedParameter.From(_settings.CurrentValue.QuotesPublication))
+            builder.RegisterInstance(_log).As<ILog>().SingleInstance();
 
-            builder.RegisterInstance(_log)
-                .As<ILog>()
-                .SingleInstance();
+            builder.RegisterInstance(_settings.CurrentValue.TradingInstrumentDefaults).AsSelf().SingleInstance();
 
-            builder.RegisterType<HealthService>()
-                .As<IHealthService>()
-                .SingleInstance();
+            builder.RegisterType<HealthService>().As<IHealthService>().SingleInstance();
 
-            builder.RegisterType<StartupManager>()
-                .As<IStartupManager>();
+            builder.RegisterType<StartupManager>().As<IStartupManager>();
 
-            builder.RegisterType<ShutdownManager>()
-                .As<IShutdownManager>();
+            builder.RegisterType<ShutdownManager>().As<IShutdownManager>();
 
             builder.RegisterType<EventSender>().As<IEventSender>()
                 .WithParameters(new[]

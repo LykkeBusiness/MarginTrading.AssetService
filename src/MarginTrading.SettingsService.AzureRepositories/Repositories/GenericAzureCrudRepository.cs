@@ -20,6 +20,9 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         protected readonly INoSQLTableStorage<TE> TableStorage;
         protected readonly IConvertService ConvertService;
         protected readonly ILog Log;
+
+        protected Action<IMappingOperationOptions<TD, TE>> DefaultAzureMappingOpts = opts => opts
+            .ConfigureMap(MemberList.Source).ForMember(e => e.ETag, e => e.UseValue("*"));
         
         protected readonly string PartitionKey;
 
@@ -58,12 +61,13 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         public virtual async Task<TD> GetAsync(string id)
         {
             var entity = await TableStorage.GetDataAsync(PartitionKey, id);
-            return ConvertService.Convert<TE, TD>(entity);
+
+            return entity == null ? null : ConvertService.Convert<TE, TD>(entity);
         }
 
         public virtual async Task InsertAsync(TD obj)
         {
-            var entity = ConvertService.Convert<TD, TE>(obj, opts => opts.ConfigureMap(MemberList.Source));
+            var entity = ConvertService.Convert<TD, TE>(obj, DefaultAzureMappingOpts);
             entity.SetRowKey();
                 
             await TableStorage.InsertAsync(entity);
@@ -71,7 +75,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 
         public virtual async Task ReplaceAsync(TD obj)
         {
-            var entity = ConvertService.Convert<TD, TE>(obj, opts => opts.ConfigureMap(MemberList.Source));
+            var entity = ConvertService.Convert<TD, TE>(obj, DefaultAzureMappingOpts);
             entity.SetRowKey();
             
             await TableStorage.ReplaceAsync(entity);

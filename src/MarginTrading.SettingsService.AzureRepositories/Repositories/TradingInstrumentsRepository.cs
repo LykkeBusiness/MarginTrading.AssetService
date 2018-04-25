@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
@@ -42,9 +43,13 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 CommissionMax = defaults.CommissionMax,
                 CommissionCurrency = defaults.CommissionCurrency,
             }).ToList();
-            var entitiesToAdd =
-                objectsToAdd.Select(x => ConvertService.Convert<TradingInstrument, TradingInstrumentEntity>(x));
-            
+            var entitiesToAdd = objectsToAdd.Select(x =>
+            {
+                var entity = ConvertService.Convert(x, DefaultAzureMappingOpts);
+                entity.SetRowKey();
+                return entity;
+            });
+
             await TableStorage.InsertAsync(entitiesToAdd);
 
             return objectsToAdd;

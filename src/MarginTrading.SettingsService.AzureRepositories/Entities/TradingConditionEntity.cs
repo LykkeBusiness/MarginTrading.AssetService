@@ -1,13 +1,10 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
+﻿using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class TradingConditionEntity : SimpleAzureEntity, ITradingConditionEntity
+    public class TradingConditionEntity : SimpleAzureEntity, ITradingCondition
     {
-        public TradingConditionEntity()
-        {
-            PartitionKey = "TradingConditions";
-        }
+        internal override string SimplePartitionKey => "TradingConditions";
         
         // Id comes from parent type
         public string Name { get; set; }

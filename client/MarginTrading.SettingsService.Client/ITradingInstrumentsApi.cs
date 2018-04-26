@@ -19,6 +19,12 @@ namespace MarginTrading.SettingsService.Client
             [Body] TradingInstrumentContract instrument);
 
 
+        /// <summary>
+        /// Assign trading instrument to a trading condition with default values
+        /// </summary>
+        /// <param name="tradingConditionId"></param>
+        /// <param name="instruments"></param>
+        /// <returns></returns>
         [Post("/api/tradingInstruments/{tradingConditionId}")]
         Task<List<TradingInstrumentContract>> AssignCollection(
             [NotNull] string tradingConditionId,

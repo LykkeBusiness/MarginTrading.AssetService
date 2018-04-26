@@ -12,8 +12,6 @@ using MarginTrading.SettingsService.Client.Market;
 using MarginTrading.SettingsService.Client.Routes;
 using MarginTrading.SettingsService.Client.Scheduling;
 using MarginTrading.SettingsService.Client.TradingConditions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 using Refit;
 
@@ -93,8 +91,10 @@ namespace MarginTrading.SettingsService.TestClient
             
             var assetPairsApiClient = clientGenerator.Generate<IAssetPairsApi>();
             await assetPairsApiClient.List().Dump();
-            await assetPairsApiClient.Insert(assetPairContract).Dump();
-            await assetPairsApiClient.Get("t1").Dump();
+            if (await assetPairsApiClient.Get("t1") == null)
+                await assetPairsApiClient.Insert(assetPairContract).Dump();
+            var obj = await assetPairsApiClient.Get("t1").Dump();
+            //TODO validate values here
             assetPairContract.MarketId = "m11111";
             await assetPairsApiClient.Update("t1", assetPairContract).Dump();
             await assetPairsApiClient.Delete("t1");

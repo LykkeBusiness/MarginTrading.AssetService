@@ -1,15 +1,11 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
-using Microsoft.WindowsAzure.Storage.Table;
+﻿using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class AssetEntity : SimpleAzureEntity, IAssetEntity
+    public class AssetEntity : SimpleAzureEntity, IAsset
     {
-        public AssetEntity()
-        {
-            PartitionKey = "Assets";
-        }
-        
+        internal override string SimplePartitionKey => "Assets";
+
         // Id comes from parent type
         public string Name { get; set; }
         public int Accuracy { get; set; }

@@ -1,6 +1,6 @@
-﻿namespace MarginTrading.SettingsService.StorageInterfaces.Entities
+﻿namespace MarginTrading.SettingsService.Core.Interfaces
 {
-    public interface ITradingConditionEntity
+    public interface ITradingCondition
     {
         string Id { get; }
         string Name { get; }

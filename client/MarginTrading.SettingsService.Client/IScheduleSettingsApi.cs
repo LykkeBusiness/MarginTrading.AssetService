@@ -34,9 +34,14 @@ namespace MarginTrading.SettingsService.Client
             [NotNull] string settingId);
 
 
+        /// <summary>
+        /// Get the list of compiled schedule settings based on array of asset pairs
+        /// </summary>
+        /// <param name="assetPairIds"></param>
+        /// <returns></returns>
         [Post("/api/scheduleSettings/compiled")]
         Task<List<CompiledScheduleContract>> StateList(
-            [Body] string[] assetPairIds);
+            [Body][CanBeNull] string[] assetPairIds);
 
     }
 }

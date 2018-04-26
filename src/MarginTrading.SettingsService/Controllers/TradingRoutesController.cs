@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Client;
 using MarginTrading.SettingsService.Client.Routes;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var data = await _tradingRoutesRepository.GetAsync();
             
-            return data.Select(x => _convertService.Convert<TradingRoute, MatchingEngineRouteContract>(x)).ToList();
+            return data.Select(x => _convertService.Convert<ITradingRoute, MatchingEngineRouteContract>(x)).ToList();
         }
 
         /// <summary>
@@ -77,7 +78,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var obj = await _tradingRoutesRepository.GetAsync(routeId);
             
-            return _convertService.Convert<TradingRoute, MatchingEngineRouteContract>(obj);
+            return _convertService.Convert<ITradingRoute, MatchingEngineRouteContract>(obj);
         }
 
         /// <summary>

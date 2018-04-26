@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MarginTrading.SettingsService.Client.Asset;
 using MarginTrading.SettingsService.Client.Market;
 using Refit;
 

@@ -1,14 +1,10 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
-using Microsoft.WindowsAzure.Storage.Table;
+﻿using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class MarketEntity : SimpleAzureEntity, IMarketEntity
+    public class MarketEntity : SimpleAzureEntity, IMarket
     {
-        public MarketEntity()
-        {
-            PartitionKey = "Markets";
-        }
+        internal override string SimplePartitionKey => "Markets";
         
         // Id comes from parent type
         public string Name { get; set; }

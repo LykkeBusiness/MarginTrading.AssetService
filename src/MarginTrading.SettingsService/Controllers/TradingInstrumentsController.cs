@@ -6,6 +6,7 @@ using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Client;
 using MarginTrading.SettingsService.Client.TradingConditions;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
@@ -52,7 +53,7 @@ namespace MarginTrading.SettingsService.Controllers
                 ? await _tradingInstrumentsRepository.GetAsync()
                 : await _tradingInstrumentsRepository.GetAsync(x => x.TradingConditionId == tradingConditionId);
             
-            return data.Select(x => _convertService.Convert<TradingInstrument, TradingInstrumentContract>(x)).ToList();
+            return data.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList();
         }
 
         /// <summary>
@@ -84,7 +85,7 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
-        /// Assing trading instrument to a trading condition
+        /// Assign trading instrument to a trading condition with default values
         /// </summary>
         /// <param name="tradingConditionId"></param>
         /// <param name="instruments"></param>
@@ -126,7 +127,7 @@ namespace MarginTrading.SettingsService.Controllers
             
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
 
-            return addedPairs.Select(x => _convertService.Convert<TradingInstrument, TradingInstrumentContract>(x))
+            return addedPairs.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x))
                 .ToList();
         }
 
@@ -140,10 +141,9 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{tradingConditionId}/{assetPairId}")]
         public async Task<TradingInstrumentContract> Get(string tradingConditionId, string assetPairId)
         {
-            var obj = await _tradingInstrumentsRepository.GetAsync(
-                TradingInstrumentEntity.GetId(tradingConditionId, assetPairId));
+            var obj = await _tradingInstrumentsRepository.GetAsync(assetPairId, tradingConditionId);
 
-            return _convertService.Convert<TradingInstrument, TradingInstrumentContract>(obj);
+            return _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(obj);
         }
 
         /// <summary>
@@ -187,7 +187,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{tradingConditionId}/{assetPairId}")]
         public async Task Delete(string tradingConditionId, string assetPairId)
         {
-            await _tradingInstrumentsRepository.DeleteAsync(assetPairId);
+            await _tradingInstrumentsRepository.DeleteAsync(assetPairId, tradingConditionId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
         }

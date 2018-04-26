@@ -8,24 +8,20 @@ using AzureStorage.Tables;
 using Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.Core.Services;
-using MarginTrading.SettingsService.StorageInterfaces.Repositories;
-using Microsoft.WindowsAzure.Storage.Table;
+using MarginTrading.SettingsService.StorageInterfaces;
 
-namespace MarginTrading.SettingsService.AzureRepositories.Repositories
+namespace MarginTrading.SettingsService.AzureRepositories
 {
     public class GenericAzureCrudRepository<TD, TE> : IGenericCrudRepository<TD>
-        where TD: class
         where TE: SimpleAzureEntity, new()
     {
         protected readonly INoSQLTableStorage<TE> TableStorage;
         protected readonly IConvertService ConvertService;
         protected readonly ILog Log;
 
-        protected Action<IMappingOperationOptions<TD, TE>> DefaultAzureMappingOpts = opts => opts
+        protected readonly Action<IMappingOperationOptions<TD, TE>> DefaultAzureMappingOpts = opts => opts
             .ConfigureMap(MemberList.Source).ForMember(e => e.ETag, e => e.UseValue("*"));
         
-        protected readonly string PartitionKey;
-
         protected GenericAzureCrudRepository(
             ILog log,
             IConvertService convertService,
@@ -41,8 +37,6 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 
             Log = log;
             ConvertService = convertService;
-
-            PartitionKey = Activator.CreateInstance<TE>().PartitionKey;
         }
         
         public virtual async Task<IReadOnlyList<TD>> GetAsync()
@@ -53,22 +47,22 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         
         public async Task<IReadOnlyList<TD>> GetAsync(Func<TD, bool> filter)
         {
-            var data = await TableStorage.GetDataAsync(PartitionKey, x => filter(ConvertService.Convert<TE, TD>(x)));
+            var data = await TableStorage.GetDataAsync(x => filter(ConvertService.Convert<TE, TD>(x)));
 
             return data.Select(x => ConvertService.Convert<TE, TD>(x)).ToList();
         }
 
-        public virtual async Task<TD> GetAsync(string id)
+        public virtual async Task<TD> GetAsync(string rowKey, string partitionKey = null)
         {
-            var entity = await TableStorage.GetDataAsync(PartitionKey, id);
+            var entity = await TableStorage.GetDataAsync(GetPartitionKey(partitionKey), rowKey);
 
-            return entity == null ? null : ConvertService.Convert<TE, TD>(entity);
+            return entity == null ? default(TD) : ConvertService.Convert<TE, TD>(entity);
         }
 
         public virtual async Task InsertAsync(TD obj)
         {
             var entity = ConvertService.Convert<TD, TE>(obj, DefaultAzureMappingOpts);
-            entity.SetRowKey();
+            entity.SetKeys();
                 
             await TableStorage.InsertAsync(entity);
         }
@@ -76,14 +70,28 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         public virtual async Task ReplaceAsync(TD obj)
         {
             var entity = ConvertService.Convert<TD, TE>(obj, DefaultAzureMappingOpts);
-            entity.SetRowKey();
+            entity.SetKeys();
             
             await TableStorage.ReplaceAsync(entity);
         }
 
-        public virtual async Task<bool> DeleteAsync(string id)
+        public virtual async Task<bool> DeleteAsync(string rowKey, string partitionKey = null)
         {
-            return await TableStorage.DeleteIfExistAsync(PartitionKey, id);
+            return await TableStorage.DeleteIfExistAsync(GetPartitionKey(partitionKey), rowKey);
+        }
+
+        private static string GetPartitionKey(string partitionKey)
+        {
+            if (!string.IsNullOrEmpty(partitionKey)) 
+                return partitionKey;
+            
+            var instance = Activator.CreateInstance<TE>();
+            if (string.IsNullOrEmpty(instance.SimplePartitionKey))
+            {
+                throw new Exception("Partition key must be passed explicitly or set via SimplePartitionKey.");
+            }
+
+            return instance.SimplePartitionKey;
         }
     }
 }

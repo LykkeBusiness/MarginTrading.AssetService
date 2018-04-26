@@ -1,14 +1,9 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
+﻿using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class TradingInstrumentEntity : SimpleAzureEntity, ITradingInstrumentEntity
-    {
-        public TradingInstrumentEntity()
-        {
-            PartitionKey = "TradingInstruments";
-        }
-        
+    public class TradingInstrumentEntity : SimpleAzureEntity, ITradingInstrument
+    {   
         public override string Id => GetId(TradingConditionId, Instrument);
         public string TradingConditionId { get; set; }
         public string Instrument { get; set; }
@@ -25,9 +20,10 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public decimal CommissionMax { get; set; }
         public decimal CommissionCurrency { get; set; }
 
-        public override void SetRowKey()
+        public override void SetKeys()
         {
-            this.RowKey = Id;
+            this.RowKey = Instrument;
+            this.PartitionKey = TradingConditionId;
         }
 
         public static string GetId(string tradingConditionId, string instrument)

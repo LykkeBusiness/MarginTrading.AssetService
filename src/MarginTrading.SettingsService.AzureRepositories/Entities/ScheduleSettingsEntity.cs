@@ -1,13 +1,10 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
+﻿using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class ScheduleSettingsEntity : SimpleAzureEntity, IScheduleSettingsEntity
+    public class ScheduleSettingsEntity : SimpleAzureEntity, IScheduleSettings
     {
-        public ScheduleSettingsEntity()
-        {
-            PartitionKey = "ScheduleSettings";
-        }
+        internal override string SimplePartitionKey => "ScheduleSettings";
         
         // Id comes from parent type
         public int Rank { get; set; }

@@ -1,8 +1,16 @@
-﻿namespace MarginTrading.SettingsService.Core.Domain
+﻿using MarginTrading.SettingsService.Core.Interfaces;
+
+namespace MarginTrading.SettingsService.Core.Domain
 {
-    public class Market
+    public class Market : IMarket
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
+        public Market(string id, string name)
+        {
+            Id = id;
+            Name = name;
+        }
+
+        public string Id { get; }
+        public string Name { get; }
     }
 }

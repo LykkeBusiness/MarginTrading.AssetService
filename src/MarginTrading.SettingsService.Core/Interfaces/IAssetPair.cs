@@ -1,6 +1,6 @@
-﻿namespace MarginTrading.SettingsService.StorageInterfaces.Entities
+﻿namespace MarginTrading.SettingsService.Core.Interfaces
 {
-    public interface IAssetPairEntity
+    public interface IAssetPair
     {
          string Id { get; }
          string Name { get; }

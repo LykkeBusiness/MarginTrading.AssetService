@@ -1,6 +1,6 @@
-﻿namespace MarginTrading.SettingsService.StorageInterfaces.Entities
+﻿namespace MarginTrading.SettingsService.Core.Interfaces
 {
-    public interface ITradingRouteEntity
+    public interface ITradingRoute
     {
         string Id { get; }
         int Rank { get; }

@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MarginTrading.SettingsService.Client;
 using MarginTrading.SettingsService.Client.AssetPair;
 using MarginTrading.SettingsService.Client.Enums;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -45,12 +45,15 @@ namespace MarginTrading.SettingsService.Controllers
             [FromQuery] MatchingEngineModeContract? matchingEngineMode = null)
         {
             Enum.TryParse<MatchingEngineMode>(matchingEngineMode?.ToString(), out var matchingEngineModeDomain);
-            
-            var data = await _assetPairsRepository.GetAsync(assetPair =>
-                (string.IsNullOrEmpty(legalEntity) || assetPair.LegalEntity == legalEntity)
-                && (matchingEngineMode == null || assetPair.MatchingEngineMode == matchingEngineModeDomain));
 
-            return data.Select(x => _convertService.Convert<AssetPair, AssetPairContract>(x)).ToList();
+            var data = string.IsNullOrEmpty(legalEntity) && matchingEngineMode == null
+                ? await _assetPairsRepository.GetAsync()
+                : await _assetPairsRepository.GetAsync(assetPair =>
+                    (string.IsNullOrEmpty(legalEntity) || assetPair.LegalEntity == legalEntity)
+                    && (matchingEngineMode == null ||
+                        ((AssetPair) assetPair).MatchingEngineMode == matchingEngineModeDomain));
+            
+            return data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
         }
 
         /// <summary>
@@ -84,7 +87,7 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<AssetPairContract> Get(string assetPairId)
         {
             var obj = await _assetPairsRepository.GetAsync(assetPairId);
-            return _convertService.Convert<AssetPair, AssetPairContract>(obj);
+            return _convertService.Convert<IAssetPair, AssetPairContract>(obj);
         }
 
         /// <summary>

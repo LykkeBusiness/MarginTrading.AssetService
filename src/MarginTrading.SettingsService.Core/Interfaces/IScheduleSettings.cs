@@ -1,6 +1,6 @@
-﻿namespace MarginTrading.SettingsService.StorageInterfaces.Entities
+﻿namespace MarginTrading.SettingsService.Core.Interfaces
 {
-    public interface IScheduleSettingsEntity
+    public interface IScheduleSettings
     {
         string Id { get; }
         int Rank { get; }

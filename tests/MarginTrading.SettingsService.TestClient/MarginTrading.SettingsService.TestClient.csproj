@@ -13,5 +13,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\client\MarginTrading.SettingsService.Client\MarginTrading.SettingsService.Client.csproj" />
+    <ProjectReference Include="..\..\src\MarginTrading.SettingsService.Services\MarginTrading.SettingsService.Services.csproj" />
   </ItemGroup>
 </Project>

@@ -7,7 +7,6 @@ using MarginTrading.SettingsService.Client.Enums;
 using MarginTrading.SettingsService.Client.Messages;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
-using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.SettingsService.Services

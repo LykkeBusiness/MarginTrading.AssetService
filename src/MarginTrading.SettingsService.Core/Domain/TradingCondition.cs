@@ -30,7 +30,6 @@ namespace MarginTrading.SettingsService.Core.Domain
         public decimal DepositLimit { get; }
         public decimal WithdrawalLimit { get; }
         public string LimitCurrency { get; }
-        string ITradingCondition.BaseAssets => JsonConvert.SerializeObject(BaseAssets);
         public List<string> BaseAssets { get; }
     }
 }

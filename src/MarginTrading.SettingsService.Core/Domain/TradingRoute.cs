@@ -24,7 +24,6 @@ namespace MarginTrading.SettingsService.Core.Domain
         public string TradingConditionId { get; }
         public string ClientId { get; }
         public string Instrument { get; }
-        string ITradingRoute.Type => Type?.ToString();
         public OrderDirection? Type { get; }
         public string MatchingEngineId { get; }
         public string Asset { get; }

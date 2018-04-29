@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Core.Interfaces
+﻿using MarginTrading.SettingsService.Core.Domain;
+
+namespace MarginTrading.SettingsService.Core.Interfaces
 {
     public interface IAssetPair
     {
@@ -10,7 +12,7 @@
          string MarketId { get; }
          string LegalEntity { get; }
          string BasePairId { get; }
-         string MatchingEngineMode { get; }
+         MatchingEngineMode MatchingEngineMode { get; }
          decimal StpMultiplierMarkupBid { get; }
          decimal StpMultiplierMarkupAsk { get; }
     }

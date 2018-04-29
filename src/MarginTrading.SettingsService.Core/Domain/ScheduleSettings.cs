@@ -22,17 +22,13 @@ namespace MarginTrading.SettingsService.Core.Domain
         public string Id { get; }
         public int Rank { get; }
         public string AssetPairRegex { get; }
-        string IScheduleSettings.AssetPairs => JsonConvert.SerializeObject(AssetPairs);
         public HashSet<string> AssetPairs { get; } = new HashSet<string>();
         public string MarketId { get; }
 
         public bool? IsTradeEnabled { get; } = false;
-        string IScheduleSettings.PendingOrdersCutOff => PendingOrdersCutOff?.ToString();
         public TimeSpan? PendingOrdersCutOff { get; }
 
-        string IScheduleSettings.Start => JsonConvert.SerializeObject(Start);
         public ScheduleConstraint Start { get; }
-        string IScheduleSettings.End => JsonConvert.SerializeObject(End);
         public ScheduleConstraint End { get; }
     }
 }

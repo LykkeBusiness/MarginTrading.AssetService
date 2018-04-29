@@ -29,7 +29,6 @@ namespace MarginTrading.SettingsService.Core.Domain
         public string MarketId { get; }
         public string LegalEntity { get; }
         public string BasePairId { get; }
-        string IAssetPair.MatchingEngineMode => MatchingEngineMode.ToString();
         public MatchingEngineMode MatchingEngineMode { get; }
         public decimal StpMultiplierMarkupBid { get; }
         public decimal StpMultiplierMarkupAsk { get; }

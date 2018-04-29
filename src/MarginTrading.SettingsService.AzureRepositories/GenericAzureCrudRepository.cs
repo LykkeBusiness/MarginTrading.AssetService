@@ -44,8 +44,14 @@ namespace MarginTrading.SettingsService.AzureRepositories
             var data = await TableStorage.GetDataAsync();
             return data.Select(x => ConvertService.Convert<TE, TD>(x)).ToList();
         }
+
+        public virtual async Task<IReadOnlyList<TD>> GetAsync(string partitionKey)
+        {
+            var data = await TableStorage.GetDataAsync(partitionKey);
+            return data.Select(x => ConvertService.Convert<TE, TD>(x)).ToList();
+        }
         
-        public async Task<IReadOnlyList<TD>> GetAsync(Func<TD, bool> filter)
+        public virtual async Task<IReadOnlyList<TD>> GetAsync(Func<TD, bool> filter)
         {
             var data = await TableStorage.GetDataAsync(x => filter(ConvertService.Convert<TE, TD>(x)));
 

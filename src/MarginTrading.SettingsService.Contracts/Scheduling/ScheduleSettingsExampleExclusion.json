@@ -1,0 +1,16 @@
+﻿{
+  "id": "Christmas2018",
+  "assetPairRegex": "\\w+",
+  "assetPairs": [],
+  "marketId": "blabla",
+  "isTradeEnabled": false,
+  "pendingOrdersCutOff": "00:55:00",
+  "start": {
+    "date": "23 December",
+    "time": "18:00:00"
+  },
+  "end": {
+    "date": "12/26",
+    "time": "12:00:00"
+  }
+}

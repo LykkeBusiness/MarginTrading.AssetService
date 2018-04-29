@@ -1,4 +1,6 @@
-﻿using MarginTrading.SettingsService.Core.Domain;
+﻿using System;
+using System.Collections.Generic;
+using MarginTrading.SettingsService.Core.Domain;
 
 namespace MarginTrading.SettingsService.Core.Interfaces
 {

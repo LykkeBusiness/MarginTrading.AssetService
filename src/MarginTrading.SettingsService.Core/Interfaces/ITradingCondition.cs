@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Core.Interfaces
+﻿using System.Collections.Generic;
+
+namespace MarginTrading.SettingsService.Core.Interfaces
 {
     public interface ITradingCondition
     {

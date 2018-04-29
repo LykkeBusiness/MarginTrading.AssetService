@@ -1,4 +1,5 @@
-﻿using MarginTrading.SettingsService.Core.Domain;
+﻿using System;
+using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities

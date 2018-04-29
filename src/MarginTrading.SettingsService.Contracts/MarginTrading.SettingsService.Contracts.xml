@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>MarginTrading.SettingsService.Client</name>
+        <name>MarginTrading.SettingsService.Contracts</name>
     </assembly>
     <members>
         <member name="M:MarginTrading.SettingsService.Client.IScheduleSettingsApi.StateList(System.String[])">

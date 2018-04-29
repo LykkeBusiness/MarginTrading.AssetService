@@ -10,7 +10,7 @@
     <PackageReference Include="Lykke.AzureStorage" Version="8.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\client\MarginTrading.SettingsService.Client\MarginTrading.SettingsService.Client.csproj" />
+    <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.Core\MarginTrading.SettingsService.Core.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.StorageInterfaces\MarginTrading.SettingsService.StorageInterfaces.csproj" />
   </ItemGroup>

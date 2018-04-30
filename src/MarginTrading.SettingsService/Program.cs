@@ -12,12 +12,13 @@ namespace MarginTrading.SettingsService
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine($"{PlatformServices.Default.Application.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
-//#$if DEBUG
+            Console.WriteLine($"{PlatformServices.Default.Application.ApplicationName} version " +
+                              PlatformServices.Default.Application.ApplicationVersion);
+#if DEBUG
             Console.WriteLine("Is DEBUG");
-//#$else
-            //$#$//Console.WriteLine("Is RELEASE");
-//#$endif           
+#else
+            Console.WriteLine("Is RELEASE");
+#endif           
             Console.WriteLine($"ENV_INFO: {EnvInfo}");
 
             try

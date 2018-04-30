@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MarginTrading.SettingsService.Client.AssetPair;
-using MarginTrading.SettingsService.Client.Enums;
+using MarginTrading.SettingsService.Contracts.AssetPair;
+using MarginTrading.SettingsService.Contracts.Enums;
 using Refit;
 
-namespace MarginTrading.SettingsService.Client
+namespace MarginTrading.SettingsService.Contracts
 {
     [PublicAPI]
     public interface IAssetPairsApi

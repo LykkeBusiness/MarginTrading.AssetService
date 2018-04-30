@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MarginTrading.SettingsService.Client.TradingConditions
+namespace MarginTrading.SettingsService.Contracts.TradingConditions
 {
     public class TradingConditionContract
     {

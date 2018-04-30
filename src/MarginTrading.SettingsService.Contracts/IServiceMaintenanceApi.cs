@@ -2,7 +2,7 @@
 using JetBrains.Annotations;
 using Refit;
 
-namespace MarginTrading.SettingsService.Client
+namespace MarginTrading.SettingsService.Contracts
 {
     [PublicAPI]
     public interface IServiceMaintenanceApi

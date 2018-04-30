@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MarginTrading.SettingsService.Client.Scheduling
+namespace MarginTrading.SettingsService.Contracts.Scheduling
 {
     public class ScheduleConstraintContract
     {

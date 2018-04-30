@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MarginTrading.SettingsService.Client.TradingConditions;
+using MarginTrading.SettingsService.Contracts.TradingConditions;
 using Refit;
 
-namespace MarginTrading.SettingsService.Client
+namespace MarginTrading.SettingsService.Contracts
 {
     [PublicAPI]
     public interface ITradingConditionsApi

@@ -1,6 +1,6 @@
-﻿using MarginTrading.SettingsService.Client.Enums;
+﻿using MarginTrading.SettingsService.Contracts.Enums;
 
-namespace MarginTrading.SettingsService.Client.AssetPair
+namespace MarginTrading.SettingsService.Contracts.AssetPair
 {
     public class AssetPairContract
     {

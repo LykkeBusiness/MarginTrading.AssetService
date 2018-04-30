@@ -1,4 +1,4 @@
-﻿namespace MarginTrading.SettingsService.Client.Asset
+﻿namespace MarginTrading.SettingsService.Contracts.Asset
 {
     public class AssetContract
     {

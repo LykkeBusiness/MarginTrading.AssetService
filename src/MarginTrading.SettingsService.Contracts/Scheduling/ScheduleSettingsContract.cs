@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MarginTrading.SettingsService.Client.Scheduling
+namespace MarginTrading.SettingsService.Contracts.Scheduling
 {
     public class ScheduleSettingsContract
     {

@@ -13,7 +13,7 @@ namespace MarginTrading.SettingsService.Core.Interfaces
         string MarketId { get; }
 
         bool? IsTradeEnabled { get; }
-        string PendingOrdersCutOff { get; }
+        TimeSpan? PendingOrdersCutOff { get; }
 
         ScheduleConstraint Start { get; }
         ScheduleConstraint End { get; }

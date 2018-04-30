@@ -16,7 +16,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public string MarketId { get; set; }
         public string LegalEntity { get; set; }
         public string BasePairId { get; set; }
-        public IAssetPair.MatchingEngineMode => Enum.Parse<MatchingEngineMode>(MatchingEngineMode);
+        MatchingEngineMode IAssetPair.MatchingEngineMode => Enum.Parse<MatchingEngineMode>(MatchingEngineMode);
         public string MatchingEngineMode { get; set; }
         public decimal StpMultiplierMarkupBid { get; set; }
         public decimal StpMultiplierMarkupAsk { get; set; }

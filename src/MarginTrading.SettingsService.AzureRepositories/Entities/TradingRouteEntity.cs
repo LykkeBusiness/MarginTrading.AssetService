@@ -1,4 +1,6 @@
-﻿using MarginTrading.SettingsService.Core.Interfaces;
+﻿using System;
+using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
@@ -11,6 +13,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public string TradingConditionId { get; set; }
         public string ClientId { get; set; }
         public string Instrument { get; set; }
+        OrderDirection? ITradingRoute.Type => Enum.TryParse<OrderDirection>(Type, out var parsed) ? parsed : (OrderDirection?)null; 
         public string Type { get; set; }
         public string MatchingEngineId { get; set; }
         public string Asset { get; set; }

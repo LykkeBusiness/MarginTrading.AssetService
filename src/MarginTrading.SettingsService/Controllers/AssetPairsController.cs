@@ -51,7 +51,7 @@ namespace MarginTrading.SettingsService.Controllers
                 : await _assetPairsRepository.GetAsync(assetPair =>
                     (string.IsNullOrEmpty(legalEntity) || assetPair.LegalEntity == legalEntity)
                     && (matchingEngineMode == null ||
-                        ((AssetPair) assetPair).MatchingEngineMode == matchingEngineModeDomain));
+                        assetPair.MatchingEngineMode == matchingEngineModeDomain));
             
             return data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
         }

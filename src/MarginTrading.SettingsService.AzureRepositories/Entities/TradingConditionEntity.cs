@@ -1,4 +1,6 @@
-﻿using MarginTrading.SettingsService.Core.Interfaces;
+﻿using System.Collections.Generic;
+using MarginTrading.SettingsService.Core.Interfaces;
+using Newtonsoft.Json;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
@@ -15,6 +17,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public decimal DepositLimit { get; set; }
         public decimal WithdrawalLimit { get; set; }
         public string LimitCurrency { get; set; }
+        List<string> ITradingCondition.BaseAssets => JsonConvert.DeserializeObject<List<string>>(BaseAssets); 
         public string BaseAssets { get; set; }
     }
 }

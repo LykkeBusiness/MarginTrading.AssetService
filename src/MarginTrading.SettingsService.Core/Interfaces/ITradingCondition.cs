@@ -13,6 +13,6 @@ namespace MarginTrading.SettingsService.Core.Interfaces
         decimal DepositLimit { get; }
         decimal WithdrawalLimit { get; }
         string LimitCurrency { get; }
-        string BaseAssets { get; }
+        List<string> BaseAssets { get; }
     }
 }

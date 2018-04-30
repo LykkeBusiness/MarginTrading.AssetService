@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Client;
-using MarginTrading.SettingsService.Client.Asset;
 using MarginTrading.SettingsService.Client.Market;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -42,7 +42,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var data = await _marketRepository.GetAsync();
             
-            return data.Select(x => _convertService.Convert<Market, MarketContract>(x)).ToList();
+            return data.Select(x => _convertService.Convert<IMarket, MarketContract>(x)).ToList();
         }
         
         /// <summary>
@@ -77,7 +77,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var obj = await _marketRepository.GetAsync(marketId);
             
-            return _convertService.Convert<Market, MarketContract>(obj);
+            return _convertService.Convert<IMarket, MarketContract>(obj);
         }
 
         /// <summary>

@@ -1,0 +1,16 @@
+﻿{
+  "id": "Weekend",
+  "assetPairRegex": "^((?!BTC).)*$",
+  "assetPairs": [],
+  "marketId":  "blabla", 
+  "isTradeEnabled": false,
+  "pendingOrdersCutOff": "00:55:00",
+  "start": {
+    "dayofweek": "Friday",
+    "time": "20:55:00"
+  },
+  "end": {
+    "dayofweek": "Sunday",
+    "time": "20:55:00"
+  }
+}

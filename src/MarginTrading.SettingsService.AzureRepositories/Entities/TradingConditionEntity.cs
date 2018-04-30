@@ -1,13 +1,12 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
+﻿using System.Collections.Generic;
+using MarginTrading.SettingsService.Core.Interfaces;
+using Newtonsoft.Json;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class TradingConditionEntity : SimpleAzureEntity, ITradingConditionEntity
+    public class TradingConditionEntity : SimpleAzureEntity, ITradingCondition
     {
-        public TradingConditionEntity()
-        {
-            PartitionKey = "TradingConditions";
-        }
+        internal override string SimplePartitionKey => "TradingConditions";
         
         // Id comes from parent type
         public string Name { get; set; }
@@ -18,6 +17,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public decimal DepositLimit { get; set; }
         public decimal WithdrawalLimit { get; set; }
         public string LimitCurrency { get; set; }
+        List<string> ITradingCondition.BaseAssets => JsonConvert.DeserializeObject<List<string>>(BaseAssets); 
         public string BaseAssets { get; set; }
     }
 }

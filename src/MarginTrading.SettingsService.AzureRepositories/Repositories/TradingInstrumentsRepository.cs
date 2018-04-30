@@ -1,18 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class TradingInstrumentsRepository : GenericAzureCrudRepository<TradingInstrument, TradingInstrumentEntity>, 
+    public class TradingInstrumentsRepository : GenericAzureCrudRepository<ITradingInstrument, TradingInstrumentEntity>, 
         ITradingInstrumentsRepository
     {
         public TradingInstrumentsRepository(ILog log,
@@ -23,30 +23,30 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 
         }
 
-        public async Task<IEnumerable<TradingInstrument>> CreateDefaultTradingInstruments(string tradingConditionId, 
+        public async Task<IEnumerable<ITradingInstrument>> CreateDefaultTradingInstruments(string tradingConditionId, 
             IEnumerable<string> assetPairsIds, DefaultTradingInstrumentSettings defaults)
         {
             var objectsToAdd = assetPairsIds.Select(x => new TradingInstrument
-            {
-                TradingConditionId = tradingConditionId,
-                Instrument = x,
-                LeverageInit = defaults.LeverageInit,
-                LeverageMaintenance = defaults.LeverageMaintenance,
-                SwapLong = defaults.SwapLong,
-                SwapShort = defaults.SwapShort,
-                Delta = defaults.Delta,
-                DealMinLimit = defaults.DealMinLimit,
-                DealMaxLimit = defaults.DealMaxLimit,
-                PositionLimit = defaults.PositionLimit,
-                CommissionRate = defaults.CommissionRate,
-                CommissionMin = defaults.CommissionMin,
-                CommissionMax = defaults.CommissionMax,
-                CommissionCurrency = defaults.CommissionCurrency,
-            }).ToList();
+            (
+                tradingConditionId,
+                x,
+                defaults.LeverageInit,
+                defaults.LeverageMaintenance,
+                defaults.SwapLong,
+                defaults.SwapShort,
+                defaults.Delta,
+                defaults.DealMinLimit,
+                defaults.DealMaxLimit,
+                defaults.PositionLimit,
+                defaults.CommissionRate,
+                defaults.CommissionMin,
+                defaults.CommissionMax,
+                defaults.CommissionCurrency
+            )).ToList();
             var entitiesToAdd = objectsToAdd.Select(x =>
             {
                 var entity = ConvertService.Convert(x, DefaultAzureMappingOpts);
-                entity.SetRowKey();
+                entity.SetKeys();
                 return entity;
             });
 

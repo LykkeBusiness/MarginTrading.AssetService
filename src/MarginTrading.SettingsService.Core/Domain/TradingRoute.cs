@@ -1,16 +1,33 @@
-﻿namespace MarginTrading.SettingsService.Core.Domain
+﻿using MarginTrading.SettingsService.Core.Interfaces;
+
+namespace MarginTrading.SettingsService.Core.Domain
 {
-    public class TradingRoute
+    public class TradingRoute : ITradingRoute
     {
-        public string Id { get; set; }
-        public int Rank { get; set; }
-        public string TradingConditionId { get; set; }
-        public string ClientId { get; set; }
-        public string Instrument { get; set; }
-        public OrderDirection? Type { get; set; }
-        public string MatchingEngineId { get; set; }
-        public string Asset { get; set; }
-        public string RiskSystemLimitType { get; set; }
-        public string RiskSystemMetricType { get; set; }
+        public TradingRoute(string id, int rank, string tradingConditionId, string clientId, string instrument, 
+            OrderDirection? type, string matchingEngineId, string asset, string riskSystemLimitType, string riskSystemMetricType)
+        {
+            Id = id;
+            Rank = rank;
+            TradingConditionId = tradingConditionId;
+            ClientId = clientId;
+            Instrument = instrument;
+            Type = type;
+            MatchingEngineId = matchingEngineId;
+            Asset = asset;
+            RiskSystemLimitType = riskSystemLimitType;
+            RiskSystemMetricType = riskSystemMetricType;
+        }
+
+        public string Id { get; }
+        public int Rank { get; }
+        public string TradingConditionId { get; }
+        public string ClientId { get; }
+        public string Instrument { get; }
+        public OrderDirection? Type { get; }
+        public string MatchingEngineId { get; }
+        public string Asset { get; }
+        public string RiskSystemLimitType { get; }
+        public string RiskSystemMetricType { get; }
     }
 }

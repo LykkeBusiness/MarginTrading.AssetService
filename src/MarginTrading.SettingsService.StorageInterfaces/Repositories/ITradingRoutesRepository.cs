@@ -1,9 +1,9 @@
 ﻿using MarginTrading.SettingsService.Core.Domain;
-using MarginTrading.SettingsService.StorageInterfaces.Entities;
+using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
 {
-    public interface ITradingRoutesRepository : IGenericCrudRepository<TradingRoute>
+    public interface ITradingRoutesRepository : IGenericCrudRepository<ITradingRoute>
     {
         
     }

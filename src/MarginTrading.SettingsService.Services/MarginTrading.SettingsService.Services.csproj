@@ -12,7 +12,7 @@
     <PackageReference Include="Lykke.SlackNotifications" Version="1.2.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\client\MarginTrading.SettingsService.Client\MarginTrading.SettingsService.Client.csproj" />
+    <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.Core\MarginTrading.SettingsService.Core.csproj" />
   </ItemGroup>
 </Project>

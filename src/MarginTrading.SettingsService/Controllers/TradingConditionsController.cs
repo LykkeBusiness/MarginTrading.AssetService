@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Client;
 using MarginTrading.SettingsService.Client.TradingConditions;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var data = await _tradingConditionsRepository.GetAsync();
             
-            return data.Select(x => _convertService.Convert<TradingCondition, TradingConditionContract>(x)).ToList();
+            return data.Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).ToList();
         }
 
         /// <summary>
@@ -77,7 +78,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var obj = await _tradingConditionsRepository.GetAsync(tradingConditionId);
             
-            return _convertService.Convert<TradingCondition, TradingConditionContract>(obj);
+            return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);
         }
 
         /// <summary>

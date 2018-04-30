@@ -1,17 +1,36 @@
-﻿namespace MarginTrading.SettingsService.Core.Domain
+﻿using MarginTrading.SettingsService.Core.Interfaces;
+
+namespace MarginTrading.SettingsService.Core.Domain
 {
-    public class AssetPair
+    public class AssetPair : IAssetPair
     {
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string BaseAssetId { get; set; }
-        public string QuoteAssetId { get; set; }
-        public int Accuracy { get; set; }
-        public string MarketId { get; set; }
-        public string LegalEntity { get; set; }
-        public string BasePairId { get; set; }
-        public MatchingEngineMode MatchingEngineMode { get; set; }
-        public decimal StpMultiplierMarkupBid { get; set; }
-        public decimal StpMultiplierMarkupAsk { get; set; }
+        public AssetPair(string id, string name, string baseAssetId, string quoteAssetId, int accuracy, string marketId, 
+            string legalEntity, string basePairId, MatchingEngineMode matchingEngineMode, 
+            decimal stpMultiplierMarkupBid, decimal stpMultiplierMarkupAsk)
+        {
+            Id = id;
+            Name = name;
+            BaseAssetId = baseAssetId;
+            QuoteAssetId = quoteAssetId;
+            Accuracy = accuracy;
+            MarketId = marketId;
+            LegalEntity = legalEntity;
+            BasePairId = basePairId;
+            MatchingEngineMode = matchingEngineMode;
+            StpMultiplierMarkupBid = stpMultiplierMarkupBid;
+            StpMultiplierMarkupAsk = stpMultiplierMarkupAsk;
+        }
+
+        public string Id { get; }
+        public string Name { get; }
+        public string BaseAssetId { get; }
+        public string QuoteAssetId { get; }
+        public int Accuracy { get; }
+        public string MarketId { get; }
+        public string LegalEntity { get; }
+        public string BasePairId { get; }
+        public MatchingEngineMode MatchingEngineMode { get; }
+        public decimal StpMultiplierMarkupBid { get; }
+        public decimal StpMultiplierMarkupAsk { get; }
     }
 }

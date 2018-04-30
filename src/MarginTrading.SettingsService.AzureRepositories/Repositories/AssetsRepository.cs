@@ -1,14 +1,14 @@
-﻿using AzureStorage;
-using Common.Log;
+﻿using Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class AssetsRepository: GenericAzureCrudRepository<Asset, AssetEntity>, IAssetsRepository
+    public class AssetsRepository: GenericAzureCrudRepository<IAsset, AssetEntity>, IAssetsRepository
     {
         public AssetsRepository(ILog log,
             IConvertService convertService,

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Client;
 using MarginTrading.SettingsService.Client.Scheduling;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -45,7 +46,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var data = await _scheduleSettingsRepository.GetAsync();
             
-            return data.Select(x => _convertService.Convert<ScheduleSettings, ScheduleSettingsContract>(x)).ToList();
+            return data.Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettingsContract>(x)).ToList();
         }
 
         /// <summary>
@@ -81,7 +82,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var obj = await _scheduleSettingsRepository.GetAsync(settingId);
             
-            return _convertService.Convert<ScheduleSettings, ScheduleSettingsContract>(obj);
+            return _convertService.Convert<IScheduleSettings, ScheduleSettingsContract>(obj);
         }
 
         /// <summary>
@@ -123,33 +124,34 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
-        /// Get the list of compiled schedule settings
+        /// Get the list of compiled schedule settings based on array of asset pairs
         /// </summary>
-        /// <param name="assetPairIds"></param>
+        /// <param name="assetPairIds">Null by default</param>
         /// <returns></returns>
         [HttpPost]
         [Route("compiled")]
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
             var allSettingsTask = _scheduleSettingsRepository.GetAsync();
-            var assetPairsTask = _assetPairsRepository.GetAsync(x => assetPairIds.Contains(x.Id));
+            var assetPairsTask = assetPairIds == null
+                ? _assetPairsRepository.GetAsync()
+                : _assetPairsRepository.GetAsync(x => assetPairIds.Contains(x.Id));
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
             
             //extract the list of assetpairs with same settings based on regex, market or list
-            var result = assetPairIds.Select(assetPairId =>
+            var result = assetPairs.Select(assetPair =>
             {
-                var settings = allSettings.Where(setting => setting.AssetPairs.Contains(assetPairId)
-                                                            || assetPairIds.Any(x =>
-                                                                Regex.IsMatch(x, setting.AssetPairRegex,
-                                                                    RegexOptions.IgnoreCase))
-                                                            || assetPairs.Any(x => setting.MarketId == x.MarketId))
+                var settings = allSettings.Where(setting => setting.AssetPairs.Contains(assetPair.Id)
+                                                            || Regex.IsMatch(assetPair.Id, setting.AssetPairRegex,
+                                                                RegexOptions.IgnoreCase)
+                                                            || setting.MarketId == assetPair.MarketId)
                     .ToList();
                 return new CompiledScheduleContract
                 {
-                    AssetPairId = assetPairId,
+                    AssetPairId = assetPair.Id,
                     ScheduleSettings = settings.Select(x =>
-                        _convertService.Convert<ScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()
+                        _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()
                 };
             }).ToList();
             return result;

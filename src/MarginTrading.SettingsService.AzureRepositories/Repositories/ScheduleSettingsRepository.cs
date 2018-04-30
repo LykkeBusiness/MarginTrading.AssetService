@@ -2,12 +2,13 @@
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class ScheduleSettingsRepository : GenericAzureCrudRepository<ScheduleSettings, ScheduleSettingsEntity>, 
+    public class ScheduleSettingsRepository : GenericAzureCrudRepository<IScheduleSettings, ScheduleSettingsEntity>, 
         IScheduleSettingsRepository
     {
         public ScheduleSettingsRepository(ILog log,

@@ -1,14 +1,12 @@
-﻿using MarginTrading.SettingsService.StorageInterfaces.Entities;
-using Microsoft.WindowsAzure.Storage.Table;
+﻿using System;
+using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
-    public class AssetPairEntity : SimpleAzureEntity, IAssetPairEntity
+    public class AssetPairEntity : SimpleAzureEntity, IAssetPair
     {
-        public AssetPairEntity()
-        {
-            this.PartitionKey = "AssetPairs";
-        }
+        internal override string SimplePartitionKey => "AssetPairs";
         
         // Id comes from parent type
         public string Name { get; set; }
@@ -18,6 +16,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public string MarketId { get; set; }
         public string LegalEntity { get; set; }
         public string BasePairId { get; set; }
+        MatchingEngineMode IAssetPair.MatchingEngineMode => Enum.Parse<MatchingEngineMode>(MatchingEngineMode);
         public string MatchingEngineMode { get; set; }
         public decimal StpMultiplierMarkupBid { get; set; }
         public decimal StpMultiplierMarkupAsk { get; set; }

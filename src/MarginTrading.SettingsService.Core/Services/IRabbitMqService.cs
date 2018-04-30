@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using Common;
 using Lykke.RabbitMqBroker.Publisher;
-using Lykke.SettingsReader;
 
 namespace MarginTrading.SettingsService.Core.Services
 {

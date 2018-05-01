@@ -1,4 +1,4 @@
 FROM microsoft/aspnetcore:2.0
 WORKDIR /app
 COPY . .
-ENTRYPOINT ["dotnet", "Lykke.Service.LykkeService.dll"]
+ENTRYPOINT ["dotnet", "MarginTrading.SettingsService.dll"]

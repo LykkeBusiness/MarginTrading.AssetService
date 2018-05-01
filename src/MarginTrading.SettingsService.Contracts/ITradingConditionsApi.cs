@@ -14,14 +14,18 @@ namespace MarginTrading.SettingsService.Contracts
 
 
         [Post("/api/tradingConditions")]
-        Task<TradingConditionContract> Insert(
-            [Body] TradingConditionContract tradingCondition);
+        Task<TradingConditionContract> Insert([Body] TradingConditionContract tradingCondition);
 
 
+        [ItemCanBeNull]
         [Get("/api/tradingConditions/{tradingConditionId}")]
-        Task<TradingConditionContract> Get(
-            [NotNull] string tradingConditionId);
+        Task<TradingConditionContract> Get([NotNull] string tradingConditionId);
 
+        
+        [ItemCanBeNull]
+        [Get("/api/tradingConditions/default")]
+        Task<TradingConditionContract> GetDefault();
+        
         
         [Put("/api/tradingConditions/{tradingConditionId}")]
         Task<TradingConditionContract> Update(

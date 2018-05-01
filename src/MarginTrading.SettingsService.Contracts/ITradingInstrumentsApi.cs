@@ -10,13 +10,11 @@ namespace MarginTrading.SettingsService.Contracts
     public interface ITradingInstrumentsApi
     {
         [Get("/api/tradingInstruments")]
-        Task<List<TradingInstrumentContract>> List(
-            [Query, CanBeNull] string tradingConditionId);
+        Task<List<TradingInstrumentContract>> List([Query, CanBeNull] string tradingConditionId);
 
 
         [Post("/api/tradingInstruments")]
-        Task<TradingInstrumentContract> Insert(
-            [Body] TradingInstrumentContract instrument);
+        Task<TradingInstrumentContract> Insert([Body] TradingInstrumentContract instrument);
 
 
         /// <summary>
@@ -31,6 +29,7 @@ namespace MarginTrading.SettingsService.Contracts
             [Body] string[] instruments);
         
 
+        [ItemCanBeNull]
         [Get("/api/tradingInstruments/{tradingConditionId}/{assetPairId}")]
         Task<TradingInstrumentContract> Get(
             [NotNull] string tradingConditionId,

@@ -14,12 +14,12 @@ namespace MarginTrading.SettingsService.Modules
 {
     public class ServiceModule : Module
     {
-        private readonly IReloadingManager<LykkeServiceSettings> _settings;
+        private readonly IReloadingManager<MarginTradingSettingsServiceSettings> _settings;
         private readonly ILog _log;
         // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
-        public ServiceModule(IReloadingManager<LykkeServiceSettings> settings, ILog log)
+        public ServiceModule(IReloadingManager<MarginTradingSettingsServiceSettings> settings, ILog log)
         {
             _settings = settings;
             _log = log;

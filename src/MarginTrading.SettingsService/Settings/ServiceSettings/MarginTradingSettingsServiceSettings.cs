@@ -4,7 +4,7 @@ using MarginTrading.SettingsService.Core.Settings;
 namespace MarginTrading.SettingsService.Settings.ServiceSettings
 {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class LykkeServiceSettings
+    public class MarginTradingSettingsServiceSettings
     {
         public DbSettings Db { get; set; }
         public RabbitMqSettings SettingsChangedRabbitMqSettings { get; set; }

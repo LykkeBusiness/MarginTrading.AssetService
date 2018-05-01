@@ -14,13 +14,12 @@ namespace MarginTrading.SettingsService.Contracts
 
 
         [Post("/api/scheduleSettings")]
-        Task<ScheduleSettingsContract> Insert(
-            [Body] ScheduleSettingsContract scheduleSetting);
+        Task<ScheduleSettingsContract> Insert([Body] ScheduleSettingsContract scheduleSetting);
 
 
+        [ItemCanBeNull]
         [Get("/api/scheduleSettings/{settingId}")]
-        Task<ScheduleSettingsContract> Get(
-            [NotNull] string settingId);
+        Task<ScheduleSettingsContract> Get([NotNull] string settingId);
 
 
         [Put("/api/scheduleSettings/{settingId}")]
@@ -30,8 +29,7 @@ namespace MarginTrading.SettingsService.Contracts
 
 
         [Delete("/api/scheduleSettings/{settingId}")]
-        Task Delete(
-            [NotNull] string settingId);
+        Task Delete([NotNull] string settingId);
 
 
         /// <summary>
@@ -40,8 +38,7 @@ namespace MarginTrading.SettingsService.Contracts
         /// <param name="assetPairIds"></param>
         /// <returns></returns>
         [Post("/api/scheduleSettings/compiled")]
-        Task<List<CompiledScheduleContract>> StateList(
-            [Body][CanBeNull] string[] assetPairIds);
+        Task<List<CompiledScheduleContract>> StateList([Body][CanBeNull] string[] assetPairIds);
 
     }
 }

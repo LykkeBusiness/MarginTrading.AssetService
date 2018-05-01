@@ -14,24 +14,20 @@ namespace MarginTrading.SettingsService.Contracts
 
 
         [Post("/api/markets")]
-        Task<MarketContract> Insert(
-            [Body] MarketContract market);
+        Task<MarketContract> Insert([Body] MarketContract market);
 
-
+        
+        [ItemCanBeNull]
         [Get("/api/markets/{marketId}")]
-        Task<MarketContract> Get(
-            [NotNull] string marketId);
+        Task<MarketContract> Get([NotNull] string marketId);
 
 
         [Put("/api/markets/{marketId}")]
-        Task<MarketContract> Update(
-            [NotNull] string marketId,
-            [Body] MarketContract market);
+        Task<MarketContract> Update([NotNull] string marketId, [Body] MarketContract market);
 
 
         [Delete("/api/markets/{marketId}")]
-        Task Delete(
-            [NotNull] string marketId);
+        Task Delete([NotNull] string marketId);
 
     }
 }

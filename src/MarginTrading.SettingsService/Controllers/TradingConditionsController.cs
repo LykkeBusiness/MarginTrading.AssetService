@@ -82,6 +82,19 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
+        /// Get the default trading condition
+        /// </summary>
+        [HttpGet]
+        [Route("{tradingConditionId}")]
+        public async Task<TradingConditionContract> GetDefault()
+        {
+            var data = await _tradingConditionsRepository.GetAsync();
+
+            // todo: search for a default condition instead of a first one
+            return data.Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).First();
+        }
+
+        /// <summary>
         /// Update the trading condition
         /// </summary>
         /// <param name="tradingConditionId"></param>

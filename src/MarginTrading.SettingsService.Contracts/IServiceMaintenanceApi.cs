@@ -21,8 +21,7 @@ namespace MarginTrading.SettingsService.Contracts
         /// <param name="enabled"></param>
         /// <returns></returns>
         [Post("/api/service/maintenance")]
-        Task<bool> Post(
-            [Body] bool enabled);
+        Task<bool> Post([Body] bool enabled);
 
     }
 }

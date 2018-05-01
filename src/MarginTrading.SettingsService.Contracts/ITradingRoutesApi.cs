@@ -14,24 +14,19 @@ namespace MarginTrading.SettingsService.Contracts
 
 
         [Post("/api/routes/")]
-        Task<MatchingEngineRouteContract> Insert(
-            [Body] MatchingEngineRouteContract route);
+        Task<MatchingEngineRouteContract> Insert([Body] MatchingEngineRouteContract route);
 
 
+        [ItemCanBeNull]
         [Get("/api/routes/{routeId}")]
-        Task<MatchingEngineRouteContract> Get(
-            [NotNull] string routeId);
+        Task<MatchingEngineRouteContract> Get([NotNull] string routeId);
 
 
         [Put("/api/routes/{routeId}")]
-        Task<MatchingEngineRouteContract> Update(
-            [NotNull] string routeId,
-            [Body] MatchingEngineRouteContract route);
+        Task<MatchingEngineRouteContract> Update( [NotNull] string routeId, [Body] MatchingEngineRouteContract route);
 
 
         [Delete("/api/routes/{routeId}")]
-        Task Delete(
-            [NotNull] string routeId);
-
+        Task Delete([NotNull] string routeId);
     }
 }

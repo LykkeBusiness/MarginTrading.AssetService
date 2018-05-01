@@ -14,24 +14,20 @@ namespace MarginTrading.SettingsService.Contracts
 
 
         [Post("/api/assets")]
-        Task<AssetContract> Insert(
-            [Body] AssetContract asset);
+        Task<AssetContract> Insert([Body] AssetContract asset);
 
-
+        
+        [ItemCanBeNull]
         [Get("/api/assets/{assetId}")]
-        Task<AssetContract> Get(
-            [NotNull] string assetId);
+        Task<AssetContract> Get([NotNull] string assetId);
 
 
         [Put("/api/assets/{assetId}")]
-        Task<AssetContract> Update(
-            [NotNull] string assetId,
-            [Body] AssetContract asset);
+        Task<AssetContract> Update([NotNull] string assetId, [Body] AssetContract asset);
 
 
         [Delete("/api/assets/{assetId}")]
-        Task Delete(
-            [NotNull] string assetId);
+        Task Delete([NotNull] string assetId);
 
     }
 }

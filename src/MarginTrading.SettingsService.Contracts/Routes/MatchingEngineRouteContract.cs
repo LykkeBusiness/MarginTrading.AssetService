@@ -1,6 +1,6 @@
-﻿using MarginTrading.SettingsService.Client.Enums;
+﻿using MarginTrading.SettingsService.Contracts.Enums;
 
-namespace MarginTrading.SettingsService.Client.Routes
+namespace MarginTrading.SettingsService.Contracts.Routes
 {
     public class MatchingEngineRouteContract
     {

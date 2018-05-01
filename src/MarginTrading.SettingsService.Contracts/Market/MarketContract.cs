@@ -1,4 +1,4 @@
-﻿namespace MarginTrading.SettingsService.Client.Market
+﻿namespace MarginTrading.SettingsService.Contracts.Market
 {
     public class MarketContract
     {

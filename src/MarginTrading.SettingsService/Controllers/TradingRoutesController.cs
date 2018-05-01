@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MarginTrading.SettingsService.Client;
-using MarginTrading.SettingsService.Client.Routes;
+using MarginTrading.SettingsService.Contracts;
+using MarginTrading.SettingsService.Contracts.Routes;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;

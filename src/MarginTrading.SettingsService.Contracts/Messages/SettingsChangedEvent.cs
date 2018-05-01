@@ -1,7 +1,7 @@
 ﻿using System;
-using MarginTrading.SettingsService.Client.Enums;
+using MarginTrading.SettingsService.Contracts.Enums;
 
-namespace MarginTrading.SettingsService.Client.Messages
+namespace MarginTrading.SettingsService.Contracts.Messages
 {
     public class SettingsChangedEvent
     {

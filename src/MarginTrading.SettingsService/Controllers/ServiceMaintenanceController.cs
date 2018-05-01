@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using MarginTrading.SettingsService.Client;
+using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using Microsoft.AspNetCore.Mvc;

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace MarginTrading.SettingsService.Client.Enums
+namespace MarginTrading.SettingsService.Contracts.Enums
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum MatchingEngineModeContract

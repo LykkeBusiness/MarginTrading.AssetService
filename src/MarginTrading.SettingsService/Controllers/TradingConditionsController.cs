@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -88,10 +89,9 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("default")]
         public async Task<TradingConditionContract> GetDefault()
         {
-            var data = await _tradingConditionsRepository.GetAsync();
+            var data = await _tradingConditionsRepository.GetAsync(Constants.DefaultTradingConditionId);
 
-            // todo: search for a default condition instead of a first one
-            return data.Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).First();
+            return data == null ? null : _convertService.Convert<ITradingCondition, TradingConditionContract>(data);
         }
 
         /// <summary>

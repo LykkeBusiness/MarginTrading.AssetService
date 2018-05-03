@@ -14,5 +14,6 @@ namespace MarginTrading.SettingsService.Contracts.TradingConditions
         public decimal WithdrawalLimit { get; set; }
         public string LimitCurrency { get; set; }
         public List<string> BaseAssets { get; set; }
+        public bool IsDefault { get; set; }
     }
 }

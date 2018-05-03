@@ -7,7 +7,8 @@ namespace MarginTrading.SettingsService.Core.Domain
     public class TradingCondition : ITradingCondition
     {
         public TradingCondition(string id, string name, string legalEntity, decimal marginCall1, decimal marginCall2, 
-            decimal stopOut, decimal depositLimit, decimal withdrawalLimit, string limitCurrency, List<string> baseAssets)
+            decimal stopOut, decimal depositLimit, decimal withdrawalLimit, string limitCurrency, 
+            List<string> baseAssets, bool isDefault)
         {
             Id = id;
             Name = name;
@@ -19,6 +20,7 @@ namespace MarginTrading.SettingsService.Core.Domain
             WithdrawalLimit = withdrawalLimit;
             LimitCurrency = limitCurrency;
             BaseAssets = baseAssets;
+            IsDefault = isDefault;
         }
 
         public string Id { get; }
@@ -31,5 +33,6 @@ namespace MarginTrading.SettingsService.Core.Domain
         public decimal WithdrawalLimit { get; }
         public string LimitCurrency { get; }
         public List<string> BaseAssets { get; }
+        public bool IsDefault { get; set; }
     }
 }

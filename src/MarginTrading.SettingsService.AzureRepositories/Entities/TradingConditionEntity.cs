@@ -19,5 +19,6 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public string LimitCurrency { get; set; }
         List<string> ITradingCondition.BaseAssets => JsonConvert.DeserializeObject<List<string>>(BaseAssets); 
         public string BaseAssets { get; set; }
+        public bool IsDefault { get; set; }
     }
 }

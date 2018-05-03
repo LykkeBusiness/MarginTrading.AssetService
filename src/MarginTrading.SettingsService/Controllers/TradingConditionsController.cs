@@ -57,11 +57,36 @@ namespace MarginTrading.SettingsService.Controllers
         {
             if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
             {
-                throw new ArgumentNullException(nameof(tradingCondition.Id), "asset Id must be set");
+                throw new ArgumentNullException(nameof(tradingCondition.Id), "TradingCondition Id must be set");
             }
 
+            if (string.IsNullOrWhiteSpace(tradingCondition.Name))
+            {
+                throw new ArgumentNullException(nameof(tradingCondition.Name), "Name cannot be empty");
+            }
+
+            if (string.IsNullOrWhiteSpace(tradingCondition.LegalEntity))
+            {
+                throw new ArgumentNullException(nameof(tradingCondition.LegalEntity), "LegalEntity cannot be empty");
+            }
+
+            var defaultTradingCondition =
+                (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
+
+            if (tradingCondition.IsDefault 
+                && defaultTradingCondition != null && defaultTradingCondition.Id != tradingCondition.Id)
+            {
+                await SetDefault(defaultTradingCondition, false);
+            }
+
+            if (defaultTradingCondition == null)
+            {
+                tradingCondition.IsDefault = true;
+            }
+                
             await _tradingConditionsRepository.InsertAsync(
-                _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
+                    _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
+            
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
 
@@ -89,9 +114,11 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("default")]
         public async Task<TradingConditionContract> GetDefault()
         {
-            var data = await _tradingConditionsRepository.GetAsync(Constants.DefaultTradingConditionId);
+            var data = await _tradingConditionsRepository.GetAsync(x => x.IsDefault);
 
-            return data == null ? null : _convertService.Convert<ITradingCondition, TradingConditionContract>(data);
+            return data.Count == 0
+                ? null
+                : _convertService.Convert<ITradingCondition, TradingConditionContract>(data.Single());
         }
 
         /// <summary>
@@ -109,6 +136,19 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(tradingCondition.Id), "asset Id must be set");
             }
+            
+            var defaultTradingCondition =
+                (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
+            if (defaultTradingCondition == null && !tradingCondition.IsDefault)
+            {
+                tradingCondition.IsDefault = true;
+            }
+
+            if (defaultTradingCondition != null 
+                && tradingCondition.IsDefault && defaultTradingCondition.Id != tradingCondition.Id)
+            {
+                await SetDefault(defaultTradingCondition, false);
+            }
 
             await _tradingConditionsRepository.ReplaceAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
@@ -116,6 +156,14 @@ namespace MarginTrading.SettingsService.Controllers
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
             
             return tradingCondition;
+        }
+
+        private async Task SetDefault(ITradingCondition obj, bool state)
+        {
+            var defaultTrConDomain =
+                _convertService.Convert<ITradingCondition, TradingCondition>(obj);
+            defaultTrConDomain.IsDefault = state;
+            await _tradingConditionsRepository.ReplaceAsync(defaultTrConDomain);
         }
     }
 }

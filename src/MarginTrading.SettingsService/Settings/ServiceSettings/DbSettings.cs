@@ -6,5 +6,7 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
     {
         [AzureTableCheck]
         public string LogsConnString { get; set; }
+        [AzureTableCheck]
+        public string MarginTradingConnString { get; set; }
     }
 }

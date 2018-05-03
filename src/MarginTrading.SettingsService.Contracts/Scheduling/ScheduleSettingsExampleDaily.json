@@ -1,0 +1,16 @@
+﻿{
+  "id": "Night",
+  "assetPairRegex": "^USD",
+  "assetPairs": [
+    "EURGBP"
+  ],
+  "marketId": "blabla",
+  "isTradeEnabled": false,
+  "pendingOrdersCutOff": "00:55:00",
+  "start": {
+    "time": "21:55:00"
+  },
+  "end": {
+    "time": "09:55:00"
+  }
+}

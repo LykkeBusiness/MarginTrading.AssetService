@@ -16,6 +16,6 @@
         decimal CommissionRate { get; }
         decimal CommissionMin { get; }
         decimal CommissionMax { get; }
-        decimal CommissionCurrency { get; }
+        string CommissionCurrency { get; }
     }
 }

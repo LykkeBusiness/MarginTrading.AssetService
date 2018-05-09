@@ -210,7 +210,7 @@ namespace MarginTrading.SettingsService.TestClient
                 CommissionRate = 1,
                 CommissionMin = 1,
                 CommissionMax = 1,
-                CommissionCurrency = 1,
+                CommissionCurrency = "1",
             };
 
             var tradingInstrumentApiClient = clientGenerator.Generate<ITradingInstrumentsApi>();

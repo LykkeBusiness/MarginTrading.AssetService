@@ -17,6 +17,6 @@
         public decimal CommissionRate { get; set; }
         public decimal CommissionMin { get; set; }
         public decimal CommissionMax { get; set; }
-        public decimal CommissionCurrency { get; set; }
+        public string CommissionCurrency { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace MarginTrading.SettingsService.Core.Domain
         public TradingInstrument(string tradingConditionId, string instrument, int leverageInit, 
             int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit, 
             decimal dealMaxLimit, decimal positionLimit, decimal commissionRate, decimal commissionMin, 
-            decimal commissionMax, decimal commissionCurrency)
+            decimal commissionMax, string commissionCurrency)
         {
             TradingConditionId = tradingConditionId;
             Instrument = instrument;
@@ -39,6 +39,6 @@ namespace MarginTrading.SettingsService.Core.Domain
         public decimal CommissionRate { get; }
         public decimal CommissionMin { get; }
         public decimal CommissionMax { get; }
-        public decimal CommissionCurrency { get; }
+        public string CommissionCurrency { get; }
     }
 }

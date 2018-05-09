@@ -38,6 +38,6 @@ namespace MarginTrading.SettingsService.Core.Settings
         public decimal CommissionMax { get; set; }
 
         [Optional]
-        public decimal CommissionCurrency { get; set; }
+        public string CommissionCurrency { get; set; }
     }
 }

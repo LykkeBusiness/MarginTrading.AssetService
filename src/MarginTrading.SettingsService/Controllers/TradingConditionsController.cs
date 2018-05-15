@@ -103,6 +103,11 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{tradingConditionId}")]
         public async Task<TradingConditionContract> Get(string tradingConditionId)
         {
+            if (tradingConditionId.ToLower() == _defaultLegalEntitySettings.DefaultLegalEntity.ToLower())
+            {
+                return await GetDefault();
+            }
+            
             var obj = await _tradingConditionsRepository.GetAsync(tradingConditionId);
             
             return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);

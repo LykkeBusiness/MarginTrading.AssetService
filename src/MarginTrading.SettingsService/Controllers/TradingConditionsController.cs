@@ -8,6 +8,7 @@ using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,15 +23,18 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly ITradingConditionsRepository _tradingConditionsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
+        private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         
         public TradingConditionsController(
             ITradingConditionsRepository tradingConditionsRepository,
             IConvertService convertService,
-            IEventSender eventSender)
+            IEventSender eventSender,
+            DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _tradingConditionsRepository = tradingConditionsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
+            _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
         
         /// <summary>
@@ -65,11 +69,6 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(tradingCondition.Name), "Name cannot be empty");
             }
 
-            if (string.IsNullOrWhiteSpace(tradingCondition.LegalEntity))
-            {
-                throw new ArgumentNullException(nameof(tradingCondition.LegalEntity), "LegalEntity cannot be empty");
-            }
-
             var defaultTradingCondition =
                 (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
 
@@ -83,6 +82,8 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 tradingCondition.IsDefault = true;
             }
+            
+            _defaultLegalEntitySettings.Set(tradingCondition);
                 
             await _tradingConditionsRepository.InsertAsync(
                     _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
@@ -149,6 +150,8 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 await SetDefault(defaultTradingCondition, false);
             }
+            
+            _defaultLegalEntitySettings.Set(tradingCondition);
 
             await _tradingConditionsRepository.ReplaceAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));

@@ -5,9 +5,11 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Contracts.Enums;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,15 +24,18 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly IAssetPairsRepository _assetPairsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
+        private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         
         public AssetPairsController(
             IAssetPairsRepository assetPairsRepository,
             IConvertService convertService, 
-            IEventSender eventSender)
+            IEventSender eventSender,
+            DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _assetPairsRepository = assetPairsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
+            _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
         
         /// <summary>
@@ -69,6 +74,8 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(assetPair.Id), "assetPair Id must be set");
             }
+
+            _defaultLegalEntitySettings.Set(assetPair);
             
             await _assetPairsRepository.InsertAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
 
@@ -104,6 +111,8 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(assetPair.Id), "assetPair Id must be set");
             }
+
+            _defaultLegalEntitySettings.Set(assetPair);
 
             await _assetPairsRepository.ReplaceAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
 

@@ -8,6 +8,7 @@ using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,15 +23,19 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly ITradingConditionsRepository _tradingConditionsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
+        private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
+
         
         public TradingConditionsController(
             ITradingConditionsRepository tradingConditionsRepository,
             IConvertService convertService,
-            IEventSender eventSender)
+            IEventSender eventSender,
+            DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _tradingConditionsRepository = tradingConditionsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
+            _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
         
         /// <summary>
@@ -102,6 +107,11 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{tradingConditionId}")]
         public async Task<TradingConditionContract> Get(string tradingConditionId)
         {
+            if (tradingConditionId.ToLower() == _defaultLegalEntitySettings.DefaultLegalEntity.ToLower())
+            {
+                return await GetDefault();
+            }
+            
             var obj = await _tradingConditionsRepository.GetAsync(tradingConditionId);
             
             return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);

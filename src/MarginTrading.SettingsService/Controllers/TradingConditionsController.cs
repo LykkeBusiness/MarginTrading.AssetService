@@ -132,6 +132,8 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingConditionContract> Update(string tradingConditionId, 
             [FromBody] TradingConditionContract tradingCondition)
         {
+            ValidateId(tradingConditionId, tradingCondition);
+            
             if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
             {
                 throw new ArgumentNullException(nameof(tradingCondition.Id), "asset Id must be set");
@@ -150,6 +152,17 @@ namespace MarginTrading.SettingsService.Controllers
                 await SetDefault(defaultTradingCondition, false);
             }
 
+            var existingCondition = await _tradingConditionsRepository.GetAsync(tradingCondition.Id);
+            if (existingCondition == null)
+            {
+                throw new Exception($"Trading condition with Id = {tradingCondition.Id} not found");
+            }
+
+            if (existingCondition.LegalEntity != tradingCondition.LegalEntity)
+            {
+                throw new Exception("LegalEntity cannot be changed");
+            }
+
             await _tradingConditionsRepository.ReplaceAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
 
@@ -164,6 +177,14 @@ namespace MarginTrading.SettingsService.Controllers
                 _convertService.Convert<ITradingCondition, TradingCondition>(obj);
             defaultTrConDomain.IsDefault = state;
             await _tradingConditionsRepository.ReplaceAsync(defaultTrConDomain);
+        }
+
+        private void ValidateId(string id, TradingConditionContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
         }
     }
 }

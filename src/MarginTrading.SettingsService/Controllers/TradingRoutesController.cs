@@ -19,15 +19,23 @@ namespace MarginTrading.SettingsService.Controllers
     public class TradingRoutesController : Controller, ITradingRoutesApi
     {
         private readonly ITradingRoutesRepository _tradingRoutesRepository;
+        private readonly ITradingConditionsRepository _tradingConditionsRepository;
+        private readonly IAssetPairsRepository _assetPairsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         
+        private const string AnyValue = "*";
+        
         public TradingRoutesController(
             ITradingRoutesRepository tradingRoutesRepository,
+            ITradingConditionsRepository tradingConditionsRepository,
+            IAssetPairsRepository assetPairsRepository,
             IConvertService convertService,
             IEventSender eventSender)
         {
             _tradingRoutesRepository = tradingRoutesRepository;
+            _tradingConditionsRepository = tradingConditionsRepository;
+            _assetPairsRepository = assetPairsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
         }
@@ -54,10 +62,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<MatchingEngineRouteContract> Insert([FromBody] MatchingEngineRouteContract route)
         {
-            if (string.IsNullOrWhiteSpace(route?.Id))
-            {
-                throw new ArgumentNullException(nameof(route.Id), "route Id must be set");
-            }
+            await Validate(route);
 
             await _tradingRoutesRepository.InsertAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
@@ -92,10 +97,8 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<MatchingEngineRouteContract> Update(string routeId, 
             [FromBody] MatchingEngineRouteContract route)
         {
-            if (string.IsNullOrWhiteSpace(route?.Id))
-            {
-                throw new ArgumentNullException(nameof(route.Id), "route Id must be set");
-            }
+            ValidateId(routeId, route);
+            await Validate(route);
 
             await _tradingRoutesRepository.ReplaceAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
@@ -117,6 +120,39 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingRoutesRepository.DeleteAsync(routeId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
+        }
+
+        private async Task Validate(MatchingEngineRouteContract route)
+        {
+            if (string.IsNullOrWhiteSpace(route?.Id))
+            {
+                throw new ArgumentNullException(nameof(route.Id), "Route Id must be set");
+            }
+
+            var tradingCondition = await _tradingConditionsRepository.GetAsync(route.TradingConditionId);
+            if (tradingCondition == null)
+            {
+                throw new ArgumentException("Invalid TradingConditionId", nameof(route.TradingConditionId));
+            }
+
+            var assetPair = await _assetPairsRepository.GetAsync(route.Instrument);
+            if (assetPair == null)
+            {
+                throw new ArgumentException("Invalid Instrument", nameof(route.Instrument));
+            }
+
+            if (string.IsNullOrEmpty(route.Asset))
+            {
+                route.Asset = AnyValue;
+            }
+        }
+
+        private void ValidateId(string id, MatchingEngineRouteContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
         }
     }
 }

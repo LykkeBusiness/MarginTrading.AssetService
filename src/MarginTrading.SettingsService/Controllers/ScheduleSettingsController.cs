@@ -96,6 +96,8 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<ScheduleSettingsContract> Update(string settingId, 
             [FromBody] ScheduleSettingsContract scheduleSetting)
         {
+            ValidateId(settingId, scheduleSetting);
+            
             if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
             {
                 throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
@@ -133,28 +135,34 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
             var allSettingsTask = _scheduleSettingsRepository.GetAsync();
-            var assetPairsTask = assetPairIds == null
+            var assetPairsTask = assetPairIds == null || !assetPairIds.Any()
                 ? _assetPairsRepository.GetAsync()
                 : _assetPairsRepository.GetAsync(x => assetPairIds.Contains(x.Id));
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
             
             //extract the list of assetpairs with same settings based on regex, market or list
-            var result = assetPairs.Select(assetPair =>
+            var result = assetPairs.Select(assetPair => new CompiledScheduleContract
             {
-                var settings = allSettings.Where(setting => setting.AssetPairs.Contains(assetPair.Id)
-                                                            || Regex.IsMatch(assetPair.Id, setting.AssetPairRegex,
-                                                                RegexOptions.IgnoreCase)
-                                                            || setting.MarketId == assetPair.MarketId)
-                    .ToList();
-                return new CompiledScheduleContract
-                {
-                    AssetPairId = assetPair.Id,
-                    ScheduleSettings = settings.Select(x =>
+                AssetPairId = assetPair.Id,
+                ScheduleSettings = allSettings
+                    .Where(setting => setting.AssetPairs.Contains(assetPair.Id)
+                                      || Regex.IsMatch(assetPair.Id,
+                                          setting.AssetPairRegex,
+                                          RegexOptions.IgnoreCase)
+                                      || setting.MarketId == assetPair.MarketId)
+                    .Select(x =>
                         _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()
-                };
             }).ToList();
             return result;
+        }
+
+        private void ValidateId(string id, ScheduleSettingsContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
         }
     }
 }

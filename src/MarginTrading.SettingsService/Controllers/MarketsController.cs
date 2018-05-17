@@ -90,6 +90,8 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{marketId}")]
         public async Task<MarketContract> Update(string marketId, [FromBody] MarketContract market)
         {
+            ValidateId(marketId, market);
+            
             if (string.IsNullOrWhiteSpace(market?.Id))
             {
                 throw new ArgumentNullException(nameof(market.Id), "market Id must be set");
@@ -114,6 +116,14 @@ namespace MarginTrading.SettingsService.Controllers
             await _marketRepository.DeleteAsync(marketId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
+        }
+
+        private void ValidateId(string id, MarketContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
         }
     }
 }

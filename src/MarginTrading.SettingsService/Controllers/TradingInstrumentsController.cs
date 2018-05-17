@@ -158,6 +158,8 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingInstrumentContract> Update(string tradingConditionId, string assetPairId, 
             [FromBody] TradingInstrumentContract instrument)
         {
+            ValidateId(tradingConditionId, assetPairId, instrument);
+            
             if (string.IsNullOrWhiteSpace(instrument?.TradingConditionId))
             {
                 throw new ArgumentNullException(nameof(instrument.TradingConditionId),
@@ -190,6 +192,19 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingInstrumentsRepository.DeleteAsync(assetPairId, tradingConditionId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+        }
+
+        private void ValidateId(string tradingConditionId, string assetPairId, TradingInstrumentContract contract)
+        {
+            if (contract?.TradingConditionId != tradingConditionId)
+            {
+                throw new ArgumentException("TradingConditionId must match with contract tradingConditionId");
+            }
+
+            if (contract?.Instrument != assetPairId)
+            {
+                throw new ArgumentException("AssetPairId must match with contract instrument");
+            }
         }
     }
 }

@@ -70,10 +70,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<AssetPairContract> Insert([FromBody] AssetPairContract assetPair)
         {
-            if (string.IsNullOrWhiteSpace(assetPair?.Id))
-            {
-                throw new ArgumentNullException(nameof(assetPair.Id), "assetPair Id must be set");
-            }
+            await ValidatePair(assetPair);
 
             _defaultLegalEntitySettings.Set(assetPair);
             
@@ -107,10 +104,9 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
         {
-            if (string.IsNullOrWhiteSpace(assetPair?.Id))
-            {
-                throw new ArgumentNullException(nameof(assetPair.Id), "assetPair Id must be set");
-            }
+            ValidateId(assetPairId, assetPair);
+
+            await ValidatePair(assetPair);
 
             _defaultLegalEntitySettings.Set(assetPair);
 
@@ -133,6 +129,38 @@ namespace MarginTrading.SettingsService.Controllers
             await _assetPairsRepository.DeleteAsync(assetPairId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+        }
+
+        private async Task ValidatePair(AssetPairContract newValue)
+        {
+            if (string.IsNullOrWhiteSpace(newValue?.Id))
+            {
+                throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
+            }
+            
+            if (newValue.BasePairId == null) 
+                return;
+
+            var baseAssetPair = await _assetPairsRepository.GetAsync(s => s.BaseAssetId == newValue.BasePairId);
+            if (baseAssetPair.Any())
+            {
+                throw new InvalidOperationException($"BasePairId {newValue.BasePairId} does not exist");
+            }
+
+            var newBase =
+                await _assetPairsRepository.GetAsync(s => s.Id != newValue.Id && s.BasePairId == newValue.BasePairId);
+            if (newBase.Any())
+            {
+                throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
+            }    
+        }
+
+        private void ValidateId(string id, AssetPairContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
         }
     }
 }

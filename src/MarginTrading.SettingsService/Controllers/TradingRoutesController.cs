@@ -18,6 +18,7 @@ namespace MarginTrading.SettingsService.Controllers
     [Route("api/routes")]
     public class TradingRoutesController : Controller, ITradingRoutesApi
     {
+        private readonly IAssetsRepository _assetsRepository;
         private readonly ITradingRoutesRepository _tradingRoutesRepository;
         private readonly ITradingConditionsRepository _tradingConditionsRepository;
         private readonly IAssetPairsRepository _assetPairsRepository;
@@ -27,12 +28,14 @@ namespace MarginTrading.SettingsService.Controllers
         private const string AnyValue = "*";
         
         public TradingRoutesController(
+            IAssetsRepository assetsRepository,
             ITradingRoutesRepository tradingRoutesRepository,
             ITradingConditionsRepository tradingConditionsRepository,
             IAssetPairsRepository assetPairsRepository,
             IConvertService convertService,
             IEventSender eventSender)
         {
+            _assetsRepository = assetsRepository;
             _tradingRoutesRepository = tradingRoutesRepository;
             _tradingConditionsRepository = tradingConditionsRepository;
             _assetPairsRepository = assetPairsRepository;
@@ -133,21 +136,25 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(route.Id), "Route Id must be set");
             }
 
-            var tradingCondition = await _tradingConditionsRepository.GetAsync(route.TradingConditionId);
-            if (tradingCondition == null)
+            if (!string.IsNullOrEmpty(route.TradingConditionId)
+                && await _tradingConditionsRepository.GetAsync(route.TradingConditionId) == null)
             {
-                throw new ArgumentException("Invalid TradingConditionId", nameof(route.TradingConditionId));
+                throw new InvalidOperationException($"Trading condition {route.TradingConditionId} does not exist");
             }
 
-            var assetPair = await _assetPairsRepository.GetAsync(route.Instrument);
-            if (assetPair == null)
+            if (!string.IsNullOrEmpty(route.Instrument) 
+                && await _assetPairsRepository.GetAsync(route.Instrument) == null)
             {
-                throw new ArgumentException("Invalid Instrument", nameof(route.Instrument));
+                throw new InvalidOperationException($"Asset pair {route.Instrument} does not exist");
             }
 
             if (string.IsNullOrEmpty(route.Asset))
             {
                 route.Asset = AnyValue;
+            }
+            else if (await _assetsRepository.GetAsync(route.Asset) == null)
+            {
+                throw new InvalidOperationException($"Asset {route.Asset} does not exist");
             }
         }
 

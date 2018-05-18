@@ -224,6 +224,16 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Asset pair {instrument.Instrument} does not exist");
             }
 
+            if (instrument.LeverageInit <= 0)
+            {
+                throw new InvalidOperationException($"LeverageInit must be greather then zero");
+            }
+
+            if (instrument.LeverageMaintenance <= 0)
+            {
+                throw new InvalidOperationException($"LeverageMaintenance must be greather then zero");
+            }
+
             if (await _assetsRepository.GetAsync(instrument.CommissionCurrency) == null)
             {
                 throw new InvalidOperationException($"Commission currency {instrument.CommissionCurrency} does not exist");

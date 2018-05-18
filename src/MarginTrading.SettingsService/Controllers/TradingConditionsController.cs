@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -180,16 +180,6 @@ namespace MarginTrading.SettingsService.Controllers
             if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
             {
                 throw new ArgumentNullException(nameof(tradingCondition.Id), "TradingCondition Id must be set");
-            }
-
-            if (string.IsNullOrWhiteSpace(tradingCondition.Name))
-            {
-                throw new ArgumentNullException(nameof(tradingCondition.Name), "Name cannot be empty");
-            }
-
-            if (string.IsNullOrWhiteSpace(tradingCondition.LegalEntity))
-            {
-                throw new ArgumentNullException(nameof(tradingCondition.LegalEntity), "LegalEntity cannot be empty");
             }
 
             if (!string.IsNullOrEmpty(tradingCondition.LimitCurrency)

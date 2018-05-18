@@ -175,9 +175,23 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
             }
 
-            if (await _marketRepository.GetAsync(scheduleSetting.MarketId) == null)
+            if (!string.IsNullOrEmpty(scheduleSetting.MarketId)
+                && await _marketRepository.GetAsync(scheduleSetting.MarketId) == null)
             {
                 throw new InvalidOperationException($"Market {scheduleSetting.MarketId} does not exist");
+            }
+
+            if (scheduleSetting.Start == null || scheduleSetting.End == null)
+            {
+                throw new InvalidOperationException($"Start and End must be set");
+            }
+
+            foreach (var assetPair in scheduleSetting.AssetPairs)
+            {
+                if (await _assetPairsRepository.GetAsync(assetPair) == null)
+                {
+                    throw new InvalidOperationException($"Asset pair {assetPair} does not exist");
+                }
             }
         }
     }

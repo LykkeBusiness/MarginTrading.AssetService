@@ -7,13 +7,15 @@ namespace MarginTrading.SettingsService.Core.Domain
 {
     public class ScheduleSettings : IScheduleSettings
     {
-        public ScheduleSettings(string id, int rank, string assetPairRegex, string marketId, 
-            TimeSpan? pendingOrdersCutOff, ScheduleConstraint start, ScheduleConstraint end)
+        public ScheduleSettings(string id, int rank, string assetPairRegex, HashSet<string> assetPairs, string marketId,
+            bool? isTradeEnabled, TimeSpan? pendingOrdersCutOff, ScheduleConstraint start, ScheduleConstraint end)
         {
             Id = id;
             Rank = rank;
             AssetPairRegex = assetPairRegex;
+            AssetPairs = assetPairs;
             MarketId = marketId;
+            IsTradeEnabled = isTradeEnabled;
             PendingOrdersCutOff = pendingOrdersCutOff;
             Start = start;
             End = end;
@@ -22,10 +24,10 @@ namespace MarginTrading.SettingsService.Core.Domain
         public string Id { get; }
         public int Rank { get; }
         public string AssetPairRegex { get; }
-        public HashSet<string> AssetPairs { get; } = new HashSet<string>();
+        public HashSet<string> AssetPairs { get; }
         public string MarketId { get; }
 
-        public bool? IsTradeEnabled { get; } = false;
+        public bool? IsTradeEnabled { get; }
         public TimeSpan? PendingOrdersCutOff { get; }
 
         public ScheduleConstraint Start { get; }

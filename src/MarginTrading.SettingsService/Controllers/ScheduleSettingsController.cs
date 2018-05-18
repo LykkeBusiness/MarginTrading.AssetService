@@ -48,8 +48,10 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<ScheduleSettingsContract>> List()
         {
             var data = await _scheduleSettingsRepository.GetAsync();
-            
-            return data.Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettingsContract>(x)).ToList();
+            return data
+                .Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettings>(x))
+                .Select(x => _convertService.Convert<ScheduleSettings, ScheduleSettingsContract>(x))
+                .ToList();
         }
 
         /// <summary>

@@ -58,8 +58,11 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(market.Id), "market Id must be set");
             }
-            
-            await _marketRepository.InsertAsync(_convertService.Convert<MarketContract, Market>(market));
+
+            if (!await _marketRepository.TryInsertAsync(_convertService.Convert<MarketContract, Market>(market)))
+            {
+                throw new ArgumentException($"Market with id {market.Id} already exists", nameof(market.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
 

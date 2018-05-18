@@ -149,20 +149,20 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Quote Asset {newValue.QuoteAssetId} does not exist");
             }
 
-            if (await _marketRepository.GetAsync(newValue.MarketId) == null)
+            if (!string.IsNullOrEmpty(newValue.MarketId)
+                && await _marketRepository.GetAsync(newValue.MarketId) == null)
             {
                 throw new InvalidOperationException($"Market {newValue.MarketId} does not exist");
-            }
-
-            if (Enum.GetValues(typeof(MatchingEngineModeContract)).Cast<MatchingEngineModeContract>()
-                .All(x => x != newValue.MatchingEngineMode))
-            {
-                throw new InvalidOperationException("MatchingEngineMode must be set");
             }
             
             //base pair check <-- the last one
             if (newValue.BasePairId == null) 
                 return;
+
+            if (await _assetPairsRepository.GetAsync(s => s.Id == newValue.BasePairId) == null)
+            {
+                throw new InvalidOperationException($"BasePair with Id {newValue.Id} does not exist");
+            }
 
             if ((await _assetPairsRepository.GetAsync(s => s.BaseAssetId == newValue.BasePairId)).Any())
             {

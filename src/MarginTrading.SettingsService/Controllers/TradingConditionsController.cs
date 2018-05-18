@@ -11,6 +11,7 @@ using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace MarginTrading.SettingsService.Controllers
 {
@@ -44,11 +45,13 @@ namespace MarginTrading.SettingsService.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        public async Task<List<TradingConditionContract>> List()
+        public async Task<List<TradingConditionContract>> List([FromQuery] bool? isDefault = null)
         {
             var data = await _tradingConditionsRepository.GetAsync();
             
-            return data.Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).ToList();
+            return data
+                .Where(x => isDefault == null || x.IsDefault == isDefault)
+                .Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).ToList();
         }
 
         /// <summary>
@@ -107,28 +110,9 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{tradingConditionId}")]
         public async Task<TradingConditionContract> Get(string tradingConditionId)
         {
-            if (tradingConditionId.ToLower() == _defaultLegalEntitySettings.DefaultLegalEntity.ToLower())
-            {
-                return await GetDefault();
-            }
-            
             var obj = await _tradingConditionsRepository.GetAsync(tradingConditionId);
             
             return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);
-        }
-
-        /// <summary>
-        /// Get the default trading condition
-        /// </summary>
-        [HttpGet]
-        [Route("default")]
-        public async Task<TradingConditionContract> GetDefault()
-        {
-            var data = await _tradingConditionsRepository.GetAsync(x => x.IsDefault);
-
-            return data.Count == 0
-                ? null
-                : _convertService.Convert<ITradingCondition, TradingConditionContract>(data.Single());
         }
 
         /// <summary>

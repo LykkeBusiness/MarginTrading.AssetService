@@ -20,17 +20,20 @@ namespace MarginTrading.SettingsService.Controllers
     public class ScheduleSettingsController : Controller, IScheduleSettingsApi
     {
         private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
+        private readonly IMarketRepository _marketRepository;
         private readonly IAssetPairsRepository _assetPairsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         
         public ScheduleSettingsController(
             IScheduleSettingsRepository scheduleSettingsRepository,
+            IMarketRepository marketRepository,
             IAssetPairsRepository assetPairsRepository,
             IConvertService convertService,
             IEventSender eventSender)
         {
             _scheduleSettingsRepository = scheduleSettingsRepository;
+            _marketRepository = marketRepository;
             _assetPairsRepository = assetPairsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
@@ -58,13 +61,14 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<ScheduleSettingsContract> Insert([FromBody] ScheduleSettingsContract scheduleSetting)
         {
-            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
-            {
-                throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
-            }
+            await ValidateScheduleSettings(scheduleSetting);
 
-            await _scheduleSettingsRepository.InsertAsync(
-                _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
+            if (!await _scheduleSettingsRepository.TryInsertAsync(
+                _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting)))
+            {
+                throw new ArgumentException($"Schedule setting with id {scheduleSetting.Id} already exists",
+                    nameof(scheduleSetting.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
 
@@ -98,10 +102,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             ValidateId(settingId, scheduleSetting);
             
-            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
-            {
-                throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
-            }
+            await ValidateScheduleSettings(scheduleSetting);
 
             await _scheduleSettingsRepository.ReplaceAsync(
                 _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
@@ -162,6 +163,19 @@ namespace MarginTrading.SettingsService.Controllers
             if (contract?.Id != id)
             {
                 throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private async Task ValidateScheduleSettings(ScheduleSettingsContract scheduleSetting)
+        {
+            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
+            {
+                throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
+            }
+
+            if (await _marketRepository.GetAsync(scheduleSetting.MarketId) == null)
+            {
+                throw new InvalidOperationException($"Market {scheduleSetting.MarketId} does not exist");
             }
         }
     }

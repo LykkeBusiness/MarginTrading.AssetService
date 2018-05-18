@@ -62,10 +62,13 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<MatchingEngineRouteContract> Insert([FromBody] MatchingEngineRouteContract route)
         {
-            await Validate(route);
+            await ValidateRoute(route);
 
-            await _tradingRoutesRepository.InsertAsync(
-                _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
+            if (!await _tradingRoutesRepository.TryInsertAsync(
+                _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route)))
+            {
+                throw new ArgumentException($"Trading route with id {route.Id} already exists", nameof(route.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
 
@@ -98,7 +101,8 @@ namespace MarginTrading.SettingsService.Controllers
             [FromBody] MatchingEngineRouteContract route)
         {
             ValidateId(routeId, route);
-            await Validate(route);
+            
+            await ValidateRoute(route);
 
             await _tradingRoutesRepository.ReplaceAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
@@ -122,7 +126,7 @@ namespace MarginTrading.SettingsService.Controllers
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
         }
 
-        private async Task Validate(MatchingEngineRouteContract route)
+        private async Task ValidateRoute(MatchingEngineRouteContract route)
         {
             if (string.IsNullOrWhiteSpace(route?.Id))
             {

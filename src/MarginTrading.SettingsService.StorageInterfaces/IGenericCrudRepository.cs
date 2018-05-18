@@ -9,7 +9,7 @@ namespace MarginTrading.SettingsService.StorageInterfaces
         Task<IReadOnlyList<TD>> GetAsync();
         Task<IReadOnlyList<TD>> GetAsync(Func<TD, bool> filter);
         Task<TD> GetAsync(string rowKey, string partitionKey = null);
-        Task InsertAsync(TD obj);
+        Task<bool> TryInsertAsync(TD obj);
         Task ReplaceAsync(TD obj);
         Task<bool> DeleteAsync(string rowKey, string partitionKey = null);
     }

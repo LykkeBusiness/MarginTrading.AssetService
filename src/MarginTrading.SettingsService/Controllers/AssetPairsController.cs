@@ -19,16 +19,22 @@ namespace MarginTrading.SettingsService.Controllers
     [Route("api/assetPairs")]
     public class AssetPairsController : Controller, IAssetPairsApi
     {
+        private readonly IAssetsRepository _assetsRepository;
         private readonly IAssetPairsRepository _assetPairsRepository;
+        private readonly IMarketRepository _marketRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         
         public AssetPairsController(
+            IAssetsRepository assetsRepository,
             IAssetPairsRepository assetPairsRepository,
+            IMarketRepository marketRepository,
             IConvertService convertService, 
             IEventSender eventSender)
         {
+            _assetsRepository = assetsRepository;
             _assetPairsRepository = assetPairsRepository;
+            _marketRepository = marketRepository;
             _convertService = convertService;
             _eventSender = eventSender;
         }
@@ -66,8 +72,12 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<AssetPairContract> Insert([FromBody] AssetPairContract assetPair)
         {
             await ValidatePair(assetPair);
-            
-            await _assetPairsRepository.InsertAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+
+            if (!await _assetPairsRepository.TryInsertAsync(
+                _convertService.Convert<AssetPairContract, AssetPair>(assetPair)))
+            {
+                throw new ArgumentException($"Asset pair with id {assetPair.Id} already exists", nameof(assetPair.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             
@@ -128,19 +138,39 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
             }
+
+            if (await _assetsRepository.GetAsync(newValue.BaseAssetId) == null)
+            {
+                throw new InvalidOperationException($"Base Asset {newValue.BaseAssetId} does not exist");
+            }
+
+            if (await _assetsRepository.GetAsync(newValue.QuoteAssetId) == null)
+            {
+                throw new InvalidOperationException($"Quote Asset {newValue.QuoteAssetId} does not exist");
+            }
+
+            if (await _marketRepository.GetAsync(newValue.MarketId) == null)
+            {
+                throw new InvalidOperationException($"Market {newValue.MarketId} does not exist");
+            }
+
+            if (Enum.GetValues(typeof(MatchingEngineModeContract)).Cast<MatchingEngineModeContract>()
+                .All(x => x != newValue.MatchingEngineMode))
+            {
+                throw new InvalidOperationException("MatchingEngineMode must be set");
+            }
             
+            //base pair check <-- the last one
             if (newValue.BasePairId == null) 
                 return;
 
-            var baseAssetPair = await _assetPairsRepository.GetAsync(s => s.BaseAssetId == newValue.BasePairId);
-            if (baseAssetPair.Any())
+            if ((await _assetPairsRepository.GetAsync(s => s.BaseAssetId == newValue.BasePairId)).Any())
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} does not exist");
             }
 
-            var newBase =
-                await _assetPairsRepository.GetAsync(s => s.Id != newValue.Id && s.BasePairId == newValue.BasePairId);
-            if (newBase.Any())
+            if ((await _assetPairsRepository.GetAsync(s => s.Id != newValue.Id && s.BasePairId == newValue.BasePairId))
+                .Any())
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
             }    

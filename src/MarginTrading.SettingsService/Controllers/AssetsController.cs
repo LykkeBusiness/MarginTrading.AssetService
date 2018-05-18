@@ -58,8 +58,11 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(asset.Id), "asset Id must be set");
             }
-            
-            await _assetsRepository.InsertAsync(_convertService.Convert<AssetContract, Asset>(asset));
+
+            if (!await _assetsRepository.TryInsertAsync(_convertService.Convert<AssetContract, Asset>(asset)))
+            {
+                throw new ArgumentException($"Asset with id {asset.Id} already exists", nameof(asset.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
 

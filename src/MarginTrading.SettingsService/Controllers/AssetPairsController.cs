@@ -163,6 +163,16 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new InvalidOperationException($"Market {newValue.MarketId} does not exist");
             }
+
+            if (newValue.StpMultiplierMarkupAsk <= 0)
+            {
+                throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greather then zero");
+            }
+            
+            if (newValue.StpMultiplierMarkupBid <= 0)
+            {
+                throw new InvalidOperationException($"StpMultiplierMarkupBid must be greather then zero");
+            }
             
             //base pair check <-- the last one
             if (newValue.BasePairId == null) 

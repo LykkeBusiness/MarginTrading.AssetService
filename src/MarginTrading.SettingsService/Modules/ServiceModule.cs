@@ -32,6 +32,8 @@ namespace MarginTrading.SettingsService.Modules
             builder.RegisterInstance(_log).As<ILog>().SingleInstance();
 
             builder.RegisterInstance(_settings.CurrentValue.TradingInstrumentDefaults).AsSelf().SingleInstance();
+ 
+            builder.RegisterInstance(_settings.CurrentValue.LegalEntityDefaults).AsSelf().SingleInstance(); 
 
             builder.RegisterInstance(_settings.CurrentValue.LegalEntityDefaults).AsSelf().SingleInstance();
 

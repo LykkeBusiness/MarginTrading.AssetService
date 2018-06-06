@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MarginTrading.SettingsService.Core.Settings;
 
 namespace MarginTrading.SettingsService.Settings.ServiceSettings

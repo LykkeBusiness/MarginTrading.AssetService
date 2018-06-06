@@ -10,7 +10,7 @@ namespace MarginTrading.SettingsService.Contracts
     public interface ITradingConditionsApi
     {
         [Get("/api/tradingConditions")]
-        Task<List<TradingConditionContract>> List();
+        Task<List<TradingConditionContract>> List([Query] bool? isDefault = null);
 
 
         [Post("/api/tradingConditions")]
@@ -20,11 +20,6 @@ namespace MarginTrading.SettingsService.Contracts
         [ItemCanBeNull]
         [Get("/api/tradingConditions/{tradingConditionId}")]
         Task<TradingConditionContract> Get([NotNull] string tradingConditionId);
-
-        
-        [ItemCanBeNull]
-        [Get("/api/tradingConditions/default")]
-        Task<TradingConditionContract> GetDefault();
         
         
         [Put("/api/tradingConditions/{tradingConditionId}")]

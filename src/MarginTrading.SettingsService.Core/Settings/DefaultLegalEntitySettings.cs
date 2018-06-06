@@ -1,4 +1,4 @@
-﻿namespace MarginTrading.SettingsService.Core.Settings
+namespace MarginTrading.SettingsService.Core.Settings
 {
     public class DefaultLegalEntitySettings
     {

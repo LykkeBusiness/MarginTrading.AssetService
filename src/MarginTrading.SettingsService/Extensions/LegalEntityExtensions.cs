@@ -2,7 +2,7 @@
 using MarginTrading.SettingsService.Contracts.TradingConditions;
 using MarginTrading.SettingsService.Core.Settings;
 
-namespace MarginTrading.SettingsService.Core
+namespace MarginTrading.SettingsService.Extensions
 {
     public static class LegalEntityExtensions
     {

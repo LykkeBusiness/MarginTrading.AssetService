@@ -8,8 +8,11 @@ using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Core.Settings;
+using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace MarginTrading.SettingsService.Controllers
 {
@@ -23,17 +26,20 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly ITradingConditionsRepository _tradingConditionsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
+        private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         
         public TradingConditionsController(
             IAssetsRepository assetsRepository,
             ITradingConditionsRepository tradingConditionsRepository,
             IConvertService convertService,
-            IEventSender eventSender)
+            IEventSender eventSender,
+            DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _assetsRepository = assetsRepository;
             _tradingConditionsRepository = tradingConditionsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
+            _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
         
         /// <summary>
@@ -42,11 +48,13 @@ namespace MarginTrading.SettingsService.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        public async Task<List<TradingConditionContract>> List()
+        public async Task<List<TradingConditionContract>> List([FromQuery] bool? isDefault = null)
         {
             var data = await _tradingConditionsRepository.GetAsync();
             
-            return data.Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).ToList();
+            return data
+                .Where(x => isDefault == null || x.IsDefault == isDefault)
+                .Select(x => _convertService.Convert<ITradingCondition, TradingConditionContract>(x)).ToList();
         }
 
         /// <summary>
@@ -59,7 +67,7 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingConditionContract> Insert([FromBody] TradingConditionContract tradingCondition)
         {
             await ValidateTradingCondition(tradingCondition);
-
+            
             var defaultTradingCondition =
                 (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
 
@@ -73,14 +81,15 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 tradingCondition.IsDefault = true;
             }
-
+            
+            _defaultLegalEntitySettings.Set(tradingCondition);
+                
             if (!await _tradingConditionsRepository.TryInsertAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition)))
             {
                 throw new ArgumentException($"Trading condition with id {tradingCondition.Id} already exists",
                     nameof(tradingCondition.Id));
             }
-            
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
 
@@ -99,20 +108,6 @@ namespace MarginTrading.SettingsService.Controllers
             var obj = await _tradingConditionsRepository.GetAsync(tradingConditionId);
             
             return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);
-        }
-
-        /// <summary>
-        /// Get the default trading condition
-        /// </summary>
-        [HttpGet]
-        [Route("default")]
-        public async Task<TradingConditionContract> GetDefault()
-        {
-            var data = await _tradingConditionsRepository.GetAsync(x => x.IsDefault);
-
-            return data.Count == 0
-                ? null
-                : _convertService.Convert<ITradingCondition, TradingConditionContract>(data.Single());
         }
 
         /// <summary>
@@ -142,6 +137,8 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 await SetDefault(defaultTradingCondition, false);
             }
+            
+            _defaultLegalEntitySettings.Set(tradingCondition);
 
             var existingCondition = await _tradingConditionsRepository.GetAsync(tradingCondition.Id);
             if (existingCondition == null)

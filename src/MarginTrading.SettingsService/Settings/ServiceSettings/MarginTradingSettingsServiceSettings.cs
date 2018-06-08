@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MarginTrading.SettingsService.Core.Settings;
 
 namespace MarginTrading.SettingsService.Settings.ServiceSettings
@@ -9,5 +9,6 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
         public DbSettings Db { get; set; }
         public RabbitMqSettings SettingsChangedRabbitMqSettings { get; set; }
         public DefaultTradingInstrumentSettings TradingInstrumentDefaults { get; set; }
+        public DefaultLegalEntitySettings LegalEntityDefaults { get; set; }
     }
 }

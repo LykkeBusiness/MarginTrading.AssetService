@@ -65,12 +65,11 @@ namespace MarginTrading.SettingsService.AzureRepositories
             return entity == null ? default(TD) : ConvertService.Convert<TE, TD>(entity);
         }
 
-        public virtual async Task InsertAsync(TD obj)
+        public virtual async Task<bool> TryInsertAsync(TD obj)
         {
             var entity = ConvertService.Convert<TD, TE>(obj, DefaultAzureMappingOpts);
             entity.SetKeys();
-                
-            await TableStorage.InsertAsync(entity);
+            return await TableStorage.TryInsertAsync(entity);
         }
 
         public virtual async Task ReplaceAsync(TD obj)

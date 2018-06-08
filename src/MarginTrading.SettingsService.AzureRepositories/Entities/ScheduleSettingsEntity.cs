@@ -16,7 +16,10 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         HashSet<string> IScheduleSettings.AssetPairs => JsonConvert.DeserializeObject<HashSet<string>>(AssetPairs); 
         public string AssetPairs { get; set; }
         public string MarketId { get; set; }
-        public bool? IsTradeEnabled { get; set; }
+
+        bool? IScheduleSettings.IsTradeEnabled => bool.TryParse(IsTradeEnabled, out var parsed)
+            ? parsed : (bool?) null;
+        public string IsTradeEnabled { get; set; }
         TimeSpan? IScheduleSettings.PendingOrdersCutOff => TimeSpan.TryParse(PendingOrdersCutOff, out var parsed) 
             ? parsed : (TimeSpan?)null; 
         public string PendingOrdersCutOff { get; set; }

@@ -22,17 +22,20 @@ namespace MarginTrading.SettingsService.Controllers
     [Route("api/tradingConditions")]
     public class TradingConditionsController : Controller, ITradingConditionsApi
     {
+        private readonly IAssetsRepository _assetsRepository;
         private readonly ITradingConditionsRepository _tradingConditionsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         
         public TradingConditionsController(
+            IAssetsRepository assetsRepository,
             ITradingConditionsRepository tradingConditionsRepository,
             IConvertService convertService,
             IEventSender eventSender,
             DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
+            _assetsRepository = assetsRepository;
             _tradingConditionsRepository = tradingConditionsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
@@ -63,16 +66,8 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<TradingConditionContract> Insert([FromBody] TradingConditionContract tradingCondition)
         {
-            if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
-            {
-                throw new ArgumentNullException(nameof(tradingCondition.Id), "TradingCondition Id must be set");
-            }
-
-            if (string.IsNullOrWhiteSpace(tradingCondition.Name))
-            {
-                throw new ArgumentNullException(nameof(tradingCondition.Name), "Name cannot be empty");
-            }
-
+            await ValidateTradingCondition(tradingCondition);
+            
             var defaultTradingCondition =
                 (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
 
@@ -89,9 +84,12 @@ namespace MarginTrading.SettingsService.Controllers
             
             _defaultLegalEntitySettings.Set(tradingCondition);
                 
-            await _tradingConditionsRepository.InsertAsync(
-                    _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
-            
+            if (!await _tradingConditionsRepository.TryInsertAsync(
+                _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition)))
+            {
+                throw new ArgumentException($"Trading condition with id {tradingCondition.Id} already exists",
+                    nameof(tradingCondition.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
 
@@ -123,10 +121,9 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingConditionContract> Update(string tradingConditionId, 
             [FromBody] TradingConditionContract tradingCondition)
         {
-            if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
-            {
-                throw new ArgumentNullException(nameof(tradingCondition.Id), "asset Id must be set");
-            }
+            ValidateId(tradingConditionId, tradingCondition);
+            
+            await ValidateTradingCondition(tradingCondition);
             
             var defaultTradingCondition =
                 (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
@@ -143,6 +140,17 @@ namespace MarginTrading.SettingsService.Controllers
             
             _defaultLegalEntitySettings.Set(tradingCondition);
 
+            var existingCondition = await _tradingConditionsRepository.GetAsync(tradingCondition.Id);
+            if (existingCondition == null)
+            {
+                throw new Exception($"Trading condition with Id = {tradingCondition.Id} not found");
+            }
+
+            if (existingCondition.LegalEntity != tradingCondition.LegalEntity)
+            {
+                throw new Exception("LegalEntity cannot be changed");
+            }
+
             await _tradingConditionsRepository.ReplaceAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
 
@@ -157,6 +165,36 @@ namespace MarginTrading.SettingsService.Controllers
                 _convertService.Convert<ITradingCondition, TradingCondition>(obj);
             defaultTrConDomain.IsDefault = state;
             await _tradingConditionsRepository.ReplaceAsync(defaultTrConDomain);
+        }
+
+        private void ValidateId(string id, TradingConditionContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private async Task ValidateTradingCondition(TradingConditionContract tradingCondition)
+        {
+            if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
+            {
+                throw new ArgumentNullException(nameof(tradingCondition.Id), "TradingCondition Id must be set");
+            }
+
+            if (!string.IsNullOrEmpty(tradingCondition.LimitCurrency)
+                && await _assetsRepository.GetAsync(tradingCondition.LimitCurrency) == null)
+            {
+                throw new InvalidOperationException($"LimitCurrency asset {tradingCondition.LimitCurrency} does not exist");
+            }
+
+            foreach (var baseAsset in tradingCondition.BaseAssets)
+            {//TODO optimization may be applied here
+                if (await _assetsRepository.GetAsync(baseAsset) == null)
+                {
+                    throw new InvalidOperationException($"Base asset {baseAsset} does not exist");
+                }
+            }
         }
     }
 }

@@ -58,8 +58,11 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new ArgumentNullException(nameof(asset.Id), "asset Id must be set");
             }
-            
-            await _assetsRepository.InsertAsync(_convertService.Convert<AssetContract, Asset>(asset));
+
+            if (!await _assetsRepository.TryInsertAsync(_convertService.Convert<AssetContract, Asset>(asset)))
+            {
+                throw new ArgumentException($"Asset with id {asset.Id} already exists", nameof(asset.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
 
@@ -90,6 +93,8 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetId}")]
         public async Task<AssetContract> Update(string assetId, [FromBody] AssetContract asset)
         {
+            ValidateId(assetId, asset);
+            
             if (string.IsNullOrWhiteSpace(asset?.Id))
             {
                 throw new ArgumentNullException(nameof(asset.Id), "asset Id must be set");
@@ -114,6 +119,14 @@ namespace MarginTrading.SettingsService.Controllers
             await _assetsRepository.DeleteAsync(assetId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
+        }
+
+        private void ValidateId(string id, AssetContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
         }
     }
 }

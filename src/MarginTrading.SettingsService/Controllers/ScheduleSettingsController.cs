@@ -20,17 +20,20 @@ namespace MarginTrading.SettingsService.Controllers
     public class ScheduleSettingsController : Controller, IScheduleSettingsApi
     {
         private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
+        private readonly IMarketRepository _marketRepository;
         private readonly IAssetPairsRepository _assetPairsRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         
         public ScheduleSettingsController(
             IScheduleSettingsRepository scheduleSettingsRepository,
+            IMarketRepository marketRepository,
             IAssetPairsRepository assetPairsRepository,
             IConvertService convertService,
             IEventSender eventSender)
         {
             _scheduleSettingsRepository = scheduleSettingsRepository;
+            _marketRepository = marketRepository;
             _assetPairsRepository = assetPairsRepository;
             _convertService = convertService;
             _eventSender = eventSender;
@@ -45,8 +48,10 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<ScheduleSettingsContract>> List()
         {
             var data = await _scheduleSettingsRepository.GetAsync();
-            
-            return data.Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettingsContract>(x)).ToList();
+            return data
+                .Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettings>(x))
+                .Select(x => _convertService.Convert<ScheduleSettings, ScheduleSettingsContract>(x))
+                .ToList();
         }
 
         /// <summary>
@@ -58,13 +63,14 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<ScheduleSettingsContract> Insert([FromBody] ScheduleSettingsContract scheduleSetting)
         {
-            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
-            {
-                throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
-            }
+            await ValidateScheduleSettings(scheduleSetting);
 
-            await _scheduleSettingsRepository.InsertAsync(
-                _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
+            if (!await _scheduleSettingsRepository.TryInsertAsync(
+                _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting)))
+            {
+                throw new ArgumentException($"Schedule setting with id {scheduleSetting.Id} already exists",
+                    nameof(scheduleSetting.Id));
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
 
@@ -96,10 +102,9 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<ScheduleSettingsContract> Update(string settingId, 
             [FromBody] ScheduleSettingsContract scheduleSetting)
         {
-            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
-            {
-                throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
-            }
+            ValidateId(settingId, scheduleSetting);
+            
+            await ValidateScheduleSettings(scheduleSetting);
 
             await _scheduleSettingsRepository.ReplaceAsync(
                 _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
@@ -133,28 +138,61 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
             var allSettingsTask = _scheduleSettingsRepository.GetAsync();
-            var assetPairsTask = assetPairIds == null
+            var assetPairsTask = assetPairIds == null || !assetPairIds.Any()
                 ? _assetPairsRepository.GetAsync()
                 : _assetPairsRepository.GetAsync(x => assetPairIds.Contains(x.Id));
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
             
             //extract the list of assetpairs with same settings based on regex, market or list
-            var result = assetPairs.Select(assetPair =>
+            var result = assetPairs.Select(assetPair => new CompiledScheduleContract
             {
-                var settings = allSettings.Where(setting => setting.AssetPairs.Contains(assetPair.Id)
-                                                            || Regex.IsMatch(assetPair.Id, setting.AssetPairRegex,
-                                                                RegexOptions.IgnoreCase)
-                                                            || setting.MarketId == assetPair.MarketId)
-                    .ToList();
-                return new CompiledScheduleContract
-                {
-                    AssetPairId = assetPair.Id,
-                    ScheduleSettings = settings.Select(x =>
+                AssetPairId = assetPair.Id,
+                ScheduleSettings = allSettings
+                    .Where(setting => setting.AssetPairs.Contains(assetPair.Id)
+                                      || Regex.IsMatch(assetPair.Id,
+                                          setting.AssetPairRegex,
+                                          RegexOptions.IgnoreCase)
+                                      || setting.MarketId == assetPair.MarketId)
+                    .Select(x =>
                         _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()
-                };
             }).ToList();
             return result;
+        }
+
+        private void ValidateId(string id, ScheduleSettingsContract contract)
+        {
+            if (contract?.Id != id)
+            {
+                throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private async Task ValidateScheduleSettings(ScheduleSettingsContract scheduleSetting)
+        {
+            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
+            {
+                throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
+            }
+
+            if (!string.IsNullOrEmpty(scheduleSetting.MarketId)
+                && await _marketRepository.GetAsync(scheduleSetting.MarketId) == null)
+            {
+                throw new InvalidOperationException($"Market {scheduleSetting.MarketId} does not exist");
+            }
+
+            if (scheduleSetting.Start == null || scheduleSetting.End == null)
+            {
+                throw new InvalidOperationException($"Start and End must be set");
+            }
+
+            foreach (var assetPair in scheduleSetting.AssetPairs)
+            {
+                if (await _assetPairsRepository.GetAsync(assetPair) == null)
+                {
+                    throw new InvalidOperationException($"Asset pair {assetPair} does not exist");
+                }
+            }
         }
     }
 }

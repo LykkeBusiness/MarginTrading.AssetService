@@ -20,6 +20,9 @@ namespace MarginTrading.SettingsService.Controllers
     [Route("api/tradingInstruments")]
     public class TradingInstrumentsController : Controller, ITradingInstrumentsApi
     {
+        private readonly IAssetsRepository _assetsRepository;
+        private readonly IAssetPairsRepository _assetPairsRepository;
+        private readonly ITradingConditionsRepository _tradingConditionsRepository;
         private readonly ITradingInstrumentsRepository _tradingInstrumentsRepository;
         private readonly ITradingService _tradingService;
         private readonly IConvertService _convertService;
@@ -27,12 +30,18 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly DefaultTradingInstrumentSettings _defaultTradingInstrumentSettings;
         
         public TradingInstrumentsController(
+            IAssetsRepository assetsRepository,
+            IAssetPairsRepository assetPairsRepository,
+            ITradingConditionsRepository tradingConditionsRepository,
             ITradingInstrumentsRepository tradingInstrumentsRepository,
             ITradingService tradingService,
             IConvertService convertService,
             IEventSender eventSender,
             DefaultTradingInstrumentSettings defaultTradingInstrumentSettings)
         {
+            _assetsRepository = assetsRepository;
+            _assetPairsRepository = assetPairsRepository;
+            _tradingConditionsRepository = tradingConditionsRepository;
             _tradingInstrumentsRepository = tradingInstrumentsRepository;
             _tradingService = tradingService;
             _convertService = convertService;
@@ -65,19 +74,14 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<TradingInstrumentContract> Insert([FromBody] TradingInstrumentContract instrument)
         {
-            if (string.IsNullOrWhiteSpace(instrument?.TradingConditionId))
-            {
-                throw new ArgumentNullException(nameof(instrument.TradingConditionId),
-                    "TradingConditionId must be set");
-            }
-            if (string.IsNullOrWhiteSpace(instrument.Instrument))
-            {
-                throw new ArgumentNullException(nameof(instrument.Instrument),
-                    "Instrument must be set");
-            }
+            await ValidateTradingInstrument(instrument);
 
-            await _tradingInstrumentsRepository.InsertAsync(
-                _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
+            if (!await _tradingInstrumentsRepository.TryInsertAsync(
+                _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument)))
+            {
+                throw new ArgumentException($"Trading instrument with tradingConditionId {instrument.TradingConditionId}" +
+                                            $"and assetPairId {instrument.Instrument} already exists");
+            }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
 
@@ -158,16 +162,9 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingInstrumentContract> Update(string tradingConditionId, string assetPairId, 
             [FromBody] TradingInstrumentContract instrument)
         {
-            if (string.IsNullOrWhiteSpace(instrument?.TradingConditionId))
-            {
-                throw new ArgumentNullException(nameof(instrument.TradingConditionId),
-                    "TradingConditionId must be set");
-            }
-            if (string.IsNullOrWhiteSpace(instrument.Instrument))
-            {
-                throw new ArgumentNullException(nameof(instrument.Instrument),
-                    "Instrument must be set");
-            }
+            ValidateId(tradingConditionId, assetPairId, instrument);
+            
+            await ValidateTradingInstrument(instrument);
 
             await _tradingInstrumentsRepository.ReplaceAsync(
                 _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
@@ -190,6 +187,57 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingInstrumentsRepository.DeleteAsync(assetPairId, tradingConditionId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+        }
+
+        private void ValidateId(string tradingConditionId, string assetPairId, TradingInstrumentContract contract)
+        {
+            if (contract?.TradingConditionId != tradingConditionId)
+            {
+                throw new ArgumentException("TradingConditionId must match with contract tradingConditionId");
+            }
+
+            if (contract?.Instrument != assetPairId)
+            {
+                throw new ArgumentException("AssetPairId must match with contract instrument");
+            }
+        }
+
+        private async Task ValidateTradingInstrument(TradingInstrumentContract instrument)
+        {
+            if (string.IsNullOrWhiteSpace(instrument?.TradingConditionId))
+            {
+                throw new ArgumentNullException(nameof(instrument.TradingConditionId), "TradingConditionId must be set");
+            }
+            
+            if (string.IsNullOrWhiteSpace(instrument.Instrument))
+            {
+                throw new ArgumentNullException(nameof(instrument.Instrument), "Instrument must be set");
+            }
+
+            if (await _tradingConditionsRepository.GetAsync(instrument.TradingConditionId) == null)
+            {
+                throw new InvalidOperationException($"Trading condition {instrument.TradingConditionId} does not exist");
+            }
+
+            if (await _assetPairsRepository.GetAsync(instrument.Instrument) == null)
+            {
+                throw new InvalidOperationException($"Asset pair {instrument.Instrument} does not exist");
+            }
+
+            if (instrument.LeverageInit <= 0)
+            {
+                throw new InvalidOperationException($"LeverageInit must be greather then zero");
+            }
+
+            if (instrument.LeverageMaintenance <= 0)
+            {
+                throw new InvalidOperationException($"LeverageMaintenance must be greather then zero");
+            }
+
+            if (await _assetsRepository.GetAsync(instrument.CommissionCurrency) == null)
+            {
+                throw new InvalidOperationException($"Commission currency {instrument.CommissionCurrency} does not exist");
+            }
         }
     }
 }

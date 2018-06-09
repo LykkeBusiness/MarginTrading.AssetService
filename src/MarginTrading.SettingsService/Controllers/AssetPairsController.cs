@@ -81,8 +81,6 @@ namespace MarginTrading.SettingsService.Controllers
             
             _defaultLegalEntitySettings.Set(assetPair);
 
-            _defaultLegalEntitySettings.Set(assetPair);
-
             if (!await _assetPairsRepository.TryInsertAsync(
                 _convertService.Convert<AssetPairContract, AssetPair>(assetPair)))
             {

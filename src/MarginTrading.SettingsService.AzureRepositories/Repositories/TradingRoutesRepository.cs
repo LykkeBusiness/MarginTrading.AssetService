@@ -8,8 +8,7 @@ using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class TradingRoutesRepository : GenericAzureCrudRepository<ITradingRoute, TradingRouteEntity>, 
-        ITradingRoutesRepository
+    public class TradingRoutesRepository : GenericAzureCrudRepository<ITradingRoute, TradingRouteEntity>
     {
         public TradingRoutesRepository(ILog log,
             IConvertService convertService,

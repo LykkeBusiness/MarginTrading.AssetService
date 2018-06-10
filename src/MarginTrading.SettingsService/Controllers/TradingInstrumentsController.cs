@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
 using MarginTrading.SettingsService.Core.Domain;
@@ -60,7 +59,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             var data = string.IsNullOrWhiteSpace(tradingConditionId)
                 ? await _tradingInstrumentsRepository.GetAsync()
-                : await _tradingInstrumentsRepository.GetAsync(x => x.TradingConditionId == tradingConditionId);
+                : await _tradingInstrumentsRepository.GetByTradingConditionAsync(tradingConditionId);
             
             return data.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList();
         }
@@ -100,7 +99,7 @@ namespace MarginTrading.SettingsService.Controllers
             [FromBody] string[] instruments)
         {
             var currentInstruments =
-                await _tradingInstrumentsRepository.GetAsync(x => x.TradingConditionId == tradingConditionId);
+                await _tradingInstrumentsRepository.GetByTradingConditionAsync(tradingConditionId);
 
             if (currentInstruments.Any())
             {
@@ -119,8 +118,7 @@ namespace MarginTrading.SettingsService.Controllers
                 
                 foreach (var pair in toRemove)
                 {
-                    await _tradingInstrumentsRepository.DeleteAsync(
-                        TradingInstrumentEntity.GetId(pair.TradingConditionId, pair.Instrument));
+                    await _tradingInstrumentsRepository.DeleteAsync(pair.Instrument, pair.TradingConditionId);
                 }
             }
             
@@ -166,7 +164,7 @@ namespace MarginTrading.SettingsService.Controllers
             
             await ValidateTradingInstrument(instrument);
 
-            await _tradingInstrumentsRepository.ReplaceAsync(
+            await _tradingInstrumentsRepository.UpdateAsync(
                 _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);

@@ -2,10 +2,10 @@
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.SettingsReader;
-using MarginTrading.SettingsService.AzureRepositories.Repositories;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Services;
 using MarginTrading.SettingsService.Settings.ServiceSettings;
+using MarginTrading.SettingsService.SqlRepositories.Repositories;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;

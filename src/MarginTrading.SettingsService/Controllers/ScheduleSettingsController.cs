@@ -106,7 +106,7 @@ namespace MarginTrading.SettingsService.Controllers
             
             await ValidateScheduleSettings(scheduleSetting);
 
-            await _scheduleSettingsRepository.ReplaceAsync(
+            await _scheduleSettingsRepository.UpdateAsync(
                 _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
@@ -138,9 +138,7 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
             var allSettingsTask = _scheduleSettingsRepository.GetAsync();
-            var assetPairsTask = assetPairIds == null || !assetPairIds.Any()
-                ? _assetPairsRepository.GetAsync()
-                : _assetPairsRepository.GetAsync(x => assetPairIds.Contains(x.Id));
+            var assetPairsTask = _assetPairsRepository.GetAsync(assetPairIds);
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
             

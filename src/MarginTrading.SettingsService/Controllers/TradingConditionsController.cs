@@ -69,7 +69,7 @@ namespace MarginTrading.SettingsService.Controllers
             await ValidateTradingCondition(tradingCondition);
             
             var defaultTradingCondition =
-                (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
+                (await _tradingConditionsRepository.GetDefaultAsync()).FirstOrDefault();
 
             if (tradingCondition.IsDefault 
                 && defaultTradingCondition != null && defaultTradingCondition.Id != tradingCondition.Id)
@@ -126,7 +126,7 @@ namespace MarginTrading.SettingsService.Controllers
             await ValidateTradingCondition(tradingCondition);
             
             var defaultTradingCondition =
-                (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
+                (await _tradingConditionsRepository.GetDefaultAsync()).FirstOrDefault();
             if (defaultTradingCondition == null && !tradingCondition.IsDefault)
             {
                 tradingCondition.IsDefault = true;
@@ -151,7 +151,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new Exception("LegalEntity cannot be changed");
             }
 
-            await _tradingConditionsRepository.ReplaceAsync(
+            await _tradingConditionsRepository.UpdateAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
@@ -164,7 +164,7 @@ namespace MarginTrading.SettingsService.Controllers
             var defaultTrConDomain =
                 _convertService.Convert<ITradingCondition, TradingCondition>(obj);
             defaultTrConDomain.IsDefault = state;
-            await _tradingConditionsRepository.ReplaceAsync(defaultTrConDomain);
+            await _tradingConditionsRepository.UpdateAsync(defaultTrConDomain);
         }
 
         private void ValidateId(string id, TradingConditionContract contract)

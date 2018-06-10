@@ -100,7 +100,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(market.Id), "market Id must be set");
             }
 
-            await _marketRepository.ReplaceAsync(_convertService.Convert<MarketContract, Market>(market));
+            await _marketRepository.UpdateAsync(_convertService.Convert<MarketContract, Market>(market));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
             

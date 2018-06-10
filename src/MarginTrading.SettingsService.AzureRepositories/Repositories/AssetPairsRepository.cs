@@ -4,11 +4,12 @@ using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.StorageInterfaces;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class AssetPairsRepository : GenericAzureCrudRepository<IAssetPair, AssetPairEntity>, IAssetPairsRepository
+    public class AssetPairsRepository : GenericAzureCrudRepository<IAssetPair, AssetPairEntity>
     {
         public AssetPairsRepository(ILog log,
             IConvertService convertService,

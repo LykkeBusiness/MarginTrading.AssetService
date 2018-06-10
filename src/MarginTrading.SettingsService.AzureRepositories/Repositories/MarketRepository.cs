@@ -8,7 +8,7 @@ using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class MarketRepository : GenericAzureCrudRepository<IMarket, MarketEntity>, IMarketRepository
+    public class MarketRepository : GenericAzureCrudRepository<IMarket, MarketEntity>
     {
         public MarketRepository(ILog log,
             IConvertService convertService,

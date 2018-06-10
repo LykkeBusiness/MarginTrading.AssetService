@@ -8,8 +8,7 @@ using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class ScheduleSettingsRepository : GenericAzureCrudRepository<IScheduleSettings, ScheduleSettingsEntity>, 
-        IScheduleSettingsRepository
+    public class ScheduleSettingsRepository : GenericAzureCrudRepository<IScheduleSettings, ScheduleSettingsEntity>
     {
         public ScheduleSettingsRepository(ILog log,
             IConvertService convertService,

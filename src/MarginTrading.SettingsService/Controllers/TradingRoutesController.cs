@@ -107,7 +107,7 @@ namespace MarginTrading.SettingsService.Controllers
             
             await ValidateRoute(route);
 
-            await _tradingRoutesRepository.ReplaceAsync(
+            await _tradingRoutesRepository.UpdateAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);

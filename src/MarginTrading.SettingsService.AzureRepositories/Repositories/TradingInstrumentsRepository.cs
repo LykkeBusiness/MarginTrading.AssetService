@@ -12,8 +12,7 @@ using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class TradingInstrumentsRepository : GenericAzureCrudRepository<ITradingInstrument, TradingInstrumentEntity>, 
-        ITradingInstrumentsRepository
+    public class TradingInstrumentsRepository : GenericAzureCrudRepository<ITradingInstrument, TradingInstrumentEntity>
     {
         public TradingInstrumentsRepository(ILog log,
             IConvertService convertService,

@@ -100,7 +100,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(asset.Id), "asset Id must be set");
             }
 
-            await _assetsRepository.ReplaceAsync(_convertService.Convert<AssetContract, Asset>(asset));
+            await _assetsRepository.UpdateAsync(_convertService.Convert<AssetContract, Asset>(asset));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
             

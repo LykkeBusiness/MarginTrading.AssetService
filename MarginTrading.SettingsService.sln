@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3. Contracts", "3. Contract
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.SettingsService.Contracts", "src\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj", "{28B0B815-0425-4163-A260-AEBC415089B7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.SettingsService.SqlRepositories", "src\MarginTrading.SettingsService.SqlRepositories\MarginTrading.SettingsService.SqlRepositories.csproj", "{D0A49E48-0F2F-4320-903D-447F6B169D75}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,10 @@ Global
 		{28B0B815-0425-4163-A260-AEBC415089B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28B0B815-0425-4163-A260-AEBC415089B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28B0B815-0425-4163-A260-AEBC415089B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -83,5 +89,6 @@ Global
 		{655970D1-46CD-44E3-ABC4-8A2ED9B34A3F} = {BF745453-B940-470E-81BC-43FB67703D4E}
 		{FE29B449-3C93-4B56-840F-80C2E7D8030B} = {8F9036B1-5106-4C69-B2D2-B78EE52687A0}
 		{28B0B815-0425-4163-A260-AEBC415089B7} = {D4B1EE06-100C-4B88-8B85-B0DDAB715B77}
+		{D0A49E48-0F2F-4320-903D-447F6B169D75} = {BF745453-B940-470E-81BC-43FB67703D4E}
 	EndGlobalSection
 EndGlobal

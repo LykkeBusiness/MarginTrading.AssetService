@@ -1,5 +1,4 @@
 ﻿using Lykke.AzureStorage.Tables;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace MarginTrading.SettingsService.AzureRepositories
 {

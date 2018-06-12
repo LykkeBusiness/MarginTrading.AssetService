@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
-using Lykke.SettingsReader;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -78,13 +77,13 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task UpdateAsync(IAssetPair convert)
+        public async Task UpdateAsync(IAssetPair obj)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
                 await conn.ExecuteAsync(
                     $"update {TableName} set {GetUpdateClause} where Id=@Id", 
-                    _convertService.Convert<IAssetPair, AssetPairEntity>(convert));
+                    _convertService.Convert<IAssetPair, AssetPairEntity>(obj));
             }
         }
 

@@ -1,7 +1,4 @@
-﻿using System.Linq;
-using MarginTrading.SettingsService.Services;
-
-namespace MarginTrading.SettingsService.TestClient
+﻿namespace MarginTrading.SettingsService.TestClient
 {
     public class Validator
     {

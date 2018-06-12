@@ -6,7 +6,8 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
     public class TradingRouteEntity : SimpleAzureEntity, ITradingRoute
     {
-        internal override string SimplePartitionKey => "TradingRoutes";
+        public static readonly string Pk = "TradingRoutes"; 
+        internal override string SimplePartitionKey => Pk;
         
         // Id comes from parent type
         public int Rank { get; set; }

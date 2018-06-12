@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Data;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 

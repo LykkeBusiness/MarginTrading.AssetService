@@ -12,7 +12,8 @@ using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
-    public class TradingInstrumentsRepository : GenericAzureCrudRepository<ITradingInstrument, TradingInstrumentEntity>
+    public class TradingInstrumentsRepository : GenericAzureCrudRepository<ITradingInstrument, TradingInstrumentEntity>,
+        ITradingInstrumentsRepository
     {
         public TradingInstrumentsRepository(ILog log,
             IConvertService convertService,
@@ -20,6 +21,11 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             : base(log, convertService, connectionStringManager, "TradingInstruments")
         {
 
+        }
+
+        public async Task<IReadOnlyList<ITradingInstrument>> GetByTradingConditionAsync(string tradingConditionId)
+        {
+            return (await TableStorage.GetDataAsync(x => x.TradingConditionId == tradingConditionId)).ToList();
         }
 
         public async Task<IEnumerable<ITradingInstrument>> CreateDefaultTradingInstruments(string tradingConditionId, 
@@ -52,6 +58,16 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             await TableStorage.InsertAsync(entitiesToAdd);
 
             return objectsToAdd;
+        }
+
+        public async Task UpdateAsync(ITradingInstrument tradingInstrument)
+        {
+            await base.ReplaceAsync(tradingInstrument);
+        }
+
+        public new async Task DeleteAsync(string assetPairId, string tradingConditionId)
+        {
+            await base.DeleteAsync(assetPairId, tradingConditionId);
         }
     }
 }

@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.SettingsServi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.SettingsService.SqlRepositories", "src\MarginTrading.SettingsService.SqlRepositories\MarginTrading.SettingsService.SqlRepositories.csproj", "{D0A49E48-0F2F-4320-903D-447F6B169D75}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MarginTrading.SettingsService.Migration", "src\MarginTrading.SettingsService.Migration\MarginTrading.SettingsService.Migration.csproj", "{CFF625D9-DB7D-4676-B9CD-5E97009455E5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +79,10 @@ Global
 		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0A49E48-0F2F-4320-903D-447F6B169D75}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFF625D9-DB7D-4676-B9CD-5E97009455E5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFF625D9-DB7D-4676-B9CD-5E97009455E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFF625D9-DB7D-4676-B9CD-5E97009455E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFF625D9-DB7D-4676-B9CD-5E97009455E5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

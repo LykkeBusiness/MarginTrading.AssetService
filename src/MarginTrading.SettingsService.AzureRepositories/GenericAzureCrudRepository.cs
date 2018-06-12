@@ -76,7 +76,6 @@ namespace MarginTrading.SettingsService.AzureRepositories
         {
             var entity = ConvertService.Convert<TD, TE>(obj, DefaultAzureMappingOpts);
             entity.SetKeys();
-            
             await TableStorage.ReplaceAsync(entity);
         }
 

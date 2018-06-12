@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
@@ -15,6 +13,6 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null, string matchingEngineMode = null);
         Task<bool> TryInsertAsync(IAssetPair convert);
         Task DeleteAsync(string assetPairId);
-        Task UpdateAsync(IAssetPair convert);
+        Task UpdateAsync(IAssetPair obj);
     }
 }

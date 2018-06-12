@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using MarginTrading.SettingsService.Core.Interfaces;
-using MarginTrading.SettingsService.SqlRepositories.Entities;
-using MarginTrading.SettingsService.StorageInterfaces;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.SqlRepositories.Repositories
@@ -31,8 +29,6 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
         private static Type DataType => typeof(ILogObject);
         private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
-        private static readonly string GetUpdateClause = string.Join(",",
-            DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly string _connectionString;
         

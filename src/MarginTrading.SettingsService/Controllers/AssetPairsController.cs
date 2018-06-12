@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Contracts.Enums;
-using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;

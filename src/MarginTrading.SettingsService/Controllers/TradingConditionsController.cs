@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
-using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -12,7 +11,6 @@ using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace MarginTrading.SettingsService.Controllers
 {

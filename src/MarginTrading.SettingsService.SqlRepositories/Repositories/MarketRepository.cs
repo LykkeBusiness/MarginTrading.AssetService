@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
-using Lykke.SettingsReader;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.SqlRepositories.Entities;

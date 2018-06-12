@@ -15,5 +15,6 @@
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.Core\MarginTrading.SettingsService.Core.csproj" />
+    <ProjectReference Include="..\MarginTrading.SettingsService.StorageInterfaces\MarginTrading.SettingsService.StorageInterfaces.csproj" />
   </ItemGroup>
 </Project>

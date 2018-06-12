@@ -34,6 +34,7 @@
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.SqlRepositories\MarginTrading.SettingsService.SqlRepositories.csproj" />
+    <ProjectReference Include="..\MarginTrading.SettingsService.AzureRepositories\MarginTrading.SettingsService.AzureRepositories.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.Core\MarginTrading.SettingsService.Core.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.Services\MarginTrading.SettingsService.Services.csproj" />
   </ItemGroup>

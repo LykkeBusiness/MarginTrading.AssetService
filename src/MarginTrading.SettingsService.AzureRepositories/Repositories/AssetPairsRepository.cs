@@ -22,7 +22,9 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 
         public async Task<IReadOnlyList<IAssetPair>> GetAsync(params string[] assetPairIds)
         {
-            return (await TableStorage.GetDataAsync(AssetPairEntity.Pk, x => assetPairIds.Contains(x.Id))).ToList();
+            return (assetPairIds.Length == 0
+                ? await TableStorage.GetDataAsync()
+                : await TableStorage.GetDataAsync(AssetPairEntity.Pk, x => assetPairIds.Contains(x.Id))).ToList();
         }
 
         public async Task<IAssetPair> GetByBaseAssetPairAsync(string baseAssetPairId)

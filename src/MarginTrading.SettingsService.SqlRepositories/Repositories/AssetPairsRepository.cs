@@ -27,12 +27,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[LegalEntity] [nvarchar] (64) NULL, " +
                                                  "[BasePairId] [nvarchar] (64) NULL, " +
                                                  "[MatchingEngineMode] [nvarchar] (64) NULL, " +
-                                                 "[StpMultiplierMarkupBid] [decimal] NULL, " +
-                                                 "[StpMultiplierMarkupAsk] [decimal] NULL " +
+                                                 "[StpMultiplierMarkupBid] decimal (24,10) NULL, " +
+                                                 "[StpMultiplierMarkupAsk] decimal (24,10) NULL " +
                                                  ");";
         
         private static Type DataType => typeof(IAssetPair);
-        private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
+        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));

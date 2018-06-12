@@ -78,6 +78,11 @@ namespace MarginTrading.SettingsService.Modules
                 var connstrParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.SqlConnectionString);
                 
+                builder.RegisterType<SqlRepos.LogRepository>()
+                    .As<ILogRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
+                
                 builder.RegisterType<SqlRepos.AssetPairsRepository>()
                     .As<IAssetPairsRepository>()
                     .WithParameter(connstrParameter)

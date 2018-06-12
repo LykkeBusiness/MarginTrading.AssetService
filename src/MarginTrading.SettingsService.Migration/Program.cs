@@ -49,37 +49,37 @@ namespace MarginTrading.SettingsService.Migration
             var assetsRepos = new IAssetsRepository[]
             {
                 new AzureRepos.AssetsRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.AssetsRepository(convertService, "", fakeLogger),
+                new SqlRepos.AssetsRepository(convertService, sqlConnStr, fakeLogger),
             };
             var assetPairsRepos = new IAssetPairsRepository[]
             {
                 new AzureRepos.AssetPairsRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.AssetPairsRepository(convertService, "", fakeLogger),
+                new SqlRepos.AssetPairsRepository(convertService, sqlConnStr, fakeLogger),
             };
             var marketsRepos = new IMarketRepository[]
             {
                 new AzureRepos.MarketRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.MarketRepository(convertService, "", fakeLogger),
+                new SqlRepos.MarketRepository(convertService, sqlConnStr, fakeLogger),
             };
             var scheduleSettingsRepos = new IScheduleSettingsRepository[]
             {
                 new AzureRepos.ScheduleSettingsRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.ScheduleSettingsRepository(convertService, "", fakeLogger),
+                new SqlRepos.ScheduleSettingsRepository(convertService, sqlConnStr, fakeLogger),
             };
             var tradingConditionsRepos = new ITradingConditionsRepository[]
             {
                 new AzureRepos.TradingConditionsRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.TradingConditionsRepository(convertService, "", fakeLogger),
+                new SqlRepos.TradingConditionsRepository(convertService, sqlConnStr, fakeLogger),
             };
             var tradingInstrumentsRepos = new ITradingInstrumentsRepository[]
             {
                 new AzureRepos.TradingInstrumentsRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.TradingInstrumentsRepository(convertService, "", fakeLogger),
+                new SqlRepos.TradingInstrumentsRepository(convertService, sqlConnStr, fakeLogger),
             };
             var tradingRoutesRepos = new ITradingRoutesRepository[]
             {
                 new AzureRepos.TradingRoutesRepository(fakeLogger, convertService, azureRm), 
-                new SqlRepos.TradingRoutesRepository(convertService, "", fakeLogger),
+                new SqlRepos.TradingRoutesRepository(convertService, sqlConnStr, fakeLogger),
             };
 
             if (option == "2")
@@ -155,8 +155,8 @@ namespace MarginTrading.SettingsService.Migration
                     tradingRoutesSucceded++;
             }
             Console.WriteLine($"Trading routes succeded: {tradingRoutesSucceded}, failed: {tradingRoutes.Count - tradingRoutesSucceded}.");
-            
-            Console.WriteLine($"Finished! Press any key to exit.");
+
+            Console.WriteLine("Finished! Press any key to exit.");
             Console.ReadKey();
         }
     }

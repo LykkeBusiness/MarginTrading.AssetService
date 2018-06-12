@@ -23,20 +23,20 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Instrument] [nvarchar] (64) NOT NULL, " +
                                                  "[LeverageInit] [int] NULL, " +
                                                  "[LeverageMaintenance] [int] NULL, " +
-                                                 "[SwapLong] [decimal] NULL, " +
-                                                 "[SwapShort] [decimal] NULL, " +
-                                                 "[Delta] [decimal] NULL, " +
-                                                 "[DealMinLimit] [decimal] NULL, " +
-                                                 "[DealMaxLimit] [decimal] NULL, " +
-                                                 "[PositionLimit] [decimal] NULL, " +
-                                                 "[CommissionRate] [decimal] NULL, " +
-                                                 "[CommissionMin] [decimal] NULL, " +
-                                                 "[CommissionMax] [decimal] NULL, " +
+                                                 "[SwapLong] decimal (24,10) NULL, " +
+                                                 "[SwapShort] decimal (24,10) NULL, " +
+                                                 "[Delta] decimal (24,10) NULL, " +
+                                                 "[DealMinLimit] decimal (24,10) NULL, " +
+                                                 "[DealMaxLimit] decimal (24,10) NULL, " +
+                                                 "[PositionLimit] decimal (24,10) NULL, " +
+                                                 "[CommissionRate] decimal (24,10) NULL, " +
+                                                 "[CommissionMin] decimal (24,10) NULL, " +
+                                                 "[CommissionMax] decimal (24,10) NULL, " +
                                                  "[CommissionCurrency] [nvarchar] (64) NULL" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingInstrument);
-        private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
+        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));

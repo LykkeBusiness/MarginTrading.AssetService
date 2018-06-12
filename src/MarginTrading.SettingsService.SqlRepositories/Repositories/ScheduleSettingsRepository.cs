@@ -10,6 +10,7 @@ using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.SqlRepositories.Entities;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace MarginTrading.SettingsService.SqlRepositories.Repositories
 {
@@ -30,7 +31,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  ");";
         
         private static Type DataType => typeof(IScheduleSettings);
-        private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
+        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));

@@ -21,18 +21,18 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Id] [nvarchar] (64) NOT NULL, " +
                                                  "[Name] [nvarchar] (64) NOT NULL, " +
                                                  "[LegalEntity] [nvarchar] (64) NULL, " +
-                                                 "[MarginCall1] [decimal] NULL, " +
-                                                 "[MarginCall2] [decimal] NULL, " +
-                                                 "[StopOut] [decimal] NULL, " +
-                                                 "[DepositLimit] [decimal] NULL, " +
-                                                 "[WithdrawalLimit] [decimal] NULL, " +
+                                                 "[MarginCall1] decimal (24,10) NULL, " +
+                                                 "[MarginCall2] decimal (24,10) NULL, " +
+                                                 "[StopOut] decimal (24,10) NULL, " +
+                                                 "[DepositLimit] decimal (24,10) NULL, " +
+                                                 "[WithdrawalLimit] decimal (24,10) NULL, " +
                                                  "[LimitCurrency] [nvarchar] (64) NULL, " +
                                                  "[BaseAssets] [nvarchar] (MAX) NULL, " +
                                                  "[IsDefault] [bit] NOT NULL " +
                                                  ");";
         
         private static Type DataType => typeof(ITradingCondition);
-        private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
+        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
@@ -98,7 +98,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                 {
                     await conn.ExecuteAsync(
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
-                        _convertService.Convert<ITradingCondition, TradingCondition>(tradingCondition));
+                        _convertService.Convert<ITradingCondition, TradingConditionEntity>(tradingCondition));
                 }
                 catch
                 {

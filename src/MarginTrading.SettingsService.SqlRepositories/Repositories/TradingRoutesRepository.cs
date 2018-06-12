@@ -27,11 +27,11 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[MatchingEngineId] [nvarchar] (64) NULL, " +
                                                  "[Asset] [nvarchar] (64) NULL, " +
                                                  "[RiskSystemLimitType] [nvarchar] (64) NULL, " +
-                                                 "[RiskSystemMetricType] [nvarchar] (64) NULL, " +
+                                                 "[RiskSystemMetricType] [nvarchar] (64) NULL " +
                                                  ");";
         
         private static Type DataType => typeof(ITradingRoute);
-        private static readonly string GetColumns = string.Join(",", DataType.GetProperties().Select(x => x.Name));
+        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));

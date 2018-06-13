@@ -32,7 +32,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[CommissionRate] decimal (24,10) NULL, " +
                                                  "[CommissionMin] decimal (24,10) NULL, " +
                                                  "[CommissionMax] decimal (24,10) NULL, " +
-                                                 "[CommissionCurrency] [nvarchar] (64) NULL" +
+                                                 "[CommissionCurrency] [nvarchar] (64) NULL " +
                                                  ");";
         
         private static Type DataType => typeof(ITradingInstrument);
@@ -90,8 +90,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             using (var conn = new SqlConnection(_connectionString))
             {
                 var objects = await conn.QueryAsync<TradingInstrumentEntity>(
-                    $"SELECT * FROM {TableName} WHERE Id=@id", 
-                    new {id = TradingInstrumentEntity.GetId(tradingConditionId, assetPairId)});
+                    $"SELECT * FROM {TableName} WHERE TradingConditionId=@tradingConditionId AND Instrument=@assetPairId",
+                    new {tradingConditionId, assetPairId});
                 
                 return objects.Select(_convertService.Convert<TradingInstrumentEntity, TradingInstrument>).FirstOrDefault();
             }
@@ -103,6 +103,17 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             {
                 try
                 {
+                    if (null != await conn.QueryFirstOrDefaultAsync<TradingInstrumentEntity>(
+                            $"SELECT * FROM {TableName} WHERE TradingConditionId=@tradingConditionId AND Instrument=@assetPairId",
+                            new
+                            {
+                                tradingConditionId = tradingInstrument.TradingConditionId, 
+                                assetPairId = tradingInstrument.Instrument
+                            }))
+                    {
+                        return false;
+                    }
+
                     await conn.ExecuteAsync(
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
                         _convertService.Convert<ITradingInstrument, TradingInstrumentEntity>(tradingInstrument));
@@ -121,7 +132,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             using (var conn = new SqlConnection(_connectionString))
             {
                 await conn.ExecuteAsync(
-                    $"update {TableName} set {GetUpdateClause} where Id=@Id", 
+                    $"update {TableName} set {GetUpdateClause} where TradingConditionId=@TradingConditionId AND Instrument=@Instrument", 
                     _convertService.Convert<ITradingInstrument, TradingInstrumentEntity>(tradingInstrument));
             }
         }
@@ -131,8 +142,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             using (var conn = new SqlConnection(_connectionString))
             {
                 await conn.ExecuteAsync(
-                    $"DELETE {TableName} WHERE Id=@Id", 
-                    new { Id = TradingInstrumentEntity.GetId(tradingConditionId, assetPairId)});
+                    $"DELETE {TableName} WHERE TradingConditionId=@tradingConditionId AND Instrument=@assetPairId",
+                    new
+                    {
+                        tradingConditionId,
+                        assetPairId
+                    });
             }
         }
 

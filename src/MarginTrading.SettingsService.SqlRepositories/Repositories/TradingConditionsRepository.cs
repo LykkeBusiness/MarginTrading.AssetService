@@ -28,7 +28,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[WithdrawalLimit] decimal (24,10) NULL, " +
                                                  "[LimitCurrency] [nvarchar] (64) NULL, " +
                                                  "[BaseAssets] [nvarchar] (MAX) NULL, " +
-                                                 "[IsDefault] [bit] NOT NULL " +
+                                                 "[IsDefault] [bit] NOT NULL, " +
+                                                 "CONSTRAINT Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingCondition);
@@ -115,7 +116,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             {
                 await conn.ExecuteAsync(
                     $"update {TableName} set {GetUpdateClause} where Id=@Id", 
-                    _convertService.Convert<ITradingCondition, TradingCondition>(tradingCondition));
+                    _convertService.Convert<ITradingCondition, TradingConditionEntity>(tradingCondition));
             }
         }
     }

@@ -173,7 +173,7 @@ namespace MarginTrading.SettingsService.Controllers
 
             if (await _assetPairsRepository.GetAsync(newValue.BasePairId) == null)
             {
-                throw new InvalidOperationException($"BasePair with Id {newValue.Id} does not exist");
+                throw new InvalidOperationException($"BasePair with Id {newValue.BasePairId} does not exist");
             }
 
             if (await _assetPairsRepository.GetByBaseAssetPairAsync(newValue.BasePairId) != null)

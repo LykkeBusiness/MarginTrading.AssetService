@@ -27,7 +27,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[MatchingEngineId] [nvarchar] (64) NULL, " +
                                                  "[Asset] [nvarchar] (64) NULL, " +
                                                  "[RiskSystemLimitType] [nvarchar] (64) NULL, " +
-                                                 "[RiskSystemMetricType] [nvarchar] (64) NULL " +
+                                                 "[RiskSystemMetricType] [nvarchar] (64) NULL, " +
+                                                 "CONSTRAINT Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingRoute);

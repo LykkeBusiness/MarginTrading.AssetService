@@ -27,7 +27,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[IsTradeEnabled] [bit] NULL, " +
                                                  "[PendingOrdersCutOff] [nvarchar] (64) NULL, " +
                                                  "[Start] [nvarchar] (MAX) NULL, " +
-                                                 "[End] [nvarchar] (MAX) NULL " +
+                                                 "[End] [nvarchar] (MAX) NULL, " +
+                                                 "CONSTRAINT Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(IScheduleSettings);

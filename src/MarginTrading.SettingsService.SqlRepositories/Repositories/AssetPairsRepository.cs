@@ -28,7 +28,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[BasePairId] [nvarchar] (64) NULL, " +
                                                  "[MatchingEngineMode] [nvarchar] (64) NULL, " +
                                                  "[StpMultiplierMarkupBid] decimal (24,10) NULL, " +
-                                                 "[StpMultiplierMarkupAsk] decimal (24,10) NULL " +
+                                                 "[StpMultiplierMarkupAsk] decimal (24,10) NULL, " +
+                                                 "CONSTRAINT Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(IAssetPair);

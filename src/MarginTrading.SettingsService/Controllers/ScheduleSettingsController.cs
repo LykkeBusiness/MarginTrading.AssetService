@@ -102,10 +102,10 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<ScheduleSettingsContract> Update(string settingId, 
             [FromBody] ScheduleSettingsContract scheduleSetting)
         {
+            await ValidateScheduleSettings(scheduleSetting);
+            
             ValidateId(settingId, scheduleSetting);
             
-            await ValidateScheduleSettings(scheduleSetting);
-
             await _scheduleSettingsRepository.UpdateAsync(
                 _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
 
@@ -168,6 +168,11 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateScheduleSettings(ScheduleSettingsContract scheduleSetting)
         {
+            if (scheduleSetting == null)
+            {
+                throw new ArgumentNullException("scheduleSetting", "Model is incorrect");
+            }
+            
             if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
             {
                 throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");

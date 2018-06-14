@@ -119,9 +119,9 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingConditionContract> Update(string tradingConditionId, 
             [FromBody] TradingConditionContract tradingCondition)
         {
-            ValidateId(tradingConditionId, tradingCondition);
-            
             await ValidateTradingCondition(tradingCondition);
+            
+            ValidateId(tradingConditionId, tradingCondition);
             
             var defaultTradingCondition =
                 (await _tradingConditionsRepository.GetDefaultAsync()).FirstOrDefault();
@@ -175,6 +175,11 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateTradingCondition(TradingConditionContract tradingCondition)
         {
+            if (tradingCondition == null)
+            {
+                throw new ArgumentNullException("tradingCondition", "Model is incorrect");
+            }
+            
             if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
             {
                 throw new ArgumentNullException(nameof(tradingCondition.Id), "TradingCondition Id must be set");

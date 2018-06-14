@@ -107,9 +107,8 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
         {
-            ValidateId(assetPairId, assetPair);
-
             await ValidatePair(assetPair);
+            ValidateId(assetPairId, assetPair);
 
             _defaultLegalEntitySettings.Set(assetPair);
 
@@ -136,7 +135,12 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidatePair(AssetPairContract newValue)
         {
-            if (string.IsNullOrWhiteSpace(newValue?.Id))
+            if (newValue == null)
+            {
+                throw new ArgumentNullException("assetPair", "Model is incorrect");
+            }
+            
+            if (string.IsNullOrWhiteSpace(newValue.Id))
             {
                 throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
             }

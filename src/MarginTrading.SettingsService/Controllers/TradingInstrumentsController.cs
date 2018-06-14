@@ -160,9 +160,8 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingInstrumentContract> Update(string tradingConditionId, string assetPairId, 
             [FromBody] TradingInstrumentContract instrument)
         {
-            ValidateId(tradingConditionId, assetPairId, instrument);
-            
             await ValidateTradingInstrument(instrument);
+            ValidateId(tradingConditionId, assetPairId, instrument);
 
             await _tradingInstrumentsRepository.UpdateAsync(
                 _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
@@ -202,6 +201,11 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateTradingInstrument(TradingInstrumentContract instrument)
         {
+            if (instrument == null)
+            {
+                throw new ArgumentNullException("instrument", "Model is incorrect");
+            }
+            
             if (string.IsNullOrWhiteSpace(instrument?.TradingConditionId))
             {
                 throw new ArgumentNullException(nameof(instrument.TradingConditionId), "TradingConditionId must be set");

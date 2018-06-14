@@ -103,10 +103,10 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<MatchingEngineRouteContract> Update(string routeId, 
             [FromBody] MatchingEngineRouteContract route)
         {
+            await ValidateRoute(route);
+            
             ValidateId(routeId, route);
             
-            await ValidateRoute(route);
-
             await _tradingRoutesRepository.UpdateAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
 
@@ -131,6 +131,11 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateRoute(MatchingEngineRouteContract route)
         {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route", "Model is incorrect");
+            }
+            
             if (string.IsNullOrWhiteSpace(route?.Id))
             {
                 throw new ArgumentNullException(nameof(route.Id), "Route Id must be set");

@@ -20,7 +20,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Version] [nvarchar] (256) NULL, " +
                                                  "[Component] [nvarchar] (256) NULL, " +
                                                  "[Process] [nvarchar] (256) NOT NULL, " +
-                                                 "[Context] [nvarchar] (256) NOT NULL, " +
+                                                 "[Context] text NOT NULL, " +
                                                  "[Type] [nvarchar] (256) NOT NULL, " +
                                                  "[Stack] [text] NULL, " +
                                                  "[Msg] [text] NULL " +

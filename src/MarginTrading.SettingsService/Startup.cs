@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -61,6 +62,10 @@ namespace MarginTrading.SettingsService
                 services.AddSwaggerGen(options =>
                 {
                     options.DefaultLykkeConfiguration("v1", $"{ServiceName} API");
+                    var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, 
+                        "MarginTrading.SettingsService.Contracts.xml");
+                    options.IncludeXmlComments(contractsXmlPath);
+                    //options.OperationFilter<CustomOperationIdOperationFilter>();
                 });
 
                 var builder = new ContainerBuilder();
@@ -89,8 +94,6 @@ namespace MarginTrading.SettingsService
                 {
                     app.UseDeveloperExceptionPage();
                 }
-
-                app.UseLykkeForwardedHeaders();
                 
 #if DEBUG
                 app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
@@ -99,16 +102,8 @@ namespace MarginTrading.SettingsService
 #endif
                 
                 app.UseMvc();
-                app.UseSwagger(c =>
-                {
-                    c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
-                });
-                app.UseSwaggerUI(x =>
-                {
-                    x.RoutePrefix = "swagger/ui";
-                    x.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                });
-                app.UseStaticFiles();
+                app.UseSwagger();
+                app.UseSwaggerUI(a => a.SwaggerEndpoint("/swagger/v1/swagger.json", "Settings Service API Swagger"));
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());

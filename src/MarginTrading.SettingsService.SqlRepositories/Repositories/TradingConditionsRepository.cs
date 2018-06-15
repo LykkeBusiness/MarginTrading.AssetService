@@ -101,8 +101,10 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
                         _convertService.Convert<ITradingCondition, TradingConditionEntity>(tradingCondition));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
+                        $"Failed to insert a trading condition with Id {tradingCondition.Id}", ex);
                     return false;
                 }
 

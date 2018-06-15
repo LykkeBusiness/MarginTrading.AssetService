@@ -82,8 +82,10 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
                         _convertService.Convert<IAsset, AssetEntity>(asset));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
+                        $"Failed to insert an asset with Id {asset.Id}", ex);
                     return false;
                 }
 

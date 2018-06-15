@@ -182,17 +182,17 @@ namespace MarginTrading.SettingsService
 
             aggregateLogger.AddLog(consoleLogger);
             
-            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer.ToString())
+            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
             {
                 var sqlLogger = new LogToSql(new LogRepository("SettingsServiceLog",
                     settings.CurrentValue.MarginTradingSettingsService.Db.SqlConnectionString));
 
                 aggregateLogger.AddLog(sqlLogger);
             } 
-            else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.Azure.ToString())
+            else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.Azure)
             {
                 var dbLogConnectionStringManager =
-                    settings.Nested(x => x.MarginTradingSettingsService.Db.LogsConnString);
+                    settings.Nested(x => x.MarginTradingSettingsService.Db.LogsAzureConnString);
                 var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
                 if (string.IsNullOrEmpty(dbLogConnectionString))

@@ -69,8 +69,10 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
                         _convertService.Convert<IAssetPair, AssetPairEntity>(obj));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
+                        $"Failed to insert an asset pair with Id {obj.Id}", ex);
                     return false;
                 }
 
@@ -134,7 +136,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IAssetPair> GetByIdAndBaseAssetPairAsync(string id, string baseAssetPairId)
+        public async Task<IAssetPair> GetByBaseAssetPairAndNotByIdAsync(string id, string baseAssetPairId)
         {
             const string whereClause = "WHERE 1=1 "
                                        + " AND Id<>@id"

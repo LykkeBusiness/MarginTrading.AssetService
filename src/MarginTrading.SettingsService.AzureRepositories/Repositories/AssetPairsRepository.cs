@@ -33,7 +33,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 .FirstOrDefault();
         }
 
-        public async Task<IAssetPair> GetByIdAndBaseAssetPairAsync(string id, string baseAssetPairId)
+        public async Task<IAssetPair> GetByBaseAssetPairAndNotByIdAsync(string id, string baseAssetPairId)
         {
             return (await TableStorage.GetDataAsync(AssetPairEntity.Pk, 
                     x => x.Id != id && x.BaseAssetId == baseAssetPairId))

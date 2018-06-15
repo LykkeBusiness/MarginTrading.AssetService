@@ -73,7 +73,7 @@ namespace MarginTrading.SettingsService.Modules
 
         private void RegisterRepositories(ContainerBuilder builder)
         {
-            if (_settings.CurrentValue.Db.StorageMode == StorageMode.SqlServer.ToString())
+            if (_settings.CurrentValue.Db.StorageMode == StorageMode.SqlServer)
             {
                 var connstrParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.SqlConnectionString);
@@ -118,10 +118,10 @@ namespace MarginTrading.SettingsService.Modules
                     .WithParameter(connstrParameter)
                     .SingleInstance();
             }
-            else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure.ToString())
+            else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)
             {
                 var connstrParameter = new NamedParameter("connectionStringManager",
-                    _settings.Nested(x => x.Db.MarginTradingConnString));
+                    _settings.Nested(x => x.Db.AzureConnectionString));
 
                 builder.RegisterType<AzureRepos.AssetPairsRepository>()
                     .As<IAssetPairsRepository>()

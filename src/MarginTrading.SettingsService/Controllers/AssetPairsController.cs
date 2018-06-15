@@ -190,7 +190,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} does not exist");
             }
 
-            if (await _assetPairsRepository.GetByIdAndBaseAssetPairAsync(newValue.Id, newValue.BasePairId) != null)
+            if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(newValue.Id, newValue.BasePairId) != null)
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
             }    

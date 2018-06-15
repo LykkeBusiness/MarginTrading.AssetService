@@ -80,8 +80,10 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
                         _convertService.Convert<IMarket, MarketEntity>(market));
                 }
-                catch
+                catch (Exception ex)
                 {
+                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
+                        $"Failed to insert a market with Id {market.Id}", ex);
                     return false;
                 }
 

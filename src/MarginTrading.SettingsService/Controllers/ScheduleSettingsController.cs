@@ -173,7 +173,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException("scheduleSetting", "Model is incorrect");
             }
             
-            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
+            if (string.IsNullOrWhiteSpace(scheduleSetting.Id))
             {
                 throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
             }
@@ -187,6 +187,16 @@ namespace MarginTrading.SettingsService.Controllers
             if (scheduleSetting.Start == null || scheduleSetting.End == null)
             {
                 throw new InvalidOperationException($"Start and End must be set");
+            }
+
+            if (scheduleSetting.Start.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.Start.DayOfWeek))
+            {
+                throw new ArgumentNullException(nameof(scheduleSetting.Start.DayOfWeek), "AssetPair Start DayOfWeek is set to an incorrect value");
+            }
+
+            if (scheduleSetting.End.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.End.DayOfWeek))
+            {
+                throw new ArgumentNullException(nameof(scheduleSetting.End.DayOfWeek), "AssetPair End DayOfWeek is set to an incorrect value");
             }
 
             foreach (var assetPair in scheduleSetting.AssetPairs)

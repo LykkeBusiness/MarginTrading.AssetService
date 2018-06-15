@@ -145,6 +145,11 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
             }
 
+            if (!Enum.IsDefined(typeof(MatchingEngineModeContract), newValue.MatchingEngineMode))
+            {
+                throw new ArgumentNullException(nameof(newValue.MatchingEngineMode), "AssetPair MatchingEngineMode must be set");
+            }
+
             if (await _assetsRepository.GetAsync(newValue.BaseAssetId) == null)
             {
                 throw new InvalidOperationException($"Base Asset {newValue.BaseAssetId} does not exist");

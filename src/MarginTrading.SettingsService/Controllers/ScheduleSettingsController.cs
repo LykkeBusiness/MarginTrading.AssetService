@@ -102,11 +102,11 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<ScheduleSettingsContract> Update(string settingId, 
             [FromBody] ScheduleSettingsContract scheduleSetting)
         {
+            await ValidateScheduleSettings(scheduleSetting);
+            
             ValidateId(settingId, scheduleSetting);
             
-            await ValidateScheduleSettings(scheduleSetting);
-
-            await _scheduleSettingsRepository.ReplaceAsync(
+            await _scheduleSettingsRepository.UpdateAsync(
                 _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
@@ -138,9 +138,7 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
             var allSettingsTask = _scheduleSettingsRepository.GetAsync();
-            var assetPairsTask = assetPairIds == null || !assetPairIds.Any()
-                ? _assetPairsRepository.GetAsync()
-                : _assetPairsRepository.GetAsync(x => assetPairIds.Contains(x.Id));
+            var assetPairsTask = _assetPairsRepository.GetAsync(assetPairIds);
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
             
@@ -170,7 +168,12 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateScheduleSettings(ScheduleSettingsContract scheduleSetting)
         {
-            if (string.IsNullOrWhiteSpace(scheduleSetting?.Id))
+            if (scheduleSetting == null)
+            {
+                throw new ArgumentNullException("scheduleSetting", "Model is incorrect");
+            }
+            
+            if (string.IsNullOrWhiteSpace(scheduleSetting.Id))
             {
                 throw new ArgumentNullException(nameof(scheduleSetting.Id), "scheduleSetting Id must be set");
             }
@@ -184,6 +187,16 @@ namespace MarginTrading.SettingsService.Controllers
             if (scheduleSetting.Start == null || scheduleSetting.End == null)
             {
                 throw new InvalidOperationException($"Start and End must be set");
+            }
+
+            if (scheduleSetting.Start.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.Start.DayOfWeek))
+            {
+                throw new ArgumentNullException(nameof(scheduleSetting.Start.DayOfWeek), "AssetPair Start DayOfWeek is set to an incorrect value");
+            }
+
+            if (scheduleSetting.End.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.End.DayOfWeek))
+            {
+                throw new ArgumentNullException(nameof(scheduleSetting.End.DayOfWeek), "AssetPair End DayOfWeek is set to an incorrect value");
             }
 
             foreach (var assetPair in scheduleSetting.AssetPairs)

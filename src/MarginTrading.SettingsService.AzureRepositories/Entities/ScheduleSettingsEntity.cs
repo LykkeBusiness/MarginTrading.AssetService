@@ -8,7 +8,8 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
     public class ScheduleSettingsEntity : SimpleAzureEntity, IScheduleSettings
     {
-        internal override string SimplePartitionKey => "ScheduleSettings";
+        public static readonly string Pk = "ScheduleSettings"; 
+        internal override string SimplePartitionKey => Pk;
         
         // Id comes from parent type
         public int Rank { get; set; }

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
-using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -12,7 +11,6 @@ using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Server.IISIntegration;
 
 namespace MarginTrading.SettingsService.Controllers
 {
@@ -69,7 +67,7 @@ namespace MarginTrading.SettingsService.Controllers
             await ValidateTradingCondition(tradingCondition);
             
             var defaultTradingCondition =
-                (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
+                (await _tradingConditionsRepository.GetDefaultAsync()).FirstOrDefault();
 
             if (tradingCondition.IsDefault 
                 && defaultTradingCondition != null && defaultTradingCondition.Id != tradingCondition.Id)
@@ -121,12 +119,12 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<TradingConditionContract> Update(string tradingConditionId, 
             [FromBody] TradingConditionContract tradingCondition)
         {
-            ValidateId(tradingConditionId, tradingCondition);
-            
             await ValidateTradingCondition(tradingCondition);
             
+            ValidateId(tradingConditionId, tradingCondition);
+            
             var defaultTradingCondition =
-                (await _tradingConditionsRepository.GetAsync(x => x.IsDefault)).FirstOrDefault();
+                (await _tradingConditionsRepository.GetDefaultAsync()).FirstOrDefault();
             if (defaultTradingCondition == null && !tradingCondition.IsDefault)
             {
                 tradingCondition.IsDefault = true;
@@ -151,7 +149,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new Exception("LegalEntity cannot be changed");
             }
 
-            await _tradingConditionsRepository.ReplaceAsync(
+            await _tradingConditionsRepository.UpdateAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
@@ -164,7 +162,7 @@ namespace MarginTrading.SettingsService.Controllers
             var defaultTrConDomain =
                 _convertService.Convert<ITradingCondition, TradingCondition>(obj);
             defaultTrConDomain.IsDefault = state;
-            await _tradingConditionsRepository.ReplaceAsync(defaultTrConDomain);
+            await _tradingConditionsRepository.UpdateAsync(defaultTrConDomain);
         }
 
         private void ValidateId(string id, TradingConditionContract contract)
@@ -177,6 +175,11 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateTradingCondition(TradingConditionContract tradingCondition)
         {
+            if (tradingCondition == null)
+            {
+                throw new ArgumentNullException("tradingCondition", "Model is incorrect");
+            }
+            
             if (string.IsNullOrWhiteSpace(tradingCondition?.Id))
             {
                 throw new ArgumentNullException(nameof(tradingCondition.Id), "TradingCondition Id must be set");

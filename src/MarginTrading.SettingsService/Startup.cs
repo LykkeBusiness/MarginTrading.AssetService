@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -9,10 +10,14 @@ using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
 using Lykke.SettingsReader;
+using Lykke.SettingsReader.ReloadingManager;
 using Lykke.SlackNotification.AzureQueue;
+using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Modules;
+using MarginTrading.SettingsService.Services;
 using MarginTrading.SettingsService.Settings;
+using MarginTrading.SettingsService.SqlRepositories.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -57,6 +62,10 @@ namespace MarginTrading.SettingsService
                 services.AddSwaggerGen(options =>
                 {
                     options.DefaultLykkeConfiguration("v1", $"{ServiceName} API");
+                    var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, 
+                        "MarginTrading.SettingsService.Contracts.xml");
+                    options.IncludeXmlComments(contractsXmlPath);
+                    //options.OperationFilter<CustomOperationIdOperationFilter>();
                 });
 
                 var builder = new ContainerBuilder();
@@ -85,8 +94,6 @@ namespace MarginTrading.SettingsService
                 {
                     app.UseDeveloperExceptionPage();
                 }
-
-                app.UseLykkeForwardedHeaders();
                 
 #if DEBUG
                 app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
@@ -95,16 +102,8 @@ namespace MarginTrading.SettingsService
 #endif
                 
                 app.UseMvc();
-                app.UseSwagger(c =>
-                {
-                    c.PreSerializeFilters.Add((swagger, httpReq) => swagger.Host = httpReq.Host.Value);
-                });
-                app.UseSwaggerUI(x =>
-                {
-                    x.RoutePrefix = "swagger/ui";
-                    x.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
-                });
-                app.UseStaticFiles();
+                app.UseSwagger();
+                app.UseSwaggerUI(a => a.SwaggerEndpoint("/swagger/v1/swagger.json", "Settings Service API Swagger"));
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
@@ -182,47 +181,60 @@ namespace MarginTrading.SettingsService
             var aggregateLogger = new AggregateLogger();
 
             aggregateLogger.AddLog(consoleLogger);
-
-            var dbLogConnectionStringManager = settings.Nested(x => x.MarginTradingSettingsService.Db.LogsConnString);
-            var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
-
-            if (string.IsNullOrEmpty(dbLogConnectionString))
+            
+            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
             {
-                consoleLogger.WriteWarningAsync(nameof(Startup), nameof(CreateLogWithSlack), "Table loggger is not inited").Wait();
-                return aggregateLogger;
-            }
+                var sqlLogger = new LogToSql(new LogRepository("SettingsServiceLog",
+                    settings.CurrentValue.MarginTradingSettingsService.Db.SqlConnectionString));
 
-            if (dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}"))
-                throw new InvalidOperationException($"LogsConnString {dbLogConnectionString} is not filled in settings");
-
-            var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(
-                AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "LykkeServiceLog", consoleLogger),
-                consoleLogger);
-
-            LykkeLogToAzureSlackNotificationsManager slackNotificationsManager = null;
-            if (settings.CurrentValue.SlackNotifications != null)
+                aggregateLogger.AddLog(sqlLogger);
+            } 
+            else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.Azure)
             {
-                // Creating slack notification service, which logs own azure queue processing messages to aggregate log
-                var slackService = services.UseSlackNotificationsSenderViaAzureQueue(
-                    new Lykke.AzureQueueIntegration.AzureQueueSettings
-                    {
-                        ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
-                        QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
-                    }, aggregateLogger);
-                
-                slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
+                var dbLogConnectionStringManager =
+                    settings.Nested(x => x.MarginTradingSettingsService.Db.LogsAzureConnString);
+                var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
+
+                if (string.IsNullOrEmpty(dbLogConnectionString))
+                {
+                    consoleLogger.WriteWarningAsync(nameof(Startup), nameof(CreateLogWithSlack),
+                        "Table loggger is not inited").Wait();
+                    return aggregateLogger;
+                }
+
+                if (dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}"))
+                    throw new InvalidOperationException(
+                        $"LogsConnString {dbLogConnectionString} is not filled in settings");
+
+                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(
+                    AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "SettingsServiceLog", consoleLogger),
+                    consoleLogger);
+
+                LykkeLogToAzureSlackNotificationsManager slackNotificationsManager = null;
+                if (settings.CurrentValue.SlackNotifications != null)
+                {
+                    // Creating slack notification service, which logs own azure queue processing messages to aggregate log
+                    var slackService = services.UseSlackNotificationsSenderViaAzureQueue(
+                        new Lykke.AzureQueueIntegration.AzureQueueSettings
+                        {
+                            ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
+                            QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
+                        }, aggregateLogger);
+
+                    slackNotificationsManager =
+                        new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
+                }
+
+                // Creating azure storage logger, which logs own messages to concole log
+                var azureStorageLogger = new LykkeLogToAzureStorage(
+                    persistenceManager,
+                    slackNotificationsManager,
+                    consoleLogger);
+
+                azureStorageLogger.Start();
+
+                aggregateLogger.AddLog(azureStorageLogger);
             }
-
-
-            // Creating azure storage logger, which logs own messages to concole log
-            var azureStorageLogger = new LykkeLogToAzureStorage(
-                persistenceManager,
-                slackNotificationsManager,
-                consoleLogger);
-
-            azureStorageLogger.Start();
-
-            aggregateLogger.AddLog(azureStorageLogger);
 
             return aggregateLogger;
         }

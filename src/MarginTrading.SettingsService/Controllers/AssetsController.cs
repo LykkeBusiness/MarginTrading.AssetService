@@ -54,10 +54,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<AssetContract> Insert([FromBody] AssetContract asset)
         {
-            if (string.IsNullOrWhiteSpace(asset?.Id))
-            {
-                throw new ArgumentNullException(nameof(asset.Id), "asset Id must be set");
-            }
+            Validate(asset);
 
             if (!await _assetsRepository.TryInsertAsync(_convertService.Convert<AssetContract, Asset>(asset)))
             {
@@ -93,14 +90,10 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetId}")]
         public async Task<AssetContract> Update(string assetId, [FromBody] AssetContract asset)
         {
+            Validate(asset);
             ValidateId(assetId, asset);
-            
-            if (string.IsNullOrWhiteSpace(asset?.Id))
-            {
-                throw new ArgumentNullException(nameof(asset.Id), "asset Id must be set");
-            }
 
-            await _assetsRepository.ReplaceAsync(_convertService.Convert<AssetContract, Asset>(asset));
+            await _assetsRepository.UpdateAsync(_convertService.Convert<AssetContract, Asset>(asset));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
             
@@ -126,6 +119,19 @@ namespace MarginTrading.SettingsService.Controllers
             if (contract?.Id != id)
             {
                 throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private void Validate(AssetContract newValue)
+        {
+            if (newValue == null)
+            {
+                throw new ArgumentNullException("asset", "Model is incorrect");
+            }
+            
+            if (string.IsNullOrWhiteSpace(newValue.Id))
+            {
+                throw new ArgumentNullException(nameof(newValue.Id), "asset Id must be set");
             }
         }
     }

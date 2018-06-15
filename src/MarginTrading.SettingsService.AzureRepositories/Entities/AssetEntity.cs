@@ -4,7 +4,8 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {
     public class AssetEntity : SimpleAzureEntity, IAsset
     {
-        internal override string SimplePartitionKey => "Assets";
+        public static readonly string Pk = "Assets"; 
+        internal override string SimplePartitionKey => Pk;
 
         // Id comes from parent type
         public string Name { get; set; }

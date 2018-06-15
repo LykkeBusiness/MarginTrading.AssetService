@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MarginTrading.SettingsService.Core.Interfaces;
-using Newtonsoft.Json;
 
 namespace MarginTrading.SettingsService.Core.Domain
 {

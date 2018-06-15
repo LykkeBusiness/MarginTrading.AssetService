@@ -54,10 +54,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<MarketContract> Insert([FromBody] MarketContract market)
         {
-            if (string.IsNullOrWhiteSpace(market?.Id))
-            {
-                throw new ArgumentNullException(nameof(market.Id), "market Id must be set");
-            }
+            Validate(market);
 
             if (!await _marketRepository.TryInsertAsync(_convertService.Convert<MarketContract, Market>(market)))
             {
@@ -93,14 +90,10 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{marketId}")]
         public async Task<MarketContract> Update(string marketId, [FromBody] MarketContract market)
         {
+            Validate(market);
             ValidateId(marketId, market);
-            
-            if (string.IsNullOrWhiteSpace(market?.Id))
-            {
-                throw new ArgumentNullException(nameof(market.Id), "market Id must be set");
-            }
 
-            await _marketRepository.ReplaceAsync(_convertService.Convert<MarketContract, Market>(market));
+            await _marketRepository.UpdateAsync(_convertService.Convert<MarketContract, Market>(market));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
             
@@ -126,6 +119,19 @@ namespace MarginTrading.SettingsService.Controllers
             if (contract?.Id != id)
             {
                 throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private void Validate(MarketContract newValue)
+        {
+            if (newValue == null)
+            {
+                throw new ArgumentNullException("market", "Model is incorrect");
+            }
+            
+            if (string.IsNullOrWhiteSpace(newValue.Id))
+            {
+                throw new ArgumentNullException(nameof(newValue.Id), "market Id must be set");
             }
         }
     }

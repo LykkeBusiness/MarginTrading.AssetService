@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
+using MarginTrading.SettingsService.Contracts.Enums;
 using MarginTrading.SettingsService.Contracts.Routes;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
@@ -103,11 +104,11 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<MatchingEngineRouteContract> Update(string routeId, 
             [FromBody] MatchingEngineRouteContract route)
         {
+            await ValidateRoute(route);
+            
             ValidateId(routeId, route);
             
-            await ValidateRoute(route);
-
-            await _tradingRoutesRepository.ReplaceAsync(
+            await _tradingRoutesRepository.UpdateAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
@@ -131,9 +132,19 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidateRoute(MatchingEngineRouteContract route)
         {
+            if (route == null)
+            {
+                throw new ArgumentNullException("route", "Model is incorrect");
+            }
+            
             if (string.IsNullOrWhiteSpace(route?.Id))
             {
                 throw new ArgumentNullException(nameof(route.Id), "Route Id must be set");
+            }
+
+            if (route.Type != null && !Enum.IsDefined(typeof(OrderDirectionContract), route.Type))
+            {
+                throw new ArgumentNullException(nameof(route.Type), "Route Type is set to an incorrect value");
             }
 
             if (!string.IsNullOrEmpty(route.TradingConditionId)
@@ -148,7 +159,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Asset pair {route.Instrument} does not exist");
             }
 
-            if (string.IsNullOrEmpty(route.Asset))
+            if (string.IsNullOrEmpty(route.Asset) || route.Asset == AnyValue)
             {
                 route.Asset = AnyValue;
             }

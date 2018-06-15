@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Contracts.Enums;
-using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -56,14 +55,7 @@ namespace MarginTrading.SettingsService.Controllers
         public async Task<List<AssetPairContract>> List([FromQuery] string legalEntity = null, 
             [FromQuery] MatchingEngineModeContract? matchingEngineMode = null)
         {
-            Enum.TryParse<MatchingEngineMode>(matchingEngineMode?.ToString(), out var matchingEngineModeDomain);
-
-            var data = string.IsNullOrEmpty(legalEntity) && matchingEngineMode == null
-                ? await _assetPairsRepository.GetAsync()
-                : await _assetPairsRepository.GetAsync(assetPair =>
-                    (string.IsNullOrEmpty(legalEntity) || assetPair.LegalEntity == legalEntity)
-                    && (matchingEngineMode == null ||
-                        assetPair.MatchingEngineMode == matchingEngineModeDomain));
+            var data = await _assetPairsRepository.GetByLeAndMeModeAsync(legalEntity, matchingEngineMode?.ToString());
             
             return data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
         }
@@ -115,13 +107,12 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
         {
-            ValidateId(assetPairId, assetPair);
-
             await ValidatePair(assetPair);
+            ValidateId(assetPairId, assetPair);
 
             _defaultLegalEntitySettings.Set(assetPair);
 
-            await _assetPairsRepository.ReplaceAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             
@@ -144,9 +135,19 @@ namespace MarginTrading.SettingsService.Controllers
 
         private async Task ValidatePair(AssetPairContract newValue)
         {
-            if (string.IsNullOrWhiteSpace(newValue?.Id))
+            if (newValue == null)
+            {
+                throw new ArgumentNullException("assetPair", "Model is incorrect");
+            }
+            
+            if (string.IsNullOrWhiteSpace(newValue.Id))
             {
                 throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
+            }
+
+            if (!Enum.IsDefined(typeof(MatchingEngineModeContract), newValue.MatchingEngineMode))
+            {
+                throw new ArgumentNullException(nameof(newValue.MatchingEngineMode), "AssetPair MatchingEngineMode must be set");
             }
 
             if (await _assetsRepository.GetAsync(newValue.BaseAssetId) == null)
@@ -179,18 +180,17 @@ namespace MarginTrading.SettingsService.Controllers
             if (newValue.BasePairId == null) 
                 return;
 
-            if (await _assetPairsRepository.GetAsync(s => s.Id == newValue.BasePairId) == null)
+            if (await _assetPairsRepository.GetAsync(newValue.BasePairId) == null)
             {
-                throw new InvalidOperationException($"BasePair with Id {newValue.Id} does not exist");
+                throw new InvalidOperationException($"BasePair with Id {newValue.BasePairId} does not exist");
             }
 
-            if ((await _assetPairsRepository.GetAsync(s => s.BaseAssetId == newValue.BasePairId)).Any())
+            if (await _assetPairsRepository.GetByBaseAssetPairAsync(newValue.BasePairId) != null)
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} does not exist");
             }
 
-            if ((await _assetPairsRepository.GetAsync(s => s.Id != newValue.Id && s.BasePairId == newValue.BasePairId))
-                .Any())
+            if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(newValue.Id, newValue.BasePairId) != null)
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
             }    

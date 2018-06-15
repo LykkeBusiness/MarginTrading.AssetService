@@ -1,6 +1,4 @@
-﻿using Lykke.SlackNotifications;
-using MarginTrading.SettingsService.Core.Domain;
-using MarginTrading.SettingsService.Core.Services;
+﻿using MarginTrading.SettingsService.Core.Services;
 
 namespace MarginTrading.SettingsService.Services
 {

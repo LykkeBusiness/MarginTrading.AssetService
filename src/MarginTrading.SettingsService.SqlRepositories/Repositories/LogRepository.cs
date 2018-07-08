@@ -18,12 +18,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Env] [nvarchar] (64) NULL, " +
                                                  "[AppName] [nvarchar] (256) NULL, " +
                                                  "[Version] [nvarchar] (256) NULL, " +
-                                                 "[Component] [nvarchar] (256) NULL, " +
-                                                 "[Process] [nvarchar] (256) NOT NULL, " +
-                                                 "[Context] text NOT NULL, " +
-                                                 "[Type] [nvarchar] (256) NOT NULL, " +
-                                                 "[Stack] [text] NULL, " +
-                                                 "[Msg] [text] NULL " +
+                                                 "[Component] [nvarchar] (1024) NULL, " +
+                                                 "[Process] [nvarchar] (1024) NOT NULL, " +
+                                                 "[Context] [nvarchar] (MAX) NOT NULL, " +
+                                                 "[Type] [nvarchar] (1024) NOT NULL, " +
+                                                 "[Stack] [nvarchar] (MAX) NULL, " +
+                                                 "[Msg] [nvarchar] (MAX) NULL " +
                                                  ");";
         
         private static Type DataType => typeof(ILogObject);

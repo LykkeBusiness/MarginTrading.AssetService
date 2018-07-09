@@ -23,15 +23,15 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Instrument] [nvarchar] (64) NOT NULL, " +
                                                  "[LeverageInit] [int] NULL, " +
                                                  "[LeverageMaintenance] [int] NULL, " +
-                                                 "[SwapLong] decimal (24,10) NULL, " +
-                                                 "[SwapShort] decimal (24,10) NULL, " +
-                                                 "[Delta] decimal (24,10) NULL, " +
-                                                 "[DealMinLimit] decimal (24,10) NULL, " +
-                                                 "[DealMaxLimit] decimal (24,10) NULL, " +
-                                                 "[PositionLimit] decimal (24,10) NULL, " +
-                                                 "[CommissionRate] decimal (24,10) NULL, " +
-                                                 "[CommissionMin] decimal (24,10) NULL, " +
-                                                 "[CommissionMax] decimal (24,10) NULL, " +
+                                                 "[SwapLong] float NULL, " +
+                                                 "[SwapShort] float NULL, " +
+                                                 "[Delta] float NULL, " +
+                                                 "[DealMinLimit] float NULL, " +
+                                                 "[DealMaxLimit] float NULL, " +
+                                                 "[PositionLimit] float NULL, " +
+                                                 "[CommissionRate] float NULL, " +
+                                                 "[CommissionMin] float NULL, " +
+                                                 "[CommissionMax] float NULL, " +
                                                  "[CommissionCurrency] [nvarchar] (64) NULL " +
                                                  ");";
         

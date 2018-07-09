@@ -21,15 +21,15 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Id] [nvarchar] (64) NOT NULL, " +
                                                  "[Name] [nvarchar] (64) NOT NULL, " +
                                                  "[LegalEntity] [nvarchar] (64) NULL, " +
-                                                 "[MarginCall1] decimal (24,10) NULL, " +
-                                                 "[MarginCall2] decimal (24,10) NULL, " +
-                                                 "[StopOut] decimal (24,10) NULL, " +
-                                                 "[DepositLimit] decimal (24,10) NULL, " +
-                                                 "[WithdrawalLimit] decimal (24,10) NULL, " +
+                                                 "[MarginCall1] float NULL, " +
+                                                 "[MarginCall2] float NULL, " +
+                                                 "[StopOut] float NULL, " +
+                                                 "[DepositLimit] float NULL, " +
+                                                 "[WithdrawalLimit] float NULL, " +
                                                  "[LimitCurrency] [nvarchar] (64) NULL, " +
                                                  "[BaseAssets] [nvarchar] (MAX) NULL, " +
                                                  "[IsDefault] [bit] NOT NULL, " +
-                                                 "CONSTRAINT Id UNIQUE(Id)" +
+                                                 "CONSTRAINT TC_Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingCondition);

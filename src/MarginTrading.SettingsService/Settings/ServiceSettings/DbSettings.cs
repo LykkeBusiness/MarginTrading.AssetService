@@ -7,13 +7,13 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
     {
         public StorageMode StorageMode { get; set; }
         
-        [AzureTableCheck]
+        [Optional]
         public string LogsAzureConnString { get; set; }
         
-        [AzureTableCheck]
+        [Optional]
         public string AzureConnectionString { get; set; }
         
-        [SqlCheck]
+        [Optional]
         public string SqlConnectionString { get; set; }
     }
 }

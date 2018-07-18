@@ -1,4 +1,5 @@
-﻿using Autofac;
+﻿using System;
+using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.SettingsReader;
@@ -75,6 +76,11 @@ namespace MarginTrading.SettingsService.Modules
         {
             if (_settings.CurrentValue.Db.StorageMode == StorageMode.SqlServer)
             {
+                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.SqlConnectionString))
+                {
+                    throw new Exception("SqlConnectionString must have a value if StorageMode is SqlServer");
+                }
+                
                 var connstrParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.SqlConnectionString);
                 
@@ -120,6 +126,11 @@ namespace MarginTrading.SettingsService.Modules
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)
             {
+                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.AzureConnectionString))
+                {
+                    throw new Exception("AzureConnectionString must have a value if StorageMode is Azure");
+                }
+                
                 var connstrParameter = new NamedParameter("connectionStringManager",
                     _settings.Nested(x => x.Db.AzureConnectionString));
 

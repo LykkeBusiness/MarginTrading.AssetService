@@ -43,7 +43,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of trading conditions
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [Route("")]
         public async Task<List<TradingConditionContract>> List([FromQuery] bool? isDefault = null)
@@ -58,8 +57,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Create new trading condition
         /// </summary>
-        /// <param name="tradingCondition"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<TradingConditionContract> Insert([FromBody] TradingConditionContract tradingCondition)
@@ -97,8 +94,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the trading condition
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{tradingConditionId}")]
         public async Task<TradingConditionContract> Get(string tradingConditionId)
@@ -111,9 +106,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update the trading condition
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <param name="tradingCondition"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{tradingConditionId}")]
         public async Task<TradingConditionContract> Update(string tradingConditionId, 

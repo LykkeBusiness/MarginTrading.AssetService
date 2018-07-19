@@ -28,6 +28,25 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return (await TableStorage.GetDataAsync(x => x.TradingConditionId == tradingConditionId)).ToList();
         }
 
+        public async Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null, 
+            int? skip = null, int? take = null)
+        {
+            var allData = (string.IsNullOrWhiteSpace(tradingConditionId)
+                ? await TableStorage.GetDataAsync()
+                : await TableStorage.GetDataAsync(x => x.TradingConditionId == tradingConditionId)).ToList();
+
+            //TODO refactor before using azure impl
+            var data = allData.OrderBy(x => x.Id).ToList();
+            var filtered = take.HasValue ? data.Skip(skip.Value).Take(take.Value).ToList() : data;
+            
+            return new PaginatedResponse<ITradingInstrument>(
+                contents: filtered,
+                start: skip ?? 0,
+                size: filtered.Count,
+                totalSize: data.Count
+            );
+        }
+
         public async Task<IEnumerable<ITradingInstrument>> CreateDefaultTradingInstruments(string tradingConditionId, 
             IEnumerable<string> assetPairsIds, DefaultTradingInstrumentSettings defaults)
         {

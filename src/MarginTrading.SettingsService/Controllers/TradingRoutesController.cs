@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
+using MarginTrading.SettingsService.Contracts.Common;
 using MarginTrading.SettingsService.Contracts.Enums;
 using MarginTrading.SettingsService.Contracts.Routes;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,7 +49,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of trading routes
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [Route("")]
         public async Task<List<MatchingEngineRouteContract>> List()
@@ -58,10 +59,27 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
+        /// Get the list of trading routes, with optional pagination
+        /// </summary>
+        [HttpGet]
+        [Route("by-pages")]
+        public async Task<PaginatedResponseContract<MatchingEngineRouteContract>> ListByPages(int? skip = null, int? take = null)
+        {
+            ApiValidationHelper.ValidatePagingParams(skip, take);
+            
+            var data = await _tradingRoutesRepository.GetByPagesAsync(skip, take);
+            
+            return new PaginatedResponseContract<MatchingEngineRouteContract>(
+                contents: data.Contents.Select(x => _convertService.Convert<ITradingRoute, MatchingEngineRouteContract>(x)).ToList(),
+                start: data.Start,
+                size: data.Size,
+                totalSize: data.TotalSize
+            );
+        }
+
+        /// <summary>
         /// Create new trading route
         /// </summary>
-        /// <param name="route"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<MatchingEngineRouteContract> Insert([FromBody] MatchingEngineRouteContract route)
@@ -82,8 +100,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the trading route
         /// </summary>
-        /// <param name="routeId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{routeId}")]
         public async Task<MatchingEngineRouteContract> Get(string routeId)
@@ -96,9 +112,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update the trading route
         /// </summary>
-        /// <param name="routeId"></param>
-        /// <param name="route"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{routeId}")]
         public async Task<MatchingEngineRouteContract> Update(string routeId, 
@@ -119,8 +132,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Delete the trading route
         /// </summary>
-        /// <param name="routeId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{routeId}")]
         public async Task Delete(string routeId)

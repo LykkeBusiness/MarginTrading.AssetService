@@ -85,6 +85,40 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null, 
+            int? skip = null, int? take = null)
+        {
+            var whereClause = "WHERE 1=1 "
+                              + (string.IsNullOrWhiteSpace(tradingConditionId) ? "" : " AND TradingConditionId=@tradingConditionId");
+            
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                List<TradingInstrumentEntity> tradingInstruments;
+                var totalCount = 0;
+                if (!take.HasValue)
+                {
+                    tradingInstruments = (await conn.QueryAsync<TradingInstrumentEntity>(
+                        $"SELECT * FROM {TableName} {whereClause}", new {tradingConditionId})).ToList();
+                }
+                else
+                {
+                    var paginationClause = $" ORDER BY [Oid] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+                    var gridReader = await conn.QueryMultipleAsync(
+                        $"SELECT * FROM {TableName} {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName}",
+                        new {tradingConditionId});
+                    tradingInstruments = (await gridReader.ReadAsync<TradingInstrumentEntity>()).ToList();
+                    totalCount = await gridReader.ReadSingleAsync<int>();
+                }
+
+                return new PaginatedResponse<ITradingInstrument>(
+                    contents: tradingInstruments, 
+                    start: skip ?? 0, 
+                    size: tradingInstruments.Count, 
+                    totalSize: !take.HasValue ? tradingInstruments.Count : totalCount
+                );
+            }
+        }
+
         public async Task<ITradingInstrument> GetAsync(string assetPairId, string tradingConditionId)
         {
             using (var conn = new SqlConnection(_connectionString))

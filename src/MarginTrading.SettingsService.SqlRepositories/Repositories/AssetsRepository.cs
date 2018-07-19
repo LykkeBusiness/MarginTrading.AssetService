@@ -61,6 +61,34 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<PaginatedResponse<IAsset>> GetByPagesAsync(int? skip = null, int? take = null)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                List<AssetEntity> assets;
+                var totalCount = 0;
+                if (!take.HasValue)
+                {
+                    assets = (await conn.QueryAsync<AssetEntity>($"SELECT * FROM {TableName} ")).ToList();
+                }
+                else
+                {
+                    var paginationClause = $" ORDER BY [Oid] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+                    var gridReader = await conn.QueryMultipleAsync(
+                        $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
+                    assets = (await gridReader.ReadAsync<AssetEntity>()).ToList();
+                    totalCount = await gridReader.ReadSingleAsync<int>();
+                }
+
+                return new PaginatedResponse<IAsset>(
+                    contents: assets, 
+                    start: skip ?? 0, 
+                    size: assets.Count, 
+                    totalSize: !take.HasValue ? assets.Count : totalCount
+                );
+            }
+        }
+
         public async Task<IAsset> GetAsync(string assetId)
         {
             using (var conn = new SqlConnection(_connectionString))

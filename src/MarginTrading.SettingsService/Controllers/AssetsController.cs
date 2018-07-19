@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.Asset;
+using MarginTrading.SettingsService.Contracts.AssetPair;
+using MarginTrading.SettingsService.Contracts.Common;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,7 +38,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of assets
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [Route("")]
         public async Task<List<AssetContract>> List()
@@ -46,10 +48,26 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
+        /// Get the list of assets with optional pagination
+        /// </summary>
+        public async Task<PaginatedResponseContract<AssetContract>> ListByPages(
+            [FromQuery] int? skip = null, [FromQuery] int? take = null)
+        {
+            ApiValidationHelper.ValidatePagingParams(skip, take);
+            
+            var data = await _assetsRepository.GetByPagesAsync(skip, take);
+            
+            return new PaginatedResponseContract<AssetContract>(
+                contents: data.Contents.Select(x => _convertService.Convert<IAsset, AssetContract>(x)).ToList(),
+                start: data.Start,
+                size: data.Size,
+                totalSize: data.TotalSize
+            );
+        }
+
+        /// <summary>
         /// Create new asset
         /// </summary>
-        /// <param name="asset"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<AssetContract> Insert([FromBody] AssetContract asset)
@@ -69,8 +87,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the asset
         /// </summary>
-        /// <param name="assetId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{assetId}")]
         public async Task<AssetContract> Get(string assetId)
@@ -83,9 +99,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update the asset
         /// </summary>
-        /// <param name="assetId"></param>
-        /// <param name="asset"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{assetId}")]
         public async Task<AssetContract> Update(string assetId, [FromBody] AssetContract asset)
@@ -103,8 +116,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Delete the asset
         /// </summary>
-        /// <param name="assetId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{assetId}")]
         public async Task Delete(string assetId)

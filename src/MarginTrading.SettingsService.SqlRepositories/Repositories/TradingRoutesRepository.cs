@@ -68,6 +68,35 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<PaginatedResponse<ITradingRoute>> GetByPagesAsync(int? skip = null, int? take = null)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                List<TradingRouteEntity> tradingRoutes;
+                var totalCount = 0;
+                if (!take.HasValue)
+                {
+                    tradingRoutes = (await conn.QueryAsync<TradingRouteEntity>(
+                        $"SELECT * FROM {TableName} ")).ToList();
+                }
+                else
+                {
+                    var paginationClause = $" ORDER BY [Oid] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
+                    var gridReader = await conn.QueryMultipleAsync(
+                        $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
+                    tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();
+                    totalCount = await gridReader.ReadSingleAsync<int>();
+                }
+
+                return new PaginatedResponse<ITradingRoute>(
+                    contents: tradingRoutes, 
+                    start: skip ?? 0, 
+                    size: tradingRoutes.Count, 
+                    totalSize: !take.HasValue ? tradingRoutes.Count : totalCount
+                );
+            }
+        }
+
         public async Task<ITradingRoute> GetAsync(string routeId)
         {
             using (var conn = new SqlConnection(_connectionString))

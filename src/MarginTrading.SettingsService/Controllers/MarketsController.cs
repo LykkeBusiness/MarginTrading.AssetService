@@ -35,7 +35,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of Markets
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [Route("")]
         public async Task<List<MarketContract>> List()
@@ -48,8 +47,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Create new market
         /// </summary>
-        /// <param name="market"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<MarketContract> Insert([FromBody] MarketContract market)
@@ -69,8 +66,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the market
         /// </summary>
-        /// <param name="marketId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{marketId}")]
         public async Task<MarketContract> Get(string marketId)
@@ -83,9 +78,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update the market
         /// </summary>
-        /// <param name="marketId"></param>
-        /// <param name="market"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{marketId}")]
         public async Task<MarketContract> Update(string marketId, [FromBody] MarketContract market)
@@ -103,8 +95,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Delete the market
         /// </summary>
-        /// <param name="marketId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{marketId}")]
         public async Task Delete(string marketId)

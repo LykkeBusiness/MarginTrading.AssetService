@@ -50,6 +50,8 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of assets with optional pagination
         /// </summary>
+        [HttpGet]
+        [Route("by-pages")]
         public async Task<PaginatedResponseContract<AssetContract>> ListByPages(
             [FromQuery] int? skip = null, [FromQuery] int? take = null)
         {

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -176,23 +177,13 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             
             using (var conn = new SqlConnection(_connectionString))
             {
-                List<AssetPairEntity> assetPairs;
-                var totalCount = 0;
-                if (!take.HasValue)
-                {
-                    assetPairs = (await conn.QueryAsync<AssetPairEntity>(
-                        $"SELECT * FROM {TableName} {whereClause}", new {legalEntity, matchingEngineMode})).ToList();
-                }
-                else
-                {
-                    var paginationClause = $" ORDER BY [Oid] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
-                    var gridReader = await conn.QueryMultipleAsync(
-                        $"SELECT * FROM {TableName} {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName}",
-                        new {legalEntity, matchingEngineMode});
-                    assetPairs = (await gridReader.ReadAsync<AssetPairEntity>()).ToList();
-                    totalCount = await gridReader.ReadSingleAsync<int>();
-                }
-
+                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+                var gridReader = await conn.QueryMultipleAsync(
+                    $"SELECT * FROM {TableName} {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}",
+                    new {legalEntity, matchingEngineMode});
+                var assetPairs = (await gridReader.ReadAsync<AssetPairEntity>()).ToList();
+                var totalCount = await gridReader.ReadSingleAsync<int>();
+            
                 return new PaginatedResponse<IAssetPair>(
                     contents: assetPairs, 
                     start: skip ?? 0, 

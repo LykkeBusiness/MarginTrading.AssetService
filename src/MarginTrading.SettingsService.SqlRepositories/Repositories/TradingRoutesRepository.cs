@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -72,22 +73,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                List<TradingRouteEntity> tradingRoutes;
-                var totalCount = 0;
-                if (!take.HasValue)
-                {
-                    tradingRoutes = (await conn.QueryAsync<TradingRouteEntity>(
-                        $"SELECT * FROM {TableName} ")).ToList();
-                }
-                else
-                {
-                    var paginationClause = $" ORDER BY [Oid] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
-                    var gridReader = await conn.QueryMultipleAsync(
-                        $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
-                    tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();
-                    totalCount = await gridReader.ReadSingleAsync<int>();
-                }
-
+                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+                var gridReader = await conn.QueryMultipleAsync(
+                    $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
+                var tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();
+                var totalCount = await gridReader.ReadSingleAsync<int>();
+                
                 return new PaginatedResponse<ITradingRoute>(
                     contents: tradingRoutes, 
                     start: skip ?? 0, 

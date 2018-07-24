@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -65,21 +66,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                List<AssetEntity> assets;
-                var totalCount = 0;
-                if (!take.HasValue)
-                {
-                    assets = (await conn.QueryAsync<AssetEntity>($"SELECT * FROM {TableName} ")).ToList();
-                }
-                else
-                {
-                    var paginationClause = $" ORDER BY [Oid] OFFSET {skip} ROWS FETCH NEXT {take} ROWS ONLY";
-                    var gridReader = await conn.QueryMultipleAsync(
-                        $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
-                    assets = (await gridReader.ReadAsync<AssetEntity>()).ToList();
-                    totalCount = await gridReader.ReadSingleAsync<int>();
-                }
-
+                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+                var gridReader = await conn.QueryMultipleAsync(
+                    $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
+                var assets = (await gridReader.ReadAsync<AssetEntity>()).ToList();
+                var totalCount = await gridReader.ReadSingleAsync<int>();
+            
                 return new PaginatedResponse<IAsset>(
                     contents: assets, 
                     start: skip ?? 0, 

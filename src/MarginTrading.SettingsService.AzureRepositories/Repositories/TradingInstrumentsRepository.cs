@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -26,6 +27,25 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         public async Task<IReadOnlyList<ITradingInstrument>> GetByTradingConditionAsync(string tradingConditionId)
         {
             return (await TableStorage.GetDataAsync(x => x.TradingConditionId == tradingConditionId)).ToList();
+        }
+
+        public async Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null, 
+            int? skip = null, int? take = null)
+        {
+            var allData = (string.IsNullOrWhiteSpace(tradingConditionId)
+                ? await TableStorage.GetDataAsync()
+                : await TableStorage.GetDataAsync(x => x.TradingConditionId == tradingConditionId)).ToList();
+
+            //TODO refactor before using azure impl
+            var data = allData.OrderBy(x => x.Id).ToList();
+            var filtered = take.HasValue ? data.Skip(skip ?? 0).Take(PaginationHelper.GetTake(take)).ToList() : data;
+            
+            return new PaginatedResponse<ITradingInstrument>(
+                contents: filtered,
+                start: skip ?? 0,
+                size: filtered.Count,
+                totalSize: data.Count
+            );
         }
 
         public async Task<IEnumerable<ITradingInstrument>> CreateDefaultTradingInstruments(string tradingConditionId, 

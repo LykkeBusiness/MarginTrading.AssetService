@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
+using MarginTrading.SettingsService.Contracts.Common;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
+using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -51,8 +53,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of trading instruments
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("")]
         public async Task<List<TradingInstrumentContract>> List([FromQuery] string tradingConditionId)
@@ -65,10 +65,28 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
+        /// Get the list of trading instruments with optional pagination
+        /// </summary>
+        [HttpGet]
+        [Route("by-pages")]
+        public async Task<PaginatedResponseContract<TradingInstrumentContract>> ListByPages(string tradingConditionId, 
+            int? skip = null, int? take = null)
+        {
+            ApiValidationHelper.ValidatePagingParams(skip, take);
+            
+            var data = await _tradingInstrumentsRepository.GetByPagesAsync(tradingConditionId, skip, take);
+            
+            return new PaginatedResponseContract<TradingInstrumentContract>(
+                contents: data.Contents.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList(),
+                start: data.Start,
+                size: data.Size,
+                totalSize: data.TotalSize
+            );
+        }
+
+        /// <summary>
         /// Create new trading instrument
         /// </summary>
-        /// <param name="instrument"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<TradingInstrumentContract> Insert([FromBody] TradingInstrumentContract instrument)
@@ -90,9 +108,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Assign trading instrument to a trading condition with default values
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <param name="instruments"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("{tradingConditionId}")]
         public async Task<List<TradingInstrumentContract>> AssignCollection(string tradingConditionId, 
@@ -136,9 +151,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get trading instrument
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <param name="assetPairId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{tradingConditionId}/{assetPairId}")]
         public async Task<TradingInstrumentContract> Get(string tradingConditionId, string assetPairId)
@@ -151,10 +163,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update the trading instrument
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <param name="assetPairId"></param>
-        /// <param name="instrument"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{tradingConditionId}/{assetPairId}")]
         public async Task<TradingInstrumentContract> Update(string tradingConditionId, string assetPairId, 
@@ -174,9 +182,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Delete the trading instrument
         /// </summary>
-        /// <param name="tradingConditionId"></param>
-        /// <param name="assetPairId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{tradingConditionId}/{assetPairId}")]
         public async Task Delete(string tradingConditionId, string assetPairId)

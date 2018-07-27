@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -65,6 +66,25 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                 var objects = await conn.QueryAsync<TradingRouteEntity>($"SELECT * FROM {TableName}");
                 
                 return objects.Select(_convertService.Convert<TradingRouteEntity, TradingRoute>).ToList();
+            }
+        }
+
+        public async Task<PaginatedResponse<ITradingRoute>> GetByPagesAsync(int? skip = null, int? take = null)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+                var gridReader = await conn.QueryMultipleAsync(
+                    $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
+                var tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();
+                var totalCount = await gridReader.ReadSingleAsync<int>();
+                
+                return new PaginatedResponse<ITradingRoute>(
+                    contents: tradingRoutes, 
+                    start: skip ?? 0, 
+                    size: tradingRoutes.Count, 
+                    totalSize: !take.HasValue ? tradingRoutes.Count : totalCount
+                );
             }
         }
 

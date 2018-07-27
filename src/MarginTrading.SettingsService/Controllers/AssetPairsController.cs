@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.AssetPair;
+using MarginTrading.SettingsService.Contracts.Common;
 using MarginTrading.SettingsService.Contracts.Enums;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
@@ -58,6 +59,28 @@ namespace MarginTrading.SettingsService.Controllers
             var data = await _assetPairsRepository.GetByLeAndMeModeAsync(legalEntity, matchingEngineMode?.ToString());
             
             return data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
+        }
+
+        /// <summary>
+        /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
+        /// </summary>
+        [HttpGet]
+        [Route("by-pages")]
+        public async Task<PaginatedResponseContract<AssetPairContract>> ListByPages([FromQuery] string legalEntity = null, 
+            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null, 
+            [FromQuery] int? skip = null, [FromQuery] int? take = null)
+        {
+            ApiValidationHelper.ValidatePagingParams(skip, take);
+            
+            var data = await _assetPairsRepository.GetByLeAndMeModeByPagesAsync(legalEntity, 
+                matchingEngineMode?.ToString(), skip, take);
+            
+            return new PaginatedResponseContract<AssetPairContract>(
+                contents: data.Contents.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList(),
+                start: data.Start,
+                size: data.Size,
+                totalSize: data.TotalSize
+            );
         }
 
         /// <summary>

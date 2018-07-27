@@ -42,7 +42,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of schedule settings
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [Route("")]
         public async Task<List<ScheduleSettingsContract>> List()
@@ -57,8 +56,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Create new schedule setting
         /// </summary>
-        /// <param name="scheduleSetting"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<ScheduleSettingsContract> Insert([FromBody] ScheduleSettingsContract scheduleSetting)
@@ -80,8 +77,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the schedule setting
         /// </summary>
-        /// <param name="settingId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{settingId}")]
         public async Task<ScheduleSettingsContract> Get(string settingId)
@@ -94,9 +89,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update the schedule setting
         /// </summary>
-        /// <param name="settingId"></param>
-        /// <param name="scheduleSetting"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{settingId}")]
         public async Task<ScheduleSettingsContract> Update(string settingId, 
@@ -117,8 +109,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Delete the schedule setting
         /// </summary>
-        /// <param name="settingId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{settingId}")]
         public async Task Delete(string settingId)
@@ -132,7 +122,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// Get the list of compiled schedule settings based on array of asset pairs
         /// </summary>
         /// <param name="assetPairIds">Null by default</param>
-        /// <returns></returns>
         [HttpPost]
         [Route("compiled")]
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
@@ -142,7 +131,7 @@ namespace MarginTrading.SettingsService.Controllers
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
             
-            //extract the list of assetpairs with same settings based on regex, market or list
+            //extract the list of assetPairs with same settings based on regex, market or list
             var result = assetPairs.Select(assetPair => new CompiledScheduleContract
             {
                 AssetPairId = assetPair.Id,

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -82,6 +83,30 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     new {tradingConditionId});
                 
                 return objects.Select(_convertService.Convert<TradingInstrumentEntity, TradingInstrument>).ToList();
+            }
+        }
+
+        public async Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null, 
+            int? skip = null, int? take = null)
+        {
+            var whereClause = "WHERE 1=1 "
+                              + (string.IsNullOrWhiteSpace(tradingConditionId) ? "" : " AND TradingConditionId=@tradingConditionId");
+            
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+                var gridReader = await conn.QueryMultipleAsync(
+                    $"SELECT * FROM {TableName} {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}",
+                    new {tradingConditionId});
+                var tradingInstruments = (await gridReader.ReadAsync<TradingInstrumentEntity>()).ToList();
+                var totalCount = await gridReader.ReadSingleAsync<int>();
+             
+                return new PaginatedResponse<ITradingInstrument>(
+                    contents: tradingInstruments, 
+                    start: skip ?? 0, 
+                    size: tradingInstruments.Count, 
+                    totalSize: !take.HasValue ? tradingInstruments.Count : totalCount
+                );
             }
         }
 

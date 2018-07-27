@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -151,7 +152,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null, string matchingEngineMode = null)
+        public async Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null, 
+            string matchingEngineMode = null)
         {
             var whereClause = "WHERE 1=1 "
                 + (string.IsNullOrWhiteSpace(legalEntity) ? "" : " AND LegalEntity=@legalEntity")
@@ -163,6 +165,31 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     new {legalEntity, matchingEngineMode});
                 
                 return objects.Select(_convertService.Convert<AssetPairEntity, AssetPair>).ToList();
+            }
+        }
+
+        public async Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null, 
+            string matchingEngineMode = null, int? skip = null, int? take = null)
+        {
+            var whereClause = "WHERE 1=1 "
+                              + (string.IsNullOrWhiteSpace(legalEntity) ? "" : " AND LegalEntity=@legalEntity")
+                              + (string.IsNullOrWhiteSpace(matchingEngineMode) ? "" : " AND MatchingEngineMode=@matchingEngineMode");
+            
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+                var gridReader = await conn.QueryMultipleAsync(
+                    $"SELECT * FROM {TableName} {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}",
+                    new {legalEntity, matchingEngineMode});
+                var assetPairs = (await gridReader.ReadAsync<AssetPairEntity>()).ToList();
+                var totalCount = await gridReader.ReadSingleAsync<int>();
+            
+                return new PaginatedResponse<IAssetPair>(
+                    contents: assetPairs, 
+                    start: skip ?? 0, 
+                    size: assetPairs.Count, 
+                    totalSize: !take.HasValue ? assetPairs.Count : totalCount
+                );
             }
         }
     }

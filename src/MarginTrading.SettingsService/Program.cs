@@ -25,7 +25,7 @@ namespace MarginTrading.SettingsService
             {
                 var host = new WebHostBuilder()
                     .UseKestrel()
-                    .UseUrls("http://*:5000")
+                    .UseUrls("http://*:5010")
                     .UseContentRoot(Directory.GetCurrentDirectory())
                     .UseStartup<Startup>()
                     .UseApplicationInsights()

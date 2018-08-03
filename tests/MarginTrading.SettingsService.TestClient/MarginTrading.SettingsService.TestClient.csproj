@@ -9,7 +9,7 @@
     <PackageReference Include="AsyncFriendlyStackTrace" Version="1.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
-    <PackageReference Include="Refit" Version="4.5.6" />
+    <PackageReference Include="Refit" Version="4.6.30" />
     <PackageReference Include="Lykke.HttpClientGenerator" Version="1.0.0" />
   </ItemGroup>
   <ItemGroup>

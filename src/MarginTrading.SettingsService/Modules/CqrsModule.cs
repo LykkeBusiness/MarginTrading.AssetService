@@ -69,7 +69,7 @@ namespace MarginTrading.SettingsService.Modules
         {
             var rabbitMqConventionEndpointResolver = new RabbitMqConventionEndpointResolver(
                 "RabbitMq",
-                SerializationFormat.MessagePack,
+                "messagepack",
                 environment: _settings.EnvironmentName);
             return new CqrsEngine(
                 _log,

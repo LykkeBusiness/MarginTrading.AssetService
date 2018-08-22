@@ -8,6 +8,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.0" />
+    <PackageReference Include="Lykke.Cqrs" Version="4.6.0" />
     <PackageReference Include="Lykke.Common" Version="6.8.4" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.0.1" />
     <PackageReference Include="Lykke.SlackNotifications" Version="2.0.0" />
@@ -16,10 +17,5 @@
     <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.Core\MarginTrading.SettingsService.Core.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.StorageInterfaces\MarginTrading.SettingsService.StorageInterfaces.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Lykke.Cqrs, Version=5.0.1.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\.nuget\packages\lykke.cqrs\5.0.1\lib\netstandard2.0\Lykke.Cqrs.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

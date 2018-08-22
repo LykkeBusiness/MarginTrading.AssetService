@@ -22,10 +22,6 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="Refit" Version="4.6.30" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="MessagePack, Version=1.7.2.0, Culture=neutral, PublicKeyToken=b4a0369545f0a1be">
-      <HintPath>..\..\..\..\.nuget\packages\messagepack\1.7.2\lib\netstandard2.0\MessagePack.dll</HintPath>
-    </Reference>
+    <PackageReference Include="MessagePack" Version="1.7.2" />
   </ItemGroup>
 </Project>

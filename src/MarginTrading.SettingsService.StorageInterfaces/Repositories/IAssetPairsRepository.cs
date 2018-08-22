@@ -18,5 +18,6 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         Task<bool> TryInsertAsync(IAssetPair convert);
         Task DeleteAsync(string assetPairId);
         Task UpdateAsync(IAssetPair obj);
+        Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag);
     }
 }

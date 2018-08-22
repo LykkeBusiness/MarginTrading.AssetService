@@ -39,7 +39,7 @@ namespace MarginTrading.SettingsService.Migration
                 option = Console.ReadLine()?.Trim();
                 if (option == "1" || option == "2")
                     break;
-                Console.WriteLine("Wrong choise, try again");
+                Console.WriteLine("Wrong choice, try again");
             }
 
             var convertService = new ConvertService();
@@ -94,67 +94,67 @@ namespace MarginTrading.SettingsService.Migration
             }
 
             var assets = await assetsRepos.First().GetAsync();
-            var assetsSucceded = 0;
+            var assetsSucceeded = 0;
             foreach (var asset in assets)
             {
                 if (await assetsRepos.Last().TryInsertAsync(asset))
-                    assetsSucceded++;
+                    assetsSucceeded++;
             }
-            Console.WriteLine($"Assets succeded: {assetsSucceded}, failed: {assets.Count - assetsSucceded}.");
+            Console.WriteLine($"Assets succeeded: {assetsSucceeded}, failed: {assets.Count - assetsSucceeded}.");
 
             var assetPairs = await assetPairsRepos.First().GetAsync();
-            var assetPairsSucceded = 0;
+            var assetPairsSucceeded = 0;
             foreach (var assetPair in assetPairs)
             {
                 if (await assetPairsRepos.Last().TryInsertAsync(assetPair))
-                    assetPairsSucceded++;
+                    assetPairsSucceeded++;
             }
-            Console.WriteLine($"Asset pairs succeded: {assetPairsSucceded}, failed: {assetPairs.Count - assetPairsSucceded}.");
+            Console.WriteLine($"Asset pairs succeeded: {assetPairsSucceeded}, failed: {assetPairs.Count - assetPairsSucceeded}.");
 
             var markets = await marketsRepos.First().GetAsync();
-            var marketsSucceded = 0;
+            var marketsSucceeded = 0;
             foreach (var market in markets)
             {
                 if (await marketsRepos.Last().TryInsertAsync(market))
-                    marketsSucceded++;
+                    marketsSucceeded++;
             }
-            Console.WriteLine($"Markets succeded: {marketsSucceded}, failed: {markets.Count - marketsSucceded}.");
+            Console.WriteLine($"Markets succeeded: {marketsSucceeded}, failed: {markets.Count - marketsSucceeded}.");
 
             var scheduleSettings = await scheduleSettingsRepos.First().GetAsync();
-            var scheduleSettingsSucceded = 0;
+            var scheduleSettingsSucceeded = 0;
             foreach (var scheduleSetting in scheduleSettings)
             {
                 if (await scheduleSettingsRepos.Last().TryInsertAsync(scheduleSetting))
-                    scheduleSettingsSucceded++;
+                    scheduleSettingsSucceeded++;
             }
-            Console.WriteLine($"Schedule settings succeded: {scheduleSettingsSucceded}, failed: {scheduleSettings.Count - scheduleSettingsSucceded}.");
+            Console.WriteLine($"Schedule settings succeeded: {scheduleSettingsSucceeded}, failed: {scheduleSettings.Count - scheduleSettingsSucceeded}.");
 
             var tradingConditions = await tradingConditionsRepos.First().GetAsync();
-            var tradingConditionsSucceded = 0;
+            var tradingConditionsSucceeded = 0;
             foreach (var tradingCondition in tradingConditions)
             {
                 if (await tradingConditionsRepos.Last().TryInsertAsync(tradingCondition))
-                    tradingConditionsSucceded++;
+                    tradingConditionsSucceeded++;
             }
-            Console.WriteLine($"Trading conditions succeded: {tradingConditionsSucceded}, failed: {tradingConditions.Count - tradingConditionsSucceded}.");
+            Console.WriteLine($"Trading conditions succeeded: {tradingConditionsSucceeded}, failed: {tradingConditions.Count - tradingConditionsSucceeded}.");
 
             var tradingInstruments = await tradingInstrumentsRepos.First().GetAsync();
-            var tradingInstrumentsSucceded = 0;
+            var tradingInstrumentsSucceeded = 0;
             foreach (var tradingInstrument in tradingInstruments)
             {
                 if (await tradingInstrumentsRepos.Last().TryInsertAsync(tradingInstrument))
-                    tradingInstrumentsSucceded++;
+                    tradingInstrumentsSucceeded++;
             }
-            Console.WriteLine($"Trading instruments succeded: {tradingInstrumentsSucceded}, failed: {tradingInstruments.Count - tradingInstrumentsSucceded}.");
+            Console.WriteLine($"Trading instruments succeeded: {tradingInstrumentsSucceeded}, failed: {tradingInstruments.Count - tradingInstrumentsSucceeded}.");
 
             var tradingRoutes = await tradingRoutesRepos.First().GetAsync();
-            var tradingRoutesSucceded = 0;
+            var tradingRoutesSucceeded = 0;
             foreach (var tradingRoute in tradingRoutes)
             {
                 if (await tradingRoutesRepos.Last().TryInsertAsync(tradingRoute))
-                    tradingRoutesSucceded++;
+                    tradingRoutesSucceeded++;
             }
-            Console.WriteLine($"Trading routes succeded: {tradingRoutesSucceded}, failed: {tradingRoutes.Count - tradingRoutesSucceded}.");
+            Console.WriteLine($"Trading routes succeeded: {tradingRoutesSucceeded}, failed: {tradingRoutes.Count - tradingRoutesSucceeded}.");
 
             Console.WriteLine("Finished! Press any key to exit.");
             Console.ReadKey();

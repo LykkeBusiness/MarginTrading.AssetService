@@ -15,5 +15,12 @@ namespace MarginTrading.SettingsService.Contracts.AssetPair
         public MatchingEngineModeContract MatchingEngineMode { get; set; }
         public decimal StpMultiplierMarkupBid { get; set; }
         public decimal StpMultiplierMarkupAsk { get; set; }
+        
+        /// <summary>
+        /// Flag will not be changed on API call, only MTCore can change it
+        /// </summary>
+        public bool IsSuspended { get; set; }
+        public bool IsFrozen { get; set; }
+        public bool IsDiscontinued { get; set; }
     }
 }

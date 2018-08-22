@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
@@ -80,9 +81,44 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             await base.DeleteAsync(assetPairId);
         }
 
+        public new async Task<bool> TryInsertAsync(IAssetPair obj)
+        {
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, obj.Id);
+
+            if (current == null)
+            {
+                throw new ArgumentException("Asset pair already exists", nameof(obj));
+            }
+            
+            return await base.TryInsertAsync(((AssetPair)obj).CreateForUpdate(false));
+        }
+
         public async Task UpdateAsync(IAssetPair obj)
         {
-            await base.ReplaceAsync(obj);
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, obj.Id);
+
+            if (current == null)
+            {
+                throw new ArgumentException("Asset pair does not exist", nameof(obj));
+            }
+            
+            await base.ReplaceAsync(((AssetPair)obj).CreateForUpdate(current.IsSuspended));
+        }
+
+        public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)
+        {
+            IAssetPair current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairId);
+            
+            if (current == null)
+            {
+                throw new ArgumentException("Asset pair does not exist", nameof(assetPairId));
+            }
+
+            var newAssetPair = ((AssetPair) current).CreateForUpdate(suspendFlag);
+            
+            await base.ReplaceAsync(newAssetPair);
+
+            return newAssetPair;
         }
     }
 }

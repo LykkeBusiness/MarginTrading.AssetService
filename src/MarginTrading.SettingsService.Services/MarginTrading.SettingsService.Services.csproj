@@ -17,4 +17,9 @@
     <ProjectReference Include="..\MarginTrading.SettingsService.Core\MarginTrading.SettingsService.Core.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.StorageInterfaces\MarginTrading.SettingsService.StorageInterfaces.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Lykke.Cqrs, Version=5.0.1.0, Culture=neutral, PublicKeyToken=null">
+      <HintPath>..\..\..\..\.nuget\packages\lykke.cqrs\5.0.1\lib\netstandard2.0\Lykke.Cqrs.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

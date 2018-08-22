@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
@@ -30,14 +33,18 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[MatchingEngineMode] [nvarchar] (64) NULL, " +
                                                  "[StpMultiplierMarkupBid] float NULL, " +
                                                  "[StpMultiplierMarkupAsk] float NULL, " +
+                                                 "[IsSuspended] BIT NOT NULL DEFAULT 0, " +
+                                                 "[IsFrozen] BIT NOT NULL DEFAULT 0, " +
+                                                 "[IsDiscontinued] BIT NOT NULL DEFAULT 0, " +
                                                  "CONSTRAINT AP_Id UNIQUE(Id)" +
                                                  ");";
         
-        private static Type DataType => typeof(IAssetPair);
-        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
-        private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
+        private static PropertyInfo[] TypeProps => typeof(IAssetPair).GetProperties()
+            .Where(x => x.Name == nameof(IAssetPair.IsSuspended)).ToArray();//get rid of Suspended flag, it is handled separately
+        private static readonly string GetColumns = "[" + string.Join("],[", TypeProps.Select(x => x.Name)) + "]";
+        private static readonly string GetFields = string.Join(",", TypeProps.Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
-            DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
+            TypeProps.Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly IConvertService _convertService;
         private readonly string _connectionString;
@@ -89,6 +96,22 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     $"update {TableName} set {GetUpdateClause} where Id=@Id", 
                     _convertService.Convert<IAssetPair, AssetPairEntity>(obj));
             }
+        }
+
+        public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                await conn.ExecuteAsync(
+                    $"update {TableName} set IsSuspended = @IsSuspended where Id=@Id", 
+                    new
+                    {
+                        Id = assetPairId,
+                        IsSuspended = suspendFlag,
+                    });
+            }
+            //todo may be optimized with QueryMultipleAsync
+            return await GetAsync(assetPairId);
         }
 
         public async Task DeleteAsync(string assetPairId)

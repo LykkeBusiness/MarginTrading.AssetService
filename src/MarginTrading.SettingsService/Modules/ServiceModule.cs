@@ -67,6 +67,10 @@ namespace MarginTrading.SettingsService.Modules
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();
 
+            builder.RegisterType<CqrsMessageSender>()
+                .As<ICqrsMessageSender>()
+                .SingleInstance();
+
             RegisterRepositories(builder);
 
             builder.Populate(_services);
@@ -123,6 +127,11 @@ namespace MarginTrading.SettingsService.Modules
                     .As<ITradingRoutesRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
+                
+                builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
+                    .As<IOperationExecutionInfoRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)
             {
@@ -166,6 +175,11 @@ namespace MarginTrading.SettingsService.Modules
 
                 builder.RegisterType<AzureRepos.TradingRoutesRepository>()
                     .As<ITradingRoutesRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
+                
+                builder.RegisterType<AzureRepos.OperationExecutionInfoRepository>()
+                    .As<IOperationExecutionInfoRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
             }

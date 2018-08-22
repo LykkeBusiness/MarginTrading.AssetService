@@ -27,6 +27,7 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly IMarketRepository _marketRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
+        private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         
         public AssetPairsController(
@@ -86,8 +87,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Create new asset pair
         /// </summary>
-        /// <param name="assetPair"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<AssetPairContract> Insert([FromBody] AssetPairContract assetPair)
@@ -103,15 +102,35 @@ namespace MarginTrading.SettingsService.Controllers
             }
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            {
+                OperationId = Guid.NewGuid().ToString("N"),
+                AssetPair = assetPair,
+            });
             
             return assetPair;
         }
 
         /// <summary>
+        /// Create new asset pairs in a batch request
+        /// </summary>
+        [HttpPost]
+        [Route("batch")]
+        public async Task<List<AssetPairContract>> BatchInsert([FromBody] AssetPairContract[] assetPairs)
+        {
+            var result = new List<AssetPairContract>();
+            
+            foreach (var assetPair in assetPairs)
+            {
+                result.Add(await Insert(assetPair));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Get asset pair by id
         /// </summary>
-        /// <param name="assetPairId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Get(string assetPairId)
@@ -123,9 +142,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update asset pair
         /// </summary>
-        /// <param name="assetPairId"></param>
-        /// <param name="assetPair"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
@@ -138,15 +154,35 @@ namespace MarginTrading.SettingsService.Controllers
             await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            {
+                OperationId = Guid.NewGuid().ToString("N"),
+                AssetPair = assetPair,
+            });
             
             return assetPair;
         }
 
         /// <summary>
+        /// Update asset pairs in a batch request
+        /// </summary>
+        [HttpPut]
+        [Route("{assetPairId}")]
+        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
+        {
+            var result = new List<AssetPairContract>();
+            
+            foreach (var assetPair in assetPairs) //todo may be optimized with batching in the repo
+            {
+                result.Add(await Update(assetPair.Id, assetPair));
+            }
+
+            return result;
+        }
+        
+        /// <summary>
         /// Delete asset pair
         /// </summary>
-        /// <param name="assetPairId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{assetPairId}")]
         public async Task Delete(string assetPairId)

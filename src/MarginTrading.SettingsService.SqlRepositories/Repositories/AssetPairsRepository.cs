@@ -40,7 +40,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  ");";
         
         private static PropertyInfo[] TypeProps => typeof(IAssetPair).GetProperties()
-            .Where(x => x.Name == nameof(IAssetPair.IsSuspended)).ToArray();//get rid of Suspended flag, it is handled separately
+            .Where(x => x.Name != nameof(IAssetPair.IsSuspended)).ToArray();//get rid of Suspended flag, it is handled separately
         private static readonly string GetColumns = "[" + string.Join("],[", TypeProps.Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", TypeProps.Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",

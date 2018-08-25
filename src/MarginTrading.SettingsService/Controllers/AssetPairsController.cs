@@ -36,6 +36,7 @@ namespace MarginTrading.SettingsService.Controllers
             IMarketRepository marketRepository,
             IConvertService convertService, 
             IEventSender eventSender,
+            ICqrsMessageSender cqrsMessageSender,
             DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _assetsRepository = assetsRepository;
@@ -43,6 +44,7 @@ namespace MarginTrading.SettingsService.Controllers
             _marketRepository = marketRepository;
             _convertService = convertService;
             _eventSender = eventSender;
+            _cqrsMessageSender = cqrsMessageSender;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
         
@@ -167,7 +169,7 @@ namespace MarginTrading.SettingsService.Controllers
         /// Update asset pairs in a batch request
         /// </summary>
         [HttpPut]
-        [Route("{assetPairId}")]
+        [Route("batch")]
         public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
         {
             var result = new List<AssetPairContract>();

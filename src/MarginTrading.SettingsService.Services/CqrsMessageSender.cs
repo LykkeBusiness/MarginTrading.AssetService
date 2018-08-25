@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using MarginTrading.SettingsService.Contracts.AssetPair;
@@ -13,21 +15,28 @@ namespace MarginTrading.SettingsService.Services
     {
         private readonly ICqrsEngine _cqrsEngine;
         private readonly CqrsContextNamesSettings _contextNames;
+        private readonly ILog _log;
 
         public CqrsMessageSender(
-            ISystemClock systemClock,
             ICqrsEngine cqrsEngine,
-            CqrsContextNamesSettings contextNames)
+            CqrsContextNamesSettings contextNames,
+            ILog log)
         {
             _cqrsEngine = cqrsEngine;
             _contextNames = contextNames;
+            _log = log;
         }
 
-        public Task SendAssetPairChangedEvent(AssetPairChangedEvent @event)
+        public async Task SendAssetPairChangedEvent(AssetPairChangedEvent @event)
         {
-            _cqrsEngine.PublishEvent(@event, _contextNames.SettingsService);
-            
-            return Task.CompletedTask;
+            try
+            {
+                _cqrsEngine.PublishEvent(@event, _contextNames.SettingsService);
+            }
+            catch (Exception ex)
+            {
+                await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(SendAssetPairChangedEvent), ex);
+            }
         }
     }
 }

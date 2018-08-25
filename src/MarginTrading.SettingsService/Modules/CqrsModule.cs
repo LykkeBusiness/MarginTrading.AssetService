@@ -110,7 +110,7 @@ namespace MarginTrading.SettingsService.Modules
                     typeof(UnsuspendAssetPairCommand)
                     )
                 .On(DefaultRoute)
-                .WithCommandsHandler<AssetPairFlagsCommandHandler>()
+                .WithCommandsHandler<AssetPairFlagsCommandsHandler>()
                 .PublishingEvents(
                     typeof(AssetPairChangedEvent)
                     )

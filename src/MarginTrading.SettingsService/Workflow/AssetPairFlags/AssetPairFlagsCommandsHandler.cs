@@ -8,12 +8,12 @@ using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.SettingsService.Workflow.AssetPairFlags
 {
-    public class AssetPairFlagsCommandHandler
+    public class AssetPairFlagsCommandsHandler
     {
         private readonly IAssetPairsRepository _assetPairsRepository;
         private readonly IConvertService _convertService;
         
-        public AssetPairFlagsCommandHandler(
+        public AssetPairFlagsCommandsHandler(
             IAssetPairsRepository assetPairsRepository,
             IConvertService convertService)
         {

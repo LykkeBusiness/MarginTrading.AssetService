@@ -88,7 +88,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return await base.GetAsync(assetPairId, AssetPairEntity.Pk);
         }
 
-        public async Task<bool> TryInsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        public async Task<IReadOnlyList<IAssetPair>> InsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
         {
             var assetPairEntities = assetPairs.Select(x => _convertService.Convert<IAssetPair, AssetPairEntity>(
                 ((AssetPair) x).CreateForUpdate(false))).ToList();
@@ -97,11 +97,12 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             var existing = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairEntities.Select(x => x.RowKey));
             if (existing.Any())
             {
-                return false;
+                return null;
             }
 
             await TableStorage.InsertOrMergeBatchAsync(assetPairEntities);
-            return true;
+            
+            return assetPairEntities;
         }
 
         public async Task DeleteAsync(string assetPairId)
@@ -109,7 +110,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             await base.DeleteAsync(assetPairId);
         }
 
-        public new async Task<bool> TryInsertAsync(IAssetPair obj)
+        public new async Task<IAssetPair> InsertAsync(IAssetPair obj)
         {
             var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, obj.Id);
 
@@ -117,23 +118,29 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             {
                 throw new ArgumentException("Asset pair already exists", nameof(obj));
             }
+
+            var entity = ((AssetPair)obj).CreateForUpdate(false);
             
-            return await base.TryInsertAsync(((AssetPair)obj).CreateForUpdate(false));
+            return await base.TryInsertAsync(entity) ? entity : null;
         }
 
-        public async Task UpdateAsync(IAssetPair obj)
+        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
         {
-            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, obj.Id);
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
 
             if (current == null)
             {
-                throw new ArgumentException("Asset pair does not exist", nameof(obj));
+                throw new ArgumentException("Asset pair does not exist", nameof(assetPair));
             }
+
+            var entity = ((AssetPair) assetPair).CreateForUpdate(current.IsSuspended);
             
-            await base.ReplaceAsync(((AssetPair)obj).CreateForUpdate(current.IsSuspended));
+            await base.ReplaceAsync(entity);
+
+            return entity;
         }
 
-        public async Task UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
         {
             //TODO batch update is done in 2 transactions which is a point of inconsistency
             var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairs.Select(x => x.Id)))
@@ -147,6 +154,8 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 ((AssetPair) x).CreateForUpdate(existing[x.Id]))).ToList();
 
             await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
+
+            return assetPairEntities;
         }
 
         public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)

@@ -16,11 +16,17 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null, 
             string matchingEngineMode = null, int? skip = null, int? take = null);
         Task<IAssetPair> GetByBaseQuoteAndLegalEntityAsync(string baseAssetId, string quoteAssetId, string legalEntity);
-        Task<bool> TryInsertAsync(IAssetPair convert);
-        Task<bool> TryInsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
+        /// <summary>
+        /// Return null in case when insertion failed
+        /// </summary>
+        Task<IAssetPair> InsertAsync(IAssetPair assetPair);
+        /// <summary>
+        /// Return null in case when insertion failed
+        /// </summary>
+        Task<IReadOnlyList<IAssetPair>> InsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
         Task DeleteAsync(string assetPairId);
-        Task UpdateAsync(IAssetPair obj);
-        Task UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
+        Task<IAssetPair> UpdateAsync(IAssetPair assetPair);
+        Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
         Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag);
     }
 }

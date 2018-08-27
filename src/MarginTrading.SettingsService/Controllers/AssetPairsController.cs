@@ -97,20 +97,23 @@ namespace MarginTrading.SettingsService.Controllers
             
             _defaultLegalEntitySettings.Set(assetPair);
 
-            if (!await _assetPairsRepository.TryInsertAsync(
-                _convertService.Convert<AssetPairContract, AssetPair>(assetPair)))
+            var inserted = await _assetPairsRepository.InsertAsync(
+                _convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            if (inserted == null)
             {
                 throw new ArgumentException($"Asset pair with id {assetPair.Id} already exists", nameof(assetPair.Id));
             }
 
+            var insertedContract = _convertService.Convert<IAssetPair, AssetPairContract>(inserted);
+            
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
-                AssetPair = assetPair,
+                AssetPair = insertedContract,
             });
             
-            return assetPair;
+            return insertedContract;
         }
 
         /// <summary>
@@ -126,24 +129,29 @@ namespace MarginTrading.SettingsService.Controllers
             
                 _defaultLegalEntitySettings.Set(assetPair);   
             }
+            ValidateUnique(assetPairs);
 
-            if (!await _assetPairsRepository.TryInsertBatchAsync(assetPairs.Select(x => 
-                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList()))
+            var inserted = await _assetPairsRepository.InsertBatchAsync(assetPairs.Select(x =>
+                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList()); 
+                
+            if (inserted == null)
             {
                 throw new ArgumentException("One of asset pairs already exist", nameof(assetPairs));
             }
 
+            var insertedContracts = inserted.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
+            
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
-            foreach (var assetPair in assetPairs)
+            foreach (var insertedContract in insertedContracts)
             {
                 await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
                 {
                     OperationId = Guid.NewGuid().ToString("N"),
-                    AssetPair = assetPair,
+                    AssetPair = insertedContract,
                 });
             }
 
-            return assetPairs.ToList();
+            return insertedContracts;
         }
 
         /// <summary>
@@ -169,16 +177,17 @@ namespace MarginTrading.SettingsService.Controllers
 
             _defaultLegalEntitySettings.Set(assetPair);
 
-            await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            var updated = await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            var updatedContract = _convertService.Convert<IAssetPair, AssetPairContract>(updated);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
-                AssetPair = assetPair,
+                AssetPair = updatedContract,
             });
             
-            return assetPair;
+            return updatedContract;
         }
 
         /// <summary>
@@ -194,23 +203,25 @@ namespace MarginTrading.SettingsService.Controllers
 
                 _defaultLegalEntitySettings.Set(assetPair);
             }
+            ValidateUnique(assetPairs);
 
-            await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
+            var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
                 _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
+            var updatedContracts = updated.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
-            foreach (var assetPair in assetPairs)
+            foreach (var updatedContract in updatedContracts)
             {
                 await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
                 {
                     OperationId = Guid.NewGuid().ToString("N"),
-                    AssetPair = assetPair,
+                    AssetPair = updatedContract,
                 });
             }
 
-            return assetPairs.ToList();
+            return updatedContracts;
         }
-        
+
         /// <summary>
         /// Delete asset pair
         /// </summary>
@@ -297,6 +308,14 @@ namespace MarginTrading.SettingsService.Controllers
             if (contract?.Id != id)
             {
                 throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private void ValidateUnique(AssetPairContract[] assetPairs)
+        {
+            if (assetPairs.Length == 0 || assetPairs.Select(x => x.Id).Count() != assetPairs.Length)
+            {
+                throw new ArgumentOutOfRangeException(nameof(assetPairs), "Only unique asset pairs are allowed.");
             }
         }
     }

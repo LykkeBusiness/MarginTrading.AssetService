@@ -106,7 +106,7 @@ namespace MarginTrading.SettingsService.Migration
             var assetPairsSucceeded = 0;
             foreach (var assetPair in assetPairs)
             {
-                if (await assetPairsRepos.Last().TryInsertAsync(assetPair))
+                if (await assetPairsRepos.Last().InsertAsync(assetPair) != null)
                     assetPairsSucceeded++;
             }
             Console.WriteLine($"Asset pairs succeeded: {assetPairsSucceeded}, failed: {assetPairs.Count - assetPairsSucceeded}.");

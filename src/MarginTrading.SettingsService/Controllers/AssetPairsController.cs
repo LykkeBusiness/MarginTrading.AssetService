@@ -120,14 +120,30 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("batch")]
         public async Task<List<AssetPairContract>> BatchInsert([FromBody] AssetPairContract[] assetPairs)
         {
-            var result = new List<AssetPairContract>();
-            
             foreach (var assetPair in assetPairs)
             {
-                result.Add(await Insert(assetPair));
+                await ValidatePair(assetPair);
+            
+                _defaultLegalEntitySettings.Set(assetPair);   
             }
 
-            return result;
+            if (!await _assetPairsRepository.TryInsertBatchAsync(assetPairs.Select(x => 
+                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList()))
+            {
+                throw new ArgumentException("One of asset pairs already exist", nameof(assetPairs));
+            }
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            foreach (var assetPair in assetPairs)
+            {
+                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                {
+                    OperationId = Guid.NewGuid().ToString("N"),
+                    AssetPair = assetPair,
+                });
+            }
+
+            return assetPairs.ToList();
         }
 
         /// <summary>
@@ -172,14 +188,27 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("batch")]
         public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
         {
-            var result = new List<AssetPairContract>();
-            
-            foreach (var assetPair in assetPairs) //todo may be optimized with batching in the repo
+            foreach (var assetPair in assetPairs)
             {
-                result.Add(await Update(assetPair.Id, assetPair));
+                await ValidatePair(assetPair);
+
+                _defaultLegalEntitySettings.Set(assetPair);
             }
 
-            return result;
+            await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
+                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            foreach (var assetPair in assetPairs)
+            {
+                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                {
+                    OperationId = Guid.NewGuid().ToString("N"),
+                    AssetPair = assetPair,
+                });
+            }
+
+            return assetPairs.ToList();
         }
         
         /// <summary>
@@ -254,7 +283,13 @@ namespace MarginTrading.SettingsService.Controllers
             if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(newValue.Id, newValue.BasePairId) != null)
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
-            }    
+            }
+
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(newValue.BaseAssetId,
+                    newValue.QuoteAssetId, newValue.LegalEntity) != null)
+            {
+                throw new InvalidOperationException($"Asset pair with base: {newValue.BaseAssetId}, quote: {newValue.QuoteAssetId}, legalEntity: {newValue.LegalEntity} already exists");   
+            }
         }
 
         private void ValidateId(string id, AssetPairContract contract)

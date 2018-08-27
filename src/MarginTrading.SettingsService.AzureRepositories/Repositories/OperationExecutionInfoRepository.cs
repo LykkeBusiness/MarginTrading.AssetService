@@ -18,9 +18,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
     public class OperationExecutionInfoRepository : IOperationExecutionInfoRepository
     {
         private readonly INoSQLTableStorage<OperationExecutionInfoEntity> _tableStorage;
-        private readonly ILog _log;
         private readonly ISystemClock _systemClock;
-        private readonly bool _enableOperationsLogs = true;
 
         public OperationExecutionInfoRepository(IReloadingManager<string> connectionStringManager, 
             ILog log, ISystemClock systemClock)
@@ -29,7 +27,6 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 connectionStringManager,
                 "SettingsServiceExecutionInfo",
                 log);
-            _log = log.CreateComponentScope(nameof(OperationExecutionInfoRepository));
             _systemClock = systemClock;
         }
         

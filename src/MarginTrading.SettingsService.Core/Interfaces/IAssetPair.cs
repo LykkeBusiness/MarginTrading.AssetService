@@ -16,7 +16,6 @@ namespace MarginTrading.SettingsService.Core.Interfaces
         decimal StpMultiplierMarkupBid { get; }
         decimal StpMultiplierMarkupAsk { get; }
 
-        //bool IsMarketClosed { get; }
         bool IsSuspended { get; }
         bool IsFrozen { get; }
         bool IsDiscontinued { get; }

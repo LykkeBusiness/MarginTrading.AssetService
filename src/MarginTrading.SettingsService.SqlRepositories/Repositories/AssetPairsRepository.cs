@@ -67,6 +67,19 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<IAssetPair> GetByBaseQuoteAndLegalEntityAsync(string baseAssetId, string quoteAssetId, 
+            string legalEntity)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var objects = await conn.QueryAsync<AssetPairEntity>(
+                    $"SELECT * FROM {TableName} WHERE BaseAssetId=@baseAssetId AND QuoteAssetId=@quoteAssetId AND LegalEntity=@legalEntity",
+                    new {baseAssetId, quoteAssetId, legalEntity});
+                
+                return objects.FirstOrDefault();
+            }
+        }
+
         public async Task<bool> TryInsertAsync(IAssetPair obj)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -88,6 +101,46 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<bool> TryInsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                SqlTransaction transaction = null;
+                try
+                {
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        await conn.OpenAsync();
+                    }
+                    
+                    transaction = conn.BeginTransaction();
+
+                    if (await conn.ExecuteScalarAsync<int>(
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs)})",
+                            new { },
+                            transaction) > 0)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(assetPairs), "One of asset pairs already exist");
+                    }
+
+                    await conn.ExecuteAsync(
+                        $"insert into {TableName} ({GetColumns}) values ({GetFields})",
+                        assetPairs.Select(_convertService.Convert<IAssetPair, AssetPairEntity>),
+                        transaction);
+
+                    transaction.Commit();
+                    return true;
+                }
+                catch (Exception ex)
+                {
+                    transaction?.Rollback();
+                    await _log.WriteErrorAsync(nameof(AssetPairsRepository),
+                        nameof(TryInsertBatchAsync), "Failed to perform batch transaction", ex);
+                    return false;
+                }
+            }
+        }
+
         public async Task UpdateAsync(IAssetPair obj)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -96,6 +149,11 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     $"update {TableName} set {GetUpdateClause} where Id=@Id", 
                     _convertService.Convert<IAssetPair, AssetPairEntity>(obj));
             }
+        }
+
+        public async Task UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        {
+            throw new NotImplementedException();
         }
 
         public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)

@@ -24,4 +24,7 @@
     <PackageReference Include="Refit" Version="4.6.30" />
     <PackageReference Include="MessagePack" Version="1.7.2" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="MarginTrading.SettingsService.Contracts.xml" />
+  </ItemGroup>
 </Project>

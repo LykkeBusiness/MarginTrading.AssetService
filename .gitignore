@@ -62,3 +62,4 @@ node_modules
 **/*.ps1
 
 *appsettings.dev.json
+*Contracts.xml

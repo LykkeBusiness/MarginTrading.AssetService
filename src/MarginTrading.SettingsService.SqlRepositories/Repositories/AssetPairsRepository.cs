@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
@@ -30,14 +33,18 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[MatchingEngineMode] [nvarchar] (64) NULL, " +
                                                  "[StpMultiplierMarkupBid] float NULL, " +
                                                  "[StpMultiplierMarkupAsk] float NULL, " +
+                                                 "[IsSuspended] BIT NOT NULL DEFAULT 0, " +
+                                                 "[IsFrozen] BIT NOT NULL DEFAULT 0, " +
+                                                 "[IsDiscontinued] BIT NOT NULL DEFAULT 0, " +
                                                  "CONSTRAINT AP_Id UNIQUE(Id)" +
                                                  ");";
         
-        private static Type DataType => typeof(IAssetPair);
-        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
-        private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
+        private static PropertyInfo[] TypeProps => typeof(IAssetPair).GetProperties()
+            .Where(x => x.Name != nameof(IAssetPair.IsSuspended)).ToArray();//get rid of Suspended flag, it is handled separately
+        private static readonly string GetColumns = "[" + string.Join("],[", TypeProps.Select(x => x.Name)) + "]";
+        private static readonly string GetFields = string.Join(",", TypeProps.Select(x => "@" + x.Name));
         private static readonly string GetUpdateClause = string.Join(",",
-            DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
+            TypeProps.Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly IConvertService _convertService;
         private readonly string _connectionString;
@@ -60,7 +67,20 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<bool> TryInsertAsync(IAssetPair obj)
+        public async Task<IAssetPair> GetByBaseQuoteAndLegalEntityAsync(string baseAssetId, string quoteAssetId, 
+            string legalEntity)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var objects = await conn.QueryAsync<AssetPairEntity>(
+                    $"SELECT * FROM {TableName} WHERE BaseAssetId=@baseAssetId AND QuoteAssetId=@quoteAssetId AND LegalEntity=@legalEntity",
+                    new {baseAssetId, quoteAssetId, legalEntity});
+                
+                return objects.FirstOrDefault();
+            }
+        }
+
+        public async Task<IAssetPair> InsertAsync(IAssetPair obj)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -69,26 +89,142 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     await conn.ExecuteAsync(
                         $"insert into {TableName} ({GetColumns}) values ({GetFields})",
                         _convertService.Convert<IAssetPair, AssetPairEntity>(obj));
+
+                    return await conn.QuerySingleOrDefaultAsync<AssetPairEntity>(
+                        $"SELECT * FROM {TableName} WHERE Id=@id", new {obj.Id});
                 }
                 catch (Exception ex)
                 {
-                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
+                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(InsertAsync),
                         $"Failed to insert an asset pair with Id {obj.Id}", ex);
-                    return false;
+                    return null;
                 }
-
-                return true;
             }
         }
 
-        public async Task UpdateAsync(IAssetPair obj)
+        public async Task<IReadOnlyList<IAssetPair>> InsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                SqlTransaction transaction = null;
+                
+                try
+                {
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        await conn.OpenAsync();
+                    }
+                    
+                    transaction = conn.BeginTransaction();
+
+                    if (await conn.ExecuteScalarAsync<int>(
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                            new { },
+                            transaction) > 0)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(assetPairs), "One of asset pairs already exist");
+                    }
+
+                    await conn.ExecuteAsync(
+                        $"insert into {TableName} ({GetColumns}) values ({GetFields})",
+                        assetPairs.Select(_convertService.Convert<IAssetPair, AssetPairEntity>),
+                        transaction);
+
+                    var inserted = await conn.QueryAsync<AssetPairEntity>(
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                        new {},
+                        transaction);
+                    
+                    transaction.Commit();
+                    
+                    return inserted.ToList();
+                }
+                catch (Exception ex)
+                {
+                    transaction?.Rollback();
+                    await _log.WriteErrorAsync(nameof(AssetPairsRepository),
+                        nameof(InsertBatchAsync), $"Failed to perform batch transaction: {ex.Message}", ex);
+                    
+                    return null;
+                }
+            }
+        }
+
+        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
                 await conn.ExecuteAsync(
                     $"update {TableName} set {GetUpdateClause} where Id=@Id", 
-                    _convertService.Convert<IAssetPair, AssetPairEntity>(obj));
+                    _convertService.Convert<IAssetPair, AssetPairEntity>(assetPair));
+
+                return await conn.QuerySingleOrDefaultAsync<AssetPairEntity>(
+                    $"SELECT * FROM {TableName} WHERE Id=@id", new {assetPair.Id});
             }
+        }
+
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                SqlTransaction transaction = null;
+                
+                try
+                {
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        await conn.OpenAsync();
+                    }
+                    
+                    transaction = conn.BeginTransaction();
+
+                    if (await conn.ExecuteScalarAsync<int>(
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                            new { },
+                            transaction) != assetPairs.Count)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(assetPairs), "One of asset pairs does not exist");
+                    }
+
+                    await conn.ExecuteAsync(
+                        $"update {TableName} set {GetUpdateClause} where Id=@Id",
+                        assetPairs.Select(_convertService.Convert<IAssetPair, AssetPairEntity>),
+                        transaction);
+
+                    var updated = await conn.QueryAsync<AssetPairEntity>(
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                        new {},
+                        transaction);
+
+                    transaction.Commit();
+                    
+                    return updated.ToList();
+                }
+                catch (Exception ex)
+                {
+                    transaction?.Rollback();
+                    await _log.WriteErrorAsync(nameof(AssetPairsRepository),
+                        nameof(InsertBatchAsync), $"Failed to perform batch transaction: {ex.Message}", ex);
+                    
+                    return null;
+                }
+            }
+        }
+
+        public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                await conn.ExecuteAsync(
+                    $"update {TableName} set IsSuspended = @IsSuspended where Id=@Id", 
+                    new
+                    {
+                        Id = assetPairId,
+                        IsSuspended = suspendFlag,
+                    });
+            }
+            //todo may be optimized with QueryMultipleAsync
+            return await GetAsync(assetPairId);
         }
 
         public async Task DeleteAsync(string assetPairId)

@@ -17,12 +17,12 @@ namespace MarginTrading.SettingsService.Modules
 {
     public class ServiceModule : Module
     {
-        private readonly IReloadingManager<MarginTradingSettingsServiceSettings> _settings;
+        private readonly IReloadingManager<SettingsServiceSettings> _settings;
         private readonly ILog _log;
         // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
-        public ServiceModule(IReloadingManager<MarginTradingSettingsServiceSettings> settings, ILog log)
+        public ServiceModule(IReloadingManager<SettingsServiceSettings> settings, ILog log)
         {
             _settings = settings;
             _log = log;
@@ -66,6 +66,12 @@ namespace MarginTrading.SettingsService.Modules
             
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();
+
+            builder.RegisterInstance(_settings.CurrentValue.Cqrs.ContextNames).AsSelf().SingleInstance();
+            
+            builder.RegisterType<CqrsMessageSender>()
+                .As<ICqrsMessageSender>()
+                .SingleInstance();
 
             RegisterRepositories(builder);
 
@@ -123,6 +129,11 @@ namespace MarginTrading.SettingsService.Modules
                     .As<ITradingRoutesRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
+                
+                builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
+                    .As<IOperationExecutionInfoRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)
             {
@@ -166,6 +177,11 @@ namespace MarginTrading.SettingsService.Modules
 
                 builder.RegisterType<AzureRepos.TradingRoutesRepository>()
                     .As<ITradingRoutesRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
+                
+                builder.RegisterType<AzureRepos.OperationExecutionInfoRepository>()
+                    .As<IOperationExecutionInfoRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
             }

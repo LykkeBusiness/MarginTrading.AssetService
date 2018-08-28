@@ -27,6 +27,7 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly IMarketRepository _marketRepository;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
+        private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         
         public AssetPairsController(
@@ -35,6 +36,7 @@ namespace MarginTrading.SettingsService.Controllers
             IMarketRepository marketRepository,
             IConvertService convertService, 
             IEventSender eventSender,
+            ICqrsMessageSender cqrsMessageSender,
             DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _assetsRepository = assetsRepository;
@@ -42,6 +44,7 @@ namespace MarginTrading.SettingsService.Controllers
             _marketRepository = marketRepository;
             _convertService = convertService;
             _eventSender = eventSender;
+            _cqrsMessageSender = cqrsMessageSender;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
         
@@ -86,8 +89,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Create new asset pair
         /// </summary>
-        /// <param name="assetPair"></param>
-        /// <returns></returns>
         [HttpPost]
         [Route("")]
         public async Task<AssetPairContract> Insert([FromBody] AssetPairContract assetPair)
@@ -96,22 +97,66 @@ namespace MarginTrading.SettingsService.Controllers
             
             _defaultLegalEntitySettings.Set(assetPair);
 
-            if (!await _assetPairsRepository.TryInsertAsync(
-                _convertService.Convert<AssetPairContract, AssetPair>(assetPair)))
+            var inserted = await _assetPairsRepository.InsertAsync(
+                _convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            if (inserted == null)
             {
                 throw new ArgumentException($"Asset pair with id {assetPair.Id} already exists", nameof(assetPair.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            var insertedContract = _convertService.Convert<IAssetPair, AssetPairContract>(inserted);
             
-            return assetPair;
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            {
+                OperationId = Guid.NewGuid().ToString("N"),
+                AssetPair = insertedContract,
+            });
+            
+            return insertedContract;
+        }
+
+        /// <summary>
+        /// Create new asset pairs in a batch request
+        /// </summary>
+        [HttpPost]
+        [Route("batch")]
+        public async Task<List<AssetPairContract>> BatchInsert([FromBody] AssetPairContract[] assetPairs)
+        {
+            foreach (var assetPair in assetPairs)
+            {
+                await ValidatePair(assetPair);
+            
+                _defaultLegalEntitySettings.Set(assetPair);   
+            }
+            ValidateUnique(assetPairs);
+
+            var inserted = await _assetPairsRepository.InsertBatchAsync(assetPairs.Select(x =>
+                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList()); 
+                
+            if (inserted == null)
+            {
+                throw new ArgumentException("One of asset pairs already exist", nameof(assetPairs));
+            }
+
+            var insertedContracts = inserted.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
+            
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            foreach (var insertedContract in insertedContracts)
+            {
+                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                {
+                    OperationId = Guid.NewGuid().ToString("N"),
+                    AssetPair = insertedContract,
+                });
+            }
+
+            return insertedContracts;
         }
 
         /// <summary>
         /// Get asset pair by id
         /// </summary>
-        /// <param name="assetPairId"></param>
-        /// <returns></returns>
         [HttpGet]
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Get(string assetPairId)
@@ -123,9 +168,6 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Update asset pair
         /// </summary>
-        /// <param name="assetPairId"></param>
-        /// <param name="assetPair"></param>
-        /// <returns></returns>
         [HttpPut]
         [Route("{assetPairId}")]
         public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
@@ -135,18 +177,66 @@ namespace MarginTrading.SettingsService.Controllers
 
             _defaultLegalEntitySettings.Set(assetPair);
 
-            await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            var updated = await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            
+            if (updated == null)
+            {
+                throw new ArgumentException("Update failed", nameof(assetPair));
+            }
+            
+            var updatedContract = _convertService.Convert<IAssetPair, AssetPairContract>(updated);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            {
+                OperationId = Guid.NewGuid().ToString("N"),
+                AssetPair = updatedContract,
+            });
             
-            return assetPair;
+            return updatedContract;
+        }
+
+        /// <summary>
+        /// Update asset pairs in a batch request
+        /// </summary>
+        [HttpPut]
+        [Route("batch")]
+        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
+        {
+            foreach (var assetPair in assetPairs)
+            {
+                await ValidatePair(assetPair);
+
+                _defaultLegalEntitySettings.Set(assetPair);
+            }
+            ValidateUnique(assetPairs);
+
+            var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
+                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
+            
+            if (updated == null)
+            {
+                throw new ArgumentException("Batch update failed", nameof(assetPairs));
+            }
+            
+            var updatedContracts = updated.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            foreach (var updatedContract in updatedContracts)
+            {
+                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                {
+                    OperationId = Guid.NewGuid().ToString("N"),
+                    AssetPair = updatedContract,
+                });
+            }
+
+            return updatedContracts;
         }
 
         /// <summary>
         /// Delete asset pair
         /// </summary>
-        /// <param name="assetPairId"></param>
-        /// <returns></returns>
         [HttpDelete]
         [Route("{assetPairId}")]
         public async Task Delete(string assetPairId)
@@ -196,7 +286,7 @@ namespace MarginTrading.SettingsService.Controllers
             
             if (newValue.StpMultiplierMarkupBid <= 0)
             {
-                throw new InvalidOperationException($"StpMultiplierMarkupBid must be greather then zero");
+                throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
             
             //base pair check <-- the last one
@@ -216,7 +306,13 @@ namespace MarginTrading.SettingsService.Controllers
             if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(newValue.Id, newValue.BasePairId) != null)
             {
                 throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
-            }    
+            }
+
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(newValue.BaseAssetId,
+                    newValue.QuoteAssetId, newValue.LegalEntity) != null)
+            {
+                throw new InvalidOperationException($"Asset pair with base: {newValue.BaseAssetId}, quote: {newValue.QuoteAssetId}, legalEntity: {newValue.LegalEntity} already exists");   
+            }
         }
 
         private void ValidateId(string id, AssetPairContract contract)
@@ -224,6 +320,17 @@ namespace MarginTrading.SettingsService.Controllers
             if (contract?.Id != id)
             {
                 throw new ArgumentException("Id must match with contract id");
+            }
+        }
+
+        private void ValidateUnique(AssetPairContract[] assetPairs)
+        {
+            var groups = assetPairs.GroupBy(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity))
+                .Where(x => x.Count() > 1).ToList();
+            if (assetPairs.Length == 0 || groups.Any())
+            {
+                throw new ArgumentOutOfRangeException(nameof(assetPairs), 
+                    $"Only unique asset pairs are allowed. The list of non-unique: {string.Join(", ", groups.Select(x => $"({x.Key.BaseAssetId},{x.Key.QuoteAssetId},{x.Key.LegalEntity})"))}");
             }
         }
     }

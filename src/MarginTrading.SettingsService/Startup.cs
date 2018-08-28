@@ -74,6 +74,7 @@ namespace MarginTrading.SettingsService
                 Log = CreateLogWithSlack(services, appSettings);
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.MarginTradingSettingsService), Log));
+                builder.RegisterModule(new CqrsModule(appSettings.CurrentValue.MarginTradingSettingsService.Cqrs, Log));
                 builder.Populate(services);
                 ApplicationContainer = builder.Build();
 

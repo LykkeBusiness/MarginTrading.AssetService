@@ -8,7 +8,7 @@ namespace MarginTrading.SettingsService.Settings
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class AppSettings
     {
-        public MarginTradingSettingsServiceSettings MarginTradingSettingsService { get; set; }
+        public SettingsServiceSettings MarginTradingSettingsService { get; set; }
         [Optional, CanBeNull] public SlackNotificationsSettings SlackNotifications { get; set; }
     }
 }

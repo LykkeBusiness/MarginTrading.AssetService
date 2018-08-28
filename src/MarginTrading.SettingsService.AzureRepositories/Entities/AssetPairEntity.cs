@@ -21,5 +21,9 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public string MatchingEngineMode { get; set; }
         public decimal StpMultiplierMarkupBid { get; set; }
         public decimal StpMultiplierMarkupAsk { get; set; }
+        
+        public bool IsSuspended { get; set; }
+        public bool IsFrozen { get; set; }
+        public bool IsDiscontinued { get; set; }
     }
 }

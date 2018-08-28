@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AzureStorage;
 using Common.Log;
 using Lykke.AzureStorage.Tables.Paging;
 using Lykke.SettingsReader;
@@ -16,12 +18,14 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {
     public class AssetPairsRepository : GenericAzureCrudRepository<IAssetPair, AssetPairEntity>, IAssetPairsRepository
     {
+        private readonly IConvertService _convertService;
+        
         public AssetPairsRepository(ILog log,
             IConvertService convertService,
             IReloadingManager<string> connectionStringManager)
             : base(log, convertService, connectionStringManager, "AssetPairs")
         {
-
+            _convertService = convertService;
         }
 
         public async Task<IReadOnlyList<IAssetPair>> GetAsync(params string[] assetPairIds)
@@ -70,9 +74,35 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             );
         }
 
+        public async Task<IAssetPair> GetByBaseQuoteAndLegalEntityAsync(string baseAssetId, string quoteAssetId, string legalEntity)
+        {
+            var result = await TableStorage.GetDataAsync(x => x.BaseAssetId == baseAssetId 
+                                                              && x.QuoteAssetId == quoteAssetId
+                                                              && x.LegalEntity == legalEntity);
+
+            return result.FirstOrDefault();
+        }
+
         public new async Task<IAssetPair> GetAsync(string assetPairId)
         {
             return await base.GetAsync(assetPairId, AssetPairEntity.Pk);
+        }
+
+        public async Task<IReadOnlyList<IAssetPair>> InsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        {
+            var assetPairEntities = assetPairs.Select(x => _convertService.Convert<IAssetPair, AssetPairEntity>(
+                ((AssetPair) x).CreateForUpdate(false))).ToList();
+            
+            //TODO batch insert is done in 2 transactions which is a point of inconsistency
+            var existing = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairEntities.Select(x => x.RowKey));
+            if (existing.Any())
+            {
+                return null;
+            }
+
+            await TableStorage.InsertOrMergeBatchAsync(assetPairEntities);
+            
+            return assetPairEntities;
         }
 
         public async Task DeleteAsync(string assetPairId)
@@ -80,9 +110,68 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             await base.DeleteAsync(assetPairId);
         }
 
-        public async Task UpdateAsync(IAssetPair obj)
+        public new async Task<IAssetPair> InsertAsync(IAssetPair obj)
         {
-            await base.ReplaceAsync(obj);
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, obj.Id);
+
+            if (current != null)
+            {
+                throw new ArgumentException("Asset pair already exists", nameof(obj));
+            }
+
+            var entity = ((AssetPair)obj).CreateForUpdate(false);
+            
+            return await base.TryInsertAsync(entity) ? entity : null;
+        }
+
+        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
+        {
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
+
+            if (current == null)
+            {
+                throw new ArgumentException("Asset pair does not exist", nameof(assetPair));
+            }
+
+            var entity = ((AssetPair) assetPair).CreateForUpdate(current.IsSuspended);
+            
+            await base.ReplaceAsync(entity);
+
+            return entity;
+        }
+
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        {
+            //TODO batch update is done in 2 transactions which is a point of inconsistency
+            var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairs.Select(x => x.Id)))
+                .ToDictionary(x => x.Id, x => x.IsSuspended);
+            if (existing.Count != assetPairs.Count)
+            {
+                throw new ArgumentException("One of asset pairs does not exist", nameof(assetPairs));
+            }
+            
+            var assetPairEntities = assetPairs.Select(x => _convertService.Convert<IAssetPair, AssetPairEntity>(
+                ((AssetPair) x).CreateForUpdate(existing[x.Id]))).ToList();
+
+            await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
+
+            return assetPairEntities;
+        }
+
+        public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)
+        {
+            IAssetPair current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairId);
+            
+            if (current == null)
+            {
+                throw new ArgumentException("Asset pair does not exist", nameof(assetPairId));
+            }
+
+            var newAssetPair = ((AssetPair) current).CreateForUpdate(suspendFlag);
+            
+            await base.ReplaceAsync(newAssetPair);
+
+            return newAssetPair;
         }
     }
 }

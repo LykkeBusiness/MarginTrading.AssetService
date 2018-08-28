@@ -178,6 +178,12 @@ namespace MarginTrading.SettingsService.Controllers
             _defaultLegalEntitySettings.Set(assetPair);
 
             var updated = await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            
+            if (updated == null)
+            {
+                throw new ArgumentException("Update failed", nameof(assetPair));
+            }
+            
             var updatedContract = _convertService.Convert<IAssetPair, AssetPairContract>(updated);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
@@ -207,6 +213,12 @@ namespace MarginTrading.SettingsService.Controllers
 
             var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
                 _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
+            
+            if (updated == null)
+            {
+                throw new ArgumentException("Batch update failed", nameof(assetPairs));
+            }
+            
             var updatedContracts = updated.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
@@ -274,7 +286,7 @@ namespace MarginTrading.SettingsService.Controllers
             
             if (newValue.StpMultiplierMarkupBid <= 0)
             {
-                throw new InvalidOperationException($"StpMultiplierMarkupBid must be greather then zero");
+                throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
             
             //base pair check <-- the last one
@@ -313,9 +325,12 @@ namespace MarginTrading.SettingsService.Controllers
 
         private void ValidateUnique(AssetPairContract[] assetPairs)
         {
-            if (assetPairs.Length == 0 || assetPairs.Select(x => x.Id).Count() != assetPairs.Length)
+            var groups = assetPairs.GroupBy(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity))
+                .Where(x => x.Count() > 1).ToList();
+            if (assetPairs.Length == 0 || groups.Any())
             {
-                throw new ArgumentOutOfRangeException(nameof(assetPairs), "Only unique asset pairs are allowed.");
+                throw new ArgumentOutOfRangeException(nameof(assetPairs), 
+                    $"Only unique asset pairs are allowed. The list of non-unique: {string.Join(", ", groups.Select(x => $"({x.Key.BaseAssetId},{x.Key.QuoteAssetId},{x.Key.LegalEntity})"))}");
             }
         }
     }

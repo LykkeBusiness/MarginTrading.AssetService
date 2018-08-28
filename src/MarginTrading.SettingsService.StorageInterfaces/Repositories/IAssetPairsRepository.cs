@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 
@@ -19,13 +20,17 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         /// <summary>
         /// Return null in case when insertion failed
         /// </summary>
+        [ItemCanBeNull]
         Task<IAssetPair> InsertAsync(IAssetPair assetPair);
         /// <summary>
         /// Return null in case when insertion failed
         /// </summary>
+        [ItemCanBeNull]
         Task<IReadOnlyList<IAssetPair>> InsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
         Task DeleteAsync(string assetPairId);
+        [ItemCanBeNull]
         Task<IAssetPair> UpdateAsync(IAssetPair assetPair);
+        [ItemCanBeNull]
         Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
         Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag);
     }

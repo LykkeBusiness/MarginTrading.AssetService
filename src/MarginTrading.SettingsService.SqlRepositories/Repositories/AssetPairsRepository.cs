@@ -118,7 +118,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     transaction = conn.BeginTransaction();
 
                     if (await conn.ExecuteScalarAsync<int>(
-                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs)})",
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
                             new { },
                             transaction) > 0)
                     {
@@ -131,7 +131,9 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                         transaction);
 
                     var inserted = await conn.QueryAsync<AssetPairEntity>(
-                        $"SELECT * FROM {TableName} WHERE Id IN ({string.Join(",", assetPairs.Select(x => x.Id))})");
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                        new {},
+                        transaction);
                     
                     transaction.Commit();
                     
@@ -177,7 +179,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     transaction = conn.BeginTransaction();
 
                     if (await conn.ExecuteScalarAsync<int>(
-                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs)})",
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
                             new { },
                             transaction) != assetPairs.Count)
                     {
@@ -186,15 +188,17 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
 
                     await conn.ExecuteAsync(
                         $"update {TableName} set {GetUpdateClause} where Id=@Id",
-                        assetPairs.Select(_convertService.Convert<IAssetPair, AssetPairEntity>).ToList(),
+                        assetPairs.Select(_convertService.Convert<IAssetPair, AssetPairEntity>),
                         transaction);
 
-                    var inserted = await conn.QueryAsync<AssetPairEntity>(
-                        $"SELECT * FROM {TableName} WHERE Id IN ({string.Join(",", assetPairs.Select(x => x.Id))})");
+                    var updated = await conn.QueryAsync<AssetPairEntity>(
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                        new {},
+                        transaction);
 
                     transaction.Commit();
                     
-                    return inserted.ToList();
+                    return updated.ToList();
                 }
                 catch (Exception ex)
                 {

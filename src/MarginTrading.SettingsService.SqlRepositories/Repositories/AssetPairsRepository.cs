@@ -46,6 +46,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
         private static readonly string GetUpdateClause = string.Join(",",
             TypeProps.Select(x => "[" + x.Name + "]=@" + x.Name));
 
+        private static readonly Func<bool, bool, string> GetSpecialUpdateClause = (useIsFrozen, useIsDiscontinued) =>
+            string.Join(",",
+                TypeProps.Where(x => (x.Name != nameof(IAssetPair.IsFrozen) || useIsFrozen)
+                                     && (x.Name != nameof(IAssetPair.IsDiscontinued) || useIsDiscontinued))
+                    .Select(x => "[" + x.Name + "]=@" + x.Name));
+
         private readonly IConvertService _convertService;
         private readonly string _connectionString;
         private readonly ILog _log;
@@ -150,19 +156,34 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
+        [Obsolete("Will be removed. Use version with a tuple of params")]
         public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
                 await conn.ExecuteAsync(
                     $"update {TableName} set {GetUpdateClause} where Id=@Id", 
-                    _convertService.Convert<IAssetPair, AssetPairEntity>(assetPair));
+                    assetPair);
 
                 return await conn.QuerySingleOrDefaultAsync<AssetPairEntity>(
                     $"SELECT * FROM {TableName} WHERE Id=@id", new {assetPair.Id});
             }
         }
 
+        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                await conn.ExecuteAsync(
+                    $"update {TableName} set {GetSpecialUpdateClause(isFrozen.HasValue, isDiscontinued.HasValue)} where Id=@Id", 
+                    GetUpdateParams(assetPair, isFrozen, isDiscontinued));
+
+                return await conn.QuerySingleOrDefaultAsync<AssetPairEntity>(
+                    $"SELECT * FROM {TableName} WHERE Id=@id", new {assetPair.Id});
+            }
+        }
+
+        [Obsolete("Will be removed. Use version with a tuple of params")]
         public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
         {
             using (var conn = new SqlConnection(_connectionString))
@@ -209,6 +230,81 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     return null;
                 }
             }
+        }
+
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(
+            IReadOnlyList<(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)> assetPairsData)
+        {
+            var assetPairs = assetPairsData.Select(x => x.assetPair).ToList();
+            
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                SqlTransaction transaction = null;
+                
+                try
+                {
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        await conn.OpenAsync();
+                    }
+                    
+                    transaction = conn.BeginTransaction();
+
+                    if (await conn.ExecuteScalarAsync<int>(
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                            new { },
+                            transaction) != assetPairs.Count)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(assetPairs), "One of asset pairs does not exist");
+                    }
+
+                    foreach (var assetPairData in assetPairsData)
+                    {   
+                        await conn.ExecuteAsync(
+                            $"update {TableName} set {GetSpecialUpdateClause(assetPairData.isFrozen.HasValue, assetPairData.isDiscontinued.HasValue)} where Id=@Id", 
+                            GetUpdateParams(assetPairData.assetPair, assetPairData.isFrozen, assetPairData.isDiscontinued),
+                            transaction);
+                    }
+
+                    var updated = await conn.QueryAsync<AssetPairEntity>(
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                        new {},
+                        transaction);
+
+                    transaction.Commit();
+                    
+                    return updated.ToList();
+                }
+                catch (Exception ex)
+                {
+                    transaction?.Rollback();
+                    await _log.WriteErrorAsync(nameof(AssetPairsRepository),
+                        nameof(InsertBatchAsync), $"Failed to perform batch transaction: {ex.Message}", ex);
+                    
+                    return null;
+                }
+            }
+        }
+
+        private object GetUpdateParams(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)
+        {
+            return new
+            {
+                Id = assetPair.Id,
+                Name = assetPair.Name,
+                BaseAssetId = assetPair.BaseAssetId,
+                QuoteAssetId = assetPair.QuoteAssetId,
+                Accuracy = assetPair.Accuracy,
+                MarketId = assetPair.MarketId,
+                LegalEntity = assetPair.LegalEntity,
+                BasePairId = assetPair.BasePairId,
+                MatchingEngineMode = assetPair.MatchingEngineMode,
+                StpMultiplierMarkupBid = assetPair.StpMultiplierMarkupBid,
+                StpMultiplierMarkupAsk = assetPair.StpMultiplierMarkupAsk,
+                
+                IsFrozen = isFrozen ?? default,
+                IsDiscontinued = isDiscontinued ?? default,
+            };
         }
 
         public async Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag)

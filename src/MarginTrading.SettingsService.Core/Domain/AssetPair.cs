@@ -62,5 +62,26 @@ namespace MarginTrading.SettingsService.Core.Domain
                 isDiscontinued: this.IsDiscontinued
             );
         }
+
+        public IAssetPair CreateForUpdate(bool isSuspended, bool isFrozen, bool isDiscontinued)
+        {
+            return new AssetPair(
+                id: this.Id,
+                name: this.Name,
+                baseAssetId: this.BaseAssetId,
+                quoteAssetId: this.QuoteAssetId,
+                accuracy: this.Accuracy,
+                marketId: this.MarketId,
+                legalEntity: this.LegalEntity,
+                basePairId: this.BasePairId,
+                matchingEngineMode: this.MatchingEngineMode,
+                stpMultiplierMarkupBid: this.StpMultiplierMarkupBid,
+                stpMultiplierMarkupAsk: this.StpMultiplierMarkupAsk,
+                
+                isSuspended: isSuspended,
+                isFrozen: isFrozen,
+                isDiscontinued: isDiscontinued
+            );
+        }
     }
 }

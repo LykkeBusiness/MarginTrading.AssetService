@@ -124,6 +124,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return await base.TryInsertAsync(entity) ? entity : null;
         }
 
+        [Obsolete("Will be removed. Use version with a tuple of params")]
         public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
         {
             var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
@@ -140,6 +141,22 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return entity;
         }
 
+        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)
+        {
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
+
+            if (current == null)
+            {
+                throw new ArgumentException("Asset pair does not exist", nameof(assetPair));
+            }
+
+            return await TableStorage.ReplaceAsync(AssetPairEntity.Pk, assetPair.Id, prev =>
+                (AssetPairEntity) ((AssetPair) assetPair).CreateForUpdate(
+                    current.IsSuspended, isFrozen ?? default, isDiscontinued ?? default)
+            );
+        }
+
+        [Obsolete("Will be removed. Use version with a tuple of params")]
         public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
         {
             //TODO batch update is done in 2 transactions which is a point of inconsistency
@@ -152,6 +169,26 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             
             var assetPairEntities = assetPairs.Select(x => _convertService.Convert<IAssetPair, AssetPairEntity>(
                 ((AssetPair) x).CreateForUpdate(existing[x.Id]))).ToList();
+
+            await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
+
+            return assetPairEntities;
+        }
+
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(
+            IReadOnlyList<(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)> assetPairsData)
+        {
+            //TODO batch update is done in 2 transactions which is a point of inconsistency
+            var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairsData.Select(x => x.assetPair.Id)))
+                .ToDictionary(x => x.Id, x => x.IsSuspended);
+            if (existing.Count != assetPairsData.Count)
+            {
+                throw new ArgumentException("One of asset pairs does not exist", nameof(assetPairsData));
+            }
+
+            var assetPairEntities = assetPairsData.Select(x =>
+                (AssetPairEntity) ((AssetPair) x.assetPair).CreateForUpdate(
+                    existing[x.assetPair.Id], x.isFrozen ?? default, x.isDiscontinued ?? default)).ToList();
 
             await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
 

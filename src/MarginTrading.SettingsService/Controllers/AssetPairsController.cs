@@ -169,7 +169,85 @@ namespace MarginTrading.SettingsService.Controllers
         /// Update asset pair
         /// </summary>
         [HttpPut]
+        [Route("update/{assetPairId}")]
+        public async Task<AssetPairContract> Update(string assetPairId, 
+            [FromBody] AssetPairUpdateRequest assetPairUpdateRequest)
+        {
+            var assetPair = Convert(assetPairUpdateRequest);
+            
+            await ValidatePair(assetPair);
+            ValidateId(assetPairId, assetPair);
+
+            _defaultLegalEntitySettings.Set(assetPair);
+
+            var updated = await _assetPairsRepository.UpdateAsync(
+                _convertService.Convert<AssetPairContract, AssetPair>(assetPair),
+                assetPairUpdateRequest.IsFrozen, assetPairUpdateRequest.IsDiscontinued);
+            
+            if (updated == null)
+            {
+                throw new ArgumentException("Update failed", nameof(assetPair));
+            }
+            
+            var updatedContract = _convertService.Convert<IAssetPair, AssetPairContract>(updated);
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            {
+                OperationId = Guid.NewGuid().ToString("N"),
+                AssetPair = updatedContract,
+            });
+            
+            return updatedContract;
+        }
+
+        /// <summary>
+        /// Update asset pairs in a batch request
+        /// </summary>
+        [HttpPut]
+        [Route("update/batch")]
+        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairUpdateRequest[] assetPairsUpdateRequests)
+        {
+            var assetPairs = assetPairsUpdateRequests.Select(Convert).ToArray();
+            
+            foreach (var assetPair in assetPairs)
+            {
+                await ValidatePair(assetPair);
+
+                _defaultLegalEntitySettings.Set(assetPair);
+            }
+            ValidateUnique(assetPairs);
+
+            var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairsUpdateRequests.Select(x => 
+                ((IAssetPair)_convertService.Convert<AssetPairContract, AssetPair>(Convert(x)), x.IsFrozen, x.IsDiscontinued))
+                .ToList());
+            
+            if (updated == null)
+            {
+                throw new ArgumentException("Batch update failed", nameof(assetPairsUpdateRequests));
+            }
+            
+            var updatedContracts = updated.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            foreach (var updatedContract in updatedContracts)
+            {
+                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                {
+                    OperationId = Guid.NewGuid().ToString("N"),
+                    AssetPair = updatedContract,
+                });
+            }
+
+            return updatedContracts;
+        }
+
+        /// <summary>
+        /// Update asset pair
+        /// </summary>
+        [HttpPut]
         [Route("{assetPairId}")]
+        [Obsolete("Will be removed. Use version with AssetPairUpdateRequest")]
         public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
         {
             await ValidatePair(assetPair);
@@ -201,6 +279,7 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpPut]
         [Route("batch")]
+        [Obsolete("Will be removed. Use version with AssetPairUpdateRequest")]
         public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
         {
             foreach (var assetPair in assetPairs)
@@ -332,6 +411,27 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentOutOfRangeException(nameof(assetPairs), 
                     $"Only unique asset pairs are allowed. The list of non-unique: {string.Join(", ", groups.Select(x => $"({x.Key.BaseAssetId},{x.Key.QuoteAssetId},{x.Key.LegalEntity})"))}");
             }
+        }
+
+        private AssetPairContract Convert(AssetPairUpdateRequest assetPairUpdateRequest)
+        {
+            return new AssetPairContract
+            {
+                Id = assetPairUpdateRequest.Id,
+                Name = assetPairUpdateRequest.Name,
+                BaseAssetId = assetPairUpdateRequest.BaseAssetId,
+                QuoteAssetId = assetPairUpdateRequest.QuoteAssetId,
+                Accuracy = assetPairUpdateRequest.Accuracy,
+                MarketId = assetPairUpdateRequest.MarketId,
+                LegalEntity = assetPairUpdateRequest.LegalEntity,
+                BasePairId = assetPairUpdateRequest.BasePairId,
+                MatchingEngineMode = assetPairUpdateRequest.MatchingEngineMode,
+                StpMultiplierMarkupBid = assetPairUpdateRequest.StpMultiplierMarkupBid,
+                StpMultiplierMarkupAsk = assetPairUpdateRequest.StpMultiplierMarkupAsk,
+
+                IsFrozen = assetPairUpdateRequest.IsFrozen ?? default,
+                IsDiscontinued = assetPairUpdateRequest.IsDiscontinued ?? default
+            };
         }
     }
 }

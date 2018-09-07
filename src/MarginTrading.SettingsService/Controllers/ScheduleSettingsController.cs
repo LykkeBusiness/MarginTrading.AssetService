@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
@@ -159,7 +160,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             if (scheduleSetting == null)
             {
-                throw new ArgumentNullException("scheduleSetting", "Model is incorrect");
+                throw new ArgumentNullException(nameof(scheduleSetting), "Model is incorrect");
             }
             
             if (string.IsNullOrWhiteSpace(scheduleSetting.Id))
@@ -186,6 +187,21 @@ namespace MarginTrading.SettingsService.Controllers
             if (scheduleSetting.End.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.End.DayOfWeek))
             {
                 throw new ArgumentNullException(nameof(scheduleSetting.End.DayOfWeek), "AssetPair End DayOfWeek is set to an incorrect value");
+            }
+
+            if (string.IsNullOrEmpty(scheduleSetting.Start.Date) ^ !string.IsNullOrEmpty(scheduleSetting.End.Date))
+            {
+                throw new InvalidOperationException($"In Start and End Date fields must be in the same format");
+            }
+
+            if (scheduleSetting.Start.DayOfWeek.HasValue ^ !scheduleSetting.End.DayOfWeek.HasValue)
+            {
+                throw new InvalidOperationException($"In Start and End DayOfWeek fields must be in the same format");
+            }
+
+            if (string.IsNullOrEmpty(scheduleSetting.Start.Date) ^ !scheduleSetting.Start.DayOfWeek.HasValue)
+            {
+                throw new InvalidOperationException($"In Start and End either Date or DayOfWeek must be set");
             }
 
             foreach (var assetPair in scheduleSetting.AssetPairs)

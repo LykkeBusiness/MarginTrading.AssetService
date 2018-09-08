@@ -289,7 +289,7 @@ namespace MarginTrading.SettingsService.Controllers
             if ((isInsert || newValue.StpMultiplierMarkupAsk != null)
                 && newValue.StpMultiplierMarkupAsk <= 0)
             {
-                throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greather then zero");
+                throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greater then zero");
             }
             
             if ((isInsert || newValue.StpMultiplierMarkupBid != null)

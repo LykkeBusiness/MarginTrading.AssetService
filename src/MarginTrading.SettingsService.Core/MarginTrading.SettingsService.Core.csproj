@@ -13,15 +13,11 @@
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="6.8.4" />
     <PackageReference Include="AutoMapper" Version="7.0.0" />
+    <PackageReference Include="Dapper" Version="1.50.5" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.0.1" />
     <PackageReference Include="Lykke.SettingsReader" Version="2.4.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Dapper, Version=1.50.5.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>..\..\..\..\.nuget\packages\dapper\1.50.5\lib\netstandard2.0\Dapper.dll</HintPath>
-    </Reference>
   </ItemGroup>
 </Project>

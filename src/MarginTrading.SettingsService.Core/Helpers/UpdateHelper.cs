@@ -70,10 +70,11 @@ namespace MarginTrading.SettingsService.Core.Helpers
             var result = Activator.CreateInstance<T>();
             foreach (var propertyInfo in newObjTypeProps)
             {
-                propertyInfo.SetValue(result, 
-                    propertyInfo.GetValue(newObject) ?? propertyInfo.GetValue(current));
+                propertyInfo.SetValue(result, propertyInfo.GetValue(newObject)
+                                              ?? currentObjTypeProps.Single(x => x.Name == propertyInfo.Name)
+                                                  .GetValue(current));
             }
-            
+
             return result;
         }
     }

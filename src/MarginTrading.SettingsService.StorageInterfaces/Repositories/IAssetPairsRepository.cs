@@ -33,12 +33,7 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         [ItemCanBeNull]
         Task<IAssetPair> UpdateAsync(IAssetPair assetPair);
         [ItemCanBeNull]
-        Task<IAssetPair> UpdateAsync(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued);
-        [ItemCanBeNull]
         Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
-        [ItemCanBeNull]
-        Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(
-            IReadOnlyList<(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)> assetPairsData);
         
         Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag);
     }

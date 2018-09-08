@@ -9,6 +9,7 @@ using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Helpers;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
@@ -124,7 +125,6 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return await base.TryInsertAsync(entity) ? entity : null;
         }
 
-        [Obsolete("Will be removed. Use version with a tuple of params")]
         public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
         {
             var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
@@ -134,61 +134,27 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 throw new ArgumentException("Asset pair does not exist", nameof(assetPair));
             }
 
-            var entity = ((AssetPair) assetPair).CreateForUpdate(current.IsSuspended);
-            
-            await base.ReplaceAsync(entity);
-
-            return entity;
-        }
-
-        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)
-        {
-            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
-
-            if (current == null)
-            {
-                throw new ArgumentException("Asset pair does not exist", nameof(assetPair));
-            }
-
             return await TableStorage.ReplaceAsync(AssetPairEntity.Pk, assetPair.Id, prev =>
-                (AssetPairEntity) ((AssetPair) assetPair).CreateForUpdate(
-                    current.IsSuspended, isFrozen ?? default, isDiscontinued ?? default)
-            );
+                UpdateHelper.GetAzureReplaceObject(prev, (AssetPairEntity)assetPair));
         }
 
-        [Obsolete("Will be removed. Use version with a tuple of params")]
         public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
         {
-            //TODO batch update is done in 2 transactions which is a point of inconsistency
+            //TODO batch update is done in 2 transactions which is a possible point of inconsistency
             var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairs.Select(x => x.Id)))
-                .ToDictionary(x => x.Id, x => x.IsSuspended);
+                .ToList();
             if (existing.Count != assetPairs.Count)
             {
                 throw new ArgumentException("One of asset pairs does not exist", nameof(assetPairs));
             }
-            
-            var assetPairEntities = assetPairs.Select(x => _convertService.Convert<IAssetPair, AssetPairEntity>(
-                ((AssetPair) x).CreateForUpdate(existing[x.Id]))).ToList();
 
-            await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
-
-            return assetPairEntities;
-        }
-
-        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(
-            IReadOnlyList<(IAssetPair assetPair, bool? isFrozen, bool? isDiscontinued)> assetPairsData)
-        {
-            //TODO batch update is done in 2 transactions which is a point of inconsistency
-            var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairsData.Select(x => x.assetPair.Id)))
-                .ToDictionary(x => x.Id, x => x.IsSuspended);
-            if (existing.Count != assetPairsData.Count)
+            var assetPairEntities = assetPairs.Select(x =>
             {
-                throw new ArgumentException("One of asset pairs does not exist", nameof(assetPairsData));
-            }
-
-            var assetPairEntities = assetPairsData.Select(x =>
-                (AssetPairEntity) ((AssetPair) x.assetPair).CreateForUpdate(
-                    existing[x.assetPair.Id], x.isFrozen ?? default, x.isDiscontinued ?? default)).ToList();
+                var current = existing.First(ex => ex.Id == x.Id);
+                var preparedObj = UpdateHelper.GetAzureReplaceObject(current, (AssetPairEntity)x);
+                preparedObj.IsSuspended = current.IsSuspended;
+                return preparedObj;
+            }).ToList();
 
             await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
 

@@ -93,7 +93,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<AssetPairContract> Insert([FromBody] AssetPairContract assetPair)
         {
-            await ValidatePair(assetPair);
+            await ValidatePair(assetPair, true);
             
             _defaultLegalEntitySettings.Set(assetPair);
 
@@ -125,7 +125,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             foreach (var assetPair in assetPairs)
             {
-                await ValidatePair(assetPair);
+                await ValidatePair(assetPair, true);
             
                 _defaultLegalEntitySettings.Set(assetPair);   
             }
@@ -169,20 +169,16 @@ namespace MarginTrading.SettingsService.Controllers
         /// Update asset pair
         /// </summary>
         [HttpPut]
-        [Route("update/{assetPairId}")]
-        public async Task<AssetPairContract> Update(string assetPairId, 
-            [FromBody] AssetPairUpdateRequest assetPairUpdateRequest)
+        [Route("{assetPairId}")]
+        public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
         {
-            var assetPair = Convert(assetPairUpdateRequest);
-            
-            await ValidatePair(assetPair);
+            await ValidatePair(assetPair, false);
             ValidateId(assetPairId, assetPair);
 
             _defaultLegalEntitySettings.Set(assetPair);
 
             var updated = await _assetPairsRepository.UpdateAsync(
-                _convertService.Convert<AssetPairContract, AssetPair>(assetPair),
-                assetPairUpdateRequest.IsFrozen, assetPairUpdateRequest.IsDiscontinued);
+                _convertService.Convert<AssetPairContract, AssetPair>(assetPair));
             
             if (updated == null)
             {
@@ -200,98 +196,24 @@ namespace MarginTrading.SettingsService.Controllers
             
             return updatedContract;
         }
-
-        /// <summary>
-        /// Update asset pairs in a batch request
-        /// </summary>
-        [HttpPut]
-        [Route("update/batch")]
-        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairUpdateRequest[] assetPairsUpdateRequests)
-        {
-            var assetPairs = assetPairsUpdateRequests.Select(Convert).ToArray();
-            
-            foreach (var assetPair in assetPairs)
-            {
-                await ValidatePair(assetPair);
-
-                _defaultLegalEntitySettings.Set(assetPair);
-            }
-            ValidateUnique(assetPairs);
-
-            var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairsUpdateRequests.Select(x => 
-                ((IAssetPair)_convertService.Convert<AssetPairContract, AssetPair>(Convert(x)), x.IsFrozen, x.IsDiscontinued))
-                .ToList());
-            
-            if (updated == null)
-            {
-                throw new ArgumentException("Batch update failed", nameof(assetPairsUpdateRequests));
-            }
-            
-            var updatedContracts = updated.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
-            foreach (var updatedContract in updatedContracts)
-            {
-                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
-                {
-                    OperationId = Guid.NewGuid().ToString("N"),
-                    AssetPair = updatedContract,
-                });
-            }
-
-            return updatedContracts;
-        }
-
-        /// <summary>
-        /// Update asset pair
-        /// </summary>
-        [HttpPut]
-        [Route("{assetPairId}")]
-        [Obsolete("Will be removed. Use version with AssetPairUpdateRequest")]
-        public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
-        {
-            await ValidatePair(assetPair);
-            ValidateId(assetPairId, assetPair);
-
-            _defaultLegalEntitySettings.Set(assetPair);
-
-            var updated = await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
-            
-            if (updated == null)
-            {
-                throw new ArgumentException("Update failed", nameof(assetPair));
-            }
-            
-            var updatedContract = _convertService.Convert<IAssetPair, AssetPairContract>(updated);
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
-            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
-            {
-                OperationId = Guid.NewGuid().ToString("N"),
-                AssetPair = updatedContract,
-            });
-            
-            return updatedContract;
-        }
-
+        
         /// <summary>
         /// Update asset pairs in a batch request
         /// </summary>
         [HttpPut]
         [Route("batch")]
-        [Obsolete("Will be removed. Use version with AssetPairUpdateRequest")]
-        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
+        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs )
         {
             foreach (var assetPair in assetPairs)
             {
-                await ValidatePair(assetPair);
+                await ValidatePair(assetPair, false);
 
                 _defaultLegalEntitySettings.Set(assetPair);
             }
             ValidateUnique(assetPairs);
 
             var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
-                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
+                (IAssetPair)_convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
             
             if (updated == null)
             {
@@ -325,7 +247,10 @@ namespace MarginTrading.SettingsService.Controllers
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
         }
 
-        private async Task ValidatePair(AssetPairContract newValue)
+        /// <summary>
+        /// Validation for update or insert
+        /// </summary>
+        private async Task ValidatePair(AssetPairContract newValue, bool isInsert)
         {
             if (newValue == null)
             {
@@ -337,17 +262,20 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
             }
 
-            if (!Enum.IsDefined(typeof(MatchingEngineModeContract), newValue.MatchingEngineMode))
+            if ((isInsert || newValue.MatchingEngineMode != null)
+                && !Enum.IsDefined(typeof(MatchingEngineModeContract), newValue.MatchingEngineMode))
             {
                 throw new ArgumentNullException(nameof(newValue.MatchingEngineMode), "AssetPair MatchingEngineMode must be set");
             }
 
-            if (await _assetsRepository.GetAsync(newValue.BaseAssetId) == null)
+            if ((isInsert || newValue.BaseAssetId != null)
+                && await _assetsRepository.GetAsync(newValue.BaseAssetId) == null)
             {
                 throw new InvalidOperationException($"Base Asset {newValue.BaseAssetId} does not exist");
             }
 
-            if (await _assetsRepository.GetAsync(newValue.QuoteAssetId) == null)
+            if ((isInsert || newValue.QuoteAssetId != null)
+                && await _assetsRepository.GetAsync(newValue.QuoteAssetId) == null)
             {
                 throw new InvalidOperationException($"Quote Asset {newValue.QuoteAssetId} does not exist");
             }
@@ -358,12 +286,14 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Market {newValue.MarketId} does not exist");
             }
 
-            if (newValue.StpMultiplierMarkupAsk <= 0)
+            if ((isInsert || newValue.StpMultiplierMarkupAsk != null)
+                && newValue.StpMultiplierMarkupAsk <= 0)
             {
                 throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greather then zero");
             }
             
-            if (newValue.StpMultiplierMarkupBid <= 0)
+            if ((isInsert || newValue.StpMultiplierMarkupBid != null)
+                && newValue.StpMultiplierMarkupBid <= 0)
             {
                 throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
@@ -411,27 +341,6 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentOutOfRangeException(nameof(assetPairs), 
                     $"Only unique asset pairs are allowed. The list of non-unique: {string.Join(", ", groups.Select(x => $"({x.Key.BaseAssetId},{x.Key.QuoteAssetId},{x.Key.LegalEntity})"))}");
             }
-        }
-
-        private AssetPairContract Convert(AssetPairUpdateRequest assetPairUpdateRequest)
-        {
-            return new AssetPairContract
-            {
-                Id = assetPairUpdateRequest.Id,
-                Name = assetPairUpdateRequest.Name,
-                BaseAssetId = assetPairUpdateRequest.BaseAssetId,
-                QuoteAssetId = assetPairUpdateRequest.QuoteAssetId,
-                Accuracy = assetPairUpdateRequest.Accuracy,
-                MarketId = assetPairUpdateRequest.MarketId,
-                LegalEntity = assetPairUpdateRequest.LegalEntity,
-                BasePairId = assetPairUpdateRequest.BasePairId,
-                MatchingEngineMode = assetPairUpdateRequest.MatchingEngineMode,
-                StpMultiplierMarkupBid = assetPairUpdateRequest.StpMultiplierMarkupBid,
-                StpMultiplierMarkupAsk = assetPairUpdateRequest.StpMultiplierMarkupAsk,
-
-                IsFrozen = assetPairUpdateRequest.IsFrozen ?? default,
-                IsDiscontinued = assetPairUpdateRequest.IsDiscontinued ?? default
-            };
         }
     }
 }

@@ -58,7 +58,7 @@ namespace MarginTrading.SettingsService.TestClient
 
         private static async Task Run()
         {
-            var clientGenerator = HttpClientGenerator.BuildForUrl("http://localhost:5000").Create();
+            var clientGenerator = HttpClientGenerator.BuildForUrl("http://localhost:5010").Create();
 
             await CheckAssetPairsApiWorking(clientGenerator);
             await CheckAssetsApiWorking(clientGenerator);
@@ -69,7 +69,7 @@ namespace MarginTrading.SettingsService.TestClient
             await CheckTradingInstrumentsApiWorking(clientGenerator);
             await CheckTradingRoutesApiWorking(clientGenerator);
 
-            Console.WriteLine("Successfuly finished");
+            Console.WriteLine("Successfully finished");
         }
 
         private static async Task CheckAssetPairsApiWorking(IHttpClientGenerator clientGenerator)
@@ -95,8 +95,11 @@ namespace MarginTrading.SettingsService.TestClient
                 await assetPairsApiClient.Insert(assetPairContract).Dump();
             var obj = await assetPairsApiClient.Get("t1").Dump();
             //TODO validate values here
-            assetPairContract.MarketId = "m11111";
-            await assetPairsApiClient.Update("t1", assetPairContract).Dump();
+            await assetPairsApiClient.Update("t1", new AssetPairUpdateRequest
+            {
+                Id = "t1",
+                MarketId = "m11111"
+            }).Dump();
             await assetPairsApiClient.Delete("t1");
         }
 

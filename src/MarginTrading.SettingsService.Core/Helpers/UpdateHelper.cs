@@ -41,24 +41,34 @@ namespace MarginTrading.SettingsService.Core.Helpers
         }
 
         /// <summary>
-        /// Builds an object for an Azure ReplaceAsync. 
+        /// Builds an object for the Azure ReplaceAsync.
+        /// T type must have string Id property.
+        /// T type must contain the same reference type properties as TN.
         /// </summary>
         /// <param name="current"></param>
         /// <param name="newObject"></param>
-        /// <typeparam name="T">T type must have string Id property</typeparam>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="TN"></typeparam>
         /// <returns></returns>
         /// <exception cref="Exception"></exception>
-        public static T GetAzureReplaceObject<T>(T current, T newObject)
+        public static T GetAzureReplaceObject<T, TN>(T current, TN newObject)
             where T : class
+            where TN : class
         {
-            var refTypeProps = newObject.GetType().GetProperties().Where(x => !x.GetType().IsValueType).ToList();
-            if (!refTypeProps.Any(x => x.Name == "Id" && x.PropertyType == typeof(string)))
+            var newObjTypeProps = typeof(TN).GetProperties().Where(x => !x.GetType().IsValueType).ToList();
+            if (!newObjTypeProps.Any(x => x.Name == "Id" && x.PropertyType == typeof(string)))
             {
                 throw new Exception($"Id property must reside in {newObject.GetType().Name} type.");
             }
+            
+            var currentObjTypeProps = typeof(T).GetProperties().Where(x => !x.GetType().IsValueType).ToList();
+            if (newObjTypeProps.Any(t => !currentObjTypeProps.Select(x => x.Name).Contains(t.Name)))
+            {
+                throw new Exception($"{typeof(T)} type must contain the same reference type properties as {typeof(TN)}");
+            }
 
             var result = Activator.CreateInstance<T>();
-            foreach (var propertyInfo in refTypeProps)
+            foreach (var propertyInfo in newObjTypeProps)
             {
                 propertyInfo.SetValue(result, 
                     propertyInfo.GetValue(newObject) ?? propertyInfo.GetValue(current));

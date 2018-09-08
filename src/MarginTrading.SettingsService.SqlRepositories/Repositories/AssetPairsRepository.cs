@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Helpers;
@@ -44,9 +45,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             .Where(x => x.Name != nameof(IAssetPair.IsSuspended)).ToArray();//get rid of Suspended flag, it is handled separately
         private static readonly string GetColumns = "[" + string.Join("],[", TypeProps.Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", TypeProps.Select(x => "@" + x.Name));
-        private static readonly Func<IEnumerable<string>, string> GetSpecialUpdateClause = (ps) =>
-            string.Join(",", ps.Where(x => x != nameof(IAssetPair.IsSuspended))
-                .Select(x => "[" + x + "]=@" + x));
+        private static readonly Func<IEnumerable<string>, string> GetUpdateClause = (ps) =>
+            string.Join(",", ps.Select(x => "[" + x + "]=@" + x));
 
         private readonly IConvertService _convertService;
         private readonly string _connectionString;
@@ -152,22 +152,23 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
+        public async Task<IAssetPair> UpdateAsync(AssetPairUpdateRequest assetPairUpdateRequest)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
-                var updateObj = UpdateHelper.GetSqlUpdateObject(assetPair);
+                var updateObj = UpdateHelper.GetSqlUpdateObject(assetPairUpdateRequest);
                 
                 await conn.ExecuteAsync(
-                    $"update {TableName} set {GetSpecialUpdateClause(updateObj.ParameterNames)} where Id=@Id", 
+                    $"update {TableName} set {GetUpdateClause(updateObj.ParameterNames)} where Id=@Id", 
                     updateObj);
 
                 return await conn.QuerySingleOrDefaultAsync<AssetPairEntity>(
-                    $"SELECT * FROM {TableName} WHERE Id=@id", new {assetPair.Id});
+                    $"SELECT * FROM {TableName} WHERE Id=@id", new {assetPairUpdateRequest.Id});
             }
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(
+            IReadOnlyList<AssetPairUpdateRequest> assetPairsUpdateRequest)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
@@ -183,24 +184,24 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     transaction = conn.BeginTransaction();
 
                     if (await conn.ExecuteScalarAsync<int>(
-                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairsUpdateRequest.Select(x => $"'{x.Id}'"))})",
                             new { },
-                            transaction) != assetPairs.Count)
+                            transaction) != assetPairsUpdateRequest.Count)
                     {
-                        throw new ArgumentOutOfRangeException(nameof(assetPairs), "One of asset pairs does not exist");
+                        throw new ArgumentOutOfRangeException(nameof(assetPairsUpdateRequest), "One of asset pairs does not exist");
                     }
 
-                    foreach (var assetPair in assetPairs)
+                    foreach (var assetPair in assetPairsUpdateRequest)
                     {   
                         var updateObj = UpdateHelper.GetSqlUpdateObject(assetPair);
                         await conn.ExecuteAsync(
-                            $"update {TableName} set {GetSpecialUpdateClause(updateObj.ParameterNames)} where Id=@Id", 
+                            $"update {TableName} set {GetUpdateClause(updateObj.ParameterNames)} where Id=@Id", 
                             updateObj,
                             transaction);
                     }
 
                     var updated = await conn.QueryAsync<AssetPairEntity>(
-                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairs.Select(x => $"'{x.Id}'"))})",
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairsUpdateRequest.Select(x => $"'{x.Id}'"))})",
                         new {},
                         transaction);
 

@@ -8,16 +8,16 @@ namespace MarginTrading.SettingsService.Core.Interfaces
         string Name { get; }
         string BaseAssetId { get; }
         string QuoteAssetId { get; }
-        int? Accuracy { get; }
+        int Accuracy { get; }
         string MarketId { get; }
         string LegalEntity { get; }
         string BasePairId { get; }
-        MatchingEngineMode? MatchingEngineMode { get; }
-        decimal? StpMultiplierMarkupBid { get; }
-        decimal? StpMultiplierMarkupAsk { get; }
+        MatchingEngineMode MatchingEngineMode { get; }
+        decimal StpMultiplierMarkupBid { get; }
+        decimal StpMultiplierMarkupAsk { get; }
 
-        bool? IsSuspended { get; }
-        bool? IsFrozen { get; }
-        bool? IsDiscontinued { get; }
+        bool IsSuspended { get; }
+        bool IsFrozen { get; }
+        bool IsDiscontinued { get; }
     }
 }

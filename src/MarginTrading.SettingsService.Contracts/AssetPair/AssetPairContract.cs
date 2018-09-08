@@ -5,7 +5,7 @@ using MessagePack;
 namespace MarginTrading.SettingsService.Contracts.AssetPair
 {
     /// <summary>
-    /// AssetPair contract. All properties are of reference types, and will be updated only if value != null.
+    /// AssetPair contract
     /// </summary>
     [MessagePackObject]
     public class AssetPairContract
@@ -23,7 +23,7 @@ namespace MarginTrading.SettingsService.Contracts.AssetPair
         public string QuoteAssetId { get; set; }
         
         [Key(4)]
-        public int? Accuracy { get; set; }
+        public int Accuracy { get; set; }
         
         [Key(5)]
         public string MarketId { get; set; }
@@ -35,25 +35,25 @@ namespace MarginTrading.SettingsService.Contracts.AssetPair
         public string BasePairId { get; set; }
         
         [Key(8)]
-        public MatchingEngineModeContract? MatchingEngineMode { get; set; }
+        public MatchingEngineModeContract MatchingEngineMode { get; set; }
         
         [Key(9)]
-        public decimal? StpMultiplierMarkupBid { get; set; }
+        public decimal StpMultiplierMarkupBid { get; set; }
         
         [Key(10)]
-        public decimal? StpMultiplierMarkupAsk { get; set; }
+        public decimal StpMultiplierMarkupAsk { get; set; }
         
         /// <summary>
         /// Flag will not be changed on API call, only MTCore can change it
         /// </summary>
         [UsedImplicitly]
         [Key(11)]
-        public bool? IsSuspended { get; set; }
+        public bool IsSuspended { get; set; }
         
         [Key(12)]
-        public bool? IsFrozen { get; set; }
+        public bool IsFrozen { get; set; }
         
         [Key(13)]
-        public bool? IsDiscontinued { get; set; }
+        public bool IsDiscontinued { get; set; }
     }
 }

@@ -48,11 +48,11 @@ namespace MarginTrading.SettingsService.Contracts
 
         [Put("/api/assetPairs/{assetPairId}")]
         Task<AssetPairContract> Update([NotNull] string assetPairId, 
-            [Body] AssetPairContract assetPair);
+            [Body] AssetPairUpdateRequest assetPairUpdateRequest);
 
 
         [Put("/api/assetPairs/batch")]
-        Task<List<AssetPairContract>> BatchUpdate([Body] AssetPairContract[] assetPairs);
+        Task<List<AssetPairContract>> BatchUpdate([Body] AssetPairUpdateRequest[] assetPairsUpdateRequest);
 
 
         [Delete("/api/assetPairs/{assetPairId}")]

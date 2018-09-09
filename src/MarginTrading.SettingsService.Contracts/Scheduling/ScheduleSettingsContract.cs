@@ -4,7 +4,8 @@ using System.Collections.Generic;
 namespace MarginTrading.SettingsService.Contracts.Scheduling
 {
     /// <summary>
-    /// Start and End constraints must be in the same format: Date or DayOfWeek must be set in both of them.
+    /// Start and End constraints must be of the same type.
+    /// Types are described in ScheduleConstraintContract type description.
     /// </summary>
     public class ScheduleSettingsContract
     {
@@ -19,5 +20,24 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
 
         public ScheduleConstraintContract Start { get; set; }
         public ScheduleConstraintContract End { get; set; }
+
+        public void ValidateConstraints()
+        {
+            if (Start == null || End == null)
+            {
+                throw new InvalidOperationException("Start and End must be set");
+            }
+
+            var startConstraintType = Start.GetConstraintType();
+            if (startConstraintType == ScheduleConstraintTypeContract.Invalid)
+            {
+                throw new InvalidOperationException("Start and End properties must be set according to one of 3 options");
+            }
+
+            if (startConstraintType != End.GetConstraintType())
+            {
+                throw new InvalidOperationException("Start and End properties must be set with the same type.");
+            }
+        }
     }
 }

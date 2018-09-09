@@ -174,10 +174,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Market {scheduleSetting.MarketId} does not exist");
             }
 
-            if (scheduleSetting.Start == null || scheduleSetting.End == null)
-            {
-                throw new InvalidOperationException($"Start and End must be set");
-            }
+            scheduleSetting.ValidateConstraints();
 
             if (scheduleSetting.Start.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.Start.DayOfWeek))
             {
@@ -187,21 +184,6 @@ namespace MarginTrading.SettingsService.Controllers
             if (scheduleSetting.End.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.End.DayOfWeek))
             {
                 throw new ArgumentNullException(nameof(scheduleSetting.End.DayOfWeek), "AssetPair End DayOfWeek is set to an incorrect value");
-            }
-
-            if (string.IsNullOrEmpty(scheduleSetting.Start.Date) ^ !string.IsNullOrEmpty(scheduleSetting.End.Date))
-            {
-                throw new InvalidOperationException($"In Start and End Date fields must be in the same format");
-            }
-
-            if (scheduleSetting.Start.DayOfWeek.HasValue ^ !scheduleSetting.End.DayOfWeek.HasValue)
-            {
-                throw new InvalidOperationException($"In Start and End DayOfWeek fields must be in the same format");
-            }
-
-            if (string.IsNullOrEmpty(scheduleSetting.Start.Date) ^ !scheduleSetting.Start.DayOfWeek.HasValue)
-            {
-                throw new InvalidOperationException($"In Start and End either Date or DayOfWeek must be set");
             }
 
             foreach (var assetPair in scheduleSetting.AssetPairs)

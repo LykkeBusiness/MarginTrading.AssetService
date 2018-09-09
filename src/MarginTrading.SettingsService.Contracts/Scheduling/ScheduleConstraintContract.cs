@@ -15,7 +15,7 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
         {
             var isDateCorrect = DateTime.TryParse(Date, out _);
             
-            if (isDateCorrect && DayOfWeek == default && Time == default)
+            if (!isDateCorrect && DayOfWeek == default && Time != default)
             {
                 return ScheduleConstraintTypeContract.Daily;
             }
@@ -25,8 +25,9 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
             }
             if (!isDateCorrect && DayOfWeek != default && Time != default)
             {
-                return ScheduleConstraintTypeContract.Recurring;
+                return ScheduleConstraintTypeContract.Weekly;
             }
+            //todo what about yearly?
 
             return ScheduleConstraintTypeContract.Invalid;
         }

@@ -174,7 +174,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Market {scheduleSetting.MarketId} does not exist");
             }
 
-            scheduleSetting.ValidateConstraints();
+            ScheduleConstraintContract.Validate(scheduleSetting);
 
             if (scheduleSetting.Start.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.Start.DayOfWeek))
             {

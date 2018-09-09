@@ -20,24 +20,5 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
 
         public ScheduleConstraintContract Start { get; set; }
         public ScheduleConstraintContract End { get; set; }
-
-        public void ValidateConstraints()
-        {
-            if (Start == null || End == null)
-            {
-                throw new InvalidOperationException("Start and End must be set");
-            }
-
-            var startConstraintType = Start.GetConstraintType();
-            if (startConstraintType == ScheduleConstraintTypeContract.Invalid)
-            {
-                throw new InvalidOperationException("Start and End properties must be set according to one of 3 options");
-            }
-
-            if (startConstraintType != End.GetConstraintType())
-            {
-                throw new InvalidOperationException("Start and End properties must be set with the same type.");
-            }
-        }
     }
 }

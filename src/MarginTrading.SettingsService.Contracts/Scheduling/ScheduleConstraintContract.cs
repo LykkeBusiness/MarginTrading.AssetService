@@ -7,23 +7,21 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
     /// </summary>
     public class ScheduleConstraintContract
     {
-        public string Date { get; set; }
+        public DateTime? Date { get; set; }
         public DayOfWeek? DayOfWeek { get; set; }
         public TimeSpan Time { get; set; }
 
         public ScheduleConstraintTypeContract GetConstraintType()
         {
-            var isDateCorrect = DateTime.TryParse(Date, out _);
-            
-            if (!isDateCorrect && DayOfWeek == default && Time != default)
+            if (Date == null && DayOfWeek == default)
             {
                 return ScheduleConstraintTypeContract.Daily;
             }
-            if (isDateCorrect && DayOfWeek == default && Time != default)
+            if (Date != null && DayOfWeek == default)
             {
                 return ScheduleConstraintTypeContract.Single;
             }
-            if (!isDateCorrect && DayOfWeek != default && Time != default)
+            if (Date == null && DayOfWeek != default)
             {
                 return ScheduleConstraintTypeContract.Weekly;
             }
@@ -48,6 +46,12 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
             if (startConstraintType != end.GetConstraintType())
             {
                 throw new InvalidOperationException("Start and End properties must be set with the same type.");
+            }
+
+            // ReSharper disable once PossibleInvalidOperationException
+            if (start.Date != null && start.Date.Value > end.Date.Value)
+            {
+                throw new InvalidOperationException("Start date cannot be after the End date.");
             }
         }
 

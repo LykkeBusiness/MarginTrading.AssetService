@@ -11,7 +11,7 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
         public DayOfWeek? DayOfWeek { get; set; }
         public TimeSpan Time { get; set; }
 
-        private ScheduleConstraintTypeContract GetConstraintType()
+        public ScheduleConstraintTypeContract GetConstraintType()
         {
             var isDateCorrect = DateTime.TryParse(Date, out _);
             

@@ -207,7 +207,6 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 await ValidatePairUpdate(assetPairUpdateRequest);
             }
-            ValidateUnique(assetPairsUpdateRequest);
 
             var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairsUpdateRequest.ToList());
             
@@ -394,21 +393,11 @@ namespace MarginTrading.SettingsService.Controllers
             }
         }
 
-        private void ValidateUnique(AssetPairUpdateRequest[] assetPairsUpdateRequest)
-        {
-            ValidateUnique(assetPairsUpdateRequest.Select(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity)).ToList());
-        }
-
         private void ValidateUnique(AssetPairContract[] assetPairs)
-        {
-            ValidateUnique(assetPairs.Select(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity)).ToList());
-        }
-
-        private void ValidateUnique(List<(string BaseAssetId, string QuoteAssetId, string LegalEntity)> assetPairs)
         {
             var groups = assetPairs.GroupBy(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity))
                 .Where(x => x.Count() > 1).ToList();
-            if (assetPairs.Count == 0 || groups.Any())
+            if (assetPairs.Length == 0 || groups.Any())
             {
                 throw new ArgumentOutOfRangeException(nameof(assetPairs), 
                     $"Only unique asset pairs are allowed. The list of non-unique: {string.Join(", ", groups.Select(x => $"({x.Key.BaseAssetId},{x.Key.QuoteAssetId},{x.Key.LegalEntity})"))}");

@@ -13,10 +13,10 @@ namespace MarginTrading.SettingsService.Contracts
     public interface IScheduleSettingsApi
     {
         /// <summary>
-        /// Get the list of schedule settings
+        /// Get the list of schedule settings. Optional filter by market may be applied.
         /// </summary>
         [Get("/api/scheduleSettings")]
-        Task<List<ScheduleSettingsContract>> List();
+        Task<List<ScheduleSettingsContract>> List([Query][CanBeNull] string marketId = null);
 
         /// <summary>
         /// Create new schedule setting

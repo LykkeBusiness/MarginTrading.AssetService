@@ -47,19 +47,20 @@ namespace MarginTrading.SettingsService.Controllers
             _cqrsMessageSender = cqrsMessageSender;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
-        
+
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode
         /// </summary>
         /// <param name="legalEntity"></param>
         /// <param name="matchingEngineMode"></param>
-        /// <returns></returns>
+        /// <param name="filter">Search by Id and Name</param>
         [HttpGet]
         [Route("")]
-        public async Task<List<AssetPairContract>> List([FromQuery] string legalEntity = null, 
-            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null)
+        public async Task<List<AssetPairContract>> List([FromQuery] string legalEntity = null,
+            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null, string filter = null)
         {
-            var data = await _assetPairsRepository.GetByLeAndMeModeAsync(legalEntity, matchingEngineMode?.ToString());
+            var data = await _assetPairsRepository.GetByLeAndMeModeAsync(legalEntity, matchingEngineMode?.ToString(), 
+                filter);
             
             return data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
         }
@@ -67,16 +68,21 @@ namespace MarginTrading.SettingsService.Controllers
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
         /// </summary>
+        /// <param name="legalEntity"></param>
+        /// <param name="matchingEngineMode"></param>
+        /// <param name="filter">Search by Id and Name</param>
+        /// <param name="skip"></param>
+        /// <param name="take"></param>
         [HttpGet]
         [Route("by-pages")]
         public async Task<PaginatedResponseContract<AssetPairContract>> ListByPages([FromQuery] string legalEntity = null, 
-            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null, 
+            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null, [FromQuery] string filter = null,
             [FromQuery] int? skip = null, [FromQuery] int? take = null)
         {
             ApiValidationHelper.ValidatePagingParams(skip, take);
             
             var data = await _assetPairsRepository.GetByLeAndMeModeByPagesAsync(legalEntity, 
-                matchingEngineMode?.ToString(), skip, take);
+                matchingEngineMode?.ToString(), filter, skip, take);
             
             return new PaginatedResponseContract<AssetPairContract>(
                 contents: data.Contents.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList(),

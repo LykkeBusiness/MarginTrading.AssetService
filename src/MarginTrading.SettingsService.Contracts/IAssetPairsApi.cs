@@ -19,9 +19,11 @@ namespace MarginTrading.SettingsService.Contracts
         /// Get the list of asset pairs based on legal entity and matching engine mode
         /// </summary>
         [Get("/api/assetPairs")]
+        [Obsolete("Use paginated action")]
         Task<List<AssetPairContract>> List(
-            [Query, CanBeNull] string legalEntity = null,
-            [Query, CanBeNull] MatchingEngineModeContract? matchingEngineMode = null);
+            [Query] [CanBeNull] string legalEntity = null,
+            [Query] [CanBeNull] MatchingEngineModeContract? matchingEngineMode = null, 
+            [Query] [CanBeNull] string filter = null);
         
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
@@ -30,6 +32,7 @@ namespace MarginTrading.SettingsService.Contracts
         Task<PaginatedResponseContract<AssetPairContract>> ListByPages(
             [Query, CanBeNull] string legalEntity = null,
             [Query, CanBeNull] MatchingEngineModeContract? matchingEngineMode = null,
+            [Query] [CanBeNull] string filter = null,
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
 
 

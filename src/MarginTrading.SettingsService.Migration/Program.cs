@@ -120,7 +120,7 @@ namespace MarginTrading.SettingsService.Migration
             }
             Console.WriteLine($"Markets succeeded: {marketsSucceeded}, failed: {markets.Count - marketsSucceeded}.");
 
-            var scheduleSettings = await scheduleSettingsRepos.First().GetAsync();
+            var scheduleSettings = await scheduleSettingsRepos.First().GetFilteredAsync();
             var scheduleSettingsSucceeded = 0;
             foreach (var scheduleSetting in scheduleSettings)
             {

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
@@ -17,6 +18,13 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             : base(log, convertService, connectionStringManager, "ScheduleSettings")
         {
 
+        }
+
+        public async Task<IReadOnlyList<IScheduleSettings>> GetFilteredAsync(string marketId = null)
+        {
+            return string.IsNullOrEmpty(marketId) 
+                ? await base.GetAsync()
+                : await base.GetAsync(x => x.MarketId == marketId);
         }
 
         public new async Task<IScheduleSettings> GetAsync(string scheduleSettingsId)

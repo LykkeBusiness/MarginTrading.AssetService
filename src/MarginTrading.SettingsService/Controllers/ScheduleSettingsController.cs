@@ -137,9 +137,10 @@ namespace MarginTrading.SettingsService.Controllers
                 AssetPairId = assetPair.Id,
                 ScheduleSettings = allSettings
                     .Where(setting => setting.AssetPairs.Contains(assetPair.Id)
-                                      || Regex.IsMatch(assetPair.Id,
-                                          setting.AssetPairRegex,
-                                          RegexOptions.IgnoreCase)
+                                      || (!string.IsNullOrWhiteSpace(setting.AssetPairRegex)
+                                          && Regex.IsMatch(assetPair.Id,
+                                              setting.AssetPairRegex,
+                                              RegexOptions.IgnoreCase))
                                       || setting.MarketId == assetPair.MarketId)
                     .Select(x =>
                         _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()

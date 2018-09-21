@@ -29,10 +29,13 @@ namespace MarginTrading.SettingsService.Core.Helpers
             foreach (var propertyInfo in refTypeProps)
             {
                 var value = propertyInfo.GetValue(newObject);
-                if (value != null)
-                {
-                    updateParams[propertyInfo.Name] = value;
-                }
+                if (value == null)
+                    continue;
+
+                var underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
+                updateParams[propertyInfo.Name] = underlyingType?.IsEnum ?? false
+                    ? Convert.ChangeType(value, underlyingType).ToString()
+                    : value;
             }
 
             var result = new DynamicParameters();

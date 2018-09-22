@@ -26,7 +26,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Msg] [nvarchar] (MAX) NULL " +
                                                  ");";
         
-        private static Type DataType => typeof(ILogObject);
+        private static Type DataType => typeof(ILogEntity);
         private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
         private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
 
@@ -43,7 +43,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
         
-        public async Task Insert(ILogObject log)
+        public async Task Insert(ILogEntity log)
         {
             using (var conn = new SqlConnection(_connectionString))
             {

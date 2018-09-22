@@ -2,7 +2,7 @@
 
 namespace MarginTrading.SettingsService.Core.Interfaces
 {
-    public interface ILogObject
+    public interface ILogEntity
     {
         DateTime DateTime { get;  }
         string Level { get;  }

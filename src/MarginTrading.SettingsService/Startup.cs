@@ -25,6 +25,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using LogEntity = Lykke.Logs.LogEntity;
 
 namespace MarginTrading.SettingsService
 {

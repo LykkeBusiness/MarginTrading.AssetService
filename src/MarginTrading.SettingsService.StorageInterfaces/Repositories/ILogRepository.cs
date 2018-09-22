@@ -5,6 +5,6 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
 {
     public interface ILogRepository
     {
-        Task Insert(ILogObject log);
+        Task Insert(ILogEntity log);
     }
 }

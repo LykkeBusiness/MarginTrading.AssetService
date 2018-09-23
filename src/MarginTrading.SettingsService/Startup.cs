@@ -9,6 +9,8 @@ using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
+using Lykke.Logs.MsSql;
+using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
 using Lykke.SettingsReader.ReloadingManager;
 using Lykke.SlackNotification.AzureQueue;
@@ -25,6 +27,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using LogEntity = Lykke.Logs.LogEntity;
 
 namespace MarginTrading.SettingsService
 {
@@ -190,7 +193,7 @@ namespace MarginTrading.SettingsService
                     throw new Exception("SqlConnectionString must have a value if StorageMode is SqlServer");
                 }
                 
-                var sqlLogger = new LogToSql(new LogRepository("SettingsServiceLog",
+                var sqlLogger = new LogToSql(new SqlLogRepository("SettingsServiceLog",
                     settings.CurrentValue.MarginTradingSettingsService.Db.SqlConnectionString));
 
                 aggregateLogger.AddLog(sqlLogger);

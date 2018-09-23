@@ -2,6 +2,8 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
+using Lykke.Logs.MsSql.Interfaces;
+using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
@@ -90,7 +92,7 @@ namespace MarginTrading.SettingsService.Modules
                 var connstrParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.SqlConnectionString);
                 
-                builder.RegisterType<SqlRepos.LogRepository>()
+                builder.RegisterType<SqlLogRepository>()
                     .As<ILogRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();

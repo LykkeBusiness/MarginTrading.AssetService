@@ -7,8 +7,10 @@ using Common.Log;
 using Lykke.AzureStorage.Tables.Paging;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
+using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
+using MarginTrading.SettingsService.Core.Helpers;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
@@ -124,34 +126,37 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return await base.TryInsertAsync(entity) ? entity : null;
         }
 
-        public async Task<IAssetPair> UpdateAsync(IAssetPair assetPair)
+        public async Task<IAssetPair> UpdateAsync(AssetPairUpdateRequest assetPairUpdateRequest)
         {
-            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPair.Id);
+            var current = await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairUpdateRequest.Id);
 
             if (current == null)
             {
-                throw new ArgumentException("Asset pair does not exist", nameof(assetPair));
+                throw new ArgumentException("Asset pair does not exist", nameof(assetPairUpdateRequest));
             }
 
-            var entity = ((AssetPair) assetPair).CreateForUpdate(current.IsSuspended);
-            
-            await base.ReplaceAsync(entity);
-
-            return entity;
+            return await TableStorage.ReplaceAsync(AssetPairEntity.Pk, assetPairUpdateRequest.Id, prev =>
+                UpdateHelper.GetAzureReplaceObject(prev, assetPairUpdateRequest));
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs)
+        public async Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(
+            IReadOnlyList<AssetPairUpdateRequest> assetPairsUpdateRequest)
         {
-            //TODO batch update is done in 2 transactions which is a point of inconsistency
-            var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairs.Select(x => x.Id)))
-                .ToDictionary(x => x.Id, x => x.IsSuspended);
-            if (existing.Count != assetPairs.Count)
+            //TODO batch update is done in 2 transactions which is a possible point of inconsistency
+            var existing = (await TableStorage.GetDataAsync(AssetPairEntity.Pk, assetPairsUpdateRequest.Select(x => x.Id)))
+                .ToList();
+            if (existing.Count != assetPairsUpdateRequest.Count)
             {
-                throw new ArgumentException("One of asset pairs does not exist", nameof(assetPairs));
+                throw new ArgumentException("One of asset pairs does not exist", nameof(assetPairsUpdateRequest));
             }
-            
-            var assetPairEntities = assetPairs.Select(x => _convertService.Convert<IAssetPair, AssetPairEntity>(
-                ((AssetPair) x).CreateForUpdate(existing[x.Id]))).ToList();
+
+            var assetPairEntities = assetPairsUpdateRequest.Select(x =>
+            {
+                var current = existing.First(ex => ex.Id == x.Id);
+                var preparedObj = UpdateHelper.GetAzureReplaceObject(current, x);
+                preparedObj.IsSuspended = current.IsSuspended;
+                return preparedObj;
+            }).ToList();
 
             await TableStorage.InsertOrReplaceBatchAsync(assetPairEntities);
 

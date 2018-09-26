@@ -1,8 +1,12 @@
-﻿using MarginTrading.SettingsService.Contracts.Enums;
+﻿using JetBrains.Annotations;
+using MarginTrading.SettingsService.Contracts.Enums;
 using MessagePack;
 
 namespace MarginTrading.SettingsService.Contracts.AssetPair
 {
+    /// <summary>
+    /// AssetPair contract
+    /// </summary>
     [MessagePackObject]
     public class AssetPairContract
     {
@@ -42,6 +46,7 @@ namespace MarginTrading.SettingsService.Contracts.AssetPair
         /// <summary>
         /// Flag will not be changed on API call, only MTCore can change it
         /// </summary>
+        [UsedImplicitly]
         [Key(11)]
         public bool IsSuspended { get; set; }
         

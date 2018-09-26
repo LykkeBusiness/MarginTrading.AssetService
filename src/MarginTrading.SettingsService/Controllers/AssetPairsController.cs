@@ -93,7 +93,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("")]
         public async Task<AssetPairContract> Insert([FromBody] AssetPairContract assetPair)
         {
-            await ValidatePair(assetPair);
+            await ValidatePairInsert(assetPair);
             
             _defaultLegalEntitySettings.Set(assetPair);
 
@@ -125,7 +125,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             foreach (var assetPair in assetPairs)
             {
-                await ValidatePair(assetPair);
+                await ValidatePairInsert(assetPair);
             
                 _defaultLegalEntitySettings.Set(assetPair);   
             }
@@ -170,18 +170,17 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpPut]
         [Route("{assetPairId}")]
-        public async Task<AssetPairContract> Update(string assetPairId, [FromBody] AssetPairContract assetPair)
+        public async Task<AssetPairContract> Update(string assetPairId, 
+            [FromBody] AssetPairUpdateRequest assetPairUpdateRequest)
         {
-            await ValidatePair(assetPair);
-            ValidateId(assetPairId, assetPair);
+            await ValidatePairUpdate(assetPairUpdateRequest);
+            ValidateId(assetPairId, assetPairUpdateRequest.Id);
 
-            _defaultLegalEntitySettings.Set(assetPair);
-
-            var updated = await _assetPairsRepository.UpdateAsync(_convertService.Convert<AssetPairContract, AssetPair>(assetPair));
+            var updated = await _assetPairsRepository.UpdateAsync(assetPairUpdateRequest);
             
             if (updated == null)
             {
-                throw new ArgumentException("Update failed", nameof(assetPair));
+                throw new ArgumentException("Update failed", nameof(assetPairUpdateRequest));
             }
             
             var updatedContract = _convertService.Convert<IAssetPair, AssetPairContract>(updated);
@@ -195,28 +194,26 @@ namespace MarginTrading.SettingsService.Controllers
             
             return updatedContract;
         }
-
+        
         /// <summary>
         /// Update asset pairs in a batch request
         /// </summary>
         [HttpPut]
         [Route("batch")]
-        public async Task<List<AssetPairContract>> BatchUpdate([FromBody] AssetPairContract[] assetPairs)
+        public async Task<List<AssetPairContract>> BatchUpdate(
+            [FromBody] AssetPairUpdateRequest[] assetPairsUpdateRequest)
         {
-            foreach (var assetPair in assetPairs)
+            foreach (var assetPairUpdateRequest in assetPairsUpdateRequest)
             {
-                await ValidatePair(assetPair);
-
-                _defaultLegalEntitySettings.Set(assetPair);
+                await ValidatePairUpdate(assetPairUpdateRequest);
             }
-            ValidateUnique(assetPairs);
+            await ValidateUnique(assetPairsUpdateRequest);
 
-            var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairs.Select(x => 
-                _convertService.Convert<AssetPairContract, AssetPair>(x)).ToList());
+            var updated = await _assetPairsRepository.UpdateBatchAsync(assetPairsUpdateRequest.ToList());
             
             if (updated == null)
             {
-                throw new ArgumentException("Batch update failed", nameof(assetPairs));
+                throw new ArgumentException("Batch update failed", nameof(assetPairsUpdateRequest));
             }
             
             var updatedContracts = updated.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
@@ -246,78 +243,152 @@ namespace MarginTrading.SettingsService.Controllers
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
         }
 
-        private async Task ValidatePair(AssetPairContract newValue)
+        private async Task ValidatePairInsert(AssetPairContract assetPair)
         {
-            if (newValue == null)
+            if (assetPair == null)
             {
-                throw new ArgumentNullException("assetPair", "Model is incorrect");
+                throw new ArgumentNullException(nameof(assetPair), "Model is incorrect");
             }
             
-            if (string.IsNullOrWhiteSpace(newValue.Id))
+            if (string.IsNullOrWhiteSpace(assetPair.Id))
             {
-                throw new ArgumentNullException(nameof(newValue.Id), "AssetPair Id must be set");
+                throw new ArgumentNullException(nameof(assetPair.Id), "AssetPair Id must be set");
             }
 
-            if (!Enum.IsDefined(typeof(MatchingEngineModeContract), newValue.MatchingEngineMode))
+            if (!Enum.IsDefined(typeof(MatchingEngineModeContract), assetPair.MatchingEngineMode))
             {
-                throw new ArgumentNullException(nameof(newValue.MatchingEngineMode), "AssetPair MatchingEngineMode must be set");
+                throw new ArgumentNullException(nameof(assetPair.MatchingEngineMode), "AssetPair MatchingEngineMode must be set");
             }
 
-            if (await _assetsRepository.GetAsync(newValue.BaseAssetId) == null)
+            if (await _assetsRepository.GetAsync(assetPair.BaseAssetId) == null)
             {
-                throw new InvalidOperationException($"Base Asset {newValue.BaseAssetId} does not exist");
+                throw new InvalidOperationException($"Base Asset {assetPair.BaseAssetId} does not exist");
             }
 
-            if (await _assetsRepository.GetAsync(newValue.QuoteAssetId) == null)
+            if (await _assetsRepository.GetAsync(assetPair.QuoteAssetId) == null)
             {
-                throw new InvalidOperationException($"Quote Asset {newValue.QuoteAssetId} does not exist");
+                throw new InvalidOperationException($"Quote Asset {assetPair.QuoteAssetId} does not exist");
             }
 
-            if (!string.IsNullOrEmpty(newValue.MarketId)
-                && await _marketRepository.GetAsync(newValue.MarketId) == null)
+            if (!string.IsNullOrEmpty(assetPair.MarketId)
+                && await _marketRepository.GetAsync(assetPair.MarketId) == null)
             {
-                throw new InvalidOperationException($"Market {newValue.MarketId} does not exist");
+                throw new InvalidOperationException($"Market {assetPair.MarketId} does not exist");
             }
 
-            if (newValue.StpMultiplierMarkupAsk <= 0)
+            if (assetPair.StpMultiplierMarkupAsk <= 0)
             {
-                throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greather then zero");
+                throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greater then zero");
             }
             
-            if (newValue.StpMultiplierMarkupBid <= 0)
+            if (assetPair.StpMultiplierMarkupBid <= 0)
             {
                 throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
             
             //base pair check <-- the last one
-            if (newValue.BasePairId == null) 
+            if (assetPair.BasePairId == null) 
                 return;
 
-            if (await _assetPairsRepository.GetAsync(newValue.BasePairId) == null)
+            if (await _assetPairsRepository.GetAsync(assetPair.BasePairId) == null)
             {
-                throw new InvalidOperationException($"BasePair with Id {newValue.BasePairId} does not exist");
+                throw new InvalidOperationException($"BasePair with Id {assetPair.BasePairId} does not exist");
             }
 
-            if (await _assetPairsRepository.GetByBaseAssetPairAsync(newValue.BasePairId) != null)
+            if (await _assetPairsRepository.GetByBaseAssetPairAsync(assetPair.BasePairId) != null)
             {
-                throw new InvalidOperationException($"BasePairId {newValue.BasePairId} does not exist");
+                throw new InvalidOperationException($"BasePairId {assetPair.BasePairId} does not exist");
             }
 
-            if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(newValue.Id, newValue.BasePairId) != null)
+            if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(assetPair.Id, assetPair.BasePairId) != null)
             {
-                throw new InvalidOperationException($"BasePairId {newValue.BasePairId} cannot be added twice");
+                throw new InvalidOperationException($"BasePairId {assetPair.BasePairId} cannot be added twice");
             }
 
-            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(newValue.BaseAssetId,
-                    newValue.QuoteAssetId, newValue.LegalEntity) != null)
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
+                    assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
             {
-                throw new InvalidOperationException($"Asset pair with base: {newValue.BaseAssetId}, quote: {newValue.QuoteAssetId}, legalEntity: {newValue.LegalEntity} already exists");   
+                throw new InvalidOperationException($"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");   
             }
         }
 
-        private void ValidateId(string id, AssetPairContract contract)
+        private async Task ValidatePairUpdate(AssetPairUpdateRequest assetPair)
         {
-            if (contract?.Id != id)
+            if (assetPair == null)
+            {
+                throw new ArgumentNullException(nameof(assetPair), "Model is incorrect");
+            }
+            
+            if (string.IsNullOrWhiteSpace(assetPair.Id))
+            {
+                throw new ArgumentNullException(nameof(assetPair.Id), "AssetPair Id must be set");
+            }
+
+            if (assetPair.MatchingEngineMode != null
+                && !Enum.IsDefined(typeof(MatchingEngineModeContract), assetPair.MatchingEngineMode))
+            {
+                throw new ArgumentNullException(nameof(assetPair.MatchingEngineMode), "AssetPair MatchingEngineMode must be set");
+            }
+
+            if (assetPair.BaseAssetId != null
+                && await _assetsRepository.GetAsync(assetPair.BaseAssetId) == null)
+            {
+                throw new InvalidOperationException($"Base Asset {assetPair.BaseAssetId} does not exist");
+            }
+
+            if (assetPair.QuoteAssetId != null
+                && await _assetsRepository.GetAsync(assetPair.QuoteAssetId) == null)
+            {
+                throw new InvalidOperationException($"Quote Asset {assetPair.QuoteAssetId} does not exist");
+            }
+
+            if (!string.IsNullOrEmpty(assetPair.MarketId)
+                && await _marketRepository.GetAsync(assetPair.MarketId) == null)
+            {
+                throw new InvalidOperationException($"Market {assetPair.MarketId} does not exist");
+            }
+
+            if (assetPair.StpMultiplierMarkupAsk != null
+                && assetPair.StpMultiplierMarkupAsk <= 0)
+            {
+                throw new InvalidOperationException($"StpMultiplierMarkupAsk must be greater then zero");
+            }
+            
+            if (assetPair.StpMultiplierMarkupBid != null
+                && assetPair.StpMultiplierMarkupBid <= 0)
+            {
+                throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
+            }
+            
+            //base pair check <-- the last one
+            if (assetPair.BasePairId == null) 
+                return;
+
+            if (await _assetPairsRepository.GetAsync(assetPair.BasePairId) == null)
+            {
+                throw new InvalidOperationException($"BasePair with Id {assetPair.BasePairId} does not exist");
+            }
+
+            if (await _assetPairsRepository.GetByBaseAssetPairAsync(assetPair.BasePairId) != null)
+            {
+                throw new InvalidOperationException($"BasePairId {assetPair.BasePairId} does not exist");
+            }
+
+            if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(assetPair.Id, assetPair.BasePairId) != null)
+            {
+                throw new InvalidOperationException($"BasePairId {assetPair.BasePairId} cannot be added twice");
+            }
+
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
+                    assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
+            {
+                throw new InvalidOperationException($"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");   
+            }
+        }
+
+        private void ValidateId(string id, string contractId)
+        {
+            if (contractId != id)
             {
                 throw new ArgumentException("Id must match with contract id");
             }
@@ -325,9 +396,26 @@ namespace MarginTrading.SettingsService.Controllers
 
         private void ValidateUnique(AssetPairContract[] assetPairs)
         {
+            ValidateUnique(assetPairs.Select(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity)).ToList());
+        }
+
+        private async Task ValidateUnique(AssetPairUpdateRequest[] assetPairUpdateRequests)
+        {
+            var current = (await _assetPairsRepository.GetAsync(assetPairUpdateRequests.Select(x => x.Id).ToArray()))
+                .ToDictionary(x => x.Id, x => x);
+            ValidateUnique(assetPairUpdateRequests.Select(x => 
+                (
+                    x.BaseAssetId ?? current[x.Id].BaseAssetId,
+                    x.QuoteAssetId ?? current[x.Id].QuoteAssetId,
+                    x.LegalEntity ?? current[x.Id].LegalEntity
+                )).ToList());
+        }
+        
+        private void ValidateUnique(List<(string BaseAssetId, string QuoteAssetId, string LegalEntity)> assetPairs)
+        {
             var groups = assetPairs.GroupBy(x => (x.BaseAssetId, x.QuoteAssetId, x.LegalEntity))
                 .Where(x => x.Count() > 1).ToList();
-            if (assetPairs.Length == 0 || groups.Any())
+            if (assetPairs.Count == 0 || groups.Any())
             {
                 throw new ArgumentOutOfRangeException(nameof(assetPairs), 
                     $"Only unique asset pairs are allowed. The list of non-unique: {string.Join(", ", groups.Select(x => $"({x.Key.BaseAssetId},{x.Key.QuoteAssetId},{x.Key.LegalEntity})"))}");

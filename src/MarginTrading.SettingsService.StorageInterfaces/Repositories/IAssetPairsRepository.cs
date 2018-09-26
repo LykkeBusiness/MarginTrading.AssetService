@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 
@@ -17,6 +18,7 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null, 
             string matchingEngineMode = null, int? skip = null, int? take = null);
         Task<IAssetPair> GetByBaseQuoteAndLegalEntityAsync(string baseAssetId, string quoteAssetId, string legalEntity);
+        
         /// <summary>
         /// Return null in case when insertion failed
         /// </summary>
@@ -28,10 +30,12 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         [ItemCanBeNull]
         Task<IReadOnlyList<IAssetPair>> InsertBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
         Task DeleteAsync(string assetPairId);
+        
         [ItemCanBeNull]
-        Task<IAssetPair> UpdateAsync(IAssetPair assetPair);
+        Task<IAssetPair> UpdateAsync(AssetPairUpdateRequest assetPairUpdateRequest);
         [ItemCanBeNull]
-        Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<IAssetPair> assetPairs);
+        Task<IReadOnlyList<IAssetPair>> UpdateBatchAsync(IReadOnlyList<AssetPairUpdateRequest> assetPairsUpdateRequest);
+        
         Task<IAssetPair> ChangeSuspendFlag(string assetPairId, bool suspendFlag);
     }
 }

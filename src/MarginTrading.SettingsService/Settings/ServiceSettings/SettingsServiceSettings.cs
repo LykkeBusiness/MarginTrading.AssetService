@@ -1,5 +1,6 @@
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
+using Lykke.SettingsReader.Attributes;
 using MarginTrading.SettingsService.Core.Settings;
 
 namespace MarginTrading.SettingsService.Settings.ServiceSettings
@@ -12,6 +13,7 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
         public DefaultTradingInstrumentSettings TradingInstrumentDefaults { get; set; }
         public DefaultLegalEntitySettings LegalEntityDefaults { get; set; }
         public CqrsSettings Cqrs { get; set; }
+        [Optional, CanBeNull]
         public ChaosSettings ChaosKitty { get; set; }
     }
 }

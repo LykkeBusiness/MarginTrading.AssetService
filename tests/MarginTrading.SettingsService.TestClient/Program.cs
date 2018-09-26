@@ -149,8 +149,8 @@ namespace MarginTrading.SettingsService.TestClient
                 MarketId = "1",
                 IsTradeEnabled = true,
                 PendingOrdersCutOff = null,
-                Start = new ScheduleConstraintContract{Date = "", DayOfWeek = DayOfWeek.Friday, Time = new TimeSpan(0,0,0)},
-                End = new ScheduleConstraintContract{Date = "", DayOfWeek = DayOfWeek.Sunday, Time = new TimeSpan(0,0,0)},
+                Start = new ScheduleConstraintContract{Date = null, DayOfWeek = DayOfWeek.Friday, Time = new TimeSpan(0,0,0)},
+                End = new ScheduleConstraintContract{Date = null, DayOfWeek = DayOfWeek.Sunday, Time = new TimeSpan(0,0,0)},
             };
 
             var scheduleSettingsApiClient = clientGenerator.Generate<IScheduleSettingsApi>();

@@ -3,6 +3,10 @@ using System.Collections.Generic;
 
 namespace MarginTrading.SettingsService.Contracts.Scheduling
 {
+    /// <summary>
+    /// Start and End constraints must be of the same type.
+    /// Types are described in ScheduleConstraintContract type description.
+    /// </summary>
     public class ScheduleSettingsContract
     {
         public string Id { get; set; }

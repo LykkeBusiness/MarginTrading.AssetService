@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
@@ -159,7 +160,7 @@ namespace MarginTrading.SettingsService.Controllers
         {
             if (scheduleSetting == null)
             {
-                throw new ArgumentNullException("scheduleSetting", "Model is incorrect");
+                throw new ArgumentNullException(nameof(scheduleSetting), "Model is incorrect");
             }
             
             if (string.IsNullOrWhiteSpace(scheduleSetting.Id))
@@ -173,10 +174,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"Market {scheduleSetting.MarketId} does not exist");
             }
 
-            if (scheduleSetting.Start == null || scheduleSetting.End == null)
-            {
-                throw new InvalidOperationException($"Start and End must be set");
-            }
+            ScheduleConstraintContract.Validate(scheduleSetting);
 
             if (scheduleSetting.Start.DayOfWeek != null && !Enum.IsDefined(typeof(DayOfWeek), scheduleSetting.Start.DayOfWeek))
             {

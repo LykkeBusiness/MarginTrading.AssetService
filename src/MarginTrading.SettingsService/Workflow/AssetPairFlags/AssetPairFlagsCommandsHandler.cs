@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Lykke.Common.Chaos;
 using Lykke.Cqrs;
 using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core.Interfaces;
@@ -12,13 +13,16 @@ namespace MarginTrading.SettingsService.Workflow.AssetPairFlags
     {
         private readonly IAssetPairsRepository _assetPairsRepository;
         private readonly IConvertService _convertService;
+        private readonly IChaosKitty _chaosKitty;
         
         public AssetPairFlagsCommandsHandler(
             IAssetPairsRepository assetPairsRepository,
-            IConvertService convertService)
+            IConvertService convertService,
+            IChaosKitty chaosKitty)
         {
             _assetPairsRepository = assetPairsRepository;
             _convertService = convertService;
+            _chaosKitty = chaosKitty;
         }
         
         /// <summary>
@@ -31,6 +35,8 @@ namespace MarginTrading.SettingsService.Workflow.AssetPairFlags
             //idempotency handling not required
 
             var assetPair = await _assetPairsRepository.ChangeSuspendFlag(command.AssetPairId, true);
+            
+            _chaosKitty.Meow(command.OperationId);
 
             publisher.PublishEvent(new AssetPairChangedEvent
             {
@@ -51,6 +57,8 @@ namespace MarginTrading.SettingsService.Workflow.AssetPairFlags
             //idempotency handling not required
             
             var assetPair = await _assetPairsRepository.ChangeSuspendFlag(command.AssetPairId, false);
+            
+            _chaosKitty.Meow(command.OperationId);
             
             publisher.PublishEvent(new AssetPairChangedEvent
             {

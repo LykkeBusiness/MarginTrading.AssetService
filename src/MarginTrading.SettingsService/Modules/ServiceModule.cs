@@ -2,6 +2,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
+using Lykke.Common.Chaos;
 using Lykke.Logs.MsSql.Interfaces;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
@@ -74,6 +75,8 @@ namespace MarginTrading.SettingsService.Modules
             builder.RegisterType<CqrsMessageSender>()
                 .As<ICqrsMessageSender>()
                 .SingleInstance();
+            
+            builder.RegisterChaosKitty(_settings.CurrentValue.ChaosKitty);
 
             RegisterRepositories(builder);
 

@@ -6,7 +6,7 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
 {
     public interface IScheduleSettingsRepository
     {
-        Task<IReadOnlyList<IScheduleSettings>> GetAsync();
+        Task<IReadOnlyList<IScheduleSettings>> GetFilteredAsync(string marketId = null);
         Task<IScheduleSettings> GetAsync(string scheduleSettingsId);
         Task<bool> TryInsertAsync(IScheduleSettings scheduleSettings);
         Task UpdateAsync(IScheduleSettings scheduleSettings);

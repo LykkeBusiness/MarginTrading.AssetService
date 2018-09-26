@@ -13,10 +13,10 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         Task<IAssetPair> GetAsync(string assetPairId);
         Task<IAssetPair> GetByBaseAssetPairAsync(string baseAssetPairId);
         Task<IAssetPair> GetByBaseAssetPairAndNotByIdAsync(string id, string baseAssetPairId);
-        Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null, 
-            string matchingEngineMode = null);
-        Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null, 
-            string matchingEngineMode = null, int? skip = null, int? take = null);
+        Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null,
+            string matchingEngineMode = null, string filter = null);
+        Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null,
+            string matchingEngineMode = null, string filter = null, int? skip = null, int? take = null);
         Task<IAssetPair> GetByBaseQuoteAndLegalEntityAsync(string baseAssetId, string quoteAssetId, string legalEntity);
         
         /// <summary>

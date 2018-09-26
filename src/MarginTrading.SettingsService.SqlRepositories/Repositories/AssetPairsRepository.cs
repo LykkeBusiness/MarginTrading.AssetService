@@ -297,35 +297,47 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null, 
-            string matchingEngineMode = null)
+        public async Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null,
+            string matchingEngineMode = null, string filter = null)
         {
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filter = $"%{filter}%";
+            }
+            
             var whereClause = "WHERE 1=1 "
                 + (string.IsNullOrWhiteSpace(legalEntity) ? "" : " AND LegalEntity=@legalEntity")
-                + (string.IsNullOrWhiteSpace(matchingEngineMode) ? "" : " AND MatchingEngineMode=@matchingEngineMode");
+                + (string.IsNullOrWhiteSpace(matchingEngineMode) ? "" : " AND MatchingEngineMode=@matchingEngineMode")
+                + (string.IsNullOrWhiteSpace(filter) ? "" : " AND (Id LIKE @filter OR Name LIKE @filter)");
             
             using (var conn = new SqlConnection(_connectionString))
             {
                 var objects = await conn.QueryAsync<AssetPairEntity>($"SELECT * FROM {TableName} {whereClause}",
-                    new {legalEntity, matchingEngineMode});
+                    new {legalEntity, matchingEngineMode, filter});
                 
                 return objects.Select(_convertService.Convert<AssetPairEntity, AssetPair>).ToList();
             }
         }
 
-        public async Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null, 
-            string matchingEngineMode = null, int? skip = null, int? take = null)
+        public async Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null,
+            string matchingEngineMode = null, string filter = null, int? skip = null, int? take = null)
         {
+            if (!string.IsNullOrWhiteSpace(filter))
+            {
+                filter = $"%{filter}%";
+            }
+
             var whereClause = "WHERE 1=1 "
                               + (string.IsNullOrWhiteSpace(legalEntity) ? "" : " AND LegalEntity=@legalEntity")
-                              + (string.IsNullOrWhiteSpace(matchingEngineMode) ? "" : " AND MatchingEngineMode=@matchingEngineMode");
+                              + (string.IsNullOrWhiteSpace(matchingEngineMode) ? "" : " AND MatchingEngineMode=@matchingEngineMode")
+                              + (string.IsNullOrWhiteSpace(filter) ? "" : " AND (Id LIKE @filter OR Name LIKE @filter)");
             
             using (var conn = new SqlConnection(_connectionString))
             {
                 var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
                 var gridReader = await conn.QueryMultipleAsync(
                     $"SELECT * FROM {TableName} {whereClause} {paginationClause}; SELECT COUNT(*) FROM {TableName} {whereClause}",
-                    new {legalEntity, matchingEngineMode});
+                    new {legalEntity, matchingEngineMode, filter});
                 var assetPairs = (await gridReader.ReadAsync<AssetPairEntity>()).ToList();
                 var totalCount = await gridReader.ReadSingleAsync<int>();
             

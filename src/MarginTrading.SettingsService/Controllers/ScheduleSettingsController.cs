@@ -45,9 +45,9 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpGet]
         [Route("")]
-        public async Task<List<ScheduleSettingsContract>> List()
+        public async Task<List<ScheduleSettingsContract>> List([FromQuery] string marketId = null)
         {
-            var data = await _scheduleSettingsRepository.GetAsync();
+            var data = await _scheduleSettingsRepository.GetFilteredAsync(marketId);
             return data
                 .Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettings>(x))
                 .Select(x => _convertService.Convert<ScheduleSettings, ScheduleSettingsContract>(x))
@@ -127,7 +127,7 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("compiled")]
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
-            var allSettingsTask = _scheduleSettingsRepository.GetAsync();
+            var allSettingsTask = _scheduleSettingsRepository.GetFilteredAsync();
             var assetPairsTask = _assetPairsRepository.GetAsync(assetPairIds);
             var allSettings = await allSettingsTask;
             var assetPairs = await assetPairsTask;
@@ -138,9 +138,10 @@ namespace MarginTrading.SettingsService.Controllers
                 AssetPairId = assetPair.Id,
                 ScheduleSettings = allSettings
                     .Where(setting => setting.AssetPairs.Contains(assetPair.Id)
-                                      || Regex.IsMatch(assetPair.Id,
-                                          setting.AssetPairRegex,
-                                          RegexOptions.IgnoreCase)
+                                      || (!string.IsNullOrWhiteSpace(setting.AssetPairRegex)
+                                          && Regex.IsMatch(assetPair.Id,
+                                              setting.AssetPairRegex,
+                                              RegexOptions.IgnoreCase))
                                       || setting.MarketId == assetPair.MarketId)
                     .Select(x =>
                         _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()

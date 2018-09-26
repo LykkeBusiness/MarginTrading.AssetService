@@ -58,12 +58,15 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<IScheduleSettings>> GetAsync()
+        public async Task<IReadOnlyList<IScheduleSettings>> GetFilteredAsync(string marketId = null)
         {
             using (var conn = new SqlConnection(_connectionString))
             {
+                var whereClause = "WHERE 1=1 "
+                    + (string.IsNullOrEmpty(marketId) ? "" : " AND MarketId=@marketId");
                 var objects = await conn.QueryAsync<ScheduleSettingsEntity>(
-                    $"SELECT * FROM {TableName}");
+                    $"SELECT * FROM {TableName} {whereClause}",
+                    new {marketId});
                 
                 return objects.Select(_convertService.Convert<ScheduleSettingsEntity, ScheduleSettings>).ToList();
             }

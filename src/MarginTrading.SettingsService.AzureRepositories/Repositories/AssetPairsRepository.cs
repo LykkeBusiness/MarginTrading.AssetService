@@ -50,19 +50,20 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 .FirstOrDefault();
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null, 
-            string matchingEngineMode = null)
+        public async Task<IReadOnlyList<IAssetPair>> GetByLeAndMeModeAsync(string legalEntity = null,
+            string matchingEngineMode = null, string filter = null)
         {
-            return (await TableStorage.GetDataAsync(AssetPairEntity.Pk, 
+            return (await TableStorage.GetDataAsync(AssetPairEntity.Pk,
                     x => (string.IsNullOrWhiteSpace(legalEntity) || x.LegalEntity == legalEntity)
-                        && (string.IsNullOrWhiteSpace(matchingEngineMode) || x.MatchingEngineMode == matchingEngineMode)))
+                         && (string.IsNullOrWhiteSpace(matchingEngineMode) || x.MatchingEngineMode == matchingEngineMode)
+                         && (string.IsNullOrWhiteSpace(filter) || x.Id.Contains(filter) || x.Name.Contains(filter))))
                 .ToList();
         }
 
-        public async Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null, 
-            string matchingEngineMode = null, int? skip = null, int? take = null)
+        public async Task<PaginatedResponse<IAssetPair>> GetByLeAndMeModeByPagesAsync(string legalEntity = null,
+            string matchingEngineMode = null, string filter = null, int? skip = null, int? take = null)
         {
-            var allData = await GetByLeAndMeModeAsync(legalEntity, matchingEngineMode);
+            var allData = await GetByLeAndMeModeAsync(legalEntity, matchingEngineMode, filter);
 
             //TODO refactor before using azure impl
             var data = allData.OrderBy(x => x.Id).ToList();

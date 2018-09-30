@@ -29,7 +29,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[LimitCurrency] [nvarchar] (64) NULL, " +
                                                  "[BaseAssets] [nvarchar] (MAX) NULL, " +
                                                  "[IsDefault] [bit] NOT NULL, " +
-                                                 "CONSTRAINT TC_Id UNIQUE(Id)" +
+                                                 "CONSTRAINT {0}_Id UNIQUE(Id)," +
+                                                 "INDEX IX_{0}_Default (IsDefault)" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingCondition);

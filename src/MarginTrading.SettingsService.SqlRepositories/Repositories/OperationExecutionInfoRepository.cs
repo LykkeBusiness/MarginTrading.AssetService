@@ -26,7 +26,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[OperationName] [nvarchar] (64) NULL, " +
                                                  "[Version] [nvarchar] (64) NULL, " +
                                                  "[Data] [nvarchar] (MAX) NOT NULL," +
-                                                 "CONSTRAINT [MTEx_Id] UNIQUE NONCLUSTERED ([Id], [OperationName])" +
+                                                 "CONSTRAINT [{0}_Id] UNIQUE NONCLUSTERED ([Id], [OperationName])" +
                                                  ");";
         
         private static Type DataType => typeof(IOperationExecutionInfo<object>);

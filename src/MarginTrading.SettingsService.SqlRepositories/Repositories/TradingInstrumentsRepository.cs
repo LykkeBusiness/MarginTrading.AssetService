@@ -33,7 +33,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[CommissionRate] float NULL, " +
                                                  "[CommissionMin] float NULL, " +
                                                  "[CommissionMax] float NULL, " +
-                                                 "[CommissionCurrency] [nvarchar] (64) NULL " +
+                                                 "[CommissionCurrency] [nvarchar] (64) NULL, " +
+                                                 "INDEX IX_{0}_Base (TradingConditionId, Instrument)" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingInstrument);

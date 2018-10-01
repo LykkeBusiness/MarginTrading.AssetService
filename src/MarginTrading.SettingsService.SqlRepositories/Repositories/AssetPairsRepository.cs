@@ -22,6 +22,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
     public class AssetPairsRepository : IAssetPairsRepository
     {
         private const string TableName = "AssetPairs";
+
         private const string CreateTableScript = "CREATE TABLE [{0}](" +
                                                  "[Oid] [bigint] NOT NULL IDENTITY(1,1) PRIMARY KEY," +
                                                  "[Id] [nvarchar] (64) NOT NULL, " +
@@ -38,7 +39,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[IsSuspended] BIT NOT NULL DEFAULT 0, " +
                                                  "[IsFrozen] BIT NOT NULL DEFAULT 0, " +
                                                  "[IsDiscontinued] BIT NOT NULL DEFAULT 0, " +
-                                                 "CONSTRAINT AP_Id UNIQUE(Id)" +
+                                                 "CONSTRAINT {0}_Id UNIQUE(Id)," +
+                                                 "INDEX IX_{0}_Base (Id, Name, BaseAssetId, QuoteAssetId, LegalEntity, MatchingEngineMode)" +
                                                  ");";
         
         private static PropertyInfo[] TypeProps => typeof(IAssetPair).GetProperties()

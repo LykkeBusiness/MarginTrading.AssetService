@@ -28,7 +28,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[PendingOrdersCutOff] [nvarchar] (64) NULL, " +
                                                  "[Start] [nvarchar] (MAX) NULL, " +
                                                  "[End] [nvarchar] (MAX) NULL, " +
-                                                 "CONSTRAINT SS_Id UNIQUE(Id)" +
+                                                 "CONSTRAINT {0}_Id UNIQUE(Id), " +
+                                                 "INDEX IX_{0}_Market (MarketId)" +
                                                  ");";
         
         private static Type DataType => typeof(IScheduleSettings);

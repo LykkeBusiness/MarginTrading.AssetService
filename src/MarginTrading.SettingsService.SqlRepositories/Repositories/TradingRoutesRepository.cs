@@ -29,7 +29,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Asset] [nvarchar] (64) NULL, " +
                                                  "[RiskSystemLimitType] [nvarchar] (64) NULL, " +
                                                  "[RiskSystemMetricType] [nvarchar] (64) NULL, " +
-                                                 "CONSTRAINT TR_Id UNIQUE(Id)" +
+                                                 "CONSTRAINT {0}_Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(ITradingRoute);

@@ -22,7 +22,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[Id] [nvarchar] (64) NOT NULL, " +
                                                  "[Name] [nvarchar] (64) NOT NULL, " +
                                                  "[Accuracy] [int] NOT NULL, " +
-                                                 "CONSTRAINT A_Id UNIQUE(Id)" +
+                                                 "CONSTRAINT {0}_Id UNIQUE(Id)" +
                                                  ");";
         
         private static Type DataType => typeof(IAsset);

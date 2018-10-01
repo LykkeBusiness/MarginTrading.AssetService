@@ -87,13 +87,13 @@ namespace MarginTrading.SettingsService.Modules
         {
             if (_settings.CurrentValue.Db.StorageMode == StorageMode.SqlServer)
             {
-                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.SqlConnectionString))
+                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.DataConnString))
                 {
                     throw new Exception("SqlConnectionString must have a value if StorageMode is SqlServer");
                 }
                 
                 var connstrParameter = new NamedParameter("connectionString", 
-                    _settings.CurrentValue.Db.SqlConnectionString);
+                    _settings.CurrentValue.Db.DataConnString);
                 
                 builder.RegisterType<SqlLogRepository>()
                     .As<ILogRepository>()
@@ -142,13 +142,13 @@ namespace MarginTrading.SettingsService.Modules
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)
             {
-                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.AzureConnectionString))
+                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.DataConnString))
                 {
                     throw new Exception("AzureConnectionString must have a value if StorageMode is Azure");
                 }
                 
                 var connstrParameter = new NamedParameter("connectionStringManager",
-                    _settings.Nested(x => x.Db.AzureConnectionString));
+                    _settings.Nested(x => x.Db.DataConnString));
 
                 builder.RegisterType<AzureRepos.AssetPairsRepository>()
                     .As<IAssetPairsRepository>()

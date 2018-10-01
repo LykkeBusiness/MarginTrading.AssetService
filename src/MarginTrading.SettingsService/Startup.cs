@@ -188,25 +188,25 @@ namespace MarginTrading.SettingsService
             
             if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
             {
-                if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.SqlConnectionString))
+                if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
                 {
                     throw new Exception("SqlConnectionString must have a value if StorageMode is SqlServer");
                 }
                 
                 var sqlLogger = new LogToSql(new SqlLogRepository("SettingsServiceLog",
-                    settings.CurrentValue.MarginTradingSettingsService.Db.SqlConnectionString));
+                    settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString));
 
                 aggregateLogger.AddLog(sqlLogger);
             } 
             else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.Azure)
             {
-                if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.LogsAzureConnString))
+                if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
                 {
                     throw new Exception("LogsAzureConnString must have a value if StorageMode is Azure");
                 }
                 
                 var dbLogConnectionStringManager =
-                    settings.Nested(x => x.MarginTradingSettingsService.Db.LogsAzureConnString);
+                    settings.Nested(x => x.MarginTradingSettingsService.Db.LogsConnString);
                 var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
 
                 if (string.IsNullOrEmpty(dbLogConnectionString))

@@ -56,7 +56,9 @@ _UpgradeReport_Files/
 .vs
 node_modules
 **/launchSettings.json
+**/appsettings.json
 **/appsettings.*.json
+!**/appsettings.Serilog.json
 **/docker-compose.dev.yml
 **/marginTradingSettings.json
 **/*.ps1

@@ -4,13 +4,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Services;
 using Microsoft.AspNetCore;
+using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MarginTrading.SettingsService
 {
-    internal static class Program
+    internal sealed class Program
     {
         public static string EnvInfo => Environment.GetEnvironmentVariable("ENV_INFO");
 

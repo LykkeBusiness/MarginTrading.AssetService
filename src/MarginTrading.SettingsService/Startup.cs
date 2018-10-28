@@ -12,6 +12,7 @@ using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
 using Lykke.Logs.MsSql;
 using Lykke.Logs.MsSql.Repositories;
+using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
 using Lykke.SettingsReader.ReloadingManager;
 using Lykke.SlackNotification.AzureQueue;
@@ -45,6 +46,7 @@ namespace MarginTrading.SettingsService
         {
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
+                .AddSerilogJson(env)
                 .AddEnvironmentVariables()
                 .Build();
 
@@ -73,7 +75,7 @@ namespace MarginTrading.SettingsService
                 var builder = new ContainerBuilder();
                 var appSettings = Configuration.LoadSettings<AppSettings>();
 
-                Log = CreateLogWithSlack(services, appSettings);
+                Log = CreateLogWithSlack(Configuration, services, appSettings);
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.MarginTradingSettingsService), Log));
                 builder.RegisterModule(new CqrsModule(appSettings.CurrentValue.MarginTradingSettingsService.Cqrs, Log));
@@ -183,14 +185,19 @@ namespace MarginTrading.SettingsService
             }
         }
 
-        private static ILog CreateLogWithSlack(IServiceCollection services, IReloadingManager<AppSettings> settings)
+        private static ILog CreateLogWithSlack(IConfiguration configuration, IServiceCollection services, 
+            IReloadingManager<AppSettings> settings)
         {
             var consoleLogger = new LogToConsole();
             var aggregateLogger = new AggregateLogger();
 
             aggregateLogger.AddLog(consoleLogger);
             
-            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
+            if (settings.CurrentValue.MarginTradingSettingsService.UseSerilog)
+            {
+                aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, configuration));
+            }
+            else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
             {
                 if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
                 {

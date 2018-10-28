@@ -1,72 +1,102 @@
-# Lykke.Service template #
+# MarginTrading.SettingsService API #
 
-dotnet cli template for generating a solution for the service Lykke.Service.ServiceName
+API for settings management.
 
-## How to use? ##
+## How to use in prod env? ##
 
-Clone repo to some directory
-
-Install template:
-```sh
-$ dotnet new --install ${path}
+1. Pull "mt-settings-service" docker image with a corresponding tag.
+2. Configure environment variables according to "Environment variables" section.
+3. Put secrets.json with endpoint data including the certificate:
+```json
+"Kestrel": {
+  "EndPoints": {
+    "HttpsInlineCertFile": {
+      "Url": "https://*:5110",
+      "Certificate": {
+        "Path": "<path to .pfx file>",
+        "Password": "<certificate password>"
+      }
+    }
+  }
+}
 ```
-where `${path}` is the **full** path to the clonned directory (where folder .template.config placed) **without trailing slash**
+4. Initialize all dependencies.
+5. Run.
 
-Now new template can be used in dotnet cli:
+## How to run for debug? ##
 
-```sh
-dotnet new lkeservice -n ${ServiceName} -o Lykke.Service.${ServiceName}
+1. Clone repo to some directory.
+2. In MarginTrading.SettingsService root create a appsettings.dev.json with settings.
+3. Add environment variable "SettingsUrl": "appsettings.dev.json".
+4. VPN to a corresponding env must be connected and all dependencies must be initialized.
+5. Run.
+
+### Dependencies ###
+
+TBD
+
+### Configuration ###
+
+Kestrel configuration may be passed through appsettings.json, secrets or environment.
+All variables and value constraints are default. For instance, to set host URL the following env variable may be set:
+```json
+{
+    "Kestrel__EndPoints__Http__Url": "http://*:5010"
+}
 ```
-This will create a solution in the current folder, where `${ServiceName}` is the service name without Lykke.Service. prefix. 
-
-When temlate has changed, to update installed template run again command:
-
-```sh
-$ dotnet new --install ${path}
-```
-
-To remove all installed custom temlates run command:
-
-```sh
-$ dotnet new --debug:reinit 
-```
-
-## Developing ##
 
 ### Environment variables ###
 
-To define your own environment variables, see [Working with multiple environments](https://docs.microsoft.com/en-us/aspnet/core/fundamentals/environments)
-
-* *ASPNETCORE_ENVIRONMENT* - defines environment name, the value can be: Development, Staging, Production.
+* *RESTART_ATTEMPTS_NUMBER* - number of restart attempts. If not set int.MaxValue is used.
+* *RESTART_ATTEMPTS_INTERVAL_MS* - interval between restarts in milliseconds. If not set 10000 is used.
 * *SettingsUrl* - defines URL of remote settings or path for local settings.
 
-Reflect your settings structure in appsettings.json - leave all of field blank, or just show value's format. Fill appsettings.XXX.json with real settings data. Ensure that appsettings.XXX.json is ignored in git.
+### Settings ###
 
-Default launchSettings.json is:
+Settings schema is:
 
 ```json
 {
-  "profiles": {
-    "LykkeService local dev settings": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "SettingsUrl": "appsettings.Development.json"
-      }
+  "MarginTradingSettingsService": {
+    "Db": {
+      "StorageMode": "SqlServer",
+      "DataConnString": "data connection string",
+      "LogsConnString": "logs connection string"
     },
-    "LykkeService local test settings": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Staging",
-        "SettingsUrl": "appsettings.Testing.json"
-      }
+    "SettingsChangedRabbitMqSettings": {
+      "ConnectionString": "amqp://login:pwd@rabbit-mt.mt.svc.cluster.local:5672",
+      "ExchangeName": "MtCoreSettingsChanged"
     },
-    "LykkeService remote settings": {
-      "commandName": "Project",
-      "environmentVariables": {
-        "SettingsUrl": "http://settings.lykke-settings.svc.cluster.local/your_token_LykkeServiceJob"
-      }
-    }
+    "TradingInstrumentDefaults": {
+      "LeverageInit": 1,
+      "LeverageMaintenance": 1,
+      "SwapLong": 1,
+      "SwapShort": 1,
+      "Delta": 1,
+      "DealMinLimit": 1,
+      "DealMaxLimit": 1,
+      "PositionLimit": 1,
+      "CommissionRate": 1,
+      "CommissionMin": 1,
+      "CommissionMax": 1,
+      "CommissionCurrency": "USD"
+    },
+    "LegalEntityDefaults": {
+      "DefaultLegalEntity": "Default"
+    },
+    "RequestLoggerSettings": {
+      "Enabled": true,
+      "MaxPartSize": 2048
+    },
+    "Cqrs": {
+      "ConnectionString": "amqp://login:pwd@rabbit-mt.mt.svc.cluster.local:5672",
+      "RetryDelay": "00:00:02",
+      "EnvironmentName": "env name"
+    },
+    "ChaosKitty": {
+      "StateOfChaos": 0
+    },
+    "UseSerilog": false
   }
 }
 ```

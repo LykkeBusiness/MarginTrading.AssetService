@@ -89,7 +89,7 @@ namespace MarginTrading.SettingsService.Modules
             {
                 if (string.IsNullOrEmpty(_settings.CurrentValue.Db.DataConnString))
                 {
-                    throw new Exception("SqlConnectionString must have a value if StorageMode is SqlServer");
+                    throw new Exception($"{nameof(_settings.CurrentValue.Db.DataConnString)} must have a value if StorageMode is SqlServer");
                 }
                 
                 var connstrParameter = new NamedParameter("connectionString", 

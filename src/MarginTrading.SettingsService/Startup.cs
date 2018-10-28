@@ -5,6 +5,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
 using Common.Log;
+using JetBrains.Annotations;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
@@ -34,21 +35,20 @@ namespace MarginTrading.SettingsService
 {
     public class Startup
     {
+        public static string ServiceName { get; } = PlatformServices.Default.Application.ApplicationName;
+        
         public IHostingEnvironment Environment { get; }
         public IContainer ApplicationContainer { get; private set; }
         public IConfigurationRoot Configuration { get; }
         public ILog Log { get; private set; }
-
-        public static string ServiceName { get; } = PlatformServices.Default
-            .Application.ApplicationName;
         
         public Startup(IHostingEnvironment env)
         {
-            var builder = new ConfigurationBuilder()
+            Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddSerilogJson(env)
-                .AddEnvironmentVariables();
-            Configuration = builder.Build();
+                .AddEnvironmentVariables()
+                .Build();
 
             Environment = env;
         }
@@ -70,7 +70,6 @@ namespace MarginTrading.SettingsService
                     var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, 
                         "MarginTrading.SettingsService.Contracts.xml");
                     options.IncludeXmlComments(contractsXmlPath);
-                    //options.OperationFilter<CustomOperationIdOperationFilter>();
                 });
 
                 var builder = new ContainerBuilder();
@@ -92,6 +91,7 @@ namespace MarginTrading.SettingsService
             }
         }
 
+        [UsedImplicitly]
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
         {
             try
@@ -99,6 +99,10 @@ namespace MarginTrading.SettingsService
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
+                }
+                else
+                {
+                    app.UseHsts();
                 }
                 
 #if DEBUG
@@ -126,7 +130,7 @@ namespace MarginTrading.SettingsService
         {
             try
             {
-                // NOTE: Service not yet recieve and process requests here
+                // NOTE: Service not yet receive and process requests here
 
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
 
@@ -143,7 +147,7 @@ namespace MarginTrading.SettingsService
         {
             try
             {
-                // NOTE: Service still can recieve and process requests here, so take care about it if you add logic here.
+                // NOTE: Service still can receive and process requests here, so take care about it if you add logic here.
 
                 await ApplicationContainer.Resolve<IShutdownManager>().StopAsync();
             }
@@ -161,7 +165,7 @@ namespace MarginTrading.SettingsService
         {
             try
             {
-                // NOTE: Service can't recieve and process requests here, so you can destroy all resources
+                // NOTE: Service can't receive and process requests here, so you can destroy all resources
 
                 if (Log != null)
                 {
@@ -219,7 +223,7 @@ namespace MarginTrading.SettingsService
                 if (string.IsNullOrEmpty(dbLogConnectionString))
                 {
                     consoleLogger.WriteWarningAsync(nameof(Startup), nameof(CreateLogWithSlack),
-                        "Table loggger is not inited").Wait();
+                        "Table logger is not initialized").Wait();
                     return aggregateLogger;
                 }
 
@@ -246,7 +250,7 @@ namespace MarginTrading.SettingsService
                         new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
                 }
 
-                // Creating azure storage logger, which logs own messages to concole log
+                // Creating azure storage logger, which logs own messages to console log
                 var azureStorageLogger = new LykkeLogToAzureStorage(
                     persistenceManager,
                     slackNotificationsManager,
@@ -256,6 +260,8 @@ namespace MarginTrading.SettingsService
 
                 aggregateLogger.AddLog(azureStorageLogger);
             }
+
+            LogLocator.Log = aggregateLogger;
 
             return aggregateLogger;
         }

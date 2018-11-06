@@ -194,6 +194,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                 defaults.DealMinLimit,
                 defaults.DealMaxLimit,
                 defaults.PositionLimit,
+                defaults.LiquidationThreshold,
                 defaults.CommissionRate,
                 defaults.CommissionMin,
                 defaults.CommissionMax,

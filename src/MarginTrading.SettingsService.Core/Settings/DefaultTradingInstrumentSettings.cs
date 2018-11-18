@@ -27,6 +27,9 @@ namespace MarginTrading.SettingsService.Core.Settings
 
         [Optional]
         public decimal PositionLimit { get; set; }
+        
+        [Optional]
+        public decimal LiquidationThreshold { get; set; }
 
         [Optional]
         public decimal CommissionRate { get; set; }

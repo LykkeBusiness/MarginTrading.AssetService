@@ -12,6 +12,7 @@
         decimal DealMinLimit { get; }
         decimal DealMaxLimit { get; }
         decimal PositionLimit { get; }
+        decimal LiquidationThreshold { get; }
         
         decimal CommissionRate { get; }
         decimal CommissionMin { get; }

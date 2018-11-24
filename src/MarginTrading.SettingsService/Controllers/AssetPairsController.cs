@@ -304,7 +304,7 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
 
-            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BasePairId, 
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId, 
                 assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
             {
                 throw new InvalidOperationException($"Asset pair with base asset [{assetPair.BasePairId}], quote asset [{assetPair.QuoteAssetId}] and legal entity [{assetPair.LegalEntity}] already exists");

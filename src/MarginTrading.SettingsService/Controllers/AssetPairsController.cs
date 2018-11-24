@@ -307,7 +307,7 @@ namespace MarginTrading.SettingsService.Controllers
             if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId, 
                 assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
             {
-                throw new InvalidOperationException($"Asset pair with base asset [{assetPair.BasePairId}], quote asset [{assetPair.QuoteAssetId}] and legal entity [{assetPair.LegalEntity}] already exists");
+                throw new InvalidOperationException($"Asset pair with base asset [{assetPair.BaseAssetId}], quote asset [{assetPair.QuoteAssetId}] and legal entity [{assetPair.LegalEntity}] already exists");
             }
             
             //base pair check <-- the last one

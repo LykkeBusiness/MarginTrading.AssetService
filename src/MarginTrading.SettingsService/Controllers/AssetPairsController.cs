@@ -244,9 +244,21 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetPairId}")]
         public async Task Delete(string assetPairId)
         {
+            var assetPair = await _assetPairsRepository.GetAsync(assetPairId);
+
+            if (assetPair == null)
+            {
+                throw new ArgumentNullException(nameof(assetPairId), "Asset pair does not exist");
+            }
+            
             await _assetPairsRepository.DeleteAsync(assetPairId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
+            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            {
+                OperationId = Guid.NewGuid().ToString("N"),
+                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+            });
         }
 
         private async Task ValidatePairInsert(AssetPairContract assetPair)
@@ -290,6 +302,12 @@ namespace MarginTrading.SettingsService.Controllers
             if (assetPair.StpMultiplierMarkupBid <= 0)
             {
                 throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
+            }
+
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId, 
+                assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
+            {
+                throw new InvalidOperationException($"Asset pair with base asset [{assetPair.BaseAssetId}], quote asset [{assetPair.QuoteAssetId}] and legal entity [{assetPair.LegalEntity}] already exists");
             }
             
             //base pair check <-- the last one

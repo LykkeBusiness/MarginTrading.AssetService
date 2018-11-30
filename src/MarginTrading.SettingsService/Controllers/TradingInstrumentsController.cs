@@ -180,6 +180,34 @@ namespace MarginTrading.SettingsService.Controllers
         }
 
         /// <summary>
+        /// Update list of trading instruments
+        /// </summary>
+        [HttpPut]
+        [Route("{tradingConditionId}/batch")]
+        public async Task<List<TradingInstrumentContract>> UpdateList(string tradingConditionId,
+            [FromBody] TradingInstrumentContract[] instruments)
+        {
+
+            foreach (var instrument in instruments)
+            {
+                await ValidateTradingInstrument(instrument);
+                ValidateId(tradingConditionId, instrument.Instrument, instrument);
+
+                await _tradingInstrumentsRepository.UpdateAsync(
+                    _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
+            }
+
+//            var updated = await _tradingInstrumentsRepository.UpdateBatchAsync(tradingConditionId, instruments.Select(i => _convertService.Convert<TradingInstrumentContract, ITradingInstrument>(i)).ToList());
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+
+            return instruments.ToList();
+
+//            return updated.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x))
+            //  .ToList();
+        }
+
+        /// <summary>
         /// Delete the trading instrument
         /// </summary>
         [HttpDelete]

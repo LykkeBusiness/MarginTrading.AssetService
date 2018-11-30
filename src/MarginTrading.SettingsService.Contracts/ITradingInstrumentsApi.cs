@@ -59,6 +59,10 @@ namespace MarginTrading.SettingsService.Contracts
             [NotNull] string assetPairId,
             [Body] TradingInstrumentContract instrument);
 
+        [Put("/api/tradingInstruments/{tradingConditionId}/batch")]
+        Task<List<TradingInstrumentContract>> UpdateList(string tradingConditionId,
+            TradingInstrumentContract[] instruments);
+
         /// <summary>
         /// Delete the trading instrument
         /// </summary>

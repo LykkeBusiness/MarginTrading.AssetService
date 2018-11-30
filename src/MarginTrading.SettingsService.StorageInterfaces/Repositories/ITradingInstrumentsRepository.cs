@@ -20,5 +20,6 @@ namespace MarginTrading.SettingsService.StorageInterfaces.Repositories
         Task<IEnumerable<ITradingInstrument>> CreateDefaultTradingInstruments(string tradingConditionId,
             IEnumerable<string> assetPairsIds, DefaultTradingInstrumentSettings defaults);
 
+        Task<List<ITradingInstrument>> UpdateBatchAsync(string tradingConditionId, List<ITradingInstrument> toList);
     }
 }

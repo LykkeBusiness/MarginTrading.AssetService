@@ -232,58 +232,59 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
         }
 
         public async Task<List<ITradingInstrument>> UpdateBatchAsync(string tradingConditionId,
-            List<ITradingInstrument> toList)
+            List<TradingInstrument> items)
         {
-//            using (var conn = new SqlConnection(_connectionString))
-//            {
-//                SqlTransaction transaction = null;
-//                
-//                try
-//                {
-//                    if (conn.State != ConnectionState.Open)
-//                    {
-//                        await conn.OpenAsync();
-//                    }
-//                    
-//                    transaction = conn.BeginTransaction();
-//
-//                    if (await conn.ExecuteScalarAsync<int>(
-//                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairsUpdateRequest.Select(x => $"'{x.Id}'"))})",
-//                            new { },
-//                            transaction) != assetPairsUpdateRequest.Count)
-//                    {
-//                        throw new ArgumentOutOfRangeException(nameof(assetPairsUpdateRequest), "One of asset pairs does not exist");
-//                    }
-//
-//                    foreach (var assetPair in assetPairsUpdateRequest)
-//                    {   
-//                        var updateObj = UpdateHelper.GetSqlUpdateObject(assetPair);
-//                        await conn.ExecuteAsync(
-//                            $"update {TableName} set {GetUpdateClause(updateObj.ParameterNames)} where Id=@Id", 
-//                            updateObj,
-//                            transaction);
-//                    }
-//
-//                    var updated = await conn.QueryAsync<AssetPairEntity>(
-//                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE Id IN ({string.Join(",", assetPairsUpdateRequest.Select(x => $"'{x.Id}'"))})",
-//                        new {},
-//                        transaction);
-//
-//                    transaction.Commit();
-//                    
-//                    return updated.ToList();
-//                }
-//                catch (Exception ex)
-//                {
-//                    transaction?.Rollback();
-//                    await _log.WriteErrorAsync(nameof(AssetPairsRepository),
-//                        nameof(InsertBatchAsync), $"Failed to perform batch transaction: {ex.Message}", ex);
-//                    
-//                    return null;
-//                }
-//            }
-//        }
-            throw new NotImplementedException();
+            var entities = items.Select(_convertService.Convert<TradingInstrument, TradingInstrumentEntity>).ToList();
+            
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                SqlTransaction transaction = null;
+                
+                try
+                {
+                    if (conn.State != ConnectionState.Open)
+                    {
+                        await conn.OpenAsync();
+                    }
+                    
+                    transaction = conn.BeginTransaction();
+
+                    var ids = string.Join(",", entities.Select(x => $"'{x.TradingConditionId}{x.Instrument}'"));
+                    var idsCond = $"TradingConditionId + Instrument IN ({ids})";
+                    
+                    if (await conn.ExecuteScalarAsync<int>(
+                            $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE {idsCond}",
+                            new { },
+                            transaction) != entities.Count)
+                    {
+                        throw new ArgumentOutOfRangeException(nameof(entities),
+                            "One of trading instruments does not exist");
+                    }
+
+                    await conn.ExecuteAsync(
+                        $"update {TableName} set {GetUpdateClause} " +
+                        "where TradingConditionId=@TradingConditionId AND Instrument=@Instrument",
+                        entities,
+                        transaction);  
+
+                    var updated = await conn.QueryAsync<TradingInstrumentEntity>(
+                        $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE {idsCond}",
+                        new {},
+                        transaction);
+
+                    transaction.Commit();
+
+                    return updated.Cast<ITradingInstrument>().ToList();
+                }
+                catch (Exception ex)
+                {
+                    transaction?.Rollback();
+                    await _log.WriteErrorAsync(nameof(AssetPairsRepository),
+                        nameof(UpdateBatchAsync), $"Failed to perform batch transaction: {ex.Message}", ex);
+                    
+                    return null;
+                }
+            }
         }
     }
 }

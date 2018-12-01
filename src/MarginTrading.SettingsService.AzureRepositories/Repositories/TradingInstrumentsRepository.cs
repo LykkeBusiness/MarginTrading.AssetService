@@ -82,8 +82,9 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
         }
 
         public Task<List<ITradingInstrument>> UpdateBatchAsync(string tradingConditionId,
-            List<ITradingInstrument> toList)
+            List<TradingInstrument> toList)
         {
+            //TODO implement before using azure impl
             throw new System.NotImplementedException();
         }
 

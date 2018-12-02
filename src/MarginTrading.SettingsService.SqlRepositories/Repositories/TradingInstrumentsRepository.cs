@@ -249,12 +249,12 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     
                     transaction = conn.BeginTransaction();
 
-                    var ids = string.Join(",", entities.Select(x => $"'{x.TradingConditionId}{x.Instrument}'"));
-                    var idsCond = $"TradingConditionId + Instrument IN ({ids})";
-                    
+                    var ids = string.Join(",", entities.Select(x => $"'{x.Instrument}'"));
+                    var idsCond = $"TradingConditionId = @tradingConditionId and Instrument IN ({ids})";
+
                     if (await conn.ExecuteScalarAsync<int>(
                             $"SELECT COUNT(*) FROM {TableName} WITH (UPDLOCK) WHERE {idsCond}",
-                            new { },
+                            new {tradingConditionId},
                             transaction) != entities.Count)
                     {
                         throw new ArgumentOutOfRangeException(nameof(entities),
@@ -265,11 +265,11 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                         $"update {TableName} set {GetUpdateClause} " +
                         "where TradingConditionId=@TradingConditionId AND Instrument=@Instrument",
                         entities,
-                        transaction);  
+                        transaction);
 
                     var updated = await conn.QueryAsync<TradingInstrumentEntity>(
                         $"SELECT * FROM {TableName} WITH (UPDLOCK) WHERE {idsCond}",
-                        new {},
+                        new {tradingConditionId},
                         transaction);
 
                     transaction.Commit();

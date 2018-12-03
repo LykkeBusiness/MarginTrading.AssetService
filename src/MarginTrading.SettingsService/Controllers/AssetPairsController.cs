@@ -244,17 +244,13 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetPairId}")]
         public async Task Delete(string assetPairId)
         {
-            var assetPair = await _assetPairsRepository.GetAsync(assetPairId);
-            
             await _assetPairsRepository.DeleteAsync(assetPairId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
-                AssetPair = assetPair == null 
-                    ? new AssetPairContract { Id = assetPairId}
-                    : _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+                AssetPair = new AssetPairContract { Id = assetPairId },
             });
         }
 

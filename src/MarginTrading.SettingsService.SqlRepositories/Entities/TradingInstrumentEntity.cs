@@ -6,7 +6,6 @@ namespace MarginTrading.SettingsService.SqlRepositories.Entities
     [UsedImplicitly]
     public class TradingInstrumentEntity : ITradingInstrument
     {   
-        public string Id => GetId(TradingConditionId, Instrument);
         public string TradingConditionId { get; set; }
         public string Instrument { get; set; }
         public int LeverageInit { get; set; }
@@ -23,10 +22,5 @@ namespace MarginTrading.SettingsService.SqlRepositories.Entities
         public decimal CommissionMin { get; set; }
         public decimal CommissionMax { get; set; }
         public string CommissionCurrency { get; set; }
-
-        public static string GetId(string tradingConditionId, string instrument)
-        {
-            return $"{tradingConditionId}_{instrument}";
-        }
     }
 }

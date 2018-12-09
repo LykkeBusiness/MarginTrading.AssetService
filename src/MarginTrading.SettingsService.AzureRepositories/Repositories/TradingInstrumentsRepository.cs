@@ -81,6 +81,13 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             return objectsToAdd;
         }
 
+        public Task<List<ITradingInstrument>> UpdateBatchAsync(string tradingConditionId,
+            List<TradingInstrument> toList)
+        {
+            //TODO implement before using azure impl
+            throw new System.NotImplementedException();
+        }
+
         public async Task UpdateAsync(ITradingInstrument tradingInstrument)
         {
             await base.ReplaceAsync(tradingInstrument);

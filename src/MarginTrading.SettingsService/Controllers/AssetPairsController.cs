@@ -244,20 +244,13 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("{assetPairId}")]
         public async Task Delete(string assetPairId)
         {
-            var assetPair = await _assetPairsRepository.GetAsync(assetPairId);
-
-            if (assetPair == null)
-            {
-                throw new ArgumentNullException(nameof(assetPairId), "Asset pair does not exist");
-            }
-            
             await _assetPairsRepository.DeleteAsync(assetPairId);
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
-                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+                AssetPair = new AssetPairContract { Id = assetPairId },
             });
         }
 

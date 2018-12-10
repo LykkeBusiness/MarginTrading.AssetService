@@ -10,6 +10,7 @@ using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.Extensions;
+using MarginTrading.SettingsService.Middleware;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,6 +20,7 @@ namespace MarginTrading.SettingsService.Controllers
     /// Trading instruments management
     /// </summary>
     [Route("api/tradingInstruments")]
+    [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class TradingInstrumentsController : Controller, ITradingInstrumentsApi
     {
         private readonly IAssetsRepository _assetsRepository;

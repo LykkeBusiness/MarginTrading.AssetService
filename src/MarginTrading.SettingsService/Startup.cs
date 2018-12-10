@@ -6,6 +6,7 @@ using Autofac.Extensions.DependencyInjection;
 using AzureStorage.Tables;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.AzureQueueIntegration;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
@@ -16,6 +17,7 @@ using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
 using Lykke.SettingsReader.ReloadingManager;
 using Lykke.SlackNotification.AzureQueue;
+using Lykke.SlackNotifications;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Modules;
@@ -188,82 +190,91 @@ namespace MarginTrading.SettingsService
         private static ILog CreateLogWithSlack(IConfiguration configuration, IServiceCollection services, 
             IReloadingManager<AppSettings> settings)
         {
+            const string requestsLogName = "SettingsServiceRequestsLog";
+            const string logName = "SettingsServiceLog";
             var consoleLogger = new LogToConsole();
-            var aggregateLogger = new AggregateLogger();
+            
+            #region Logs settings validation
 
-            aggregateLogger.AddLog(consoleLogger);
+            if (!settings.CurrentValue.MarginTradingSettingsService.UseSerilog 
+                && string.IsNullOrWhiteSpace(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
+            {
+                throw new Exception("Either UseSerilog must be true or LogsConnString must be set");
+            }
+
+            #endregion Logs settings validation
+            
+            #region Slack registration
+
+            IMtSlackNotificationsSender slackService = null;
+
+            if (settings.CurrentValue.SlackNotifications != null)
+            {
+                var azureQueue = new AzureQueueSettings
+                {
+                    ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
+                    QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
+                };
+
+                var commonSlackService =
+                    services.UseSlackNotificationsSenderViaAzureQueue(azureQueue, consoleLogger);
+
+                slackService =
+                    new MtSlackNotificationsSender(commonSlackService, "MT Settings Service", Program.EnvInfo);
+            }
+            else
+            {
+                slackService =
+                    new MtSlackNotificationsSenderLogStub("MT Settings Service", Program.EnvInfo, consoleLogger);
+            }
+
+            services.AddSingleton<ISlackNotificationsSender>(slackService);
+            services.AddSingleton<IMtSlackNotificationsSender>(slackService);
+
+            #endregion Slack registration
             
             if (settings.CurrentValue.MarginTradingSettingsService.UseSerilog)
             {
-                aggregateLogger.AddLog(new SerilogLogger(typeof(Startup).Assembly, configuration));
-            }
-            else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
-            {
-                if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
-                {
-                    throw new Exception("SqlConnectionString must have a value if StorageMode is SqlServer");
-                }
-                
-                var sqlLogger = new LogToSql(new SqlLogRepository("SettingsServiceLog",
-                    settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString));
+                var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration);
 
-                aggregateLogger.AddLog(sqlLogger);
-            } 
-            else if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.Azure)
-            {
-                if (string.IsNullOrEmpty(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
-                {
-                    throw new Exception("LogsAzureConnString must have a value if StorageMode is Azure");
-                }
-                
-                var dbLogConnectionStringManager =
-                    settings.Nested(x => x.MarginTradingSettingsService.Db.LogsConnString);
-                var dbLogConnectionString = dbLogConnectionStringManager.CurrentValue;
+                LogLocator.RequestsLog = LogLocator.CommonLog = serilogLogger;
 
-                if (string.IsNullOrEmpty(dbLogConnectionString))
-                {
-                    consoleLogger.WriteWarningAsync(nameof(Startup), nameof(CreateLogWithSlack),
-                        "Table logger is not initialized").Wait();
-                    return aggregateLogger;
-                }
-
-                if (dbLogConnectionString.StartsWith("${") && dbLogConnectionString.EndsWith("}"))
-                    throw new InvalidOperationException(
-                        $"LogsConnString {dbLogConnectionString} is not filled in settings");
-
-                var persistenceManager = new LykkeLogToAzureStoragePersistenceManager(
-                    AzureTableStorage<LogEntity>.Create(dbLogConnectionStringManager, "SettingsServiceLog", consoleLogger),
-                    consoleLogger);
-
-                LykkeLogToAzureSlackNotificationsManager slackNotificationsManager = null;
-                if (settings.CurrentValue.SlackNotifications != null)
-                {
-                    // Creating slack notification service, which logs own azure queue processing messages to aggregate log
-                    var slackService = services.UseSlackNotificationsSenderViaAzureQueue(
-                        new Lykke.AzureQueueIntegration.AzureQueueSettings
-                        {
-                            ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
-                            QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
-                        }, aggregateLogger);
-
-                    slackNotificationsManager =
-                        new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
-                }
-
-                // Creating azure storage logger, which logs own messages to console log
-                var azureStorageLogger = new LykkeLogToAzureStorage(
-                    persistenceManager,
-                    slackNotificationsManager,
-                    consoleLogger);
-
-                azureStorageLogger.Start();
-
-                aggregateLogger.AddLog(azureStorageLogger);
+                return serilogLogger;
             }
 
-            LogLocator.Log = aggregateLogger;
+            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
+            {
+                LogLocator.CommonLog = new AggregateLogger(
+                    new LogToSql(new SqlLogRepository(logName,
+                        settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString)),
+                    new LogToConsole());
+                
+                LogLocator.RequestsLog = new AggregateLogger(
+                    new LogToSql(new SqlLogRepository(requestsLogName,
+                        settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString)),
+                    new LogToConsole());
 
-            return aggregateLogger;
+                return LogLocator.CommonLog;
+            }
+
+            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode != StorageMode.Azure)
+            {
+                throw new Exception("Wrong config! Logging must be set either to Serilog, SqlServer or Azure.");
+            }
+
+            #region Azure logging
+
+            LogLocator.RequestsLog = services.UseLogToAzureStorage(settings.Nested(s => 
+                    s.MarginTradingSettingsService.Db.LogsConnString),
+                slackService, requestsLogName, consoleLogger);
+
+            LogLocator.CommonLog = services.UseLogToAzureStorage(settings.Nested(s => 
+                    s.MarginTradingSettingsService.Db.LogsConnString),
+                slackService, logName, consoleLogger);
+
+            return LogLocator.CommonLog;
+
+            #endregion Azure logging
         }
     }
 }

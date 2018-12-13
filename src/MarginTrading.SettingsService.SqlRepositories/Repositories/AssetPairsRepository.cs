@@ -347,7 +347,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     contents: assetPairs, 
                     start: skip ?? 0, 
                     size: assetPairs.Count, 
-                    totalSize: !take.HasValue ? assetPairs.Count : totalCount
+                    totalSize: take.HasValue ? assetPairs.Count : totalCount
                 );
             }
         }

@@ -76,7 +76,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     contents: assets, 
                     start: skip ?? 0, 
                     size: assets.Count, 
-                    totalSize: !take.HasValue ? assets.Count : totalCount
+                    totalSize: totalCount
                 );
             }
         }

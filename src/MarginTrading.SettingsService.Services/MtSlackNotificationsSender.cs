@@ -7,7 +7,7 @@ using MarginTrading.SettingsService.Core.Services;
 
 namespace MarginTrading.SettingsService.Services
 {
-    public class MtSlackNotificationsSender : IMtSlackNotificationsSender
+    public class MtSlackNotificationsSender : ISlackNotificationsSender
     {
         private readonly ISlackNotificationsSender _sender;
         private readonly string _appName;
@@ -40,11 +40,6 @@ namespace MarginTrading.SettingsService.Services
             }
 
             await _sender.SendAsync(moment, ChannelTypes.MarginTrading, sender, GetSlackMsg(message));
-        }
-
-        public Task SendRawAsync(string type, string sender, string message)
-        {
-            return _sender.SendAsync(type, sender, message);
         }
 
         private string GetSlackMsg(string message)

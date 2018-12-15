@@ -206,7 +206,7 @@ namespace MarginTrading.SettingsService
             
             #region Slack registration
 
-            IMtSlackNotificationsSender slackService = null;
+            ISlackNotificationsSender slackService = null;
 
             if (settings.CurrentValue.SlackNotifications != null)
             {
@@ -229,7 +229,6 @@ namespace MarginTrading.SettingsService
             }
 
             services.AddSingleton<ISlackNotificationsSender>(slackService);
-            services.AddSingleton<IMtSlackNotificationsSender>(slackService);
 
             #endregion Slack registration
             

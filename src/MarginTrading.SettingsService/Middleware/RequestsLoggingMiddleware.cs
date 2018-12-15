@@ -22,7 +22,6 @@ namespace MarginTrading.SettingsService.Middleware
         private readonly ILog _requestsLog;
 
         private const int MaxStorageFieldLength = 2000;
-        private readonly string[] _personalDataHeaders = {"Authorization"};
 
         public RequestsLoggingMiddleware(RequestDelegate next, RequestLoggerSettings settings, ILog log)
         {
@@ -53,10 +52,7 @@ namespace MarginTrading.SettingsService.Middleware
                     using (originalRequestBody)
                     {
                         var body = await StreamHelpers.GetStreamPart(originalRequestBody, _settings.MaxPartSize);
-                        var headers = context.Request.Headers.Where(h => !_personalDataHeaders.Contains(h.Key)).ToJson();
-                        var userId = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                        var info =
-                            $"UserId:{userId} {Environment.NewLine}Body:{body} {Environment.NewLine}Headers:{headers}";
+                        var info = $"Body: {body}";
                         if (info.Length > MaxStorageFieldLength)
                         {
                             info = info.Substring(0, MaxStorageFieldLength);

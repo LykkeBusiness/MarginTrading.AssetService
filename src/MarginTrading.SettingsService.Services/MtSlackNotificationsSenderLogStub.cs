@@ -2,12 +2,13 @@
 using System.Text;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.SlackNotifications;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 
 namespace MarginTrading.SettingsService.Services
 {
-    public class MtSlackNotificationsSenderLogStub : IMtSlackNotificationsSender
+    public class MtSlackNotificationsSenderLogStub : ISlackNotificationsSender
     {
         private readonly string _appName;
         private readonly string _env;

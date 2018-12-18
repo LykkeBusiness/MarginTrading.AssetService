@@ -216,19 +216,9 @@ namespace MarginTrading.SettingsService
                     QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
                 };
 
-                var commonSlackService =
+                slackService =
                     services.UseSlackNotificationsSenderViaAzureQueue(azureQueue, consoleLogger);
-
-                slackService =
-                    new MtSlackNotificationsSender(commonSlackService, "MT Settings Service", Program.EnvInfo);
             }
-            else
-            {
-                slackService =
-                    new MtSlackNotificationsSenderLogStub("MT Settings Service", Program.EnvInfo, consoleLogger);
-            }
-
-            services.AddSingleton<ISlackNotificationsSender>(slackService);
 
             #endregion Slack registration
             

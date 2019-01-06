@@ -11,6 +11,7 @@ using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.Extensions;
+using MarginTrading.SettingsService.Middleware;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,6 +21,7 @@ namespace MarginTrading.SettingsService.Controllers
     /// Asset pairs management
     /// </summary>
     [Route("api/assetPairs")]
+    [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class AssetPairsController : Controller, IAssetPairsApi
     {
         private readonly IAssetsRepository _assetsRepository;

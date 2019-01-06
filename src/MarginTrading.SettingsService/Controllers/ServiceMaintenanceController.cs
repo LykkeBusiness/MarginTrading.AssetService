@@ -2,6 +2,7 @@
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Middleware;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarginTrading.SettingsService.Controllers
@@ -10,6 +11,7 @@ namespace MarginTrading.SettingsService.Controllers
     /// MT Core service maintenance management
     /// </summary>
     [Route("api/service/maintenance")]
+    [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class ServiceMaintenanceController : Controller, IServiceMaintenanceApi
     {
         private readonly IMaintenanceModeService _maintenanceModeService;

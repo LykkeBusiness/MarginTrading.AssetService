@@ -21,6 +21,8 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
         [Optional, CanBeNull]
         public ChaosSettings ChaosKitty { get; set; }
         
+        public RequestLoggerSettings RequestLoggerSettings { get; set; }
+        
         [Optional]
         public bool UseSerilog { get; set; }
     }

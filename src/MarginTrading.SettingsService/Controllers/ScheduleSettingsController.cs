@@ -9,6 +9,7 @@ using MarginTrading.SettingsService.Contracts.Scheduling;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Middleware;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace MarginTrading.SettingsService.Controllers
     /// Schedule settings management
     /// </summary>
     [Route("api/scheduleSettings")]
+    [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class ScheduleSettingsController : Controller, IScheduleSettingsApi
     {
         private readonly IScheduleSettingsRepository _scheduleSettingsRepository;

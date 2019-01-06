@@ -40,8 +40,8 @@ namespace MarginTrading.SettingsService.Modules
             builder.RegisterInstance(_settings.CurrentValue.TradingInstrumentDefaults).AsSelf().SingleInstance();
  
             builder.RegisterInstance(_settings.CurrentValue.LegalEntityDefaults).AsSelf().SingleInstance(); 
-
-            builder.RegisterInstance(_settings.CurrentValue.LegalEntityDefaults).AsSelf().SingleInstance();
+            
+            builder.RegisterInstance(_settings.CurrentValue.RequestLoggerSettings).SingleInstance();
 
             builder.RegisterType<HealthService>().As<IHealthService>().SingleInstance();
 

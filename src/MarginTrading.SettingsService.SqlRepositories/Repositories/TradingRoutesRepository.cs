@@ -83,7 +83,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                     contents: tradingRoutes, 
                     start: skip ?? 0, 
                     size: tradingRoutes.Count, 
-                    totalSize: !take.HasValue ? tradingRoutes.Count : totalCount
+                    totalSize: totalCount
                 );
             }
         }

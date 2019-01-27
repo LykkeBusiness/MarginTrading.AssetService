@@ -63,6 +63,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 defaults.DealMinLimit,
                 defaults.DealMaxLimit,
                 defaults.PositionLimit,
+                true,
                 defaults.LiquidationThreshold,
                 defaults.CommissionRate,
                 defaults.CommissionMin,

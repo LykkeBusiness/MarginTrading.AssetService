@@ -32,6 +32,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[DealMinLimit] float NULL, " +
                                                  "[DealMaxLimit] float NULL, " +
                                                  "[PositionLimit] float NULL, " +
+                                                 "[ShortPosition] bit NULL, " +
                                                  "[LiquidationThreshold] float NULL, " +
                                                  "[CommissionRate] float NULL, " +
                                                  "[CommissionMin] float NULL, " +
@@ -197,6 +198,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                 defaults.DealMinLimit,
                 defaults.DealMaxLimit,
                 defaults.PositionLimit,
+                true,
                 defaults.LiquidationThreshold,
                 defaults.CommissionRate,
                 defaults.CommissionMin,

@@ -13,6 +13,7 @@
         public decimal DealMinLimit { get; set; }
         public decimal DealMaxLimit { get; set; }
         public decimal PositionLimit { get; set; }
+        public bool ShortPosition { get; set; }
         public decimal LiquidationThreshold { get; set; }
         
         public decimal CommissionRate { get; set; }

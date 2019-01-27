@@ -210,6 +210,8 @@ namespace MarginTrading.SettingsService.TestClient
                 DealMinLimit = 1,
                 DealMaxLimit = 1,
                 PositionLimit = 1,
+                ShortPosition = true,
+                LiquidationThreshold = 1000,
                 CommissionRate = 1,
                 CommissionMin = 1,
                 CommissionMax = 1,

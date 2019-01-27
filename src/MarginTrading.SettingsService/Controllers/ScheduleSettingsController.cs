@@ -19,7 +19,6 @@ namespace MarginTrading.SettingsService.Controllers
     /// Schedule settings management
     /// </summary>
     [Route("api/scheduleSettings")]
-    [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class ScheduleSettingsController : Controller, IScheduleSettingsApi
     {
         private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
@@ -61,6 +60,7 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpPost]
         [Route("")]
+        [MiddlewareFilter(typeof(RequestLoggingPipeline))]
         public async Task<ScheduleSettingsContract> Insert([FromBody] ScheduleSettingsContract scheduleSetting)
         {
             await ValidateScheduleSettings(scheduleSetting);
@@ -94,6 +94,7 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpPut]
         [Route("{settingId}")]
+        [MiddlewareFilter(typeof(RequestLoggingPipeline))]
         public async Task<ScheduleSettingsContract> Update(string settingId, 
             [FromBody] ScheduleSettingsContract scheduleSetting)
         {
@@ -114,6 +115,7 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpDelete]
         [Route("{settingId}")]
+        [MiddlewareFilter(typeof(RequestLoggingPipeline))]
         public async Task Delete(string settingId)
         {
             await _scheduleSettingsRepository.DeleteAsync(settingId);

@@ -40,6 +40,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[IsFrozen] BIT NOT NULL DEFAULT 0, " +
                                                  "[IsDiscontinued] BIT NOT NULL DEFAULT 0, " +
                                                  "CONSTRAINT {0}_Id UNIQUE(Id)," +
+                                                 "CONSTRAINT IX_{0}_Unique UNIQUE (BaseAssetId, QuoteAssetId, LegalEntity)," +
                                                  "INDEX IX_{0}_Base (Id, Name, BaseAssetId, QuoteAssetId, LegalEntity, MatchingEngineMode)" +
                                                  ");";
         

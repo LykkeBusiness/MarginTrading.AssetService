@@ -323,12 +323,6 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new InvalidOperationException($"BasePairId {assetPair.BasePairId} cannot be added twice");
             }
-
-            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
-                    assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
-            {
-                throw new InvalidOperationException($"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");   
-            }
         }
 
         private async Task ValidatePairUpdate(AssetPairUpdateRequest assetPair)
@@ -378,6 +372,12 @@ namespace MarginTrading.SettingsService.Controllers
             {
                 throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
+
+            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
+                    assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
+            {
+                throw new InvalidOperationException($"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");   
+            }
             
             //base pair check <-- the last one
             if (assetPair.BasePairId == null) 
@@ -396,12 +396,6 @@ namespace MarginTrading.SettingsService.Controllers
             if (await _assetPairsRepository.GetByBaseAssetPairAndNotByIdAsync(assetPair.Id, assetPair.BasePairId) != null)
             {
                 throw new InvalidOperationException($"BasePairId {assetPair.BasePairId} cannot be added twice");
-            }
-
-            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
-                    assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
-            {
-                throw new InvalidOperationException($"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");   
             }
         }
 

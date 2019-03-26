@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.Scheduling;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
@@ -24,6 +25,7 @@ namespace MarginTrading.SettingsService.Controllers
         private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
         private readonly IMarketRepository _marketRepository;
         private readonly IAssetPairsRepository _assetPairsRepository;
+        private readonly IMarketDayOffService _marketDayOffService;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         
@@ -31,12 +33,14 @@ namespace MarginTrading.SettingsService.Controllers
             IScheduleSettingsRepository scheduleSettingsRepository,
             IMarketRepository marketRepository,
             IAssetPairsRepository assetPairsRepository,
+            IMarketDayOffService marketDayOffService,
             IConvertService convertService,
             IEventSender eventSender)
         {
             _scheduleSettingsRepository = scheduleSettingsRepository;
             _marketRepository = marketRepository;
             _assetPairsRepository = assetPairsRepository;
+            _marketDayOffService = marketDayOffService;
             _convertService = convertService;
             _eventSender = eventSender;
         }
@@ -151,6 +155,35 @@ namespace MarginTrading.SettingsService.Controllers
                         _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()
             }).ToList();
             return result;
+        }
+
+        /// <summary>
+        /// Get current trading status of markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+        /// </summary>
+        /// <param name="marketIds">Optional. List of market Id's.</param>
+        [HttpPost]
+        [Route("markets-status")]
+        public async Task<Dictionary<string, bool>> MarketsStatus([FromBody] string[] marketIds = null)
+        {
+            var allMarkets = await _marketRepository.GetAsync();
+            if (marketIds == null || !marketIds.Any())
+            {
+                marketIds = allMarkets.Select(x => x.Id).ToArray();
+            }
+            else
+            {
+                foreach (var marketId in marketIds)
+                {
+                    if (allMarkets.Select(x => x.Id).ToHashSet().Contains(marketId))
+                    {
+                        continue;
+                    }
+                        
+                    throw new ArgumentException($"Market {marketId} does not exist", nameof(marketIds));
+                }
+            }
+            
+            return await _marketDayOffService.MarketsStatus(marketIds);
         }
 
         private void ValidateId(string id, ScheduleSettingsContract contract)

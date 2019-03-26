@@ -66,6 +66,8 @@ namespace MarginTrading.SettingsService.Modules
             builder.RegisterType<RabbitMqService>().As<IRabbitMqService>().SingleInstance();
             
             builder.RegisterType<MaintenanceModeService>().As<IMaintenanceModeService>().SingleInstance();
+
+            builder.RegisterType<MarketDayOffService>().As<IMarketDayOffService>().SingleInstance();
             
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();

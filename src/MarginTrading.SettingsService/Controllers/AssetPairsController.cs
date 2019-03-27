@@ -373,12 +373,22 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new InvalidOperationException($"StpMultiplierMarkupBid must be greater then zero");
             }
 
-            if (await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
+            var current = await _assetPairsRepository.GetAsync(assetPair.Id);
+            if (current == null)
+            {
+                throw new InvalidOperationException($"Asset pair with id {assetPair.Id} does not exist");
+            }
+
+            if ((current.BaseAssetId != assetPair.BaseAssetId
+                 || current.QuoteAssetId != assetPair.QuoteAssetId
+                 || current.LegalEntity != assetPair.LegalEntity)
+                && await _assetPairsRepository.GetByBaseQuoteAndLegalEntityAsync(assetPair.BaseAssetId,
                     assetPair.QuoteAssetId, assetPair.LegalEntity) != null)
             {
-                throw new InvalidOperationException($"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");   
+                throw new InvalidOperationException(
+                    $"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");
             }
-            
+
             //base pair check <-- the last one
             if (assetPair.BasePairId == null) 
                 return;

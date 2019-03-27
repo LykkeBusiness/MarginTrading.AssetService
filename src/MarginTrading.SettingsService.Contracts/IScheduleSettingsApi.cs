@@ -56,6 +56,7 @@ namespace MarginTrading.SettingsService.Contracts
         /// Get current trading status of markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
         /// </summary>
         /// <param name="marketIds">Optional. List of market Id's.</param>
+        [Post("/api/scheduleSettings/markets-status")]
         Task<Dictionary<string, bool>> MarketsStatus([Body][CanBeNull] string[] marketIds = null);
     }
 }

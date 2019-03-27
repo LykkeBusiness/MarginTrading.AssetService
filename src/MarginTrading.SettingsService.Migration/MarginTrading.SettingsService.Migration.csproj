@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <LangVersion>7.2</LangVersion>
-    <Version>1.13.0</Version>
+    <Version>1.13.1</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.SettingsService.AzureRepositories\MarginTrading.SettingsService.AzureRepositories.csproj" />

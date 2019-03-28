@@ -165,16 +165,16 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("markets-status")]
         public async Task<Dictionary<string, bool>> MarketsStatus([FromBody] string[] marketIds = null)
         {
-            var allMarkets = await _marketRepository.GetAsync();
+            var allMarkets = (await _marketRepository.GetAsync()).Select(x => x.Id).ToHashSet();
             if (marketIds == null || !marketIds.Any())
             {
-                marketIds = allMarkets.Select(x => x.Id).ToArray();
+                marketIds = allMarkets.ToArray();
             }
             else
             {
                 foreach (var marketId in marketIds)
                 {
-                    if (allMarkets.Select(x => x.Id).ToHashSet().Contains(marketId))
+                    if (allMarkets.Contains(marketId))
                     {
                         continue;
                     }

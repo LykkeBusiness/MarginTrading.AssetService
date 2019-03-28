@@ -25,5 +25,8 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
         
         [Optional]
         public bool UseSerilog { get; set; }
+
+        [Optional]
+        public PlatformSettings Platform { get; set; } = new PlatformSettings();
     }
 }

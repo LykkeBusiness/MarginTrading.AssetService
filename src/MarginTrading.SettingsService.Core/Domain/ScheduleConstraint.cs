@@ -12,15 +12,15 @@ namespace MarginTrading.SettingsService.Core.Domain
         
         public ScheduleConstraintType GetConstraintType()
         {
-            if (Date == null && DayOfWeek == default)
+            if (Date == null && DayOfWeek == null)
             {
                 return ScheduleConstraintType.Daily;
             }
-            if (Date != null && DayOfWeek == default)
+            if (Date != null && DayOfWeek == null)
             {
                 return ScheduleConstraintType.Single;
             }
-            if (Date == null && DayOfWeek != default)
+            if (Date == null && DayOfWeek != null)
             {
                 return ScheduleConstraintType.Weekly;
             }

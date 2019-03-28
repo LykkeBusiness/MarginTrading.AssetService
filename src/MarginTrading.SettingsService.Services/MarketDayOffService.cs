@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
+using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Internal;
 
@@ -14,13 +15,16 @@ namespace MarginTrading.SettingsService.Services
     {
         private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
         private readonly ISystemClock _systemClock;
+        private readonly PlatformSettings _platformSettings;
         
         public MarketDayOffService(
             IScheduleSettingsRepository scheduleSettingsRepository,
-            ISystemClock systemClock)
+            ISystemClock systemClock,
+            PlatformSettings platformSettings)
         {
             _scheduleSettingsRepository = scheduleSettingsRepository;
             _systemClock = systemClock;
+            _platformSettings = platformSettings;
         }
 
         public async Task<Dictionary<string, bool>> MarketsStatus(string[] marketIds)
@@ -32,7 +36,7 @@ namespace MarginTrading.SettingsService.Services
                 .ToDictionary(x => x.Key, x => x.ToList());
             var currentDateTime = _systemClock.UtcNow.UtcDateTime;
 
-            var rawPlatformSchedule = scheduleSettings.TryGetValue(Constants.PlatformMarketId, out var platformSettings)
+            var rawPlatformSchedule = scheduleSettings.TryGetValue(_platformSettings.PlatformMarketId, out var platformSettings)
                 ? platformSettings
                 : new List<ScheduleSettings>();
             var platformCompiledSchedule = CompileSchedule(rawPlatformSchedule, currentDateTime);

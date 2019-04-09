@@ -7,6 +7,7 @@ using AzureStorage;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.SettingsReader;
+using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces;
 

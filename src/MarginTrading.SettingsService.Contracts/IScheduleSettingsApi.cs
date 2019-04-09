@@ -51,5 +51,12 @@ namespace MarginTrading.SettingsService.Contracts
         /// <param name="assetPairIds">Null by default</param>
         [Post("/api/scheduleSettings/compiled")]
         Task<List<CompiledScheduleContract>> StateList([Body][CanBeNull] string[] assetPairIds);
+
+        /// <summary>
+        /// Get current trading status of markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+        /// </summary>
+        /// <param name="marketIds">Optional. List of market Id's.</param>
+        [Post("/api/scheduleSettings/markets-status")]
+        Task<Dictionary<string, bool>> MarketsStatus([Body][CanBeNull] string[] marketIds = null);
     }
 }

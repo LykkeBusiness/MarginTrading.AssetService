@@ -13,19 +13,18 @@ namespace MarginTrading.SettingsService.Contracts.Scheduling
 
         public ScheduleConstraintTypeContract GetConstraintType()
         {
-            if (Date == null && DayOfWeek == default)
+            if (Date == null && DayOfWeek == null)
             {
                 return ScheduleConstraintTypeContract.Daily;
             }
-            if (Date != null && DayOfWeek == default)
+            if (Date != null && DayOfWeek == null)
             {
                 return ScheduleConstraintTypeContract.Single;
             }
-            if (Date == null && DayOfWeek != default)
+            if (Date == null && DayOfWeek != null)
             {
                 return ScheduleConstraintTypeContract.Weekly;
             }
-            //todo what about yearly?
 
             return ScheduleConstraintTypeContract.Invalid;
         }

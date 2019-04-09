@@ -5,10 +5,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Dapper;
+using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.SqlRepositories.Entities;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
+using MoreLinq;
 
 namespace MarginTrading.SettingsService.SqlRepositories.Repositories
 {
@@ -55,7 +57,9 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
             {
                 var objects = await conn.QueryAsync<MarketEntity>($"SELECT * FROM {TableName}");
                 
-                return objects.Select(_convertService.Convert<MarketEntity, IMarket>).ToList();
+                return objects
+                    .Select(_convertService.Convert<MarketEntity, IMarket>)
+                    .ToList();
             }
         }
 

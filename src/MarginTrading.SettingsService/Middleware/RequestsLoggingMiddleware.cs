@@ -38,7 +38,7 @@ namespace MarginTrading.SettingsService.Middleware
                 $"Request path: {context?.Request?.Path}, {Environment.NewLine}Method: {context?.Request?.Method}";
             try
             {
-                if (_settings.Enabled && context.Request.Method.ToUpper() != "GET")
+                if (_settings.Enabled && (_settings.EnabledForGet || context.Request.Method.ToUpper() != "GET"))
                 {
                     var reqBodyStream = new MemoryStream();
                     var originalRequestBody = new MemoryStream();
@@ -52,7 +52,8 @@ namespace MarginTrading.SettingsService.Middleware
                     using (originalRequestBody)
                     {
                         var body = await StreamHelpers.GetStreamPart(originalRequestBody, _settings.MaxPartSize);
-                        var info = $"Body: {body}";
+                        var headers = context.Request.Headers.ToJson();
+                        var info = $"Body: {body} {Environment.NewLine}Headers:{headers}";
                         if (info.Length > MaxStorageFieldLength)
                         {
                             info = info.Substring(0, MaxStorageFieldLength);

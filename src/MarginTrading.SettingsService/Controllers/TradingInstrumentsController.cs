@@ -102,7 +102,8 @@ namespace MarginTrading.SettingsService.Controllers
                                             $"and assetPairId {instrument.Instrument} already exists");
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingInstrument, instrument.Instrument);
 
             return instrument;
         }
@@ -176,7 +177,8 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingInstrumentsRepository.UpdateAsync(
                 _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingInstrument, instrument.Instrument);
             
             return instrument;
         }
@@ -215,7 +217,8 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await _tradingInstrumentsRepository.DeleteAsync(assetPairId, tradingConditionId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingInstrument, assetPairId);
         }
 
         private void ValidateId(string tradingConditionId, string assetPairId, TradingInstrumentContract contract)

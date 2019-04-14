@@ -83,7 +83,8 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentException($"Asset with id {asset.Id} already exists", nameof(asset.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset,
+                asset.Id);
 
             return asset;
         }
@@ -112,7 +113,8 @@ namespace MarginTrading.SettingsService.Controllers
 
             await _assetsRepository.UpdateAsync(_convertService.Convert<AssetContract, Asset>(asset));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset,
+                assetId);
             
             return asset;
         }
@@ -126,7 +128,8 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await _assetsRepository.DeleteAsync(assetId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset,
+                assetId);
         }
 
         private void ValidateId(string id, AssetContract contract)

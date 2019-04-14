@@ -94,7 +94,8 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentException($"Trading route with id {route.Id} already exists", nameof(route.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingRoute, route.Id);
 
             return route;
         }
@@ -126,7 +127,8 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingRoutesRepository.UpdateAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingRoute, routeId);
             
             return route;
         }
@@ -140,14 +142,15 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await _tradingRoutesRepository.DeleteAsync(routeId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingRoute);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingRoute, routeId);
         }
 
         private async Task ValidateRoute(MatchingEngineRouteContract route)
         {
             if (route == null)
             {
-                throw new ArgumentNullException("route", "Model is incorrect");
+                throw new ArgumentNullException(nameof(route), "Model is incorrect");
             }
             
             if (string.IsNullOrWhiteSpace(route?.Id))

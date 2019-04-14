@@ -200,6 +200,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                 defaults.PositionLimit,
                 true,
                 defaults.LiquidationThreshold,
+                defaults.OvernightMarginMultiplier,
                 defaults.CommissionRate,
                 defaults.CommissionMin,
                 defaults.CommissionMax,

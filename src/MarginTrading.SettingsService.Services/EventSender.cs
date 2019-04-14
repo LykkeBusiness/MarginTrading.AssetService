@@ -37,13 +37,15 @@ namespace MarginTrading.SettingsService.Services
                     rabbitMqService.GetJsonSerializer<SettingsChangedEvent>());
         }
         
-        public async Task SendSettingsChangedEvent(string route, SettingsChangedSourceType sourceType)
+        public async Task SendSettingsChangedEvent(string route, SettingsChangedSourceType sourceType,
+            string changedEntityId = null)
         {
             var message = new SettingsChangedEvent
             {
                 Route = route,
                 SettingsType = _convertService.Convert<SettingsChangedSourceType, SettingsTypeContract>(sourceType),
-                Timestamp = _systemClock.UtcNow.DateTime
+                Timestamp = _systemClock.UtcNow.DateTime,
+                ChangedEntityId = changedEntityId,
             };
 
             try

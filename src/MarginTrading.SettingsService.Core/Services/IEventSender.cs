@@ -5,6 +5,6 @@ namespace MarginTrading.SettingsService.Core.Services
 {
     public interface IEventSender
     {
-        Task SendSettingsChangedEvent(string route, SettingsChangedSourceType sourceType);
+        Task SendSettingsChangedEvent(string route, SettingsChangedSourceType sourceType, string changedEntityId = null);
     }
 }

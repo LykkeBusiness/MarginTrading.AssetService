@@ -34,6 +34,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[PositionLimit] float NULL, " +
                                                  "[ShortPosition] bit NULL, " +
                                                  "[LiquidationThreshold] float NULL, " +
+                                                 "[OvernightMarginMultiplier] float NULL, " +
                                                  "[CommissionRate] float NULL, " +
                                                  "[CommissionMin] float NULL, " +
                                                  "[CommissionMax] float NULL, " +

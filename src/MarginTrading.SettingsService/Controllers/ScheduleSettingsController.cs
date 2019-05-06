@@ -186,6 +186,22 @@ namespace MarginTrading.SettingsService.Controllers
             return await _marketDayOffService.MarketsStatus(marketIds);
         }
 
+        /// <summary>
+        /// Get current platform trading info: is trading enabled, and last trading day.
+        /// </summary>
+        [HttpGet]
+        [Route("platform-info")]
+        public async Task<PlatformInfoContract> GetPlatformInfo()
+        {
+            var (lastTradingDay, isTradingEnabled) = await _marketDayOffService.GetPlatformInfo();
+
+            return new PlatformInfoContract
+            {
+                LastTradingDay = lastTradingDay,
+                IsTradingEnabled = isTradingEnabled,
+            };
+        }
+
         private void ValidateId(string id, ScheduleSettingsContract contract)
         {
             if (contract?.Id != id)

@@ -73,7 +73,9 @@ namespace MarginTrading.SettingsService.Services
             var isEnabled = currentInterval?.Schedule.IsTradeEnabled ?? true;
             return (isEnabled
                     ? _systemClock.UtcNow.UtcDateTime.Date
-                    : currentInterval.Start.Date,
+                    : currentInterval.Start.TimeOfDay == TimeSpan.Zero
+                        ? currentInterval.Start.Date.AddDays(-1)
+                        : currentInterval.Start.Date,
                 isEnabled);
         }
 

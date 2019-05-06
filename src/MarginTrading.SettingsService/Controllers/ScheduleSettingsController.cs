@@ -188,6 +188,7 @@ namespace MarginTrading.SettingsService.Controllers
 
         /// <summary>
         /// Get current platform trading info: is trading enabled, and last trading day.
+        /// If interval has only date component i.e. time is 00:00:00.000, then previous day is returned.
         /// </summary>
         [HttpGet]
         [Route("platform-info")]

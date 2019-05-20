@@ -81,8 +81,12 @@ namespace MarginTrading.SettingsService.Services
             var weekly = scheduleSettingsByType.TryGetValue(ScheduleConstraintType.Weekly, out var weeklySchedule)
                 ? weeklySchedule.SelectMany(sch =>
                 {
-                    var currentStart = CurrentWeekday(currentDateTime, sch.Start.DayOfWeek.Value);
-                    var currentEnd = CurrentWeekday(currentDateTime, sch.End.DayOfWeek.Value);
+                    // ReSharper disable PossibleInvalidOperationException - validated previously
+                    var currentStart = CurrentWeekday(currentDateTime, sch.Start.DayOfWeek.Value)
+                        .Add(sch.Start.Time.Subtract(sch.PendingOrdersCutOff ?? TimeSpan.Zero));
+                    var currentEnd = CurrentWeekday(currentDateTime, sch.End.DayOfWeek.Value)
+                        .Add(sch.End.Time.Add(sch.PendingOrdersCutOff ?? TimeSpan.Zero));
+
                     if (currentEnd < currentStart)
                     {
                         currentEnd = currentEnd.AddDays(7);
@@ -99,8 +103,9 @@ namespace MarginTrading.SettingsService.Services
             //handle single
             var single = scheduleSettingsByType.TryGetValue(ScheduleConstraintType.Single, out var singleSchedule)
                 ? singleSchedule.Select(sch => new CompiledScheduleTimeInterval(sch,
-                    sch.Start.Date.Value,
-                    sch.End.Date.Value))
+                    sch.Start.Date.Value.Add(sch.Start.Time.Subtract(sch.PendingOrdersCutOff ?? TimeSpan.Zero)),
+                    sch.End.Date.Value.Add(sch.End.Time.Add(sch.PendingOrdersCutOff ?? TimeSpan.Zero))))
+                    // ReSharper restore PossibleInvalidOperationException - validated previously
                 : new List<CompiledScheduleTimeInterval>();
             
             //handle daily

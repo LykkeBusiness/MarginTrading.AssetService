@@ -35,5 +35,10 @@ namespace MarginTrading.SettingsService.Core.Domain
                    && DayOfWeek == other.DayOfWeek
                    && Time == other.Time;
         }
+
+        public override string ToString()
+        {
+            return $"Date: {Date}, Day of week: {DayOfWeek}, Time: {Time}";
+        }
     }
 }

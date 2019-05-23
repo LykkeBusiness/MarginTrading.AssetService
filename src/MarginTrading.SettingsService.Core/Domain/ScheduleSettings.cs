@@ -31,5 +31,10 @@ namespace MarginTrading.SettingsService.Core.Domain
 
         public ScheduleConstraint Start { get; }
         public ScheduleConstraint End { get; }
+
+        public override string ToString()
+        {
+            return $"Id: {Id}, IsTradeEnabled: {IsTradeEnabled}, Rank: {Rank}, MarketId: {MarketId}, Start: {Start}, End: {End}, AssetPairRegex: {AssetPairRegex}, AssetPairs: {string.Join(",", AssetPairs)}, PendingOrdersCutOff: {PendingOrdersCutOff}.";
+        }
     }
 }

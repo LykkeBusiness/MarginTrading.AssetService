@@ -14,5 +14,10 @@ namespace MarginTrading.SettingsService.Core.Domain
             Start = start;
             End = end;
         }
+
+        public override string ToString()
+        {
+            return $"Start: {Start}, End: {End}, IsTradeEnabled: {Schedule?.IsTradeEnabled}, Rank: {Schedule?.Rank}";
+        }
     }
 }

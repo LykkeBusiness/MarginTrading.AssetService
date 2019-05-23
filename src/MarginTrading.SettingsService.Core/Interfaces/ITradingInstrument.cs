@@ -14,6 +14,7 @@
         decimal PositionLimit { get; }
         bool ShortPosition { get; } 
         decimal LiquidationThreshold { get; }
+        decimal OvernightMarginMultiplier { get; }
         
         decimal CommissionRate { get; }
         decimal CommissionMin { get; }

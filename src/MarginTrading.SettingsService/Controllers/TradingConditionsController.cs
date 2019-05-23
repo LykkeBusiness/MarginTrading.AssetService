@@ -88,7 +88,8 @@ namespace MarginTrading.SettingsService.Controllers
                     nameof(tradingCondition.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingCondition, tradingCondition.Id);
 
             return tradingCondition;
         }
@@ -146,7 +147,8 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingConditionsRepository.UpdateAsync(
                 _convertService.Convert<TradingConditionContract, TradingCondition>(tradingCondition));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingCondition);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingCondition, tradingConditionId);
             
             return tradingCondition;
         }

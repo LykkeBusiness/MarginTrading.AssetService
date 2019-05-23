@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using MarginTrading.SettingsService.Contracts;
 using MarginTrading.SettingsService.Contracts.Common;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
@@ -102,7 +103,8 @@ namespace MarginTrading.SettingsService.Controllers
                                             $"and assetPairId {instrument.Instrument} already exists");
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingInstrument, GetIdContractSerialized(instrument));
 
             return instrument;
         }
@@ -176,7 +178,8 @@ namespace MarginTrading.SettingsService.Controllers
             await _tradingInstrumentsRepository.UpdateAsync(
                 _convertService.Convert<TradingInstrumentContract, TradingInstrument>(instrument));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingInstrument, GetIdContractSerialized(instrument));
             
             return instrument;
         }
@@ -215,7 +218,21 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await _tradingInstrumentsRepository.DeleteAsync(assetPairId, tradingConditionId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.TradingInstrument);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.TradingInstrument, new TradingInstrumentContract
+                {
+                    TradingConditionId = tradingConditionId,
+                    Instrument = assetPairId
+                }.ToJson());
+        }
+
+        private string GetIdContractSerialized(TradingInstrumentContract tradingInstrumentContract)
+        {
+            return new TradingInstrumentContract
+            {
+                TradingConditionId = tradingInstrumentContract.TradingConditionId,
+                Instrument = tradingInstrumentContract.Instrument
+            }.ToJson();
         }
 
         private void ValidateId(string tradingConditionId, string assetPairId, TradingInstrumentContract contract)

@@ -31,6 +31,9 @@ namespace MarginTrading.SettingsService.Core.Settings
         [Optional]
         public decimal LiquidationThreshold { get; set; }
 
+        [Optional] 
+        public decimal OvernightMarginMultiplier { get; set; } = 1;
+
         [Optional]
         public decimal CommissionRate { get; set; }
 

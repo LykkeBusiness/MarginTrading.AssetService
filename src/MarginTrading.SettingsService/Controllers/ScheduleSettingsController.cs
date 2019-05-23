@@ -76,7 +76,8 @@ namespace MarginTrading.SettingsService.Controllers
                     nameof(scheduleSetting.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.ScheduleSettings, scheduleSetting.Id);
 
             return scheduleSetting;
         }
@@ -109,7 +110,8 @@ namespace MarginTrading.SettingsService.Controllers
             await _scheduleSettingsRepository.UpdateAsync(
                 _convertService.Convert<ScheduleSettingsContract, ScheduleSettings>(scheduleSetting));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.ScheduleSettings, settingId);
             
             return scheduleSetting;
         }
@@ -124,7 +126,8 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await _scheduleSettingsRepository.DeleteAsync(settingId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ScheduleSettings);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+                SettingsChangedSourceType.ScheduleSettings, settingId);
         }
 
         /// <summary>

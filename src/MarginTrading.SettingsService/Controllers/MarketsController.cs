@@ -60,7 +60,8 @@ namespace MarginTrading.SettingsService.Controllers
                 throw new ArgumentException($"Market with id {market.Id} already exists", nameof(market.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market,
+                market.Id);
 
             return market;
         }
@@ -89,7 +90,8 @@ namespace MarginTrading.SettingsService.Controllers
 
             await _marketRepository.UpdateAsync(_convertService.Convert<MarketContract, Market>(market));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market,
+                marketId);
             
             return market;
         }
@@ -103,7 +105,8 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await _marketRepository.DeleteAsync(marketId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market);
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market,
+                marketId);
         }
 
         private void ValidateId(string id, MarketContract contract)

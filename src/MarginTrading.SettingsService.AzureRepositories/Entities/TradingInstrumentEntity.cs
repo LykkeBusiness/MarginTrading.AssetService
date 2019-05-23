@@ -17,7 +17,8 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public decimal PositionLimit { get; set; }
         public bool ShortPosition { get; set; }
         public decimal LiquidationThreshold { get; set; }
-        
+        public decimal OvernightMarginMultiplier { get; set; }
+
         public decimal CommissionRate { get; set; }
         public decimal CommissionMin { get; set; }
         public decimal CommissionMax { get; set; }

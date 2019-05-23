@@ -56,8 +56,30 @@ namespace MarginTrading.SettingsService.Services
 
             return result;
         }
-        
-        private bool IsOn(IEnumerable<CompiledScheduleTimeInterval> compiledSchedule, DateTime currentDateTime)
+
+        public async Task<(DateTime, bool)> GetPlatformInfo()
+        {
+            var rawPlatformSchedule = (await _scheduleSettingsRepository.GetFilteredAsync())
+                .Where(x => x.MarketId == _platformSettings.PlatformMarketId)
+                .Cast<ScheduleSettings>()
+                .ToList();
+            var currentDateTime = _systemClock.UtcNow.UtcDateTime;
+
+            var currentInterval = CompileSchedule(rawPlatformSchedule, currentDateTime)
+                .Where(x => IsBetween(currentDateTime, x.Start, x.End))
+                .OrderByDescending(x => x.Schedule.Rank)
+                .FirstOrDefault();
+
+            var isEnabled = currentInterval?.Schedule.IsTradeEnabled ?? true;
+            return (isEnabled
+                    ? _systemClock.UtcNow.UtcDateTime.Date
+                    : currentInterval.Start.TimeOfDay == TimeSpan.Zero
+                        ? currentInterval.Start.Date.AddDays(-1)
+                        : currentInterval.Start.Date,
+                isEnabled);
+        }
+
+        private static bool IsOn(IEnumerable<CompiledScheduleTimeInterval> compiledSchedule, DateTime currentDateTime)
         {
             var intersecting = compiledSchedule.Where(x => IsBetween(currentDateTime, x.Start, x.End));
 

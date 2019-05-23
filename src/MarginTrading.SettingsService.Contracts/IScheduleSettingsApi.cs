@@ -58,5 +58,12 @@ namespace MarginTrading.SettingsService.Contracts
         /// <param name="marketIds">Optional. List of market Id's.</param>
         [Post("/api/scheduleSettings/markets-status")]
         Task<Dictionary<string, bool>> MarketsStatus([Body][CanBeNull] string[] marketIds = null);
+
+        /// <summary>
+        /// Get current platform trading info: is trading enabled, and last trading day.
+        /// If interval has only date component i.e. time is 00:00:00.000, then previous day is returned.
+        /// </summary>
+        [Get("/api/scheduleSettings/platform-info")]
+        Task<PlatformInfoContract> GetPlatformInfo();
     }
 }

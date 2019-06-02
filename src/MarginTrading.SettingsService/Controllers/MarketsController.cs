@@ -9,6 +9,7 @@ using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Middleware;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarginTrading.SettingsService.Controllers
@@ -16,6 +17,7 @@ namespace MarginTrading.SettingsService.Controllers
     /// <summary>
     /// Markets management
     /// </summary>
+    [Authorize]
     [Route("api/markets")]
     [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class MarketsController : Controller, IMarketsApi

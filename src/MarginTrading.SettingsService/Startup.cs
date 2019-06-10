@@ -18,6 +18,8 @@ using Lykke.SettingsReader;
 using Lykke.SettingsReader.ReloadingManager;
 using Lykke.SlackNotification.AzureQueue;
 using Lykke.SlackNotifications;
+using Lykke.Snow.Common.Startup;
+using Lykke.Snow.Common.Startup.ApiKey;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Modules;
@@ -65,6 +67,10 @@ namespace MarginTrading.SettingsService
                         options.SerializerSettings.ContractResolver = new DefaultContractResolver();
                         options.SerializerSettings.Converters.Add(new StringEnumConverter());
                     });
+                
+                var appSettings = Configuration.LoadSettings<AppSettings>();
+                
+                services.AddApiKeyAuth(appSettings.CurrentValue.MarginTradingSettingsServiceClient);
 
                 services.AddSwaggerGen(options =>
                 {
@@ -72,10 +78,13 @@ namespace MarginTrading.SettingsService
                     var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath, 
                         "MarginTrading.SettingsService.Contracts.xml");
                     options.IncludeXmlComments(contractsXmlPath);
+                    if (!string.IsNullOrWhiteSpace(appSettings.CurrentValue.MarginTradingSettingsServiceClient?.ApiKey))
+                    {
+                        options.OperationFilter<ApiKeyHeaderOperationFilter>();
+                    }
                 });
 
                 var builder = new ContainerBuilder();
-                var appSettings = Configuration.LoadSettings<AppSettings>();
 
                 Log = CreateLogWithSlack(Configuration, services, appSettings);
 
@@ -112,7 +121,8 @@ namespace MarginTrading.SettingsService
 #else
                 app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
-                
+      
+                app.UseAuthentication();
                 app.UseMvc();
                 app.UseSwagger();
                 app.UseSwaggerUI(a => a.SwaggerEndpoint("/swagger/v1/swagger.json", "Settings Service API Swagger"));

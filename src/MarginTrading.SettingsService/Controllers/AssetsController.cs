@@ -12,6 +12,7 @@ using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Extensions;
 using MarginTrading.SettingsService.Middleware;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MarginTrading.SettingsService.Controllers
@@ -19,6 +20,7 @@ namespace MarginTrading.SettingsService.Controllers
     /// <summary>
     /// Assets management
     /// </summary>
+    [Authorize]
     [Route("api/assets")]
     [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class AssetsController : Controller, IAssetsApi

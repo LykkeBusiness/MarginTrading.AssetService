@@ -1,5 +1,6 @@
 ﻿using JetBrains.Annotations;
 using Lykke.SettingsReader.Attributes;
+using Lykke.Snow.Common.Startup.ApiKey;
 using MarginTrading.SettingsService.Settings.ServiceSettings;
 using MarginTrading.SettingsService.Settings.SlackNotifications;
 
@@ -9,6 +10,10 @@ namespace MarginTrading.SettingsService.Settings
     public class AppSettings
     {
         public SettingsServiceSettings MarginTradingSettingsService { get; set; }
+        
+        [Optional, CanBeNull]
+        public ClientSettings MarginTradingSettingsServiceClient { get; set; } = new ClientSettings();
+            
         [Optional, CanBeNull] public SlackNotificationsSettings SlackNotifications { get; set; }
     }
 }

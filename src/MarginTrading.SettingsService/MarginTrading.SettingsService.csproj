@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Version>1.14.2</Version>
+    <Version>1.15.0</Version>
     <AssemblyName>MarginTrading.SettingsService</AssemblyName>
     <RootNamespace>MarginTrading.SettingsService</RootNamespace>
     <LangVersion>7.2</LangVersion>

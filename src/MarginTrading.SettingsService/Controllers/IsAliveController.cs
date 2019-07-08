@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using System.Linq;
 using System.Net;
 using Lykke.Common.Api.Contract.Responses;
 using MarginTrading.SettingsService.Core.Services;

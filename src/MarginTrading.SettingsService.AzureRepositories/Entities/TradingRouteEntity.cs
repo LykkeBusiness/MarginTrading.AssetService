@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using System;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 

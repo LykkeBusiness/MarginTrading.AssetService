@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Core.Services
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.Core.Services
 {
     public interface IMaintenanceModeService
     {

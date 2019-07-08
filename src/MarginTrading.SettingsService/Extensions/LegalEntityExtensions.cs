@@ -1,4 +1,6 @@
-﻿using MarginTrading.SettingsService.Contracts.AssetPair;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Contracts.TradingConditions;
 using MarginTrading.SettingsService.Core.Settings;
 

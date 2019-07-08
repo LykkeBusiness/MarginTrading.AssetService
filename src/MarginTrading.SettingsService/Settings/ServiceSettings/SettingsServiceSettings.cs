@@ -1,3 +1,5 @@
+// Copyright (c) 2019 Lykke Corp.
+
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.SettingsReader.Attributes;

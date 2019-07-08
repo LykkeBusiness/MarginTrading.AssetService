@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -10,7 +12,6 @@ using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.SqlRepositories.Entities;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
-using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 
 namespace MarginTrading.SettingsService.SqlRepositories.Repositories
 {

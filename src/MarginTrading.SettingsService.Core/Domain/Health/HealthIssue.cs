@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Core.Domain.Health
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.Core.Domain.Health
 {
     public class HealthIssue
     {

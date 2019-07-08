@@ -1,4 +1,6 @@
-﻿using JetBrains.Annotations;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using JetBrains.Annotations;
 using Lykke.SettingsReader.Attributes;
 using Lykke.Snow.Common.Startup.ApiKey;
 using MarginTrading.SettingsService.Settings.ServiceSettings;

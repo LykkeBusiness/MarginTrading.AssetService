@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Core.Domain
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.Core.Domain
 {
     public enum SettingsChangedSourceType
     {

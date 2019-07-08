@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.TestClient
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.TestClient
 {
     public class Validator
     {

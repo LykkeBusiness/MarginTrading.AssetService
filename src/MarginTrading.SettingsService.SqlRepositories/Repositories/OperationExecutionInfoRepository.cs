@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using System;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +9,6 @@ using Common.Log;
 using Dapper;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
-using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.SqlRepositories.Entities;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Internal;

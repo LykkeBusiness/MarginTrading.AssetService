@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Contracts.TradingConditions
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.Contracts.TradingConditions
 {
     // TODO: Category hierarchy
     public class TradingInstrumentContract

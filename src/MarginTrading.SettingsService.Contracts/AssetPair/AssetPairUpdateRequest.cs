@@ -1,3 +1,5 @@
+// Copyright (c) 2019 Lykke Corp.
+
 using MarginTrading.SettingsService.Contracts.Enums;
 
 namespace MarginTrading.SettingsService.Contracts.AssetPair

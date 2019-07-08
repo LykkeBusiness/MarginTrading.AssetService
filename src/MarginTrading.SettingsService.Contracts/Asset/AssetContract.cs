@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Contracts.Asset
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.Contracts.Asset
 {
     public class AssetContract
     {

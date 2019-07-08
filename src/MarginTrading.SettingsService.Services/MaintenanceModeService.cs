@@ -1,4 +1,6 @@
-﻿using MarginTrading.SettingsService.Core.Services;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using MarginTrading.SettingsService.Core.Services;
 
 namespace MarginTrading.SettingsService.Services
 {

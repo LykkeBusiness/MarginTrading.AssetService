@@ -1,3 +1,5 @@
+// Copyright (c) 2019 Lykke Corp.
+
 namespace MarginTrading.SettingsService.Core.Domain
 {
     public enum ScheduleConstraintType

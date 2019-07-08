@@ -1,4 +1,6 @@
-﻿using Xunit;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using Xunit;
 
 namespace MarginTrading.SettingsService.Tests
 {

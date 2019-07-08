@@ -1,4 +1,6 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,7 +9,6 @@ using AzureStorage;
 using AzureStorage.Tables;
 using Common.Log;
 using Lykke.SettingsReader;
-using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces;
 

@@ -1,3 +1,5 @@
+// Copyright (c) 2019 Lykke Corp.
+
 using Lykke.SettingsReader.Attributes;
 
 namespace MarginTrading.SettingsService.Core.Settings

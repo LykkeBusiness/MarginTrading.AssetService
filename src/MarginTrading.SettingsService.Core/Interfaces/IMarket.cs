@@ -1,4 +1,6 @@
-﻿namespace MarginTrading.SettingsService.Core.Interfaces
+﻿// Copyright (c) 2019 Lykke Corp.
+
+namespace MarginTrading.SettingsService.Core.Interfaces
 {
     public interface IMarket
     {

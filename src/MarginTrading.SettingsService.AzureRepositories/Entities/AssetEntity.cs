@@ -1,4 +1,6 @@
-﻿using MarginTrading.SettingsService.Core.Interfaces;
+﻿// Copyright (c) 2019 Lykke Corp.
+
+using MarginTrading.SettingsService.Core.Interfaces;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Entities
 {

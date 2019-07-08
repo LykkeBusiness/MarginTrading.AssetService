@@ -1,10 +1,11 @@
-﻿using System;
-using System.IO;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MarginTrading.SettingsService.Services;
 using Microsoft.AspNetCore;
-using JetBrains.Annotations;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.PlatformAbstractions;

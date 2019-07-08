@@ -1,4 +1,7 @@
-﻿using MarginTrading.SettingsService.Core.Domain;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using MarginTrading.SettingsService.Core.Domain;
 
 namespace MarginTrading.SettingsService.Core.Interfaces
 {

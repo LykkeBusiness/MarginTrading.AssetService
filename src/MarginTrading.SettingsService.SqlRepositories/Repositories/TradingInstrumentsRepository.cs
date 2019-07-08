@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -8,7 +11,6 @@ using Common.Log;
 using Dapper;
 using MarginTrading.SettingsService.Core;
 using MarginTrading.SettingsService.Core.Domain;
-using MarginTrading.SettingsService.Core.Helpers;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;

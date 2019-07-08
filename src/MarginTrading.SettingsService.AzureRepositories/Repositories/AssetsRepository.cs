@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
-using Lykke.AzureStorage.Tables.Paging;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Core;
@@ -9,7 +11,6 @@ using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace MarginTrading.SettingsService.AzureRepositories.Repositories
 {

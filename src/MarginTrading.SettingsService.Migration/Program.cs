@@ -1,12 +1,13 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Lykke.SettingsReader.ReloadingManager;
-using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using SqlRepos = MarginTrading.SettingsService.SqlRepositories.Repositories;
 using AzureRepos = MarginTrading.SettingsService.AzureRepositories.Repositories;
 

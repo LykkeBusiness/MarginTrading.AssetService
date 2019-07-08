@@ -1,3 +1,6 @@
+// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
 using System.Collections.Generic;
 using Autofac;
 using Common.Log;
@@ -9,7 +12,6 @@ using Lykke.Cqrs.Configuration.Saga;
 using Lykke.Messaging;
 using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
-using Lykke.Messaging.Serialization;
 using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core.Settings;
 using MarginTrading.SettingsService.Settings.ServiceSettings;

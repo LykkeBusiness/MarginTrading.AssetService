@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
@@ -6,7 +9,6 @@ using Lykke.Cqrs;
 using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Core.Settings;
-using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.SettingsService.Services
 {

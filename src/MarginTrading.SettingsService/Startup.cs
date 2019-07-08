@@ -1,13 +1,14 @@
-﻿using System;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AzureStorage.Tables;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
-using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
@@ -15,7 +16,6 @@ using Lykke.Logs.MsSql;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
-using Lykke.SettingsReader.ReloadingManager;
 using Lykke.SlackNotification.AzureQueue;
 using Lykke.SlackNotifications;
 using Lykke.Snow.Common.Startup;
@@ -25,7 +25,6 @@ using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Modules;
 using MarginTrading.SettingsService.Services;
 using MarginTrading.SettingsService.Settings;
-using MarginTrading.SettingsService.SqlRepositories.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -33,7 +32,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
-using LogEntity = Lykke.Logs.LogEntity;
 
 namespace MarginTrading.SettingsService
 {

@@ -1,4 +1,7 @@
-﻿using MarginTrading.SettingsService.Contracts.Enums;
+﻿// Copyright (c) 2019 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using MarginTrading.SettingsService.Contracts.Enums;
 
 namespace MarginTrading.SettingsService.Contracts.Routes
 {

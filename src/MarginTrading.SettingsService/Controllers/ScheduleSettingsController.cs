@@ -169,7 +169,21 @@ namespace MarginTrading.SettingsService.Controllers
         /// <param name="marketIds">Optional. List of market Id's.</param>
         [HttpPost]
         [Route("markets-status")]
+        [Obsolete]
         public async Task<Dictionary<string, bool>> MarketsStatus([FromBody] string[] marketIds = null)
+        {
+            var info = await GetMarketsInfo(marketIds);
+
+            return info.ToDictionary(k => k.Key, v => v.Value.IsTradingEnabled);
+        }
+
+        /// <summary>
+        /// Get current trading day info for markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+        /// </summary>
+        /// <param name="marketIds">Optional. List of market Id's.</param>
+        [HttpPost]
+        [Route("markets-info")]
+        public async Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([FromBody] string[] marketIds = null)
         {
             var allMarkets = (await _marketRepository.GetAsync()).Select(x => x.Id).ToHashSet();
             if (marketIds == null || !marketIds.Any())
@@ -189,7 +203,13 @@ namespace MarginTrading.SettingsService.Controllers
                 }
             }
             
-            return await _marketDayOffService.MarketsStatus(marketIds);
+            var info = await _marketDayOffService.GetMarketsInfo(marketIds);
+
+            return info.ToDictionary(k => k.Key, v => new TradingDayInfoContract()
+            {
+                IsTradingEnabled = v.Value.isTradingEnabled,
+                LastTradingDay = v.Value.lastTradingDay
+            });
         }
 
         /// <summary>
@@ -198,11 +218,11 @@ namespace MarginTrading.SettingsService.Controllers
         /// </summary>
         [HttpGet]
         [Route("platform-info")]
-        public async Task<PlatformInfoContract> GetPlatformInfo()
+        public async Task<TradingDayInfoContract> GetPlatformInfo()
         {
             var (lastTradingDay, isTradingEnabled) = await _marketDayOffService.GetPlatformInfo();
 
-            return new PlatformInfoContract
+            return new TradingDayInfoContract
             {
                 LastTradingDay = lastTradingDay,
                 IsTradingEnabled = isTradingEnabled,

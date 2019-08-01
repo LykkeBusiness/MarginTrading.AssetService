@@ -30,7 +30,7 @@ namespace MarginTrading.SettingsService.Services
             _platformSettings = platformSettings;
         }
 
-        public async Task<Dictionary<string, bool>> MarketsStatus(string[] marketIds)
+        public async Task<Dictionary<string, (DateTime lastTradingDay, bool isTradingEnabled)>> GetMarketsInfo(string[] marketIds)
         {
             var scheduleSettings = (await _scheduleSettingsRepository.GetFilteredAsync())
                 .Where(x => !string.IsNullOrWhiteSpace(x.MarketId))
@@ -42,25 +42,25 @@ namespace MarginTrading.SettingsService.Services
             var rawPlatformSchedule = scheduleSettings.TryGetValue(_platformSettings.PlatformMarketId, out var platformSettings)
                 ? platformSettings
                 : new List<ScheduleSettings>();
-            var platformCompiledSchedule = CompileSchedule(rawPlatformSchedule, currentDateTime);
 
             var result = marketIds.Except(scheduleSettings.Keys).ToDictionary(
                 marketWithoutSchedule => marketWithoutSchedule,
-                _ => IsOn(platformCompiledSchedule, currentDateTime));
+                _ => GetTradingDayInfo(rawPlatformSchedule, currentDateTime));
 
             foreach (var marketToCompile in marketIds.Except(result.Keys))
             {
-                var compiledSchedule = CompileSchedule(
-                    scheduleSettings[marketToCompile].Concat(
-                        rawPlatformSchedule.WithRank(int.MaxValue)).ToList(), 
-                    currentDateTime);
-                result.Add(marketToCompile, IsOn(compiledSchedule, currentDateTime));
+                var schedule = scheduleSettings[marketToCompile].Concat(
+                    rawPlatformSchedule.WithRank(int.MaxValue)).ToList();
+
+                var tradingDayInfo = GetTradingDayInfo(schedule, currentDateTime);
+                
+                result.Add(marketToCompile, tradingDayInfo);
             }
 
             return result;
         }
 
-        public async Task<(DateTime, bool)> GetPlatformInfo()
+        public async Task<(DateTime lastTradingDay, bool isTradingEnabled)> GetPlatformInfo()
         {
             var rawPlatformSchedule = (await _scheduleSettingsRepository.GetFilteredAsync())
                 .Where(x => x.MarketId == _platformSettings.PlatformMarketId)
@@ -68,26 +68,24 @@ namespace MarginTrading.SettingsService.Services
                 .ToList();
             var currentDateTime = _systemClock.UtcNow.UtcDateTime;
 
-            var currentInterval = CompileSchedule(rawPlatformSchedule, currentDateTime)
+            return GetTradingDayInfo(rawPlatformSchedule, currentDateTime);
+        }
+
+        private static (DateTime lastTradingDay, bool isTradingEnabled) GetTradingDayInfo(
+            IEnumerable<ScheduleSettings> scheduleSettings, DateTime currentDateTime)
+        {
+            var currentInterval = CompileSchedule(scheduleSettings, currentDateTime)
                 .Where(x => IsBetween(currentDateTime, x.Start, x.End))
                 .OrderByDescending(x => x.Schedule.Rank)
                 .FirstOrDefault();
-
+            
             var isEnabled = currentInterval?.Schedule.IsTradeEnabled ?? true;
             return (isEnabled
-                    ? _systemClock.UtcNow.UtcDateTime.Date
+                    ? currentDateTime.Date
                     : currentInterval.Start.TimeOfDay == TimeSpan.Zero
                         ? currentInterval.Start.Date.AddDays(-1)
                         : currentInterval.Start.Date,
                 isEnabled);
-        }
-
-        private static bool IsOn(IEnumerable<CompiledScheduleTimeInterval> compiledSchedule, DateTime currentDateTime)
-        {
-            var intersecting = compiledSchedule.Where(x => IsBetween(currentDateTime, x.Start, x.End));
-
-            return intersecting.OrderByDescending(x => x.Schedule.Rank)
-                       .Select(x => x.Schedule).FirstOrDefault()?.IsTradeEnabled ?? true;
         }
 
         private static bool IsBetween(DateTime currentDateTime, DateTime start, DateTime end)

@@ -6,9 +6,9 @@ using System;
 namespace MarginTrading.SettingsService.Contracts.Scheduling
 {
     /// <summary>
-    /// Current platform trading info
+    /// Current trading day info
     /// </summary>
-    public class PlatformInfoContract
+    public class TradingDayInfoContract
     {
         /// <summary>
         /// Trading day that was active last: current if enabled, interval.Start.Date if disabled

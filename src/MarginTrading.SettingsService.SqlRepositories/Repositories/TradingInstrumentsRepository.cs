@@ -41,6 +41,7 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                                                  "[CommissionMin] float NULL, " +
                                                  "[CommissionMax] float NULL, " +
                                                  "[CommissionCurrency] [nvarchar] (64) NULL, " +
+                                                 "[HedgeCost] float NULL, " +
                                                  "INDEX IX_{0}_Base (TradingConditionId, Instrument)" +
                                                  ");";
         
@@ -207,7 +208,8 @@ namespace MarginTrading.SettingsService.SqlRepositories.Repositories
                 defaults.CommissionRate,
                 defaults.CommissionMin,
                 defaults.CommissionMax,
-                defaults.CommissionCurrency
+                defaults.CommissionCurrency,
+                defaults.HedgeCost
             )).ToList();
             
             

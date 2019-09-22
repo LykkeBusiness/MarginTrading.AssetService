@@ -10,8 +10,8 @@ namespace MarginTrading.SettingsService.Core.Domain
         public TradingInstrument(string tradingConditionId, string instrument, int leverageInit, 
             int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit, 
             decimal dealMaxLimit, decimal positionLimit, bool shortPosition, decimal liquidationThreshold, 
-            decimal overnightMarginMultiplier, 
-            decimal commissionRate, decimal commissionMin, decimal commissionMax, string commissionCurrency)
+            decimal overnightMarginMultiplier, decimal commissionRate, decimal commissionMin, decimal commissionMax, 
+            string commissionCurrency, decimal hedgeCost)
         {
             TradingConditionId = tradingConditionId;
             Instrument = instrument;
@@ -26,11 +26,11 @@ namespace MarginTrading.SettingsService.Core.Domain
             ShortPosition = shortPosition;
             LiquidationThreshold = liquidationThreshold;
             OvernightMarginMultiplier = overnightMarginMultiplier;
-            
             CommissionRate = commissionRate;
             CommissionMin = commissionMin;
             CommissionMax = commissionMax;
             CommissionCurrency = commissionCurrency;
+            HedgeCost = hedgeCost;
         }
 
         public string TradingConditionId { get; }
@@ -46,10 +46,10 @@ namespace MarginTrading.SettingsService.Core.Domain
         public bool ShortPosition { get; }
         public decimal LiquidationThreshold { get; }
         public decimal OvernightMarginMultiplier { get; }
-        
         public decimal CommissionRate { get; }
         public decimal CommissionMin { get; }
         public decimal CommissionMax { get; }
         public string CommissionCurrency { get; }
+        public decimal HedgeCost { get; }
     }
 }

@@ -48,5 +48,8 @@ namespace MarginTrading.SettingsService.Core.Settings
 
         [Optional]
         public string CommissionCurrency { get; set; }
+        
+        [Optional]
+        public decimal HedgeCost { get; set; }
     }
 }

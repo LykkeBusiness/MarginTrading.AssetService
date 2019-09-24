@@ -73,7 +73,8 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
                 defaults.CommissionMin,
                 defaults.CommissionMax,
                 defaults.CommissionCurrency,
-                defaults.HedgeCost
+                defaults.HedgeCost,
+                defaults.Spread
             )).ToList();
             var entitiesToAdd = objectsToAdd.Select(x =>
             {

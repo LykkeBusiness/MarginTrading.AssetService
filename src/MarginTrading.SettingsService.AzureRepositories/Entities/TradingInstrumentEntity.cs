@@ -27,6 +27,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public decimal CommissionMax { get; set; }
         public string CommissionCurrency { get; set; }
         public decimal HedgeCost { get; set; }
+        public decimal Spread { get; set; }
 
         public override void SetKeys()
         {

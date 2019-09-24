@@ -28,5 +28,6 @@ namespace MarginTrading.SettingsService.SqlRepositories.Entities
         public decimal CommissionMax { get; set; }
         public string CommissionCurrency { get; set; }
         public decimal HedgeCost { get; set; }
+        public decimal Spread { get; set; }
     }
 }

@@ -51,5 +51,8 @@ namespace MarginTrading.SettingsService.Core.Settings
         
         [Optional]
         public decimal HedgeCost { get; set; }
+        
+        [Optional]
+        public decimal Spread { get; set; }
     }
 }

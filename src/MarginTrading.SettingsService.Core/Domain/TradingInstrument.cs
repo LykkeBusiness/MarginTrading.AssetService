@@ -11,7 +11,7 @@ namespace MarginTrading.SettingsService.Core.Domain
             int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit, 
             decimal dealMaxLimit, decimal positionLimit, bool shortPosition, decimal liquidationThreshold, 
             decimal overnightMarginMultiplier, decimal commissionRate, decimal commissionMin, decimal commissionMax, 
-            string commissionCurrency, decimal hedgeCost)
+            string commissionCurrency, decimal hedgeCost, decimal spread)
         {
             TradingConditionId = tradingConditionId;
             Instrument = instrument;
@@ -31,6 +31,7 @@ namespace MarginTrading.SettingsService.Core.Domain
             CommissionMax = commissionMax;
             CommissionCurrency = commissionCurrency;
             HedgeCost = hedgeCost;
+            Spread = spread;
         }
 
         public string TradingConditionId { get; }
@@ -51,5 +52,6 @@ namespace MarginTrading.SettingsService.Core.Domain
         public decimal CommissionMax { get; }
         public string CommissionCurrency { get; }
         public decimal HedgeCost { get; }
+        public decimal Spread { get; }
     }
 }

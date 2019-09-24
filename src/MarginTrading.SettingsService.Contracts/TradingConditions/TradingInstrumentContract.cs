@@ -26,5 +26,7 @@ namespace MarginTrading.SettingsService.Contracts.TradingConditions
         public string CommissionCurrency { get; set; }
         
         public decimal HedgeCost { get; set; }
+        
+        public decimal Spread { get; set; }
     }
 }

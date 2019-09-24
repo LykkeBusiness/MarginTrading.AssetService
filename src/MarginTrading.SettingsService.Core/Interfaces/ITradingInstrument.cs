@@ -24,5 +24,6 @@ namespace MarginTrading.SettingsService.Core.Interfaces
         decimal CommissionMax { get; }
         string CommissionCurrency { get; }
         decimal HedgeCost { get; }
+        decimal Spread { get; }
     }
 }

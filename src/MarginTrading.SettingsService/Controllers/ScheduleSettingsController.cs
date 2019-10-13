@@ -207,8 +207,9 @@ namespace MarginTrading.SettingsService.Controllers
 
             return info.ToDictionary(k => k.Key, v => new TradingDayInfoContract()
             {
-                IsTradingEnabled = v.Value.isTradingEnabled,
-                LastTradingDay = v.Value.lastTradingDay
+                IsTradingEnabled = v.Value.IsTradingEnabled,
+                LastTradingDay = v.Value.LastTradingDay,
+                NextTradingDayStart = v.Value.NextTradingDayStart
             });
         }
 
@@ -220,12 +221,13 @@ namespace MarginTrading.SettingsService.Controllers
         [Route("platform-info")]
         public async Task<TradingDayInfoContract> GetPlatformInfo()
         {
-            var (lastTradingDay, isTradingEnabled) = await _marketDayOffService.GetPlatformInfo();
+            var info = await _marketDayOffService.GetPlatformInfo();
 
             return new TradingDayInfoContract
             {
-                LastTradingDay = lastTradingDay,
-                IsTradingEnabled = isTradingEnabled,
+                LastTradingDay = info.LastTradingDay,
+                IsTradingEnabled = info.IsTradingEnabled,
+                NextTradingDayStart = info.NextTradingDayStart
             };
         }
 

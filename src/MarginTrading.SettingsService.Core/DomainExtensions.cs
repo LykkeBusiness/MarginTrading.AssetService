@@ -21,5 +21,10 @@ namespace MarginTrading.SettingsService.Core
                 scheduleSetting.Start,
                 scheduleSetting.End
             )).ToList();
+        
+        public static bool Enabled(this CompiledScheduleTimeInterval compiledScheduleTimeInterval)
+        {
+            return compiledScheduleTimeInterval?.Schedule.IsTradeEnabled ?? true;
+        }
     }
 }

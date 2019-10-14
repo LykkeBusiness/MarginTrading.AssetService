@@ -181,9 +181,11 @@ namespace MarginTrading.SettingsService.Controllers
         /// Get current trading day info for markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
         /// </summary>
         /// <param name="marketIds">Optional. List of market Id's.</param>
+        /// <param name="date">Timestamp of check (allows to check as at any moment of time)</param>
         [HttpPost]
         [Route("markets-info")]
-        public async Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([FromBody] string[] marketIds = null)
+        public async Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([FromBody] string[] marketIds = null, 
+            [FromQuery] DateTime? date = null)
         {
             var allMarkets = (await _marketRepository.GetAsync()).Select(x => x.Id).ToHashSet();
             if (marketIds == null || !marketIds.Any())
@@ -203,7 +205,7 @@ namespace MarginTrading.SettingsService.Controllers
                 }
             }
             
-            var info = await _marketDayOffService.GetMarketsInfo(marketIds);
+            var info = await _marketDayOffService.GetMarketsInfo(marketIds, date);
 
             return info.ToDictionary(k => k.Key, v => new TradingDayInfoContract()
             {
@@ -217,11 +219,12 @@ namespace MarginTrading.SettingsService.Controllers
         /// Get current platform trading info: is trading enabled, and last trading day.
         /// If interval has only date component i.e. time is 00:00:00.000, then previous day is returned.
         /// </summary>
+        /// <param name="date">Timestamp of check (allows to check as at any moment of time)</param>
         [HttpGet]
         [Route("platform-info")]
-        public async Task<TradingDayInfoContract> GetPlatformInfo()
+        public async Task<TradingDayInfoContract> GetPlatformInfo([FromQuery] DateTime? date = null)
         {
-            var info = await _marketDayOffService.GetPlatformInfo();
+            var info = await _marketDayOffService.GetPlatformInfo(date);
 
             return new TradingDayInfoContract
             {

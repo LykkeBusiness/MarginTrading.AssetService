@@ -30,14 +30,14 @@ namespace MarginTrading.SettingsService.Services
             _platformSettings = platformSettings;
         }
 
-        public async Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds)
+        public async Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds, DateTime? dateTime)
         {
             var scheduleSettings = (await _scheduleSettingsRepository.GetFilteredAsync())
                 .Where(x => !string.IsNullOrWhiteSpace(x.MarketId))
                 .Cast<ScheduleSettings>()
                 .GroupBy(x => x.MarketId)
                 .ToDictionary(x => x.Key, x => x.ToList());
-            var currentDateTime = _systemClock.UtcNow.UtcDateTime;
+            var currentDateTime = dateTime ?? _systemClock.UtcNow.UtcDateTime;
 
             var rawPlatformSchedule =
                 scheduleSettings.TryGetValue(_platformSettings.PlatformMarketId, out var platformSettings)
@@ -61,13 +61,13 @@ namespace MarginTrading.SettingsService.Services
             return result;
         }
 
-        public async Task<TradingDayInfo> GetPlatformInfo()
+        public async Task<TradingDayInfo> GetPlatformInfo(DateTime? dateTime)
         {
             var rawPlatformSchedule = (await _scheduleSettingsRepository.GetFilteredAsync())
                 .Where(x => x.MarketId == _platformSettings.PlatformMarketId)
                 .Cast<ScheduleSettings>()
                 .ToList();
-            var currentDateTime = _systemClock.UtcNow.UtcDateTime;
+            var currentDateTime = dateTime ?? _systemClock.UtcNow.UtcDateTime;
 
             return GetTradingDayInfo(rawPlatformSchedule, currentDateTime);
         }

@@ -10,8 +10,8 @@ namespace MarginTrading.SettingsService.Core.Services
 {
     public interface IMarketDayOffService
     {
-        Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds);
+        Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds, DateTime? dateTime);
         
-        Task<TradingDayInfo> GetPlatformInfo();
+        Task<TradingDayInfo> GetPlatformInfo(DateTime? dateTime);
     }
 }

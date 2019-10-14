@@ -62,7 +62,7 @@ namespace MarginTrading.SettingsService.Tests
 
             var service = new MarketDayOffService(repoMock.Object, systemClockMock.Object, new PlatformSettings());
 
-            var info = (await service.GetMarketsInfo(new[] {marketId}))[marketId];
+            var info = (await service.GetMarketsInfo(new[] {marketId}, null))[marketId];
 
             Assert.Equal(isTradingEnabled, info.IsTradingEnabled);
             Assert.Equal(DateTime.Parse(lastTradingDay), info.LastTradingDay);

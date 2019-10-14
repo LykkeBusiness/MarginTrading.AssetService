@@ -82,7 +82,7 @@ namespace MarginTrading.SettingsService.Services
                 .OrderByDescending(x => x.Schedule.Rank)
                 .FirstOrDefault();
 
-            var isEnabled = currentInterval?.Schedule.IsTradeEnabled ?? true;
+            var isEnabled = currentInterval.Enabled();
             var lastTradingDay = GetPreviousTradingDay(compiledSchedule, currentInterval, currentDateTime);
             var nextTradingDay = GetNextTradingDay(compiledSchedule, currentInterval, currentDateTime);    
 
@@ -99,7 +99,7 @@ namespace MarginTrading.SettingsService.Services
         private static DateTime GetPreviousTradingDay(List<CompiledScheduleTimeInterval>
             compiledSchedule, CompiledScheduleTimeInterval currentInterval, DateTime currentDateTime)
         {
-            if (currentInterval?.Schedule.IsTradeEnabled ?? true)
+            if (currentInterval.Enabled())
                 return currentDateTime.Date;
             
             var timestampBeforeCurrentIntervalStart = currentInterval.Start.AddTicks(-1);
@@ -111,7 +111,7 @@ namespace MarginTrading.SettingsService.Services
                 .FirstOrDefault();
 
             // if trading was enabled, then at that moment was the last trading day
-            if (previousInterval?.Schedule.IsTradeEnabled ?? true)
+            if (previousInterval.Enabled())
                 return timestampBeforeCurrentIntervalStart.Date;
 
             // if no, there was one more disabled interval and we should go next
@@ -122,16 +122,19 @@ namespace MarginTrading.SettingsService.Services
             compiledSchedule, CompiledScheduleTimeInterval currentInterval, DateTime currentDateTime)
         {
             // search for the interval right after the current interval finished
-            var nextInterval = compiledSchedule
+            var ordered = compiledSchedule
                 .Where(x => x.End > (currentInterval?.End ?? currentDateTime)
-                            || currentInterval != null && x.Schedule.Rank > currentInterval.Schedule.Rank)
-                .OrderByDescending(x => x.Schedule.Rank)
-                .ThenBy(x => x.Start)
-                .FirstOrDefault();
+                            || currentInterval != null && x.Schedule.Rank > currentInterval.Schedule.Rank &&
+                            x.End > currentInterval.End)
+                .OrderBy(x => x.Start)
+                .ThenByDescending(x => x.Schedule.Rank)
+                .ToList();
+            
+            var nextInterval = ordered.FirstOrDefault();
             
             if (nextInterval == null)
             {
-                if (currentInterval?.Schedule.IsTradeEnabled == false)
+                if (!currentInterval.Enabled())
                 {
                     return currentInterval.End;
                 }
@@ -141,9 +144,7 @@ namespace MarginTrading.SettingsService.Services
                 }
             }
 
-            var stateIsChangedToEnabled =
-                nextInterval.Schedule.IsTradeEnabled != currentInterval?.Schedule.IsTradeEnabled
-                && (nextInterval.Schedule.IsTradeEnabled ?? true);
+            var stateIsChangedToEnabled = nextInterval.Schedule.IsTradeEnabled != currentInterval.Enabled() && nextInterval.Enabled();
             var intervalIsMissing = currentInterval != null && nextInterval.Start > currentInterval.End;
 
             if (stateIsChangedToEnabled || intervalIsMissing)

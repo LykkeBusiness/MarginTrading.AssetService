@@ -4,13 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MarginTrading.SettingsService.Core.Domain;
 
 namespace MarginTrading.SettingsService.Core.Services
 {
     public interface IMarketDayOffService
     {
-        Task<Dictionary<string, (DateTime lastTradingDay, bool isTradingEnabled)>> GetMarketsInfo(string[] marketIds);
+        Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds, DateTime? dateTime);
         
-        Task<(DateTime lastTradingDay, bool isTradingEnabled)> GetPlatformInfo();
+        Task<TradingDayInfo> GetPlatformInfo(DateTime? dateTime);
     }
 }

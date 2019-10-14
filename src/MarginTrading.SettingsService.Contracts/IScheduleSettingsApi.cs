@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -59,14 +60,16 @@ namespace MarginTrading.SettingsService.Contracts
         /// Get current trading day info for markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
         /// </summary>
         /// <param name="marketIds">Optional. List of market Id's.</param>
+        /// <param name="date">Timestamp of check (allows to check as at any moment of time</param>
         [Post("/api/scheduleSettings/markets-info")]
-        Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([Body] string[] marketIds = null);
+        Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([Body] string[] marketIds = null, [Query] DateTime? date = null);
 
         /// <summary>
         /// Get current platform trading info: is trading enabled, and last trading day.
         /// If interval has only date component i.e. time is 00:00:00.000, then previous day is returned.
         /// </summary>
+        /// <param name="date">Timestamp of check (allows to check as at any moment of time</param>
         [Get("/api/scheduleSettings/platform-info")]
-        Task<TradingDayInfoContract> GetPlatformInfo();
+        Task<TradingDayInfoContract> GetPlatformInfo([Query] DateTime? date = null);
     }
 }

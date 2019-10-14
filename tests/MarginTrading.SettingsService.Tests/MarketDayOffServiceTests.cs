@@ -18,8 +18,9 @@ namespace MarginTrading.SettingsService.Tests
     public class MarketDayOffServiceTests
     {
         [Theory]
-        [InlineData("Market1.1", false, "2019-10-11", "2019-10-11")]
+        [InlineData("Market1.1", false, "2019-10-11", "2019-10-12")]
         [InlineData("Market1.2", true, "2019-10-11", "2019-10-12")]
+        [InlineData("Market1.3", true, "2019-10-11", "2019-10-12")]
         [InlineData("Market2.1", true, "2019-10-11", "2019-10-14")]
         [InlineData("Market2.2", false, "2019-10-11", "2019-10-12")]
         [InlineData("Market2.3", true, "2019-10-11", "2019-10-14")]
@@ -97,6 +98,19 @@ namespace MarginTrading.SettingsService.Tests
                 {
                     Time = new TimeSpan(2, 0, 0)
                 });
+            
+            AddSettings(
+                repoData,
+                "Market1.3",
+                new ScheduleConstraint
+                {
+                    Time = new TimeSpan(01, 0, 0)
+                },
+                new ScheduleConstraint
+                {
+                    Time = new TimeSpan(23, 0, 0)
+                },
+                enabled: true);
 
             AddSettings(
                 repoData,
@@ -355,9 +369,9 @@ namespace MarginTrading.SettingsService.Tests
         }
 
         private void AddSettings(List<IScheduleSettings> data, string marketId, ScheduleConstraint start, 
-        ScheduleConstraint end, int rank = 0)
+        ScheduleConstraint end, int rank = 0, bool enabled = false)
         {
-            var settings = new ScheduleSettings(Guid.NewGuid().ToString(), rank, "*", new HashSet<string>(0), marketId, false,
+            var settings = new ScheduleSettings(Guid.NewGuid().ToString(), rank, "*", new HashSet<string>(0), marketId, enabled,
                 TimeSpan.Zero, start, end);
             
             data.Add(settings);

@@ -84,7 +84,7 @@ namespace MarginTrading.SettingsService.Services
 
             var isEnabled = currentInterval.Enabled();
             var lastTradingDay = GetPreviousTradingDay(compiledSchedule, currentInterval, currentDateTime);
-            var nextTradingDay = GetNextTradingDay(compiledSchedule, currentInterval, currentDateTime);    
+            var nextTradingDay = GetNextTradingDay(compiledSchedule, currentInterval, currentDateTime, lastTradingDay);    
 
             var result = new TradingDayInfo
             {
@@ -119,7 +119,7 @@ namespace MarginTrading.SettingsService.Services
         }
 
         private static DateTime GetNextTradingDay(List<CompiledScheduleTimeInterval>
-            compiledSchedule, CompiledScheduleTimeInterval currentInterval, DateTime currentDateTime)
+            compiledSchedule, CompiledScheduleTimeInterval currentInterval, DateTime currentDateTime, DateTime lastTradingDay)
         {
             // search for the interval right after the current interval finished
             var ordered = compiledSchedule
@@ -134,7 +134,7 @@ namespace MarginTrading.SettingsService.Services
             
             if (nextInterval == null)
             {
-                if (!currentInterval.Enabled())
+                if (!currentInterval.Enabled() && currentInterval.End.Date > lastTradingDay.Date)
                 {
                     return currentInterval.End;
                 }
@@ -147,7 +147,7 @@ namespace MarginTrading.SettingsService.Services
             var stateIsChangedToEnabled = nextInterval.Schedule.IsTradeEnabled != currentInterval.Enabled() && nextInterval.Enabled();
             var intervalIsMissing = currentInterval != null && nextInterval.Start > currentInterval.End;
 
-            if (stateIsChangedToEnabled || intervalIsMissing)
+            if (stateIsChangedToEnabled || intervalIsMissing && currentInterval.End.Date > lastTradingDay.Date)
             {
                 // ReSharper disable once PossibleNullReferenceException
                 // if status was changed and next is enabled, that means current interval is disable == it not null
@@ -160,7 +160,7 @@ namespace MarginTrading.SettingsService.Services
                 return currentDateTime.Date.AddDays(1);
             }
 
-            return GetNextTradingDay(compiledSchedule, nextInterval, nextInterval.End.AddTicks(1));
+            return GetNextTradingDay(compiledSchedule, nextInterval, nextInterval.End.AddTicks(1), lastTradingDay);
         }
 
         private static bool IsBetween(DateTime currentDateTime, DateTime start, DateTime end)

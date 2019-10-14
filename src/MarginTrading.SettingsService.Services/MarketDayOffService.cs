@@ -140,7 +140,7 @@ namespace MarginTrading.SettingsService.Services
                 }
                 else // means no any intervals (current or any in the future)
                 {
-                    return currentDateTime.AddDays(1); 
+                    return currentDateTime.Date.AddDays(1); 
                 }
             }
 
@@ -152,6 +152,12 @@ namespace MarginTrading.SettingsService.Services
                 // ReSharper disable once PossibleNullReferenceException
                 // if status was changed and next is enabled, that means current interval is disable == it not null
                 return currentInterval.End;
+            }
+
+            // if we have long enabled interval with overnight, next day will start at 00:00:00
+            if (currentInterval.Enabled() && currentDateTime.Date.AddDays(1) < nextInterval.Start)
+            {
+                return currentDateTime.Date.AddDays(1);
             }
 
             return GetNextTradingDay(compiledSchedule, nextInterval, nextInterval.End.AddTicks(1));

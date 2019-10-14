@@ -25,6 +25,7 @@ namespace MarginTrading.SettingsService.Tests
         [InlineData("Market2.3", true, "2019-10-11", "2019-10-14")]
         [InlineData("Market2.4", false, "2019-10-10", "2019-10-11")]
         [InlineData("Market2.5", true, "2019-10-11", "2019-10-12")]
+        [InlineData("Market2.6", true, "2019-10-11", "2019-10-12")]
         [InlineData("Market3.1", false, "2019-10-10", "2019-10-12")]
         [InlineData("Market3.2", false, "2019-10-10", "2019-10-13")]
         [InlineData("Market3.3", false, "2019-10-10", "2019-10-15")]
@@ -103,12 +104,10 @@ namespace MarginTrading.SettingsService.Tests
                 new ScheduleConstraint
                 {
                     DayOfWeek = DayOfWeek.Saturday,
-                    Time = new TimeSpan(2, 0, 0)
                 },
                 new ScheduleConstraint
                 {
                     DayOfWeek = DayOfWeek.Monday,
-                    Time = new TimeSpan(1, 0, 0)
                 });
             
             AddSettings(
@@ -163,6 +162,18 @@ namespace MarginTrading.SettingsService.Tests
                 {
                     DayOfWeek = DayOfWeek.Saturday,
                     Time = new TimeSpan(0, 0, 0)
+                });
+            
+            AddSettings(
+                repoData,
+                "Market2.6",
+                new ScheduleConstraint
+                {
+                    DayOfWeek = DayOfWeek.Wednesday,
+                },
+                new ScheduleConstraint
+                {
+                    DayOfWeek = DayOfWeek.Thursday,
                 });
             
             AddSettings(

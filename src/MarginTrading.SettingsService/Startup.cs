@@ -21,6 +21,7 @@ using Lykke.SlackNotification.AzureQueue;
 using Lykke.SlackNotifications;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
+using Lykke.Snow.Common.Startup.Log;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Modules;
@@ -30,6 +31,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -83,9 +85,11 @@ namespace MarginTrading.SettingsService
                     }
                 });
 
-                var builder = new ContainerBuilder();
-
                 Log = CreateLogWithSlack(Configuration, services, appSettings);
+
+                services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(LogLocator.CommonLog));
+
+                var builder = new ContainerBuilder();
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.MarginTradingSettingsService), Log));
                 builder.RegisterModule(new CqrsModule(appSettings.CurrentValue.MarginTradingSettingsService.Cqrs, Log));

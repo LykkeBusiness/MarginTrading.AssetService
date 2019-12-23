@@ -9,7 +9,6 @@ using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
-using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
@@ -21,6 +20,8 @@ using Lykke.SlackNotification.AzureQueue;
 using Lykke.SlackNotifications;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
+using Lykke.Snow.Common.Startup.Hosting;
+using Lykke.Snow.Common.Startup.Log;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Modules;
@@ -30,6 +31,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
@@ -39,12 +41,12 @@ namespace MarginTrading.SettingsService
     public class Startup
     {
         public static string ServiceName { get; } = PlatformServices.Default.Application.ApplicationName;
-        
+
         public IHostingEnvironment Environment { get; }
         public IContainer ApplicationContainer { get; private set; }
         public IConfigurationRoot Configuration { get; }
         public ILog Log { get; private set; }
-        
+
         public Startup(IHostingEnvironment env)
         {
             Configuration = new ConfigurationBuilder()
@@ -83,9 +85,11 @@ namespace MarginTrading.SettingsService
                     }
                 });
 
-                var builder = new ContainerBuilder();
-
                 Log = CreateLogWithSlack(Configuration, services, appSettings);
+
+                services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(LogLocator.CommonLog));
+
+                var builder = new ContainerBuilder();
 
                 builder.RegisterModule(new ServiceModule(appSettings.Nested(x => x.MarginTradingSettingsService), Log));
                 builder.RegisterModule(new CqrsModule(appSettings.CurrentValue.MarginTradingSettingsService.Cqrs, Log));
@@ -114,13 +118,13 @@ namespace MarginTrading.SettingsService
                 {
                     app.UseHsts();
                 }
-                
+
 #if DEBUG
                 app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
 #else
                 app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
-      
+
                 app.UseAuthentication();
                 app.UseMvc();
                 app.UseSwagger();
@@ -144,6 +148,8 @@ namespace MarginTrading.SettingsService
                 // NOTE: Service not yet receive and process requests here
 
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
+
+                await Program.Host.WriteLogsAsync(Environment, LogLocator.CommonLog);
 
                 await Log.WriteMonitorAsync("", $"Env: {Program.EnvInfo}", "Started");
             }
@@ -230,7 +236,7 @@ namespace MarginTrading.SettingsService
             }
 
             #endregion Slack registration
-            
+
             if (settings.CurrentValue.MarginTradingSettingsService.UseSerilog)
             {
                 var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration);
@@ -246,7 +252,7 @@ namespace MarginTrading.SettingsService
                     new LogToSql(new SqlLogRepository(logName,
                         settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString)),
                     new LogToConsole());
-                
+
                 LogLocator.RequestsLog = new AggregateLogger(
                     new LogToSql(new SqlLogRepository(requestsLogName,
                         settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString)),

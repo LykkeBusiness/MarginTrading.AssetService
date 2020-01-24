@@ -3,6 +3,8 @@
 
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Cqrs;
+using Lykke.Cqrs.Configuration;
 using MarginTrading.SettingsService.Core.Services;
 
 namespace MarginTrading.SettingsService.Services
@@ -17,15 +19,18 @@ namespace MarginTrading.SettingsService.Services
     public class StartupManager : IStartupManager
     {
         private readonly ILog _log;
+        private readonly ICqrsEngine _cqrsEngine;
 
-        public StartupManager(ILog log)
+        public StartupManager(ILog log, ICqrsEngine cqrsEngine)
         {
             _log = log;
+            _cqrsEngine = cqrsEngine;
         }
 
         public async Task StartAsync()
         {
-            // TODO: Implement your startup logic here. Good idea is to log every step
+            _cqrsEngine.StartSubscribers();
+            _cqrsEngine.StartProcesses();
 
             await Task.CompletedTask;
         }

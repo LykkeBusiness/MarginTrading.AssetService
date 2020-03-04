@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common;
 using Dapper;
 
 namespace MarginTrading.SettingsService.Core.Helpers
@@ -34,10 +35,21 @@ namespace MarginTrading.SettingsService.Core.Helpers
                 if (value == null)
                     continue;
 
+                if (propertyInfo.PropertyType == typeof(string))
+                {
+                    updateParams[propertyInfo.Name] = value;
+                    continue;
+                }
+                
                 var underlyingType = Nullable.GetUnderlyingType(propertyInfo.PropertyType);
-                updateParams[propertyInfo.Name] = underlyingType?.IsEnum ?? false
-                    ? Convert.ChangeType(value, underlyingType).ToString()
-                    : value;
+
+                if (underlyingType?.IsEnum == true)
+                {
+                    updateParams[propertyInfo.Name] = Convert.ChangeType(value, underlyingType).ToString();
+                    continue;
+                }
+                
+                updateParams[propertyInfo.Name] = value.ToJson();
             }
 
             var result = new DynamicParameters();

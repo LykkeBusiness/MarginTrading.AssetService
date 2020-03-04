@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Common;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Interfaces;
 
@@ -28,5 +29,10 @@ namespace MarginTrading.SettingsService.AzureRepositories.Entities
         public bool IsSuspended { get; set; }
         public bool IsFrozen { get; set; }
         public bool IsDiscontinued { get; set; }
+        
+        FreezeInfo IAssetPair.FreezeInfo => !string.IsNullOrEmpty(FreezeInfo)
+            ? FreezeInfo.DeserializeJson<FreezeInfo>()
+            : new FreezeInfo();
+        public string FreezeInfo { get; set; }
     }
 }

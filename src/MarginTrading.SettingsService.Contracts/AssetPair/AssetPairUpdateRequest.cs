@@ -24,5 +24,6 @@ namespace MarginTrading.SettingsService.Contracts.AssetPair
          
         public bool? IsFrozen { get; set; } 
         public bool? IsDiscontinued { get; set; } 
+        public FreezeInfoContract FreezeInfo { get; set; }
     } 
 }

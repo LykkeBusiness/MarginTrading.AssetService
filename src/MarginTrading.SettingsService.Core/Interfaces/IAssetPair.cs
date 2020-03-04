@@ -22,5 +22,6 @@ namespace MarginTrading.SettingsService.Core.Interfaces
         bool IsSuspended { get; }
         bool IsFrozen { get; }
         bool IsDiscontinued { get; }
+        FreezeInfo FreezeInfo { get; }
     }
 }

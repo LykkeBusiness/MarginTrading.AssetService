@@ -58,5 +58,8 @@ namespace MarginTrading.SettingsService.Contracts.AssetPair
         
         [Key(13)]
         public bool IsDiscontinued { get; set; }
+        
+        [Key(14)]
+        public FreezeInfoContract FreezeInfo { get; set; }
     }
 }

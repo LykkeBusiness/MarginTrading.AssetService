@@ -10,7 +10,7 @@ namespace MarginTrading.SettingsService.Core.Domain
         public AssetPair(string id, string name, string baseAssetId, string quoteAssetId, int accuracy, string marketId, 
             string legalEntity, string basePairId, MatchingEngineMode matchingEngineMode, 
             decimal stpMultiplierMarkupBid, decimal stpMultiplierMarkupAsk, 
-            bool isSuspended, bool isFrozen, bool isDiscontinued)
+            bool isSuspended, bool isFrozen, bool isDiscontinued, FreezeInfo freezeInfo)
         {
             Id = id;
             Name = name;
@@ -27,6 +27,7 @@ namespace MarginTrading.SettingsService.Core.Domain
             IsSuspended = isSuspended;
             IsFrozen = isFrozen;
             IsDiscontinued = isDiscontinued;
+            FreezeInfo = freezeInfo ?? new FreezeInfo();
         }
 
         public string Id { get; }
@@ -44,6 +45,7 @@ namespace MarginTrading.SettingsService.Core.Domain
         public bool IsSuspended { get; }
         public bool IsFrozen { get; }
         public bool IsDiscontinued { get; }
+        public FreezeInfo FreezeInfo { get; }
 
         public IAssetPair CreateForUpdate(bool isSuspended)
         {
@@ -62,7 +64,8 @@ namespace MarginTrading.SettingsService.Core.Domain
                 
                 isSuspended: isSuspended,
                 isFrozen: this.IsFrozen,
-                isDiscontinued: this.IsDiscontinued
+                isDiscontinued: this.IsDiscontinued,
+                freezeInfo: this.FreezeInfo
             );
         }
     }

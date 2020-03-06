@@ -22,7 +22,7 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="11.1.0" />
     <PackageReference Include="Refit" Version="4.6.30" />
-    <PackageReference Include="MessagePack" Version="1.7.2" />
+    <PackageReference Include="MessagePack" Version="1.9.11" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="MarginTrading.SettingsService.Contracts.xml" />

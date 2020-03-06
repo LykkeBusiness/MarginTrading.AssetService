@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
+using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Contracts.Scheduling;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
@@ -33,6 +34,11 @@ namespace MarginTrading.SettingsService.Services
                 cfg.CreateMap<string, bool?>().ConstructUsing(x => bool.TryParse(x, out var parsed) ? parsed : (bool?) null);
                 cfg.CreateMap<TimeSpan?, string>().ConstructUsing(x => JsonConvert.SerializeObject(x));
                 cfg.CreateMap<string, TimeSpan?>().ConstructUsing(x => TimeSpan.TryParse(x, out var parsed) ? parsed : (TimeSpan?)null);
+                cfg.CreateMap<FreezeInfo, string>().ConvertUsing(JsonConvert.SerializeObject);
+                cfg.CreateMap<string, FreezeInfo>().ConvertUsing(s =>
+                    string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
+                cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s =>
+                    string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
 
             }).CreateMapper();
         }

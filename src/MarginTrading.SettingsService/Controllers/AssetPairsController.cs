@@ -189,6 +189,11 @@ namespace MarginTrading.SettingsService.Controllers
         {
             await ValidatePairUpdate(assetPairUpdateRequest);
             ValidateId(assetPairId, assetPairUpdateRequest.Id);
+            
+            if (assetPairUpdateRequest.IsFrozen == false)
+            {
+                assetPairUpdateRequest.FreezeInfo = new FreezeInfoContract(); 
+            }
 
             var updated = await _assetPairsRepository.UpdateAsync(assetPairUpdateRequest);
             
@@ -221,6 +226,11 @@ namespace MarginTrading.SettingsService.Controllers
             foreach (var assetPairUpdateRequest in assetPairsUpdateRequest)
             {
                 await ValidatePairUpdate(assetPairUpdateRequest);
+                
+                if (assetPairUpdateRequest.IsFrozen == false)
+                {
+                    assetPairUpdateRequest.FreezeInfo = new FreezeInfoContract(); 
+                }
             }
             await ValidateUnique(assetPairsUpdateRequest);
 
@@ -397,6 +407,11 @@ namespace MarginTrading.SettingsService.Controllers
                     $"Asset pair with base: {assetPair.BaseAssetId}, quote: {assetPair.QuoteAssetId}, legalEntity: {assetPair.LegalEntity} already exists");
             }
 
+            if (assetPair.IsFrozen == false && assetPair.FreezeInfo != null)
+            {
+                throw new InvalidOperationException($"FreezeInfo can be specified only for frozen asset pair");
+            }
+            
             //base pair check <-- the last one
             if (assetPair.BasePairId == null) 
                 return;

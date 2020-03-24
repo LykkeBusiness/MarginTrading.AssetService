@@ -25,7 +25,7 @@ namespace MarginTrading.SettingsService.Contracts
         /// <summary>
         /// Get the list of trading instruments with optional pagination
         /// </summary>
-        [Get("/api/assetPairs/by-pages")]
+        [Get("/api/tradingInstruments/by-pages")]
         Task<PaginatedResponseContract<TradingInstrumentContract>> ListByPages(
             [Query, CanBeNull] string tradingConditionId,
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);

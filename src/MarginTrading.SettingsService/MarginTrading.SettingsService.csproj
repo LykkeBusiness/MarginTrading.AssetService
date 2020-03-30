@@ -60,10 +60,6 @@
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.Extensions.SecretManager.Tools" Version="2.1.1" />
-    <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="1.0.1" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MarginTrading.SettingsService.Contracts\MarginTrading.SettingsService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.SqlRepositories\MarginTrading.SettingsService.SqlRepositories.csproj" />
     <ProjectReference Include="..\MarginTrading.SettingsService.AzureRepositories\MarginTrading.SettingsService.AzureRepositories.csproj" />

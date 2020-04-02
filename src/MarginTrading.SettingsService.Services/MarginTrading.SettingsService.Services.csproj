@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>MarginTrading.SettingsService.Services</AssemblyName>
     <RootNamespace>MarginTrading.SettingsService.Services</RootNamespace>
-    <Version>1.15.9</Version>
-    <LangVersion>7.3</LangVersion>
+    <Version>1.15.12</Version>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.0" />

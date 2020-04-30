@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Common.Log;
 using Lykke.SettingsReader;
 using MarginTrading.SettingsService.AzureRepositories.Entities;
 using MarginTrading.SettingsService.Contracts.AssetPair;
@@ -176,7 +177,7 @@ namespace MarginTrading.SettingsService.AzureRepositories.Repositories
             var newAssetPair = ((AssetPair) current).CreateForUpdate(suspendFlag);
             
             await base.ReplaceAsync(newAssetPair);
-
+            
             return newAssetPair;
         }
     }

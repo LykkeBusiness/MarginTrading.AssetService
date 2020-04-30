@@ -9,6 +9,7 @@ using MarginTrading.SettingsService.Contracts.AssetPair;
 using MarginTrading.SettingsService.Core.Interfaces;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
+using Microsoft.AspNetCore.Razor.Language.Extensions;
 
 namespace MarginTrading.SettingsService.Workflow.AssetPairFlags
 {
@@ -58,7 +59,6 @@ namespace MarginTrading.SettingsService.Workflow.AssetPairFlags
             IEventPublisher publisher)
         {
             //idempotency handling not required
-            
             var assetPair = await _assetPairsRepository.ChangeSuspendFlag(command.AssetPairId, false);
             
             _chaosKitty.Meow(command.OperationId);

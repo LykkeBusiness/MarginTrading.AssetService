@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Version>1.16.0</Version>
+    <Version>1.16.1</Version>
     <AssemblyName>MarginTrading.SettingsService</AssemblyName>
     <RootNamespace>MarginTrading.SettingsService</RootNamespace>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>

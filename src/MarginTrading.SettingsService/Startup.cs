@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
-using Lykke.Common.ApiLibrary.Swagger;
 using Lykke.Logs;
 using Lykke.Logs.MsSql;
 using Lykke.Logs.MsSql.Repositories;
@@ -29,11 +28,12 @@ using MarginTrading.SettingsService.Modules;
 using MarginTrading.SettingsService.Services;
 using MarginTrading.SettingsService.Settings;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
@@ -44,12 +44,12 @@ namespace MarginTrading.SettingsService
         private IReloadingManager<AppSettings> _mtSettingsManager;
         public static string ServiceName { get; } = PlatformServices.Default.Application.ApplicationName;
 
-        public IHostingEnvironment Environment { get; }
+        public IHostEnvironment Environment { get; }
         public ILifetimeScope ApplicationContainer { get; private set; }
         public IConfigurationRoot Configuration { get; }
         public ILog Log { get; private set; }
 
-        public Startup(IHostingEnvironment env)
+        public Startup(IHostEnvironment env)
         {
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
@@ -78,7 +78,14 @@ namespace MarginTrading.SettingsService
 
                 services.AddSwaggerGen(options =>
                 {
-                    options.DefaultLykkeConfiguration("v1", $"{ServiceName} API");
+                    options.SwaggerDoc(
+                        "v1",
+                        new OpenApiInfo
+                        {
+                            Version = "v1",
+                            Title = $"{ServiceName} API"
+                        });
+                    
                     var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath,
                         "MarginTrading.SettingsService.Contracts.xml");
                     options.IncludeXmlComments(contractsXmlPath);
@@ -101,6 +108,7 @@ namespace MarginTrading.SettingsService
             }
         }
 
+        [UsedImplicitly]
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingSettingsService), Log));
@@ -108,7 +116,7 @@ namespace MarginTrading.SettingsService
         }
 
         [UsedImplicitly]
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IApplicationLifetime appLifetime)
+        public void Configure(IApplicationBuilder app, IHostEnvironment env, IHostApplicationLifetime appLifetime)
         {
             try
             {

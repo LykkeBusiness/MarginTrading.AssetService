@@ -12,6 +12,7 @@ using Lykke.SettingsReader;
 using MarginTrading.SettingsService.Core.Domain;
 using MarginTrading.SettingsService.Core.Services;
 using MarginTrading.SettingsService.Services;
+using MarginTrading.SettingsService.Settings.Candles;
 using MarginTrading.SettingsService.Settings.ServiceSettings;
 using MarginTrading.SettingsService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,6 +48,9 @@ namespace MarginTrading.SettingsService.Modules
             builder.RegisterInstance(_settings.CurrentValue.RequestLoggerSettings).SingleInstance(); 
             
             builder.RegisterInstance(_settings.CurrentValue.Platform).SingleInstance();
+
+            builder.RegisterInstance(_settings.CurrentValue.CandlesSharding ?? new CandlesShardingSettings())
+                .SingleInstance();  
 
             builder.RegisterType<HealthService>().As<IHealthService>().SingleInstance();
 

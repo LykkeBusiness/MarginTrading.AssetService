@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.SettingsReader.Attributes;
 using MarginTrading.SettingsService.Core.Settings;
+using MarginTrading.SettingsService.Settings.Candles;
 
 namespace MarginTrading.SettingsService.Settings.ServiceSettings
 {
@@ -31,5 +32,8 @@ namespace MarginTrading.SettingsService.Settings.ServiceSettings
 
         [Optional]
         public PlatformSettings Platform { get; set; } = new PlatformSettings();
+        
+        [Optional]
+        public CandlesShardingSettings CandlesSharding { get; set; }
     }
 }

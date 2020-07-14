@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>MarginTrading.SettingsService.AzureRepositories</AssemblyName>
     <RootNamespace>MarginTrading.SettingsService.AzureRepositories</RootNamespace>
-    <Version>1.16.1</Version>
+    <Version>1.16.2</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>

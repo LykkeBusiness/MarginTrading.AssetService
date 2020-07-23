@@ -1,4 +1,4 @@
-# MarginTrading.SettingsService API #
+# MarginTrading.AssetService API #
 
 API for settings management.
 
@@ -26,7 +26,7 @@ API for settings management.
 ## How to run for debug? ##
 
 1. Clone repo to some directory.
-2. In MarginTrading.SettingsService root create a appsettings.dev.json with settings.
+2. In MarginTrading.AssetService root create a appsettings.dev.json with settings.
 3. Add environment variable "SettingsUrl": "appsettings.dev.json".
 4. VPN to a corresponding env must be connected and all dependencies must be initialized.
 5. Run.

@@ -74,7 +74,7 @@ namespace MarginTrading.AssetService
 
                 _mtSettingsManager = Configuration.LoadSettings<AppSettings>();
 
-                services.AddApiKeyAuth(_mtSettingsManager.CurrentValue.MarginTradingSettingsServiceClient);
+                services.AddApiKeyAuth(_mtSettingsManager.CurrentValue.MarginTradingAssetServiceClient);
 
                 services.AddSwaggerGen(options =>
                 {
@@ -89,7 +89,7 @@ namespace MarginTrading.AssetService
                     var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath,
                         "MarginTrading.AssetService.Contracts.xml");
                     options.IncludeXmlComments(contractsXmlPath);
-                    if (!string.IsNullOrWhiteSpace(_mtSettingsManager.CurrentValue.MarginTradingSettingsServiceClient?.ApiKey))
+                    if (!string.IsNullOrWhiteSpace(_mtSettingsManager.CurrentValue.MarginTradingAssetServiceClient?.ApiKey))
                     {
                         options.AddApiKeyAwareness();
                     }
@@ -111,8 +111,8 @@ namespace MarginTrading.AssetService
         [UsedImplicitly]
         public void ConfigureContainer(ContainerBuilder builder)
         {
-            builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingSettingsService), Log));
-            builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingSettingsService.Cqrs, Log));
+            builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
+            builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAssetService.Cqrs, Log));
         }
 
         [UsedImplicitly]
@@ -227,8 +227,8 @@ namespace MarginTrading.AssetService
             
             #region Logs settings validation
 
-            if (!settings.CurrentValue.MarginTradingSettingsService.UseSerilog 
-                && string.IsNullOrWhiteSpace(settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString))
+            if (!settings.CurrentValue.MarginTradingAssetService.UseSerilog 
+                && string.IsNullOrWhiteSpace(settings.CurrentValue.MarginTradingAssetService.Db.LogsConnString))
             {
                 throw new Exception("Either UseSerilog must be true or LogsConnString must be set");
             }
@@ -253,7 +253,7 @@ namespace MarginTrading.AssetService
 
             #endregion Slack registration
 
-            if (settings.CurrentValue.MarginTradingSettingsService.UseSerilog)
+            if (settings.CurrentValue.MarginTradingAssetService.UseSerilog)
             {
                 var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration);
 
@@ -262,22 +262,22 @@ namespace MarginTrading.AssetService
                 return serilogLogger;
             }
 
-            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode == StorageMode.SqlServer)
+            if (settings.CurrentValue.MarginTradingAssetService.Db.StorageMode == StorageMode.SqlServer)
             {
                 LogLocator.CommonLog = new AggregateLogger(
                     new LogToSql(new SqlLogRepository(logName,
-                        settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString)),
+                        settings.CurrentValue.MarginTradingAssetService.Db.LogsConnString)),
                     new LogToConsole());
 
                 LogLocator.RequestsLog = new AggregateLogger(
                     new LogToSql(new SqlLogRepository(requestsLogName,
-                        settings.CurrentValue.MarginTradingSettingsService.Db.LogsConnString)),
+                        settings.CurrentValue.MarginTradingAssetService.Db.LogsConnString)),
                     new LogToConsole());
 
                 return LogLocator.CommonLog;
             }
 
-            if (settings.CurrentValue.MarginTradingSettingsService.Db.StorageMode != StorageMode.Azure)
+            if (settings.CurrentValue.MarginTradingAssetService.Db.StorageMode != StorageMode.Azure)
             {
                 throw new Exception("Wrong config! Logging must be set either to Serilog, SqlServer or Azure.");
             }
@@ -285,11 +285,11 @@ namespace MarginTrading.AssetService
             #region Azure logging
 
             LogLocator.RequestsLog = services.UseLogToAzureStorage(settings.Nested(s => 
-                    s.MarginTradingSettingsService.Db.LogsConnString),
+                    s.MarginTradingAssetService.Db.LogsConnString),
                 slackService, requestsLogName, consoleLogger);
 
             LogLocator.CommonLog = services.UseLogToAzureStorage(settings.Nested(s => 
-                    s.MarginTradingSettingsService.Db.LogsConnString),
+                    s.MarginTradingAssetService.Db.LogsConnString),
                 slackService, logName, consoleLogger);
 
             return LogLocator.CommonLog;

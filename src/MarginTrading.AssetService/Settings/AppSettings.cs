@@ -12,10 +12,10 @@ namespace MarginTrading.AssetService.Settings
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
     public class AppSettings
     {
-        public SettingsServiceSettings MarginTradingSettingsService { get; set; }
+        public AssetServiceSettings MarginTradingAssetService { get; set; }
         
         [Optional, CanBeNull]
-        public ClientSettings MarginTradingSettingsServiceClient { get; set; } = new ClientSettings();
+        public ClientSettings MarginTradingAssetServiceClient { get; set; } = new ClientSettings();
             
         [Optional, CanBeNull] public SlackNotificationsSettings SlackNotifications { get; set; }
     }

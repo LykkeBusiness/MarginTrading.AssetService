@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Version>1.16.2</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MarginTrading.AssetService.AzureRepositories\MarginTrading.AssetService.AzureRepositories.csproj" />
+    <ProjectReference Include="..\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
+    <ProjectReference Include="..\MarginTrading.AssetService.SqlRepositories\MarginTrading.AssetService.SqlRepositories.csproj" />
+    <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+  </ItemGroup>
+</Project>

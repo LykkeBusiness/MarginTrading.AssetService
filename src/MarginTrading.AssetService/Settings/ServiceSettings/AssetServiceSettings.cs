@@ -10,7 +10,7 @@ using MarginTrading.AssetService.Settings.Candles;
 namespace MarginTrading.AssetService.Settings.ServiceSettings
 {
     [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-    public class SettingsServiceSettings
+    public class AssetServiceSettings
     {
         public DbSettings Db { get; set; }
         

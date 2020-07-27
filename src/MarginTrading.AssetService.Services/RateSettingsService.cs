@@ -16,18 +16,15 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly IRatesRepository _ratesRepository;
 
-        private readonly IEventSender _eventSender;
         private readonly ILog _log;
         private readonly DefaultRateSettings _defaultRateSettings;
 
         public RateSettingsService(
             IRatesRepository ratesRepository,
-            IEventSender eventSender,
             ILog log,
             DefaultRateSettings defaultRateSettings)
         {
             _ratesRepository = ratesRepository;
-            _eventSender = eventSender;
             _log = log;
             _defaultRateSettings = defaultRateSettings;
         }
@@ -77,8 +74,6 @@ namespace MarginTrading.AssetService.Services
             }).ToList();
 
             await _ratesRepository.MergeOrderExecutionRatesAsync(rates);
-
-            await _eventSender.SendRateSettingsChanged(CommissionType.OrderExecution);
         }
 
         #endregion Order Execution
@@ -93,8 +88,6 @@ namespace MarginTrading.AssetService.Services
         public async Task ReplaceOvernightSwapRates(List<OvernightSwapRate> rates)
         {
             await _ratesRepository.MergeOvernightSwapRatesAsync(rates);
-
-            await _eventSender.SendRateSettingsChanged(CommissionType.OvernightSwap);
         }
 
         #endregion Overnight Swaps
@@ -123,8 +116,6 @@ namespace MarginTrading.AssetService.Services
             }
 
             await _ratesRepository.ReplaceOnBehalfRateAsync(rate);
-
-            await _eventSender.SendRateSettingsChanged(CommissionType.OnBehalf);
         }
 
         #endregion On Behalf

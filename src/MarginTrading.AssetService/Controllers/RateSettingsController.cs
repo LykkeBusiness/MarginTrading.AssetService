@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Rates;
+using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Domain.Rates;
 using Microsoft.AspNetCore.Authorization;
 
@@ -22,13 +23,16 @@ namespace MarginTrading.AssetService.Controllers
     {
         private readonly IRateSettingsService _rateSettingsService;
         private readonly IConvertService _convertService;
+        private readonly IEventSender _eventSender;
 
         public RateSettingsController(
             IRateSettingsService rateSettingsService,
-            IConvertService convertService)
+            IConvertService convertService,
+            IEventSender eventSender)
         {
             _rateSettingsService = rateSettingsService;
             _convertService = convertService;
+            _eventSender = eventSender;
         }
 
         [ProducesResponseType(typeof(IReadOnlyList<OrderExecutionRateContract>), 200)]
@@ -87,6 +91,8 @@ namespace MarginTrading.AssetService.Controllers
             await _rateSettingsService.ReplaceOrderExecutionRates(rates
                 .Select(x => _convertService.Convert<OrderExecutionRateContract, OrderExecutionRate>(x))
                 .ToList());
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OrderExecution);
         }
 
         
@@ -115,6 +121,8 @@ namespace MarginTrading.AssetService.Controllers
             await _rateSettingsService.ReplaceOvernightSwapRates(rates
                 .Select(x => _convertService.Convert<OvernightSwapRateContract, OvernightSwapRate>(x))
                 .ToList());
+
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OvernightSwap);
         }
 
         
@@ -140,6 +148,8 @@ namespace MarginTrading.AssetService.Controllers
 
             await _rateSettingsService.ReplaceOnBehalfRate(
                 _convertService.Convert<OnBehalfRateContract, OnBehalfRate>(rate));
+            
+            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OnBehalf);
         }
     }
 }

@@ -3,7 +3,6 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MarginTrading.AssetService.Core.Domain.Rates;
 
 namespace MarginTrading.AssetService.Core.Services
@@ -12,8 +11,7 @@ namespace MarginTrading.AssetService.Core.Services
     {
         Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRates(IList<string> assetPairIds = null);
         Task ReplaceOrderExecutionRates(List<OrderExecutionRate> rates);
-        Task<OvernightSwapRate> GetOvernightSwapRate([NotNull] string assetPair);
-        Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesForApi();
+        Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRates();
         Task ReplaceOvernightSwapRates(List<OvernightSwapRate> rates);
         Task<OnBehalfRate> GetOnBehalfRate();
         Task ReplaceOnBehalfRate(OnBehalfRate rate);

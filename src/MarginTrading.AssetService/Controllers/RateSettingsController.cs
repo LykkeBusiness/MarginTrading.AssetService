@@ -96,7 +96,7 @@ namespace MarginTrading.AssetService.Controllers
         [HttpGet("get-overnight-swap")]
         public async Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRates()
         {
-            return (await _rateSettingsService.GetOvernightSwapRatesForApi())
+            return (await _rateSettingsService.GetOvernightSwapRates())
                    ?.Select(x => _convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>(x)).ToList()
                    ?? new List<OvernightSwapRateContract>();
         }

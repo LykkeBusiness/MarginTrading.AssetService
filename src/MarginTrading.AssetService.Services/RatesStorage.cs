@@ -9,13 +9,13 @@ using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
-namespace MarginTrading.AssetService.SqlRepositories.Repositories
+namespace MarginTrading.AssetService.Services
 {
-    public class RatesRepository : IRatesRepository
+    public class RatesStorage : IRatesStorage
     {
         private readonly IMarginTradingBlobRepository _blobRepository;
 
-        public RatesRepository(IMarginTradingBlobRepository blobRepository)
+        public RatesStorage(IMarginTradingBlobRepository blobRepository)
         {
             _blobRepository = blobRepository;
         }

@@ -14,17 +14,17 @@ namespace MarginTrading.AssetService.Services
 {
     public class RateSettingsService : IRateSettingsService
     {
-        private readonly IRatesRepository _ratesRepository;
+        private readonly IRatesStorage _ratesStorage;
 
         private readonly ILog _log;
         private readonly DefaultRateSettings _defaultRateSettings;
 
         public RateSettingsService(
-            IRatesRepository ratesRepository,
+            IRatesStorage ratesStorage,
             ILog log,
             DefaultRateSettings defaultRateSettings)
         {
-            _ratesRepository = ratesRepository;
+            _ratesStorage = ratesStorage;
             _log = log;
             _defaultRateSettings = defaultRateSettings;
         }
@@ -33,7 +33,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRates(IList<string> assetPairIds = null)
         {
-            var repoData = await _ratesRepository.GetOrderExecutionRatesAsync();
+            var repoData = await _ratesStorage.GetOrderExecutionRatesAsync();
             
             if (assetPairIds == null || !assetPairIds.Any())
                 return repoData.ToList();
@@ -73,7 +73,7 @@ namespace MarginTrading.AssetService.Services
                 return x;
             }).ToList();
 
-            await _ratesRepository.MergeOrderExecutionRatesAsync(rates);
+            await _ratesStorage.MergeOrderExecutionRatesAsync(rates);
         }
 
         #endregion Order Execution
@@ -82,12 +82,12 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRates()
         {
-            return await _ratesRepository.GetOvernightSwapRatesAsync();
+            return await _ratesStorage.GetOvernightSwapRatesAsync();
         }
 
         public async Task ReplaceOvernightSwapRates(List<OvernightSwapRate> rates)
         {
-            await _ratesRepository.MergeOvernightSwapRatesAsync(rates);
+            await _ratesStorage.MergeOvernightSwapRatesAsync(rates);
         }
 
         #endregion Overnight Swaps
@@ -96,7 +96,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<OnBehalfRate> GetOnBehalfRate()
         {
-            var rate = await _ratesRepository.GetOnBehalfRateAsync();
+            var rate = await _ratesStorage.GetOnBehalfRateAsync();
             if (rate == null)
             {
                 await _log.WriteWarningAsync(nameof(RateSettingsService), nameof(GetOnBehalfRate),
@@ -115,7 +115,7 @@ namespace MarginTrading.AssetService.Services
                 rate.LegalEntity = _defaultRateSettings.DefaultOrderExecutionSettings.LegalEntity;
             }
 
-            await _ratesRepository.ReplaceOnBehalfRateAsync(rate);
+            await _ratesStorage.ReplaceOnBehalfRateAsync(rate);
         }
 
         #endregion On Behalf

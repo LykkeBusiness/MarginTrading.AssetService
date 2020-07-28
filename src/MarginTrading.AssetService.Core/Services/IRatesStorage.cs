@@ -7,7 +7,7 @@ using MarginTrading.AssetService.Core.Domain.Rates;
 
 namespace MarginTrading.AssetService.Core.Services
 {
-    public interface IRatesRepository
+    public interface IRatesStorage
     {
         Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRatesAsync();
         Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync();

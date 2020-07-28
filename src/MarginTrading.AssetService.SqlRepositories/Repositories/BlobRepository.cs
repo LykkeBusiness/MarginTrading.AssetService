@@ -13,7 +13,7 @@ using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
-    public class SqlBlobRepository : IMarginTradingBlobRepository
+    public class BlobRepository : IMarginTradingBlobRepository
     {
         private const string TableName = "BlobData";
         private const string CreateTableScript = "CREATE TABLE [{0}](" +
@@ -24,7 +24,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         
         private readonly string _connectionString;
         
-        public SqlBlobRepository(string connectionString)
+        public BlobRepository(string connectionString)
         {
             _connectionString = connectionString;
             

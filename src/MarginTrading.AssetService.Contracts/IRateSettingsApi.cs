@@ -11,7 +11,7 @@ namespace MarginTrading.AssetService.Contracts
 {
     /// <summary>
     /// Commission rate settings management.
-    /// RateSettingsChangedEvent is generated on change.
+    /// SettingsChangedEvent is generated on change.
     /// </summary>
     [PublicAPI]
     public interface IRateSettingsApi

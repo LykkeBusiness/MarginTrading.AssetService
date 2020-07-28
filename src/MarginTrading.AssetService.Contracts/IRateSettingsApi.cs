@@ -21,7 +21,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         [Get("/api/rates/get-order-exec")]
         Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRates();
-        
+
         /// <summary>
         /// Get order execution rates for asset pair id
         /// </summary>
@@ -33,16 +33,16 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <param name="assetPairIds">The list of asset pair ids</param>
         /// <returns></returns>
-        [Get("/api/rates/get-order-exec/list")]
+        [Post("/api/rates/get-order-exec/list")]
         Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRates(
-            [Query(CollectionFormat.Multi)] string[] assetPairIds);
+            [Body] string[] assetPairIds);
 
         /// <summary>
         /// Insert or update existing order execution rates
         /// </summary>
         [Post("/api/rates/replace-order-exec")]
         Task ReplaceOrderExecutionRates([Body, NotNull] OrderExecutionRateContract[] rates);
-        
+
         /// <summary>
         /// Get overnight swap rates
         /// </summary>
@@ -50,11 +50,23 @@ namespace MarginTrading.AssetService.Contracts
         Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRates();
 
         /// <summary>
+        /// Get overnight swap rates for asset pair id
+        /// </summary>
+        [Get("/api/rates/get-overnight-swap/{assetPairId}")]
+        Task<OvernightSwapRateContract> GetOvernightSwapRates(string assetPairId);
+
+        /// <summary>
+        /// Get overnight swap rates for asset pair id
+        /// </summary>
+        [Post("/api/rates/get-overnight-swap/list")]
+        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRates([Body] string[] assetPairIds);
+
+        /// <summary>
         /// Insert or update existing overnight swap rates
         /// </summary>
         [Post("/api/rates/replace-overnight-swap")]
         Task ReplaceOvernightSwapRates([Body, NotNull] OvernightSwapRateContract[] rates);
-        
+
         /// <summary>
         /// Get on behalf rate
         /// </summary>

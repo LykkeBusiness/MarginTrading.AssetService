@@ -60,8 +60,8 @@ namespace MarginTrading.AssetService.Controllers
 
         [ProducesResponseType(typeof(IReadOnlyList<OrderExecutionRateContract>), 200)]
         [ProducesResponseType(400)]
-        [HttpGet("get-order-exec/list")]
-        public async Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRates([FromQuery] string[] assetPairIds)
+        [HttpPost("get-order-exec/list")]
+        public async Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRates([FromBody] string[] assetPairIds)
         {
             var executionRates = await _rateSettingsService.GetOrderExecutionRates(assetPairIds);
 
@@ -105,6 +105,31 @@ namespace MarginTrading.AssetService.Controllers
             return (await _rateSettingsService.GetOvernightSwapRates())
                    ?.Select(x => _convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>(x)).ToList()
                    ?? new List<OvernightSwapRateContract>();
+        }
+
+        [ProducesResponseType(typeof(OvernightSwapRateContract), 200)]
+        [ProducesResponseType(400)]
+        [HttpGet("get-overnight-swap/{assetPairId}")]
+        public async Task<OvernightSwapRateContract> GetOvernightSwapRates(string assetPairId)
+        {
+            var swapRate = (await _rateSettingsService.GetOvernightSwapRates(new[] {assetPairId})).SingleOrDefault();
+
+            if (swapRate == null)
+                return null;
+
+            return _convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>(swapRate);
+        }
+
+        [ProducesResponseType(typeof(IReadOnlyList<OvernightSwapRateContract>), 200)]
+        [ProducesResponseType(400)]
+        [HttpPost("get-overnight-swap/list")]
+        public async Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRates(string[] assetPairIds)
+        {
+            var swapRates = await _rateSettingsService.GetOvernightSwapRates(assetPairIds);
+
+            return swapRates
+                .Select(_convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>)
+                .ToList();
         }
 
         [ProducesResponseType(200)]

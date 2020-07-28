@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Services
         public async Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRates(IList<string> assetPairIds = null)
         {
             var repoData = await _ratesStorage.GetOrderExecutionRatesAsync();
-            
+
             if (assetPairIds == null || !assetPairIds.Any())
                 return repoData.ToList();
 
@@ -80,9 +80,34 @@ namespace MarginTrading.AssetService.Services
 
         #region Overnight Swaps
 
-        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRates()
+        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRates(IList<string> assetPairIds = null)
         {
-            return await _ratesStorage.GetOvernightSwapRatesAsync();
+            var repoData = await _ratesStorage.GetOvernightSwapRatesAsync();
+
+            if (assetPairIds == null || !assetPairIds.Any())
+                return repoData.ToList();
+
+            return assetPairIds
+                .Select(assetPairId => GetOvernightSwapRateSingleOrDefault(assetPairId, repoData))
+                .ToList();
+        }
+
+        private OvernightSwapRate GetOvernightSwapRateSingleOrDefault(string assetPairId,
+            IReadOnlyCollection<OvernightSwapRate> repoData)
+        {
+            var rate = repoData?.FirstOrDefault(x => x.AssetPairId == assetPairId);
+            if (rate == null)
+            {
+                _log.WriteWarning(nameof(RateSettingsService), nameof(GetOvernightSwapRateSingleOrDefault),
+                    $"No overnight swap rate for {assetPairId}. Using the default one.");
+
+                var rateFromDefault =
+                    OvernightSwapRate.FromDefault(_defaultRateSettings.DefaultOvernightSwapSettings, assetPairId);
+
+                return rateFromDefault;
+            }
+
+            return rate;
         }
 
         public async Task ReplaceOvernightSwapRates(List<OvernightSwapRate> rates)

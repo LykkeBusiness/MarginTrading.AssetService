@@ -31,7 +31,7 @@ namespace MarginTrading.AssetService.Services
 
         #region Order Execution
 
-        public async Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRates(IList<string> assetPairIds = null)
+        public async Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRatesAsync(IList<string> assetPairIds = null)
         {
             var repoData = await _ratesStorage.GetOrderExecutionRatesAsync();
 
@@ -61,7 +61,7 @@ namespace MarginTrading.AssetService.Services
             return rate;
         }
 
-        public async Task ReplaceOrderExecutionRates(List<OrderExecutionRate> rates)
+        public async Task ReplaceOrderExecutionRatesAsync(List<OrderExecutionRate> rates)
         {
             rates = rates.Select(x =>
             {
@@ -80,7 +80,7 @@ namespace MarginTrading.AssetService.Services
 
         #region Overnight Swaps
 
-        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRates(IList<string> assetPairIds = null)
+        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync(IList<string> assetPairIds = null)
         {
             var repoData = await _ratesStorage.GetOvernightSwapRatesAsync();
 
@@ -110,7 +110,7 @@ namespace MarginTrading.AssetService.Services
             return rate;
         }
 
-        public async Task ReplaceOvernightSwapRates(List<OvernightSwapRate> rates)
+        public async Task ReplaceOvernightSwapRatesAsync(List<OvernightSwapRate> rates)
         {
             await _ratesStorage.MergeOvernightSwapRatesAsync(rates);
         }
@@ -119,12 +119,12 @@ namespace MarginTrading.AssetService.Services
 
         #region On Behalf
 
-        public async Task<OnBehalfRate> GetOnBehalfRate()
+        public async Task<OnBehalfRate> GetOnBehalfRateAsync()
         {
             var rate = await _ratesStorage.GetOnBehalfRateAsync();
             if (rate == null)
             {
-                await _log.WriteWarningAsync(nameof(RateSettingsService), nameof(GetOnBehalfRate),
+                await _log.WriteWarningAsync(nameof(RateSettingsService), nameof(GetOnBehalfRateAsync),
                     $"No OnBehalf rate saved, using the default one.");
 
                 rate = OnBehalfRate.FromDefault(_defaultRateSettings.DefaultOnBehalfSettings);
@@ -133,7 +133,7 @@ namespace MarginTrading.AssetService.Services
             return rate;
         }
 
-        public async Task ReplaceOnBehalfRate(OnBehalfRate rate)
+        public async Task ReplaceOnBehalfRateAsync(OnBehalfRate rate)
         {
             if (string.IsNullOrWhiteSpace(rate.LegalEntity))
             {

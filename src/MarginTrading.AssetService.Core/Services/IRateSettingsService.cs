@@ -9,11 +9,11 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface IRateSettingsService
     {
-        Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRates(IList<string> assetPairIds = null);
-        Task ReplaceOrderExecutionRates(List<OrderExecutionRate> rates);
-        Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRates(IList<string> assetPairIds = null);
-        Task ReplaceOvernightSwapRates(List<OvernightSwapRate> rates);
-        Task<OnBehalfRate> GetOnBehalfRate();
-        Task ReplaceOnBehalfRate(OnBehalfRate rate);
+        Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRatesAsync(IList<string> assetPairIds = null);
+        Task ReplaceOrderExecutionRatesAsync(List<OrderExecutionRate> rates);
+        Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync(IList<string> assetPairIds = null);
+        Task ReplaceOvernightSwapRatesAsync(List<OvernightSwapRate> rates);
+        Task<OnBehalfRate> GetOnBehalfRateAsync();
+        Task ReplaceOnBehalfRateAsync(OnBehalfRate rate);
     }
 }

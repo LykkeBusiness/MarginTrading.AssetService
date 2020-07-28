@@ -38,9 +38,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(IReadOnlyList<OrderExecutionRateContract>), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-order-exec")]
-        public async Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRates()
+        public async Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRatesAsync()
         {
-            return (await _rateSettingsService.GetOrderExecutionRates())
+            return (await _rateSettingsService.GetOrderExecutionRatesAsync())
                 ?.Select(x => _convertService.Convert<OrderExecutionRate, OrderExecutionRateContract>(x)).ToList()
                    ?? new List<OrderExecutionRateContract>();
         }
@@ -48,9 +48,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(OrderExecutionRateContract), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-order-exec/{assetPairId}")]
-        public async Task<OrderExecutionRateContract> GetOrderExecutionRate(string assetPairId)
+        public async Task<OrderExecutionRateContract> GetOrderExecutionRateAsync(string assetPairId)
         {
-            var executionRate = (await _rateSettingsService.GetOrderExecutionRates(new[] {assetPairId})).SingleOrDefault();
+            var executionRate = (await _rateSettingsService.GetOrderExecutionRatesAsync(new[] {assetPairId})).SingleOrDefault();
 
             if (executionRate == null)
                 return null;
@@ -61,9 +61,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(IReadOnlyList<OrderExecutionRateContract>), 200)]
         [ProducesResponseType(400)]
         [HttpPost("get-order-exec/list")]
-        public async Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRates([FromBody] string[] assetPairIds)
+        public async Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRatesAsync([FromBody] string[] assetPairIds)
         {
-            var executionRates = await _rateSettingsService.GetOrderExecutionRates(assetPairIds);
+            var executionRates = await _rateSettingsService.GetOrderExecutionRatesAsync(assetPairIds);
 
             return executionRates
                 .Select(_convertService.Convert<OrderExecutionRate, OrderExecutionRateContract>)
@@ -79,7 +79,7 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [HttpPost("replace-order-exec")]
-        public async Task ReplaceOrderExecutionRates([FromBody] OrderExecutionRateContract[] rates)
+        public async Task ReplaceOrderExecutionRatesAsync([FromBody] OrderExecutionRateContract[] rates)
         {
             if (rates == null || !rates.Any() || rates.Any(x => 
                     string.IsNullOrWhiteSpace(x.AssetPairId)
@@ -88,7 +88,7 @@ namespace MarginTrading.AssetService.Controllers
                 throw new ArgumentNullException(nameof(rates));
             }
 
-            await _rateSettingsService.ReplaceOrderExecutionRates(rates
+            await _rateSettingsService.ReplaceOrderExecutionRatesAsync(rates
                 .Select(x => _convertService.Convert<OrderExecutionRateContract, OrderExecutionRate>(x))
                 .ToList());
 
@@ -100,9 +100,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(IReadOnlyList<OvernightSwapRateContract>), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-overnight-swap")]
-        public async Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRates()
+        public async Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync()
         {
-            return (await _rateSettingsService.GetOvernightSwapRates())
+            return (await _rateSettingsService.GetOvernightSwapRatesAsync())
                    ?.Select(x => _convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>(x)).ToList()
                    ?? new List<OvernightSwapRateContract>();
         }
@@ -110,9 +110,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(OvernightSwapRateContract), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-overnight-swap/{assetPairId}")]
-        public async Task<OvernightSwapRateContract> GetOvernightSwapRates(string assetPairId)
+        public async Task<OvernightSwapRateContract> GetOvernightSwapRatesAsync(string assetPairId)
         {
-            var swapRate = (await _rateSettingsService.GetOvernightSwapRates(new[] {assetPairId})).SingleOrDefault();
+            var swapRate = (await _rateSettingsService.GetOvernightSwapRatesAsync(new[] {assetPairId})).SingleOrDefault();
 
             if (swapRate == null)
                 return null;
@@ -123,9 +123,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(IReadOnlyList<OvernightSwapRateContract>), 200)]
         [ProducesResponseType(400)]
         [HttpPost("get-overnight-swap/list")]
-        public async Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRates(string[] assetPairIds)
+        public async Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync(string[] assetPairIds)
         {
-            var swapRates = await _rateSettingsService.GetOvernightSwapRates(assetPairIds);
+            var swapRates = await _rateSettingsService.GetOvernightSwapRatesAsync(assetPairIds);
 
             return swapRates
                 .Select(_convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>)
@@ -135,7 +135,7 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [HttpPost("replace-overnight-swap")]
-        public async Task ReplaceOvernightSwapRates([FromBody] OvernightSwapRateContract[] rates)
+        public async Task ReplaceOvernightSwapRatesAsync([FromBody] OvernightSwapRateContract[] rates)
         {
             if (rates == null || !rates.Any() || rates.Any(x => 
                     string.IsNullOrWhiteSpace(x.AssetPairId)))
@@ -143,7 +143,7 @@ namespace MarginTrading.AssetService.Controllers
                 throw new ArgumentNullException(nameof(rates));
             }
 
-            await _rateSettingsService.ReplaceOvernightSwapRates(rates
+            await _rateSettingsService.ReplaceOvernightSwapRatesAsync(rates
                 .Select(x => _convertService.Convert<OvernightSwapRateContract, OvernightSwapRate>(x))
                 .ToList());
 
@@ -155,23 +155,23 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(OnBehalfRateContract), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-on-behalf")]
-        public async Task<OnBehalfRateContract> GetOnBehalfRate()
+        public async Task<OnBehalfRateContract> GetOnBehalfRateAsync()
         {
-            var item = await _rateSettingsService.GetOnBehalfRate();
+            var item = await _rateSettingsService.GetOnBehalfRateAsync();
             return item == null ? null : _convertService.Convert<OnBehalfRate, OnBehalfRateContract>(item);
         }
 
         [ProducesResponseType(200)]
         [ProducesResponseType(400)]
         [HttpPost("replace-on-behalf")]
-        public async Task ReplaceOnBehalfRate([FromBody] OnBehalfRateContract rate)
+        public async Task ReplaceOnBehalfRateAsync([FromBody] OnBehalfRateContract rate)
         {
             if (string.IsNullOrWhiteSpace(rate.CommissionAsset))
             {
                 throw new ArgumentNullException(nameof(rate.CommissionAsset));
             }
 
-            await _rateSettingsService.ReplaceOnBehalfRate(
+            await _rateSettingsService.ReplaceOnBehalfRateAsync(
                 _convertService.Convert<OnBehalfRateContract, OnBehalfRate>(rate));
             
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OnBehalf);

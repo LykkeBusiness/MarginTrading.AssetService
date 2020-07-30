@@ -144,7 +144,7 @@ namespace MarginTrading.AssetService
                     endpoints.MapControllers();
                 });
                 app.UseSwagger();
-                app.UseSwaggerUI(a => a.SwaggerEndpoint("/swagger/v1/swagger.json", "Settings Service API Swagger"));
+                app.UseSwaggerUI(a => a.SwaggerEndpoint("/swagger/v1/swagger.json", "Asset Service API Swagger"));
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());

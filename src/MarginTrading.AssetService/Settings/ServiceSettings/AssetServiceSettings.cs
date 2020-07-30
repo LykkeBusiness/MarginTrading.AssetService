@@ -5,6 +5,7 @@ using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.SettingsReader.Attributes;
 using MarginTrading.AssetService.Core.Settings;
+using MarginTrading.AssetService.Core.Settings.Rates;
 using MarginTrading.AssetService.Settings.Candles;
 
 namespace MarginTrading.AssetService.Settings.ServiceSettings
@@ -24,6 +25,8 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         
         [Optional, CanBeNull]
         public ChaosSettings ChaosKitty { get; set; }
+        
+        public DefaultRateSettings DefaultRateSettings { get; set; }
         
         public RequestLoggerSettings RequestLoggerSettings { get; set; }
         

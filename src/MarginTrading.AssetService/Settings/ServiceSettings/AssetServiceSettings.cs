@@ -35,5 +35,9 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         
         [Optional]
         public CandlesShardingSettings CandlesSharding { get; set; }
+
+        public ServiceSettings MdmService { get; set; }
+
+        public string BrokerId { get; set; }
     }
 }

@@ -6,6 +6,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.Common.Chaos;
+using Lykke.Common.MsSql;
 using Lykke.Logs.MsSql.Interfaces;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
@@ -14,6 +15,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Settings.Candles;
 using MarginTrading.AssetService.Settings.ServiceSettings;
+using MarginTrading.AssetService.SqlRepositories;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
@@ -77,7 +79,12 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<MaintenanceModeService>().As<IMaintenanceModeService>().SingleInstance();
 
             builder.RegisterType<MarketDayOffService>().As<IMarketDayOffService>().SingleInstance();
-            
+
+            builder.RegisterType<BrokerRegulatoryProfilesService>().As<IBrokerRegulatoryProfilesService>().SingleInstance();
+            builder.RegisterType<BrokerRegulatoryTypesService>().As<IBrokerRegulatoryTypesService>().SingleInstance();
+            builder.RegisterType<BrokerRegulatorySettingsService>().As<IBrokerRegulatorySettingsService>().SingleInstance();
+            builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
+
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();
 
@@ -102,7 +109,11 @@ namespace MarginTrading.AssetService.Modules
                 {
                     throw new Exception($"{nameof(_settings.CurrentValue.Db.DataConnString)} must have a value if StorageMode is SqlServer");
                 }
-                
+
+                builder.RegisterMsSql(_settings.CurrentValue.Db.DataConnString,
+                    connString => new AssetDbContext(connString, false),
+                    dbConn => new AssetDbContext(dbConn));
+
                 var connstrParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.DataConnString);
                 
@@ -149,6 +160,22 @@ namespace MarginTrading.AssetService.Modules
                 builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
                     .As<IOperationExecutionInfoRepository>()
                     .WithParameter(connstrParameter)
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.AuditRepository>()
+                    .As<IAuditRepository>()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.BrokerRegulatoryProfilesRepository>()
+                    .As<IBrokerRegulatoryProfilesRepository>()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.BrokerRegulatoryTypesRepository>()
+                    .As<IBrokerRegulatoryTypesRepository>()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.BrokerRegulatorySettingsRepository>()
+                    .As<IBrokerRegulatorySettingsRepository>()
                     .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)

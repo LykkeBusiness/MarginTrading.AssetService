@@ -27,7 +27,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                                                  "[TradingConditionId] [nvarchar] (64) NULL, " +
                                                  "[ClientId] [nvarchar] (64) NULL, " +
                                                  "[Instrument] [nvarchar] (64) NULL, " +
-                                                 "[Type] [nvarchar] (64) NULL, " +
+                                                 "[BrokerType] [nvarchar] (64) NULL, " +
                                                  "[MatchingEngineId] [nvarchar] (64) NULL, " +
                                                  "[Asset] [nvarchar] (64) NULL, " +
                                                  "[RiskSystemLimitType] [nvarchar] (64) NULL, " +

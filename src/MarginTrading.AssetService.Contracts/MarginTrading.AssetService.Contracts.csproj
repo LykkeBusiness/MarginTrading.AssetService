@@ -21,7 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Refit" Version="4.6.30" />
+    <PackageReference Include="Refit" Version="5.1.27" />
     <PackageReference Include="MessagePack" Version="1.9.11" />
   </ItemGroup>
   <ItemGroup>

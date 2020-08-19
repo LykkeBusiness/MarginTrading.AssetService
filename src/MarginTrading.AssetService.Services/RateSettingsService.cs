@@ -8,6 +8,7 @@ using Common.Log;
 using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings.Rates;
+using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
 
 namespace MarginTrading.AssetService.Services
@@ -15,16 +16,19 @@ namespace MarginTrading.AssetService.Services
     public class RateSettingsService : IRateSettingsService
     {
         private readonly IRatesStorage _ratesStorage;
+        private readonly IAssetPairsRepository _assetPairsRepository;
 
         private readonly ILog _log;
         private readonly DefaultRateSettings _defaultRateSettings;
 
         public RateSettingsService(
             IRatesStorage ratesStorage,
+            IAssetPairsRepository assetPairsRepository,
             ILog log,
             DefaultRateSettings defaultRateSettings)
         {
             _ratesStorage = ratesStorage;
+            _assetPairsRepository = assetPairsRepository;
             _log = log;
             _defaultRateSettings = defaultRateSettings;
         }
@@ -36,7 +40,11 @@ namespace MarginTrading.AssetService.Services
             var repoData = await _ratesStorage.GetOrderExecutionRatesAsync();
 
             if (assetPairIds == null || !assetPairIds.Any())
-                return repoData.ToList();
+            {
+                assetPairIds = (await _assetPairsRepository.GetAsync())
+                    .Select(assetPair => assetPair.Id)
+                    .ToList();
+            }
 
             return assetPairIds
                 .Select(assetPairId => GetOrderExecutionRateSingleOrDefault(assetPairId, repoData))
@@ -85,7 +93,11 @@ namespace MarginTrading.AssetService.Services
             var repoData = await _ratesStorage.GetOvernightSwapRatesAsync();
 
             if (assetPairIds == null || !assetPairIds.Any())
-                return repoData.ToList();
+            {
+                assetPairIds = (await _assetPairsRepository.GetAsync())
+                    .Select(assetPair => assetPair.Id)
+                    .ToList();
+            }
 
             return assetPairIds
                 .Select(assetPairId => GetOvernightSwapRateSingleOrDefault(assetPairId, repoData))

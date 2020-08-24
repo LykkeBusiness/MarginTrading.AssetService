@@ -16,7 +16,18 @@ namespace MarginTrading.AssetService.Services
     [UsedImplicitly]
     public class ConvertService : IConvertService
     {
-        private readonly IMapper _mapper = CreateMapper();
+        private readonly IMapper _mapper;
+
+        public ConvertService(IMapper mapper)
+        {
+            _mapper = mapper;
+        }
+
+        //Used only for Migration
+        public ConvertService()
+        {
+            _mapper = CreateMapper();
+        }
 
         private static IMapper CreateMapper()
         {
@@ -31,7 +42,7 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<ScheduleConstraint, string>().ConvertUsing(JsonConvert.SerializeObject);
                 cfg.CreateMap<string, ScheduleConstraint>().ConvertUsing(JsonConvert.DeserializeObject<ScheduleConstraint>);
                 cfg.CreateMap<bool?, string>().ConstructUsing(x => x?.ToString() ?? "");
-                cfg.CreateMap<string, bool?>().ConstructUsing(x => bool.TryParse(x, out var parsed) ? parsed : (bool?) null);
+                cfg.CreateMap<string, bool?>().ConstructUsing(x => bool.TryParse(x, out var parsed) ? parsed : (bool?)null);
                 cfg.CreateMap<TimeSpan?, string>().ConstructUsing(x => JsonConvert.SerializeObject(x));
                 cfg.CreateMap<string, TimeSpan?>().ConstructUsing(x => TimeSpan.TryParse(x, out var parsed) ? parsed : (TimeSpan?)null);
                 cfg.CreateMap<FreezeInfo, string>().ConvertUsing(JsonConvert.SerializeObject);

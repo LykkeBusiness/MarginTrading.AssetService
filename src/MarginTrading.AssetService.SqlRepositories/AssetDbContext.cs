@@ -10,9 +10,9 @@ namespace MarginTrading.AssetService.SqlRepositories
     {
         private const string Schema = "dbo";
 
-        internal DbSet<BrokerRegulatorySettingsEntity> BrokerRegulatorySettings { get; set; }
-        internal DbSet<BrokerRegulatoryTypeEntity> BrokerRegulatoryTypes { get; set; }
-        internal DbSet<BrokerRegulatoryProfileEntity> BrokerRegulatoryProfiles { get; set; }
+        internal DbSet<ClientProfileSettingsEntity> ClientProfileSettings { get; set; }
+        internal DbSet<AssetTypeEntity> AssetTypes { get; set; }
+        internal DbSet<ClientProfileEntity> ClientProfiles { get; set; }
         internal DbSet<AuditEntity> AuditTrail { get; set; }
 
         // Used for EF migrations

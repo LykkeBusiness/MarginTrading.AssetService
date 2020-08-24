@@ -6,6 +6,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
+using AutoMapper;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
@@ -24,6 +25,7 @@ using Lykke.Snow.Common.Startup.Hosting;
 using Lykke.Snow.Common.Startup.Log;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.MappingProfiles;
 using MarginTrading.AssetService.Modules;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Settings;
@@ -100,6 +102,8 @@ namespace MarginTrading.AssetService
                 services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(LogLocator.CommonLog));
                 
                 services.AddApplicationInsightsTelemetry();
+
+                services.AddAutoMapper(typeof(AutoMapperProfile));
             }
             catch (Exception ex)
             {
@@ -113,6 +117,7 @@ namespace MarginTrading.AssetService
         {
             builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
             builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAssetService.Cqrs, Log));
+            builder.RegisterModule(new ClientsModule(_mtSettingsManager));
         }
 
         [UsedImplicitly]

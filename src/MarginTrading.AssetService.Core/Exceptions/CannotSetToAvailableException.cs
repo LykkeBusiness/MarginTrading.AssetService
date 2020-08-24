@@ -2,7 +2,7 @@
 
 namespace MarginTrading.AssetService.Core.Exceptions
 {
-    public class RegulatoryTypeDoesNotExistException : Exception
+    public class CannotSetToAvailableException : Exception
     {
         
     }

@@ -80,9 +80,17 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<MarketDayOffService>().As<IMarketDayOffService>().SingleInstance();
 
-            builder.RegisterType<BrokerRegulatoryProfilesService>().As<IBrokerRegulatoryProfilesService>().SingleInstance();
-            builder.RegisterType<BrokerRegulatoryTypesService>().As<IBrokerRegulatoryTypesService>().SingleInstance();
-            builder.RegisterType<BrokerRegulatorySettingsService>().As<IBrokerRegulatorySettingsService>().SingleInstance();
+            builder.RegisterType<ClientProfilesService>()
+                .As<IClientProfilesService>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
+                .SingleInstance();
+
+            builder.RegisterType<AssetTypesService>()
+                .As<IAssetTypesService>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
+                .SingleInstance();
+
+            builder.RegisterType<ClientProfileSettingsService>().As<IClientProfileSettingsService>().SingleInstance();
             builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
 
             //TODO need to change with impl
@@ -166,16 +174,16 @@ namespace MarginTrading.AssetService.Modules
                     .As<IAuditRepository>()
                     .SingleInstance();
 
-                builder.RegisterType<SqlRepos.BrokerRegulatoryProfilesRepository>()
-                    .As<IBrokerRegulatoryProfilesRepository>()
+                builder.RegisterType<SqlRepos.ClientProfilesRepository>()
+                    .As<IClientProfilesRepository>()
                     .SingleInstance();
 
-                builder.RegisterType<SqlRepos.BrokerRegulatoryTypesRepository>()
-                    .As<IBrokerRegulatoryTypesRepository>()
+                builder.RegisterType<SqlRepos.AssetTypesRepository>()
+                    .As<IAssetTypesRepository>()
                     .SingleInstance();
 
-                builder.RegisterType<SqlRepos.BrokerRegulatorySettingsRepository>()
-                    .As<IBrokerRegulatorySettingsRepository>()
+                builder.RegisterType<SqlRepos.ClientProfileSettingsRepository>()
+                    .As<IClientProfileSettingsRepository>()
                     .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)

@@ -4,11 +4,11 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public enum AuditDataType
     {
-        [Description("Broker regualtory profile")]
-        BrokerRegulatoryProfile,
-        [Description("Broker regulatory type")]
-        BrokerRegulatoryType,
-        [Description("Broker regulatory settings")]
-        BrokerRegulatorySettings
+        [Description("Client profile")]
+        ClientProfile,
+        [Description("Asset type")]
+        AssetType,
+        [Description("Client profile settings")]
+        ClientProfileSettings
     }
 }

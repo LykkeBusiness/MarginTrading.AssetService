@@ -2,7 +2,7 @@
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
-using Lykke.Snow.Mdm.Contracts.Api;
+using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Core.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +13,7 @@ namespace MarginTrading.AssetService.Controllers
     [Route("api/audit")]
     [Authorize]
     [ApiController]
-    public class AuditController : ControllerBase
+    public class AuditController : ControllerBase, IAuditApi
     {
         private readonly IAuditService _auditService;
         private readonly IMapper _mapper;

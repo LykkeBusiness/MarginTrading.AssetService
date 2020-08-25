@@ -5,9 +5,17 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
+using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.AssetPair;
+using MarginTrading.AssetService.Contracts.Enums;
+using MarginTrading.AssetService.Contracts.Market;
+using MarginTrading.AssetService.Contracts.Rates;
+using MarginTrading.AssetService.Contracts.Routes;
 using MarginTrading.AssetService.Contracts.Scheduling;
+using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Domain.Rates;
+using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
 
@@ -33,7 +41,6 @@ namespace MarginTrading.AssetService.Services
         {
             return new MapperConfiguration(cfg =>
             {
-                // todo: add some global configurations here?
                 cfg.CreateMap<HashSet<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
                 cfg.CreateMap<string, HashSet<string>>().ConvertUsing(JsonConvert.DeserializeObject<HashSet<string>>);
                 cfg.CreateMap<List<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
@@ -50,7 +57,6 @@ namespace MarginTrading.AssetService.Services
                     string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
                 cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s =>
                     string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
-
             }).CreateMapper();
         }
 

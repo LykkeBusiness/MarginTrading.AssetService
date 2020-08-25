@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -26,12 +27,12 @@ namespace MarginTrading.AssetService.Controllers
     public class AssetTypesController : ControllerBase, IAssetTypesApi
     {
         private readonly IAssetTypesService _assetTypesService;
-        private readonly IMapper _mapper;
+        private readonly IConvertService _convertService;
 
-        public AssetTypesController(IAssetTypesService assetTypesService, IMapper mapper)
+        public AssetTypesController(IAssetTypesService assetTypesService, IConvertService convertService)
         {
             _assetTypesService = assetTypesService;
-            _mapper = mapper;
+            _convertService = convertService;
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace MarginTrading.AssetService.Controllers
                 return response;
             }
 
-            response.AssetType = _mapper.Map<AssetTypeContract>(type);
+            response.AssetType = _convertService.Convert<AssetType, AssetTypeContract>(type);
 
             return response;
         }
@@ -69,7 +70,7 @@ namespace MarginTrading.AssetService.Controllers
 
             return new GetAllAssetTypesResponse
             {
-                AssetTypes = _mapper.Map<IReadOnlyList<AssetTypeContract>>(types)
+                AssetTypes = types.Select(t => _convertService.Convert<AssetType,AssetTypeContract>(t)).ToList()
             };
         }
 
@@ -88,7 +89,8 @@ namespace MarginTrading.AssetService.Controllers
 
             try
             {
-                await _assetTypesService.InsertAsync(_mapper.Map<AssetTypeWithTemplate>(request), request.Username,
+                var model = _convertService.Convert<AddAssetTypeRequest, AssetTypeWithTemplate>(request);
+                await _assetTypesService.InsertAsync(model, request.Username,
                     correlationId);
             }
             catch (AssetTypeDoesNotExistException)
@@ -127,7 +129,7 @@ namespace MarginTrading.AssetService.Controllers
 
             var correlationId = this.TryGetCorrelationId();
 
-            var model = _mapper.Map<AssetType>(request);
+            var model = _convertService.Convert<UpdateAssetTypeRequest, AssetType>(request);
             model.Id = id;
 
             try

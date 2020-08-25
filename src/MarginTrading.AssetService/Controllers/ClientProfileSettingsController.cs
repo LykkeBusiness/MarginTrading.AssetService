@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -26,12 +27,12 @@ namespace MarginTrading.AssetService.Controllers
     public class ClientProfileSettingsController : ControllerBase, IClientProfileSettingsApi
     {
         private readonly IClientProfileSettingsService _clientProfileSettingsService;
-        private readonly IMapper _mapper;
+        private readonly IConvertService _convertService;
 
-        public ClientProfileSettingsController(IClientProfileSettingsService clientProfileSettingsService, IMapper mapper)
+        public ClientProfileSettingsController(IClientProfileSettingsService clientProfileSettingsService, IConvertService convertService)
         {
             _clientProfileSettingsService = clientProfileSettingsService;
-            _mapper = mapper;
+            _convertService = convertService;
         }
 
         /// <summary>
@@ -52,7 +53,8 @@ namespace MarginTrading.AssetService.Controllers
                 return response;
             }
 
-            response.ClientProfileSettings = _mapper.Map<ClientProfileSettingsContract>(settings);
+            response.ClientProfileSettings =
+                _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(settings);
 
             return response;
         }
@@ -65,11 +67,11 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(GetAllClientProfileSettingsResponse), (int)HttpStatusCode.OK)]
         public async Task<GetAllClientProfileSettingsResponse> GetClientProfileSettingsByRegulationAsync()
         {
-            var regulatorySettings = await _clientProfileSettingsService.GetAllAsync();
+            var clientProfileSettings = await _clientProfileSettingsService.GetAllAsync();
 
             return new GetAllClientProfileSettingsResponse
             {
-                ClientProfileSettings = _mapper.Map<IReadOnlyList<ClientProfileSettingsContract>>(regulatorySettings)
+                ClientProfileSettings = clientProfileSettings.Select(s => _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(s)).ToList()
             };
         }
 
@@ -89,7 +91,7 @@ namespace MarginTrading.AssetService.Controllers
 
             var correlationId = this.TryGetCorrelationId();
 
-            var model = _mapper.Map<ClientProfileSettings>(request);
+            var model = _convertService.Convert<UpdateClientProfileSettingsRequest, ClientProfileSettings>(request);
             model.ClientProfileId = profileId;
             model.AssetTypeId = typeId;
 

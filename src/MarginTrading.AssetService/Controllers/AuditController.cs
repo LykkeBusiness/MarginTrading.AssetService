@@ -1,9 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Audit;
+using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,12 +19,12 @@ namespace MarginTrading.AssetService.Controllers
     public class AuditController : ControllerBase, IAuditApi
     {
         private readonly IAuditService _auditService;
-        private readonly IMapper _mapper;
+        private readonly IConvertService _convertService;
 
-        public AuditController(IAuditService auditService, IMapper mapper)
+        public AuditController(IAuditService auditService, IConvertService convertService)
         {
             _auditService = auditService;
-            _mapper = mapper;
+            _convertService = convertService;
         }
 
         /// <summary>
@@ -38,7 +41,7 @@ namespace MarginTrading.AssetService.Controllers
 
             return new GetAuditLogsResponse
             {
-                AuditLogs = _mapper.Map<IReadOnlyList<AuditContract>>(result)
+                AuditLogs = result.Select(i => _convertService.Convert<IAuditModel,AuditContract>(i)).ToList()
             };
         }
     }

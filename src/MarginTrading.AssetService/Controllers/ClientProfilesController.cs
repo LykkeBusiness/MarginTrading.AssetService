@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -26,12 +27,12 @@ namespace MarginTrading.AssetService.Controllers
     public class ClientProfilesController : ControllerBase, IClientProfilesApi
     {
         private readonly IClientProfilesService _regulatoryProfilesService;
-        private readonly IMapper _mapper;
+        private readonly IConvertService _convertService;
 
-        public ClientProfilesController(IClientProfilesService regulatoryProfilesService, IMapper mapper)
+        public ClientProfilesController(IClientProfilesService regulatoryProfilesService, IConvertService convertService)
         {
             _regulatoryProfilesService = regulatoryProfilesService;
-            _mapper = mapper;
+            _convertService = convertService;
         }
 
         /// <summary>
@@ -52,7 +53,7 @@ namespace MarginTrading.AssetService.Controllers
                 return response;
             }
 
-            response.ClientProfile = _mapper.Map<ClientProfileContract>(profile);
+            response.ClientProfile = _convertService.Convert<ClientProfile, ClientProfileContract>(profile);
 
             return response;
         }
@@ -69,7 +70,7 @@ namespace MarginTrading.AssetService.Controllers
 
             return new GetAllClientProfilesResponse
             {
-                ClientProfiles = _mapper.Map<IReadOnlyList<ClientProfileContract>>(profiles)
+                ClientProfiles = profiles.Select(p => _convertService.Convert<ClientProfile, ClientProfileContract>(p)).ToList()
             };
         }
 
@@ -88,7 +89,8 @@ namespace MarginTrading.AssetService.Controllers
 
             try
             {
-                await _regulatoryProfilesService.InsertAsync(_mapper.Map<ClientProfileWithTemplate>(request), request.Username, correlationId);
+                var model = _convertService.Convert<AddClientProfileRequest, ClientProfileWithTemplate>(request);
+                await _regulatoryProfilesService.InsertAsync(model, request.Username, correlationId);
             }
             catch (ClientProfileDoesNotExistException)
             {
@@ -125,7 +127,7 @@ namespace MarginTrading.AssetService.Controllers
 
             var correlationId = this.TryGetCorrelationId();
 
-            var model = _mapper.Map<ClientProfile>(request);
+            var model = _convertService.Convert<UpdateClientProfileRequest, ClientProfile>(request);;
             model.Id = id;
 
             try

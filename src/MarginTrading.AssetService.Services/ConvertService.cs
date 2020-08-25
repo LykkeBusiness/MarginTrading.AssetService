@@ -5,16 +5,13 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
-using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.AssetPair;
-using MarginTrading.AssetService.Contracts.Enums;
-using MarginTrading.AssetService.Contracts.Market;
-using MarginTrading.AssetService.Contracts.Rates;
-using MarginTrading.AssetService.Contracts.Routes;
+using MarginTrading.AssetService.Contracts.AssetTypes;
+using MarginTrading.AssetService.Contracts.Audit;
+using MarginTrading.AssetService.Contracts.ClientProfiles;
+using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.Scheduling;
-using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
@@ -24,18 +21,7 @@ namespace MarginTrading.AssetService.Services
     [UsedImplicitly]
     public class ConvertService : IConvertService
     {
-        private readonly IMapper _mapper;
-
-        public ConvertService(IMapper mapper)
-        {
-            _mapper = mapper;
-        }
-
-        //Used only for Migration
-        public ConvertService()
-        {
-            _mapper = CreateMapper();
-        }
+        private readonly IMapper _mapper = CreateMapper();
 
         private static IMapper CreateMapper()
         {
@@ -57,6 +43,27 @@ namespace MarginTrading.AssetService.Services
                     string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
                 cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s =>
                     string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
+
+                //Client profile Settings
+                cfg.CreateMap<ClientProfileSettings, ClientProfileSettingsContract>();
+                cfg.CreateMap<UpdateClientProfileSettingsRequest, ClientProfileSettings>()
+                    .ForMember(x => x.RegulatoryProfileId, opt => opt.Ignore())
+                    .ForMember(x => x.RegulatoryTypeId, opt => opt.Ignore());
+                
+                //Client profiles
+                cfg.CreateMap<ClientProfile, ClientProfileContract>();
+                cfg.CreateMap<AddClientProfileRequest, ClientProfileWithTemplate>();
+                cfg.CreateMap<UpdateClientProfileRequest, ClientProfile>()
+                    .ForMember(x => x.Id, opt => opt.Ignore());
+                
+                //Asset types
+                cfg.CreateMap<AssetType, AssetTypeContract>();
+                cfg.CreateMap<AddAssetTypeRequest, AssetTypeWithTemplate>();
+                cfg.CreateMap<UpdateAssetTypeRequest, AssetType>()
+                    .ForMember(x => x.Id, opt => opt.Ignore());
+                
+                //Audit
+                cfg.CreateMap<IAuditModel, AuditContract>();
             }).CreateMapper();
         }
 

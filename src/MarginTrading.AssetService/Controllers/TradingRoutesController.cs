@@ -165,7 +165,7 @@ namespace MarginTrading.AssetService.Controllers
 
             if (route.Type != null && !Enum.IsDefined(typeof(OrderDirectionContract), route.Type))
             {
-                throw new ArgumentNullException(nameof(route.Type), "Route AssetType is set to an incorrect value");
+                throw new ArgumentNullException(nameof(route.Type), "Route Type is set to an incorrect value");
             }
 
             if (!string.IsNullOrEmpty(route.TradingConditionId)

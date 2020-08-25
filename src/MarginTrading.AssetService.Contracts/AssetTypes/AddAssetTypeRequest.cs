@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MarginTrading.AssetService.Contracts.AssetTypes
 {
@@ -10,15 +11,18 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// <summary>
         /// Name of the user who sent the request
         /// </summary>
+        [Required]
         public string Username { get; set; }
         /// <summary>
         /// Id of the related regulatory type from Mdm
         /// </summary>
+        [Required]
         public Guid RegulatoryTypeId { get; set; }
 
         /// <summary>
         /// Name of the regulatory type
         /// </summary>
+        [Required]
         public string Name { get; set; }
 
         /// <summary>

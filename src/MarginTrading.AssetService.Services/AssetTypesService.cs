@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Common.MsSql;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core;
@@ -15,32 +16,35 @@ namespace MarginTrading.AssetService.Services
 {
     public class AssetTypesService : IAssetTypesService
     {
-        private readonly IAssetTypesRepository _regulatoryTypesRepository;
+        private readonly IAssetTypesRepository _assetTypesRepository;
         private readonly IClientProfilesRepository _clientProfilesRepository;
         private readonly IClientProfileSettingsRepository _clientProfileSettingsRepository;
         private readonly IAuditService _auditService;
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly IRegulatoryTypesApi _regulatoryTypesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
+        private readonly ITransactionRunner _transactionRunner;
         private readonly string _brokerId;
 
         public AssetTypesService(
-            IAssetTypesRepository regulatoryTypesRepository,
+            IAssetTypesRepository assetTypesRepository,
             IClientProfilesRepository clientProfilesRepository,
             IClientProfileSettingsRepository clientProfileSettingsRepository,
             IAuditService auditService,
             IBrokerSettingsApi brokerSettingsApi,
             IRegulatoryTypesApi regulatoryTypesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
+            ITransactionRunner transactionRunner,
             string brokerId)
         {
-            _regulatoryTypesRepository = regulatoryTypesRepository;
+            _assetTypesRepository = assetTypesRepository;
             _clientProfilesRepository = clientProfilesRepository;
             _clientProfileSettingsRepository = clientProfileSettingsRepository;
             _auditService = auditService;
             _brokerSettingsApi = brokerSettingsApi;
             _regulatoryTypesApi = regulatoryTypesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
+            _transactionRunner = transactionRunner;
             _brokerId = brokerId;
         }
 
@@ -69,7 +73,7 @@ namespace MarginTrading.AssetService.Services
             if (model.AssetTypeTemplateId.HasValue)
             {
                 var regulatoryProfileTemplateExists =
-                    await _regulatoryTypesRepository.ExistsAsync(model.AssetTypeTemplateId.Value);
+                    await _assetTypesRepository.ExistsAsync(model.AssetTypeTemplateId.Value);
 
                 if (!regulatoryProfileTemplateExists)
                     throw new AssetTypeDoesNotExistException();
@@ -103,20 +107,24 @@ namespace MarginTrading.AssetService.Services
                 }
             }
 
-            await _regulatoryTypesRepository.InsertAsync(model);
-            await _clientProfileSettingsRepository.InsertMultipleAsync(clientProfileSettings);
+            await _transactionRunner.RunWithTransactionAsync(async txContext =>
+            {
+                await _assetTypesRepository.InsertAsync(model, txContext);
+                await _clientProfileSettingsRepository.InsertMultipleAsync(clientProfileSettings, txContext);
+            });
+
             await _auditService.TryAudit(correlationId, username, model.Id.ToString(), AuditDataType.AssetType,
                 model.ToJson());
         }
 
         public async Task UpdateAsync(AssetType model, string username, string correlationId)
         {
-            var existing = await _regulatoryTypesRepository.GetByIdAsync(model.Id);
+            var existing = await _assetTypesRepository.GetByIdAsync(model.Id);
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
 
-            await _regulatoryTypesRepository.UpdateAsync(model);
+            await _assetTypesRepository.UpdateAsync(model);
 
             await _auditService.TryAudit(correlationId, username, model.Id.ToString(), AuditDataType.AssetType,
                 model.ToJson(), existing.ToJson());
@@ -124,21 +132,21 @@ namespace MarginTrading.AssetService.Services
 
         public async Task DeleteAsync(Guid id, string username, string correlationId)
         {
-            var existing = await _regulatoryTypesRepository.GetByIdAsync(id);
+            var existing = await _assetTypesRepository.GetByIdAsync(id);
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
 
-            await _regulatoryTypesRepository.DeleteAsync(id);
+            await _assetTypesRepository.DeleteAsync(id);
 
             await _auditService.TryAudit(correlationId, username, id.ToString(), AuditDataType.AssetType,
                 oldStateJson: existing.ToJson());
         }
 
         public Task<AssetType> GetByIdAsync(Guid id)
-            => _regulatoryTypesRepository.GetByIdAsync(id);
+            => _assetTypesRepository.GetByIdAsync(id);
 
         public Task<IReadOnlyList<AssetType>> GetAllAsync()
-            => _regulatoryTypesRepository.GetAllAsync();
+            => _assetTypesRepository.GetAllAsync();
     }
 }

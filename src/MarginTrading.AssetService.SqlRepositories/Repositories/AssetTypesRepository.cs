@@ -22,7 +22,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task InsertAsync(AssetTypeWithTemplate model)
+        public async Task InsertAsync(AssetTypeWithTemplate model, TransactionContext txContext = null)
         {
             var entity = new AssetTypeEntity
             {
@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 NormalizedName = model.Name.ToLower(),
             };
 
-            using (var context = _contextFactory.CreateDataContext())
+            using (var context = _contextFactory.CreateDataContext(txContext))
             {
                 context.AssetTypes.Add(entity);
 

@@ -10,6 +10,7 @@ using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using Newtonsoft.Json;
+using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 
 namespace MarginTrading.AssetService.MappingProfiles
 {

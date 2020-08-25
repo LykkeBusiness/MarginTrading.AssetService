@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
-using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.SqlRepositories.Entities;
@@ -22,7 +21,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task InsertAsync(ClientProfileWithTemplate model)
+        public async Task InsertAsync(ClientProfileWithTemplate model, TransactionContext txContext = null)
         {
             var entity = new ClientProfileEntity
             {
@@ -33,7 +32,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 NormalizedName = model.Name.ToLower(),
             };
 
-            using (var context = _contextFactory.CreateDataContext())
+            using (var context = _contextFactory.CreateDataContext(txContext))
             {
                 context.ClientProfiles.Add(entity);
 

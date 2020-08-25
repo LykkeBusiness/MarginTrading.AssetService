@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace MarginTrading.AssetService.Contracts.ClientProfiles
 {
@@ -10,16 +11,19 @@ namespace MarginTrading.AssetService.Contracts.ClientProfiles
         /// <summary>
         /// Id of the related regulation
         /// </summary>
+        [Required]
         public Guid RegulatoryProfileId { get; set; }
 
         /// <summary>
         /// Name of the regulatory profile
         /// </summary>
+        [Required]
         public string Name { get; set; }
 
         /// <summary>
         /// Name of the user who sent the request
         /// </summary>
+        [Required]
         public string Username { get; set; }
 
         /// <summary>

@@ -20,9 +20,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task InsertMultipleAsync(IEnumerable<ClientProfileSettings> settings)
+        public async Task InsertMultipleAsync(IEnumerable<ClientProfileSettings> settings, TransactionContext txContext = null)
         {
-            using (var context = _contextFactory.CreateDataContext())
+            using (var context = _contextFactory.CreateDataContext(txContext))
             {
                 var entities = settings.Select(ClientProfileSettingsEntity.Create).ToArray();
 

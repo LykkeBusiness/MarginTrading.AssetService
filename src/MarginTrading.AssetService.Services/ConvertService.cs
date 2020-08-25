@@ -21,7 +21,12 @@ namespace MarginTrading.AssetService.Services
     [UsedImplicitly]
     public class ConvertService : IConvertService
     {
-        private readonly IMapper _mapper = CreateMapper();
+        private readonly IMapper _mapper;
+
+        public ConvertService()
+        {
+            _mapper = CreateMapper();
+        }
 
         private static IMapper CreateMapper()
         {

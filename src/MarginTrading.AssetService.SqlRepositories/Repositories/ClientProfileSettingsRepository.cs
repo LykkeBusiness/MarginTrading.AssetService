@@ -41,13 +41,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (entity == null)
                     throw new ClientSettingsDoNotExistException();
 
-                entity.MarginMin = model.MarginMin;
+                entity.Margin = model.Margin;
                 entity.IsAvailable = model.IsAvailable;
                 entity.ExecutionFeesRate = model.ExecutionFeesRate;
                 entity.ExecutionFeesCap = model.ExecutionFeesCap;
                 entity.ExecutionFeesFloor = model.ExecutionFeesFloor;
                 entity.FinancingFeesRate = model.FinancingFeesRate;
-                entity.PhoneFees = model.PhoneFees;
+                entity.OnBehalfFee = model.OnBehalfFee;
 
                 context.Update(entity);
 
@@ -71,11 +71,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     ClientProfileId = entity.ClientProfileId,
                     AssetTypeId = entity.AssetTypeId,
-                    MarginMin = entity.MarginMin,
+                    Margin = entity.Margin,
                     IsAvailable = entity.IsAvailable,
                     ClientProfileName = entity.ClientProfile.Name,
                     AssetTypeName = entity.AssetType.Name,
-                    PhoneFees = entity.PhoneFees,
+                    OnBehalfFee = entity.OnBehalfFee,
                     ExecutionFeesRate = entity.ExecutionFeesRate,
                     ExecutionFeesFloor = entity.ExecutionFeesFloor,
                     ExecutionFeesCap = entity.ExecutionFeesCap,
@@ -105,11 +105,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     {
                         ClientProfileId = x.ClientProfileId,
                         AssetTypeId = x.AssetTypeId,
-                        MarginMin = x.MarginMin,
+                        Margin = x.Margin,
                         IsAvailable = x.IsAvailable,
                         ClientProfileName = x.ClientProfile.Name,
                         AssetTypeName = x.AssetType.Name,
-                        PhoneFees = x.PhoneFees,
+                        OnBehalfFee = x.OnBehalfFee,
                         ExecutionFeesRate = x.ExecutionFeesRate,
                         ExecutionFeesFloor = x.ExecutionFeesFloor,
                         ExecutionFeesCap = x.ExecutionFeesCap,

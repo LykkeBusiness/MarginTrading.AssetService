@@ -27,8 +27,8 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.ExecutionFeesRate).IsRequired();
             builder.Property(x => x.FinancingFeesRate).IsRequired();
             builder.Property(x => x.IsAvailable).IsRequired();
-            builder.Property(x => x.MarginMin).IsRequired();
-            builder.Property(x => x.PhoneFees).IsRequired();
+            builder.Property(x => x.Margin).IsRequired();
+            builder.Property(x => x.OnBehalfFee).IsRequired();
         }
     }
 }

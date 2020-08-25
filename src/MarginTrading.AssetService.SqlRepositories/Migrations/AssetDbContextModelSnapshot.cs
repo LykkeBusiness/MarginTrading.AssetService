@@ -135,10 +135,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
-                    b.Property<decimal>("MarginMin")
+                    b.Property<decimal>("Margin")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<decimal>("PhoneFees")
+                    b.Property<decimal>("OnBehalfFee")
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("ClientProfileId", "AssetTypeId");

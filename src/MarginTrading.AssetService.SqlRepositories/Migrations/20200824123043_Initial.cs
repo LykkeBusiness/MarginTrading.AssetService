@@ -68,12 +68,12 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                 {
                     ClientProfileId = table.Column<Guid>(nullable: false),
                     AssetTypeId = table.Column<Guid>(nullable: false),
-                    MarginMin = table.Column<decimal>(nullable: false),
+                    Margin = table.Column<decimal>(nullable: false),
                     ExecutionFeesFloor = table.Column<decimal>(nullable: false),
                     ExecutionFeesCap = table.Column<decimal>(nullable: false),
                     ExecutionFeesRate = table.Column<decimal>(nullable: false),
                     FinancingFeesRate = table.Column<decimal>(nullable: false),
-                    PhoneFees = table.Column<decimal>(nullable: false),
+                    OnBehalfFee = table.Column<decimal>(nullable: false),
                     IsAvailable = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>

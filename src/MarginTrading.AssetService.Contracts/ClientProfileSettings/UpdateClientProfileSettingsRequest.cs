@@ -16,7 +16,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         /// Minimum margin value
         /// </summary>
         [Required]
-        public decimal MarginMin { get; set; }
+        public decimal Margin { get; set; }
         /// <summary>
         /// Execution fees floor value
         /// </summary>
@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         /// Phone fees value
         /// </summary>
         [Required]
-        public decimal PhoneFees { get; set; }
+        public decimal OnBehalfFee { get; set; }
         /// <summary>
         /// Are settings available
         /// </summary>

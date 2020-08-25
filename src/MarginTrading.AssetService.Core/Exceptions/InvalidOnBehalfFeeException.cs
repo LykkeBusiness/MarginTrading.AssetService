@@ -2,7 +2,7 @@
 
 namespace MarginTrading.AssetService.Core.Exceptions
 {
-    public class InvalidMinMarginValueException : Exception
+    public class InvalidOnBehalfFeeException : Exception
     {
     }
 }

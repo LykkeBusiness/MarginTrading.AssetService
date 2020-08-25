@@ -97,9 +97,9 @@ namespace MarginTrading.AssetService.Controllers
             {
                 await _clientProfileSettingsService.UpdateAsync(model, request.Username, correlationId);
             }
-            catch (InvalidMinMarginValueException)
+            catch (InvalidMarginValueException)
             {
-                response.ErrorCode = ClientProfilesErrorCodesContract.InvalidMarginMinValue;
+                response.ErrorCode = ClientProfilesErrorCodesContract.InvalidMarginValue;
             }
             catch (CannotSetToAvailableException)
             {
@@ -113,9 +113,9 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulatorySettingsAreMissing;
             }
-            catch (InvalidPhoneFeesException)
+            catch (InvalidOnBehalfFeeException)
             {
-                response.ErrorCode = ClientProfilesErrorCodesContract.InvalidPhoneFeesValue;
+                response.ErrorCode = ClientProfilesErrorCodesContract.InvalidOnBehalfFeeValue;
             }
             catch (InvalidExecutionFeesRateException)
             {

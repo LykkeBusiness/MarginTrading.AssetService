@@ -23,7 +23,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <returns></returns>
         [Get("/api/asset-types")]
-        Task<GetAllAssetTypesResponse> GetAssetTypesByRegulationAsync();
+        Task<GetAllAssetTypesResponse> GetAssetTypesAsync();
 
         /// <summary>
         /// Adds new asset type to the system

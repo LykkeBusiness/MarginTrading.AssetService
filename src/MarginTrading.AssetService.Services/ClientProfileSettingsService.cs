@@ -45,11 +45,11 @@ namespace MarginTrading.AssetService.Services
             if(model.IsAvailable && !regulatorySettings.RegulatorySettings.IsAvailable)
                 throw new CannotSetToAvailableException();
 
-            if(model.MarginMin > 1 || model.MarginMin < regulatorySettings.RegulatorySettings.MarginMinPercent / 100M)
-                throw new InvalidMinMarginValueException();
+            if(model.Margin > 1 || model.Margin < regulatorySettings.RegulatorySettings.MarginMinPercent / 100M)
+                throw new InvalidMarginValueException();
 
-            if (model.PhoneFees < 0)
-                throw new InvalidPhoneFeesException();
+            if (model.OnBehalfFee < 0)
+                throw new InvalidOnBehalfFeeException();
 
             if (model.ExecutionFeesRate < 0 || model.ExecutionFeesRate > 100)
                 throw new InvalidExecutionFeesRateException();

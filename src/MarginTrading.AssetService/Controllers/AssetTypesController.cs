@@ -63,7 +63,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(GetAllAssetTypesResponse), (int)HttpStatusCode.OK)]
-        public async Task<GetAllAssetTypesResponse> GetAssetTypesByRegulationAsync()
+        public async Task<GetAllAssetTypesResponse> GetAssetTypesAsync()
         {
             var types = await _assetTypesService.GetAllAsync();
 

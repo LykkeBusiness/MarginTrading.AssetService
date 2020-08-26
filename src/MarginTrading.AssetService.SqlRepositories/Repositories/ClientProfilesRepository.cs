@@ -78,8 +78,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (model.IsDefault)
                 {
                     var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x => x.IsDefault);
-                    currentDefault.IsDefault = false;
-                    context.Update(currentDefault);
+                    if (currentDefault != null)
+                    {
+                        currentDefault.IsDefault = false;
+                        context.Update(currentDefault);
+                    }
                 }
 
                 try

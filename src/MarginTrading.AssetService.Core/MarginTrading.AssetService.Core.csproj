@@ -7,10 +7,6 @@
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Folder Include="Domain\" />
-    <Folder Include="Services\" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="7.5.0" />
     <PackageReference Include="AutoMapper" Version="7.0.0" />
     <PackageReference Include="Dapper" Version="2.0.30" />

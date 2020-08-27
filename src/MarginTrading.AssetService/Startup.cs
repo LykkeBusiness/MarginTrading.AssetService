@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService
 {
     public class Startup
     {
-        private IReloadingManager<AppSettings> _mtSettingsManager;
+        protected IReloadingManager<AppSettings> _mtSettingsManager;
         public static string ServiceName { get; } = PlatformServices.Default.Application.ApplicationName;
 
         public IHostEnvironment Environment { get; }
@@ -85,7 +85,7 @@ namespace MarginTrading.AssetService
                             Version = "v1",
                             Title = $"{ServiceName} API"
                         });
-                    
+
                     var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath,
                         "MarginTrading.AssetService.Contracts.xml");
                     options.IncludeXmlComments(contractsXmlPath);
@@ -98,7 +98,7 @@ namespace MarginTrading.AssetService
                 Log = CreateLogWithSlack(Configuration, services, _mtSettingsManager);
 
                 services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(LogLocator.CommonLog));
-                
+
                 services.AddApplicationInsightsTelemetry();
             }
             catch (Exception ex)
@@ -109,10 +109,12 @@ namespace MarginTrading.AssetService
         }
 
         [UsedImplicitly]
-        public void ConfigureContainer(ContainerBuilder builder)
+        public virtual void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
+            builder.RegisterModule(new MsSqlModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService)));
             builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAssetService.Cqrs, Log));
+            builder.RegisterModule(new ClientsModule(_mtSettingsManager));
         }
 
         [UsedImplicitly]
@@ -121,7 +123,7 @@ namespace MarginTrading.AssetService
             try
             {
                 ApplicationContainer = app.ApplicationServices.GetAutofacRoot();
-                
+
                 if (env.IsDevelopment())
                 {
                     app.UseDeveloperExceptionPage();
@@ -140,7 +142,8 @@ namespace MarginTrading.AssetService
                 app.UseRouting();
                 app.UseAuthentication();
                 app.UseAuthorization();
-                app.UseEndpoints(endpoints => {
+                app.UseEndpoints(endpoints =>
+                {
                     endpoints.MapControllers();
                 });
                 app.UseSwagger();
@@ -218,23 +221,23 @@ namespace MarginTrading.AssetService
             }
         }
 
-        private static ILog CreateLogWithSlack(IConfiguration configuration, IServiceCollection services, 
+        private static ILog CreateLogWithSlack(IConfiguration configuration, IServiceCollection services,
             IReloadingManager<AppSettings> settings)
         {
             const string requestsLogName = "SettingsServiceRequestsLog";
             const string logName = "SettingsServiceLog";
             var consoleLogger = new LogToConsole();
-            
+
             #region Logs settings validation
 
-            if (!settings.CurrentValue.MarginTradingAssetService.UseSerilog 
+            if (!settings.CurrentValue.MarginTradingAssetService.UseSerilog
                 && string.IsNullOrWhiteSpace(settings.CurrentValue.MarginTradingAssetService.Db.LogsConnString))
             {
                 throw new Exception("Either UseSerilog must be true or LogsConnString must be set");
             }
 
             #endregion Logs settings validation
-            
+
             #region Slack registration
 
             ISlackNotificationsSender slackService = null;
@@ -284,11 +287,11 @@ namespace MarginTrading.AssetService
 
             #region Azure logging
 
-            LogLocator.RequestsLog = services.UseLogToAzureStorage(settings.Nested(s => 
+            LogLocator.RequestsLog = services.UseLogToAzureStorage(settings.Nested(s =>
                     s.MarginTradingAssetService.Db.LogsConnString),
                 slackService, requestsLogName, consoleLogger);
 
-            LogLocator.CommonLog = services.UseLogToAzureStorage(settings.Nested(s => 
+            LogLocator.CommonLog = services.UseLogToAzureStorage(settings.Nested(s =>
                     s.MarginTradingAssetService.Db.LogsConnString),
                 slackService, logName, consoleLogger);
 

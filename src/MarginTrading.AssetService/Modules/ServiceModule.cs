@@ -17,6 +17,7 @@ using MarginTrading.AssetService.Settings.Candles;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.SqlRepositories;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using AzureRepos = MarginTrading.AssetService.AzureRepositories.Repositories;
@@ -117,10 +118,6 @@ namespace MarginTrading.AssetService.Modules
                 {
                     throw new Exception($"{nameof(_settings.CurrentValue.Db.DataConnString)} must have a value if StorageMode is SqlServer");
                 }
-
-                builder.RegisterMsSql(_settings.CurrentValue.Db.DataConnString,
-                    connString => new AssetDbContext(connString, false),
-                    dbConn => new AssetDbContext(dbConn));
 
                 var connstrParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.DataConnString);

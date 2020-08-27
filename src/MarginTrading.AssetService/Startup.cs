@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService
 {
     public class Startup
     {
-        private IReloadingManager<AppSettings> _mtSettingsManager;
+        protected IReloadingManager<AppSettings> _mtSettingsManager;
         public static string ServiceName { get; } = PlatformServices.Default.Application.ApplicationName;
 
         public IHostEnvironment Environment { get; }
@@ -109,9 +109,10 @@ namespace MarginTrading.AssetService
         }
 
         [UsedImplicitly]
-        public void ConfigureContainer(ContainerBuilder builder)
+        public virtual void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
+            builder.RegisterModule(new MsSqlModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService)));
             builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAssetService.Cqrs, Log));
             builder.RegisterModule(new ClientsModule(_mtSettingsManager));
         }

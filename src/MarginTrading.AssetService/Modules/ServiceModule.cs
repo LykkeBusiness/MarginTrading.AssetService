@@ -54,6 +54,8 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterInstance(_settings.CurrentValue.CandlesSharding ?? new CandlesShardingSettings())
                 .SingleInstance();  
+            
+            builder.RegisterInstance(_settings.CurrentValue.DefaultRateSettings).SingleInstance();
 
             builder.RegisterType<HealthService>().As<IHealthService>().SingleInstance();
 
@@ -104,6 +106,14 @@ namespace MarginTrading.AssetService.Modules
                 .SingleInstance();
             
             builder.RegisterChaosKitty(_settings.CurrentValue.ChaosKitty);
+
+            builder.RegisterType<RatesStorage>()
+                .As<IRatesStorage>()
+                .SingleInstance();
+
+            builder.RegisterType<RateSettingsService>()
+                .As<IRateSettingsService>()
+                .SingleInstance();
 
             RegisterRepositories(builder);
 
@@ -164,6 +174,11 @@ namespace MarginTrading.AssetService.Modules
                 
                 builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
                     .As<IOperationExecutionInfoRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
+                
+                builder.RegisterType<SqlRepos.BlobRepository>()
+                    .As<IMarginTradingBlobRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
 
@@ -230,6 +245,11 @@ namespace MarginTrading.AssetService.Modules
                 
                 builder.RegisterType<AzureRepos.OperationExecutionInfoRepository>()
                     .As<IOperationExecutionInfoRepository>()
+                    .WithParameter(connstrParameter)
+                    .SingleInstance();
+                
+                builder.RegisterType<AzureRepos.BlobRepository>()
+                    .As<IMarginTradingBlobRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
             }

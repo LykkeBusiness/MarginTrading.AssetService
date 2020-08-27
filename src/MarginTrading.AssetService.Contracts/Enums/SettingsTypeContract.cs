@@ -16,6 +16,9 @@ namespace MarginTrading.AssetService.Contracts.Enums
         ServiceMaintenance = 5,
         TradingCondition = 6,
         TradingInstrument = 7,
-        TradingRoute = 8
+        TradingRoute = 8,
+        OrderExecution = 9,
+        OnBehalf = 10,
+        OvernightSwap = 11
     }
 }

@@ -3,7 +3,7 @@
 namespace MarginTrading.AssetService.Contracts.ClientProfiles
 {
     /// <summary>
-    /// Request to update clientprofile
+    /// Request to update client profile
     /// </summary>
     public class UpdateClientProfileRequest
     {
@@ -20,7 +20,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfiles
         public string Username { get; set; }
 
         /// <summary>
-        /// Is the new regulatory profile default
+        /// Is the client profile default
         /// </summary>
         public bool IsDefault { get; set; }
     }

@@ -50,7 +50,6 @@ namespace MarginTrading.AssetService.Services
 
         public async Task InsertAsync(AssetTypeWithTemplate model, string username, string correlationId)
         {
-
             var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
 
             if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
@@ -107,11 +106,7 @@ namespace MarginTrading.AssetService.Services
                 }
             }
 
-            await _transactionRunner.RunWithTransactionAsync(async txContext =>
-            {
-                await _assetTypesRepository.InsertAsync(model, txContext);
-                await _clientProfileSettingsRepository.InsertMultipleAsync(clientProfileSettings, txContext);
-            });
+            await _assetTypesRepository.InsertAsync(model, clientProfileSettings);
 
             await _auditService.TryAudit(correlationId, username, model.Id.ToString(), AuditDataType.AssetType,
                 model.ToJson());

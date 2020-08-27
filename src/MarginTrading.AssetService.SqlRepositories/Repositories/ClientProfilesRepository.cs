@@ -21,7 +21,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task InsertAsync(ClientProfileWithTemplate model, TransactionContext txContext = null)
+        public async Task InsertAsync(ClientProfileWithTemplate model, IEnumerable<ClientProfileSettings> clientProfileSettingsToAdd)
         {
             var entity = new ClientProfileEntity
             {
@@ -32,9 +32,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 NormalizedName = model.Name.ToLower(),
             };
 
-            using (var context = _contextFactory.CreateDataContext(txContext))
+            var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
+
+            using (var context = _contextFactory.CreateDataContext())
             {
                 context.ClientProfiles.Add(entity);
+
+                context.ClientProfileSettings.AddRange(clientProfileSettingsEntities);
 
                 if (model.IsDefault)
                 {

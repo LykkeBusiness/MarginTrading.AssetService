@@ -24,7 +24,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         /// </summary>
         public string AssetTypeName { get; set; }
         /// <summary>
-        /// Minimum margin value
+        /// Margin rate
         /// </summary>
         public decimal Margin { get; set; }
         /// <summary>
@@ -48,7 +48,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         /// </summary>
         public decimal OnBehalfFee { get; set; }
         /// <summary>
-        /// Are settings available
+        /// Sets the availability of asset type for trading
         /// </summary>
         public bool IsAvailable { get; set; }
     }

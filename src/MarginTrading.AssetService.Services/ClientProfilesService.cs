@@ -105,11 +105,7 @@ namespace MarginTrading.AssetService.Services
                 }
             }
 
-            await _transactionRunner.RunWithTransactionAsync(async txContext =>
-            {
-                await _clientProfilesRepository.InsertAsync(model, txContext);
-                await _clientProfileSettingsRepository.InsertMultipleAsync(clientProfileSettings, txContext);
-            });
+            await _clientProfilesRepository.InsertAsync(model, clientProfileSettings);
 
             await _auditService.TryAudit(correlationId, username, model.Id.ToString(), AuditDataType.ClientProfile,
                 model.ToJson());

@@ -6,6 +6,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
 {
     public class ClientProfileSettingsEntityConfiguration : IEntityTypeConfiguration<ClientProfileSettingsEntity>
     {
+        private const string DecimalType = "decimal(18,2)";
         public void Configure(EntityTypeBuilder<ClientProfileSettingsEntity> builder)
         {
             builder.HasKey(x => new { x.ClientProfileId, x.AssetTypeId });
@@ -29,6 +30,19 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.IsAvailable).IsRequired();
             builder.Property(x => x.Margin).IsRequired();
             builder.Property(x => x.OnBehalfFee).IsRequired();
+
+            builder.Property(p => p.ExecutionFeesCap)
+                .HasColumnType(DecimalType);
+            builder.Property(p => p.ExecutionFeesFloor)
+                .HasColumnType(DecimalType);
+            builder.Property(p => p.ExecutionFeesRate)
+                .HasColumnType(DecimalType);
+            builder.Property(p => p.FinancingFeesRate)
+                .HasColumnType(DecimalType);
+            builder.Property(p => p.Margin)
+                .HasColumnType(DecimalType);
+            builder.Property(p => p.OnBehalfFee)
+                .HasColumnType(DecimalType);
         }
     }
 }

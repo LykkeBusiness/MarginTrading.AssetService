@@ -35,12 +35,12 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="productId"></param>
         /// <returns></returns>
         [Get("/api/products/{productId}")]
-        Task<GetProductByIdResponse> GetById([Required] string productId);
+        Task<GetProductByIdResponse> GetByIdAsync([Required] string productId);
 
         /// <summary>
         /// Gets all Products with pagination
         /// </summary>
         [Get("/api/products")]
-        Task<GetProductsResponse> GetAll([Query] int skip = default, [Query] int take = 20);
+        Task<GetProductsResponse> GetAllAsync([Query] int skip = default, [Query] int take = 20);
     }
 }

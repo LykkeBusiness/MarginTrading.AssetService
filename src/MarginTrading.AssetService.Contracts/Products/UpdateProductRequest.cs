@@ -64,7 +64,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         public string TickFormula { get; set; }
 
         // underlying primary id
-        [MaxLength(400)]
+        [MaxLength(100)]
         public string UnderlyingMdsCode { get; set; }
 
         [MaxLength(400)]

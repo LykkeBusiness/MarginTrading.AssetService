@@ -12,6 +12,8 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
         {
             builder.HasKey(x => x.ProductId);
 
+            builder.HasIndex(x => x.Name);
+
             builder.Property(x => x.ProductId).HasMaxLength(MaxLength);
             builder.Property(x => x.AssetType).HasMaxLength(MaxLength);
             builder.Property(x => x.Category).HasMaxLength(MaxLength);

@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.Products;
@@ -19,23 +19,23 @@ namespace MarginTrading.AssetService.Contracts
         /// Updates existing Product
         /// </summary>
         [Put("/api/products/{productId}")]
-        Task<ErrorCodeResponse<ProductsErrorCodesContract>> UpdateAsync([Required] string productId,
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> UpdateAsync([NotNull] string productId,
             [Body] UpdateProductRequest request);
 
         /// <summary>
         /// Deletes existing Product
         /// </summary>
         [Delete("/api/products/{productId}")]
-        Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteAsync([Required] string productId,
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteAsync([NotNull] string productId,
             [Query] string username);
 
         /// <summary>
-        /// Gets Product by mds code
+        /// Gets Product by productId
         /// </summary>
         /// <param name="productId"></param>
         /// <returns></returns>
         [Get("/api/products/{productId}")]
-        Task<GetProductByIdResponse> GetByIdAsync([Required] string productId);
+        Task<GetProductByIdResponse> GetByIdAsync([NotNull] string productId);
 
         /// <summary>
         /// Gets all Products with pagination

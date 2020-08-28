@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Mdm.Contracts.Api;
+using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -12,16 +14,22 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
+        private readonly IUnderlyingsApi _underlyingsApi;
 
-        public ProductsService(IProductsRepository repository, IAuditService auditService)
+        public ProductsService(IProductsRepository repository, IAuditService auditService, IUnderlyingsApi underlyingsApi)
         {
             _repository = repository;
             _auditService = auditService;
+            _underlyingsApi = underlyingsApi;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username, string correlationId)
         {
-            // todo: check underlying
+            var underlyingResponse = await _underlyingsApi.GetByIdAsync(product.UnderlyingMdsCode);
+            if (underlyingResponse.ErrorCode == UnderlyingsErrorCodesContract.DoesNotExist)
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
+            }
             
             var result = await _repository.InsertAsync(product);
 

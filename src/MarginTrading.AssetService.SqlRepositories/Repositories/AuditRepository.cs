@@ -38,13 +38,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 var query = context.AuditTrail.AsNoTracking();
 
                 if (!string.IsNullOrEmpty(filter.UserName))
-                    query = query.Where(x => x.UserName == filter.UserName);
+                    query = query.Where(x => x.UserName.ToLower().Contains(filter.UserName.ToLower()));
 
                 if (!string.IsNullOrEmpty(filter.CorrelationId))
                     query = query.Where(x => x.CorrelationId == filter.CorrelationId);
 
                 if (!string.IsNullOrEmpty(filter.ReferenceId))
-                    query = query.Where(x => x.DataReference == filter.ReferenceId);
+                    query = query.Where(x => x.DataReference.ToLower().Contains(filter.ReferenceId.ToLower()));
 
                 if (filter.DataType.HasValue)
                     query = query.Where(x => x.DataType == filter.DataType.Value);

@@ -44,6 +44,12 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<ProductsErrorCodes>> UpdateAsync(Product product, string username, string correlationId)
         {
+            var underlyingResponse = await _underlyingsApi.GetByIdAsync(product.UnderlyingMdsCode);
+            if (underlyingResponse.ErrorCode == UnderlyingsErrorCodesContract.DoesNotExist)
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
+            }
+            
             var existing = await _repository.GetByIdAsync(product.ProductId);
 
             if (existing.IsSuccess)

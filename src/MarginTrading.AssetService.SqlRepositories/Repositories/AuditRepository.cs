@@ -31,7 +31,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<IAuditModel>> GetAll(AuditLogsFilterDto filter)
+        public async Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -58,7 +58,21 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (filter.EndDateTime.HasValue)
                     query = query.Where(x => x.Timestamp <= filter.EndDateTime.Value);
 
-                return await query.ToListAsync();
+                var total = await query.CountAsync();
+
+                if (skip.HasValue && take.HasValue)
+                    query = query.Skip(skip.Value).Take(take.Value);
+
+                var contents = await query.ToListAsync();
+
+                var result = new PaginatedResponse<IAuditModel>(
+                    contents: contents,
+                    start: skip ?? 0,
+                    size: contents.Count,
+                    totalSize: total
+                );
+
+                return result;
             }
         }
     }

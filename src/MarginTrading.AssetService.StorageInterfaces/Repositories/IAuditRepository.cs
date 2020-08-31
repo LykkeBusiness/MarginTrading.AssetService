@@ -9,6 +9,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     {
         Task InsertAsync(IAuditModel model);
 
-        Task<IReadOnlyList<IAuditModel>> GetAll(AuditLogsFilterDto filter);
+        Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take);
     }
 }

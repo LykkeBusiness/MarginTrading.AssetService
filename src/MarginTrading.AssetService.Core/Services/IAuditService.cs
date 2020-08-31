@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 
@@ -7,7 +6,7 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface IAuditService
     {
-        Task<IReadOnlyList<IAuditModel>> GetAll(AuditLogsFilterDto filter);
+        Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take);
 
         Task<bool> TryAudit(string correlationId, string userName, string referenceId,
             AuditDataType type, string newStateJson = null, string oldStateJson = null);

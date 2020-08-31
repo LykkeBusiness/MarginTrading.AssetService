@@ -30,14 +30,14 @@ namespace MarginTrading.AssetService.Controllers
         /// <summary>
         /// Get audit logs
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IReadOnlyList<AuditContract>), (int)HttpStatusCode.OK)]
-        public async Task<GetAuditLogsResponse> GetAuditTrailAsync([FromQuery]int? year, [FromQuery]int? month)
+        public async Task<GetAuditLogsResponse> GetAuditTrailAsync([FromQuery] GetAuditLogsRequest request)
         {
-            var result = await _auditService.GetAll(year, month);
+            var filter = _convertService.Convert<GetAuditLogsRequest, AuditLogsFilterDto>(request);
+            var result = await _auditService.GetAll(filter);
 
             return new GetAuditLogsResponse
             {

@@ -23,8 +23,8 @@ namespace MarginTrading.AssetService.Services
             _log = log;
         }
 
-        public Task<IReadOnlyList<IAuditModel>> GetAll(int? year, int? month)
-            => _auditRepository.GetAll(year, month);
+        public Task<IReadOnlyList<IAuditModel>> GetAll(AuditLogsFilterDto filter)
+            => _auditRepository.GetAll(filter);
 
         public async Task<bool> TryAudit(
             string correlationId,
@@ -85,8 +85,8 @@ namespace MarginTrading.AssetService.Services
                 Timestamp = timestamp,
                 CorrelationId = correlationId,
                 UserName = userName,
-                Type = eventType.ToString(),
-                DataType = dataType.GetDescription(),
+                Type = eventType,
+                DataType = dataType,
                 DataReference = referenceId,
                 DataDiff = diffResult
             };

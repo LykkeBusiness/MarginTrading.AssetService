@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
+using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -30,17 +31,34 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<IAuditModel>> GetAll(int? year, int? month)
+        public async Task<IReadOnlyList<IAuditModel>> GetAll(AuditLogsFilterDto filter)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var result = await context.AuditTrail
-                    .AsNoTracking()
-                    .Where(x =>
-                        (!year.HasValue || x.Timestamp.Year == year) && (!month.HasValue || x.Timestamp.Month == month))
-                    .ToListAsync();
+                var query = context.AuditTrail.AsNoTracking();
 
-                return result;
+                if (!string.IsNullOrEmpty(filter.UserName))
+                    query = query.Where(x => x.UserName == filter.UserName);
+
+                if (!string.IsNullOrEmpty(filter.CorrelationId))
+                    query = query.Where(x => x.CorrelationId == filter.CorrelationId);
+
+                if (!string.IsNullOrEmpty(filter.ReferenceId))
+                    query = query.Where(x => x.DataReference == filter.ReferenceId);
+
+                if (filter.DataType.HasValue)
+                    query = query.Where(x => x.DataType == filter.DataType.Value);
+
+                if (filter.ActionType.HasValue)
+                    query = query.Where(x => x.Type == filter.ActionType.Value);
+
+                if (filter.StartDateTime.HasValue)
+                    query = query.Where(x => x.Timestamp >= filter.StartDateTime.Value);
+
+                if (filter.EndDateTime.HasValue)
+                    query = query.Where(x => x.Timestamp <= filter.EndDateTime.Value);
+
+                return await query.ToListAsync();
             }
         }
     }

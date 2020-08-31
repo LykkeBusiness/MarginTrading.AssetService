@@ -9,10 +9,9 @@ namespace MarginTrading.AssetService.Contracts
         /// <summary>
         /// Get audit logs
         /// </summary>
-        /// <param name="year"></param>
-        /// <param name="month"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         [Get("/api/audit")]
-        Task<GetAuditLogsResponse> GetAuditTrailAsync([Query] int? year, [Query] int? month);
+        Task<GetAuditLogsResponse> GetAuditTrailAsync([Query] GetAuditLogsRequest request);
     }
 }

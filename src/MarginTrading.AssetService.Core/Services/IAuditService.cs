@@ -7,7 +7,7 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface IAuditService
     {
-        Task<IReadOnlyList<IAuditModel>> GetAll(int? year, int? month);
+        Task<IReadOnlyList<IAuditModel>> GetAll(AuditLogsFilterDto filter);
 
         Task<bool> TryAudit(string correlationId, string userName, string referenceId,
             AuditDataType type, string newStateJson = null, string oldStateJson = null);

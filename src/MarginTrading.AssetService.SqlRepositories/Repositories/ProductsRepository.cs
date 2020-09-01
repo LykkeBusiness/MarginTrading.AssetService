@@ -17,20 +17,18 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     public class ProductsRepository : IProductsRepository
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
-        private readonly IConvertService _convertService;
 
         private const string DoesNotExistException =
             "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
 
-        public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory, IConvertService convertService)
+        public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
-            _convertService = convertService;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product)
         {
-            var entity = _convertService.Convert<Product, ProductEntity>(product);
+            var entity = ToEntity(product);
 
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -55,7 +53,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         public async Task<Result<ProductsErrorCodes>> UpdateAsync(Product product)
         {
-            var entity = _convertService.Convert<Product, ProductEntity>(product);
+            var entity = ToEntity(product);
 
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -109,7 +107,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (entity == null)
                     return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
-                return new Result<Product, ProductsErrorCodes>(_convertService.Convert<ProductEntity, Product>(entity));
+                return new Result<Product, ProductsErrorCodes>(ToModel(entity));
             }
         }
 
@@ -121,8 +119,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     .OrderBy(u => u.Name)
                     .ToListAsync();
 
-                return new Result<List<Product>, ProductsErrorCodes>(
-                    _convertService.Convert<List<ProductEntity>, List<Product>>(entities));
+                return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
             }
         }
 
@@ -144,9 +141,80 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     .Take(take)
                     .ToListAsync();
 
-                return new Result<List<Product>, ProductsErrorCodes>(
-                    _convertService.Convert<List<ProductEntity>, List<Product>>(entities));
+                return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
             }
+        }
+
+        private static ProductEntity ToEntity(Product product)
+        {
+            var result = new ProductEntity()
+            {
+                ProductId = product.ProductId,
+                AssetType = product.AssetType,
+                Category = product.Category,
+                Comments = product.Comments,
+                ContractSize = product.ContractSize,
+                IsinLong = product.IsinLong,
+                IsinShort = product.IsinShort,
+                Issuer = product.Issuer,
+                Market = product.Market,
+                MarketMakerAssetAccountId = product.MarketMakerAssetAccountId,
+                MaxOrderSize = product.MaxOrderSize,
+                MinOrderSize = product.MinOrderSize,
+                MaxPositionSize = product.MaxPositionSize,
+                MinOrderDistancePercent = product.MinOrderDistancePercent,
+                MinOrderEntryInterval = product.MinOrderEntryInterval,
+                Name = product.Name,
+                NewsId = product.NewsId,
+                Keywords = product.Keywords,
+                PublicationRic = product.PublicationRic,
+                SettlementCurrency = product.SettlementCurrency,
+                ShortPosition = product.ShortPosition,
+                Tags = product.Tags,
+                TickFormula = product.TickFormula,
+                UnderlyingMdsCode = product.UnderlyingMdsCode,
+                ForceId = product.ForceId,
+                Parity = product.Parity,
+                OvernightMarginMultiplier = product.OvernightMarginMultiplier,
+            };
+
+            return result;
+        }
+
+        private static Product ToModel(ProductEntity product)
+        {
+            var result = new Product()
+            {
+                ProductId = product.ProductId,
+                AssetType = product.AssetType,
+                Category = product.Category,
+                Comments = product.Comments,
+                ContractSize = product.ContractSize,
+                IsinLong = product.IsinLong,
+                IsinShort = product.IsinShort,
+                Issuer = product.Issuer,
+                Market = product.Market,
+                MarketMakerAssetAccountId = product.MarketMakerAssetAccountId,
+                MaxOrderSize = product.MaxOrderSize,
+                MinOrderSize = product.MinOrderSize,
+                MaxPositionSize = product.MaxPositionSize,
+                MinOrderDistancePercent = product.MinOrderDistancePercent,
+                MinOrderEntryInterval = product.MinOrderEntryInterval,
+                Name = product.Name,
+                NewsId = product.NewsId,
+                Keywords = product.Keywords,
+                PublicationRic = product.PublicationRic,
+                SettlementCurrency = product.SettlementCurrency,
+                ShortPosition = product.ShortPosition,
+                Tags = product.Tags,
+                TickFormula = product.TickFormula,
+                UnderlyingMdsCode = product.UnderlyingMdsCode,
+                ForceId = product.ForceId,
+                Parity = product.Parity,
+                OvernightMarginMultiplier = product.OvernightMarginMultiplier,
+            };
+
+            return result;
         }
     }
 }

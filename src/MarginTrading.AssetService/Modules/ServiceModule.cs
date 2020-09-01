@@ -95,6 +95,7 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<ClientProfileSettingsService>().As<IClientProfileSettingsService>().SingleInstance();
             builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
+            builder.RegisterType<MarketSettingsService>().As<IMarketSettingsService>().SingleInstance();
 
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();
@@ -196,6 +197,10 @@ namespace MarginTrading.AssetService.Modules
 
                 builder.RegisterType<SqlRepos.ClientProfileSettingsRepository>()
                     .As<IClientProfileSettingsRepository>()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.MarketSettingsRepository>()
+                    .As<IMarketSettingsRepository>()
                     .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)

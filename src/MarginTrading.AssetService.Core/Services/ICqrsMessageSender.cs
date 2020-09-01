@@ -9,5 +9,6 @@ namespace MarginTrading.AssetService.Core.Services
     public interface ICqrsMessageSender
     {
         Task SendAssetPairChangedEvent(AssetPairChangedEvent @event);
+        Task SendEvent<TEvent>(TEvent @event);
     }
 }

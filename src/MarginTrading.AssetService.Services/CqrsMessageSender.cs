@@ -40,5 +40,17 @@ namespace MarginTrading.AssetService.Services
                 await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(SendAssetPairChangedEvent), ex);
             }
         }
+
+        public async Task SendEvent<TEvent>(TEvent @event)
+        {
+            try
+            {
+                _cqrsEngine.PublishEvent(@event, _contextNames.AssetService);
+            }
+            catch (Exception ex)
+            {
+                await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(TEvent), ex);
+            }
+        }
     }
 }

@@ -9,6 +9,8 @@ namespace MarginTrading.AssetService.Core.Domain
         [Description("Asset type")]
         AssetType,
         [Description("Client profile settings")]
-        ClientProfileSettings
+        ClientProfileSettings,
+        [Description("Market settings")]
+        MarketSettings
     }
 }

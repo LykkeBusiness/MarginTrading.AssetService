@@ -57,5 +57,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public int Parity { get; set; }
 
         public decimal OvernightMarginMultiplier { get; set; }
+        
+        public byte[] Timestamp { get; set; }
     }
 }

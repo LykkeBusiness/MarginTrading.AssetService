@@ -7,6 +7,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
     public class ProductEntityConfiguration : IEntityTypeConfiguration<ProductEntity>
     {
         private const int MaxLength = 400;
+        private const string DbDecimal = "decimal(18,2)";
         
         public void Configure(EntityTypeBuilder<ProductEntity> builder)
         {
@@ -33,6 +34,14 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.TickFormula).HasMaxLength(MaxLength);
             builder.Property(x => x.UnderlyingMdsCode).HasMaxLength(MaxLength);
             builder.Property(x => x.ForceId).HasMaxLength(MaxLength);
+
+            builder.Property(x => x.MinOrderDistancePercent).HasColumnType(DbDecimal);
+            builder.Property(x => x.MinOrderEntryInterval).HasColumnType(DbDecimal);
+            builder.Property(x => x.OvernightMarginMultiplier).HasColumnType(DbDecimal);
+            
+            builder.Property(x => x.Timestamp).IsRowVersion();
+
+
         }
     }
 }

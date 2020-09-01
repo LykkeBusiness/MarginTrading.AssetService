@@ -1,4 +1,7 @@
-﻿using MarginTrading.AssetService.SqlRepositories.Entities;
+﻿// Copyright (c) 2020 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using MarginTrading.AssetService.SqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

@@ -1,4 +1,7 @@
-﻿using MarginTrading.AssetService.Contracts.Common;
+﻿// Copyright (c) 2020 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 
 namespace MarginTrading.AssetService.Contracts.MarketSettings

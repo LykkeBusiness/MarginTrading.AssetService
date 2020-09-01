@@ -1,4 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Copyright (c) 2020 Lykke Corp.
+// See the LICENSE file in the project root for more information.
+
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
@@ -20,7 +23,7 @@ namespace MarginTrading.AssetService.Contracts
         Task<GetMarketSettingsByIdResponse> GetByIdAsync(string id);
 
         /// <summary>
-        /// Get all market settings ids
+        /// Get all market settings
         /// </summary>
         /// <returns></returns>
         [Get("/api/market-settings")]
@@ -43,7 +46,7 @@ namespace MarginTrading.AssetService.Contracts
             [Body] UpdateMarketSettingsRequest request, [Required] string id);
 
         /// <summary>
-        /// Add market settings
+        /// Delete market settings
         /// </summary>
         /// <returns></returns>
         [Delete("/api/market-settings/{id}")]

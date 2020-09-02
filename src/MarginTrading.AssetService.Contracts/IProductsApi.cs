@@ -27,7 +27,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         [Delete("/api/products/{productId}")]
         Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteAsync([NotNull] string productId,
-            [Query] string username);
+            [Body] DeleteProductRequest request);
 
         /// <summary>
         /// Gets Product by productId

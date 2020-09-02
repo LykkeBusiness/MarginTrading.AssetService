@@ -75,10 +75,10 @@ namespace MarginTrading.AssetService.Controllers
 
         [HttpDelete("{productId}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteAsync(string productId, string username)
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteAsync(string productId, [FromBody] DeleteProductRequest request)
         {
             var correlationId = this.TryGetCorrelationId();
-            var result = await _productsService.DeleteAsync(productId, username, correlationId);
+            var result = await _productsService.DeleteAsync(productId, request.UserName, correlationId);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 

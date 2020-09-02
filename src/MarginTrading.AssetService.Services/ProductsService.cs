@@ -55,6 +55,7 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
+                product.Timestamp = existing.Value.Timestamp;
                 var result = await _repository.UpdateAsync(product);
 
                 if (result.IsSuccess)
@@ -75,7 +76,7 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
-                var result = await _repository.DeleteAsync(productId);
+                var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
 
                 if (result.IsSuccess)
                 {

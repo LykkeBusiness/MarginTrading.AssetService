@@ -74,11 +74,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId)
+        public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, byte[] timestamp)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = new ProductEntity() {ProductId = productId};
+                var entity = new ProductEntity() {ProductId = productId, Timestamp = timestamp};
 
                 context.Attach(entity);
                 context.Products.Remove(entity);
@@ -176,6 +176,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 ForceId = product.ForceId,
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
+                Timestamp = product.Timestamp,
             };
 
             return result;
@@ -212,6 +213,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 ForceId = product.ForceId,
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
+                Timestamp = product.Timestamp,
             };
 
             return result;

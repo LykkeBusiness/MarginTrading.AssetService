@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using MarginTrading.AssetService.Contracts.Core;
 
 namespace MarginTrading.AssetService.Contracts.Products
 {
-    public class AddProductRequest
+    public class AddProductRequest : UserRequest
     {
         // primary id
         [MaxLength(400)]
@@ -77,10 +78,5 @@ namespace MarginTrading.AssetService.Contracts.Products
         public int Parity { get; set; }
 
         public decimal OvernightMarginMultiplier { get; set; }
-        
-        /// <summary>
-        /// Name of the user who sent the request
-        /// </summary>
-        public string UserName { get; set; }
     }
 }

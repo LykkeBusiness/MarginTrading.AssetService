@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MarginTrading.AssetService.Core.Constants;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
@@ -24,5 +25,24 @@ namespace MarginTrading.AssetService.Core.Domain
         public string Timezone { get; set; }
 
         public List<DateTime> Holidays { get; set; }
+
+        public static MarketSettings GetMarketSettingsWithDefaults(MarketSettingsCreateOrUpdateDto model)
+        {
+            return new MarketSettings
+            {
+                Id = model.Id,
+                Name = model.Name,
+                Dividends871M = model.Dividends871M,
+                DividendsLong = model.DividendsLong,
+                DividendsShort = model.DividendsShort,
+                MICCode = model.MICCode,
+                Holidays = model.Holidays,
+                Open = model.Open ?? MarketSettingsConstants.DefaultOpen,
+                Close = model.Close ?? MarketSettingsConstants.DefaultClose,
+                Timezone = string.IsNullOrEmpty(model.Timezone)
+                    ? MarketSettingsConstants.DefaultTimeZone
+                    : model.Timezone,
+            };
+        }
     }
 }

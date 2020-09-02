@@ -13,6 +13,7 @@ using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.EntityFrameworkCore.Internal;
 using TimeZoneConverter;
 
 namespace MarginTrading.AssetService.Services
@@ -44,7 +45,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username, string correlationId)
         {
-            var marketSettings = GetMarketSettingsWithDefaults(model);
+            var marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
 
             var validationResult = ValidateSettings(marketSettings);
 
@@ -66,28 +67,22 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username, string correlationId)
         {
-            var marketSettings = GetMarketSettingsWithDefaults(model);
+            var marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
 
             var currentSettings = await _marketSettingsRepository.GetByIdAsync(marketSettings.Id);
 
             if (currentSettings == null)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
 
-            ValidateSettings(marketSettings);
+            var validationResult = ValidateSettings(marketSettings, currentSettings);
 
-            //This is the current day taking into account the timezone
-            var currentDay = DateTime.UtcNow.Add(TZConvert.GetTimeZoneInfo(currentSettings.Timezone).BaseUtcOffset);
+            if (validationResult.IsFailed)
+                return validationResult;
 
-            //Validate if we try to add holiday for already started trading day
-            if (marketSettings.Holidays.Select(x => x.Date.Date).Contains(currentDay.Date) &&
-                currentSettings.Open <= currentDay.TimeOfDay &&
-                //Close will be Zero when it is set to 00h next day
-                (currentSettings.Close >= currentDay.TimeOfDay || model.Close == TimeSpan.Zero))
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
-            }
+            var updateResult = await _marketSettingsRepository.UpdateAsync(marketSettings);
 
-            await _marketSettingsRepository.UpdateAsync(marketSettings);
+            if (updateResult.IsFailed)
+                return updateResult;
 
             await _auditService.TryAudit(correlationId, username, marketSettings.Id, AuditDataType.MarketSettings,
                 marketSettings.ToJson(), currentSettings.ToJson());
@@ -114,13 +109,13 @@ namespace MarginTrading.AssetService.Services
             return new Result<MarketSettingsErrorCodes>();
         }
 
-        private Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model)
+        private Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model, MarketSettings currentMarketSettings = null)
         {
             var valid = TZConvert.TryGetTimeZoneInfo(model.Timezone, out _);
             if (!valid)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidTimezone);
 
-            if (model.Open.TotalHours > 24 || model.Close.TotalHours > 24 || (model.Open > model.Close && model.Close != TimeSpan.Zero))
+            if (model.Open.TotalHours >= 24 || model.Close.TotalHours >= 24 || (model.Open > model.Close && model.Close != TimeSpan.Zero))
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
 
             if (model.DividendsLong < 0 || model.DividendsLong > 1)
@@ -132,26 +127,22 @@ namespace MarginTrading.AssetService.Services
             if (model.Dividends871M < 0 || model.Dividends871M > 1)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
 
-            return new Result<MarketSettingsErrorCodes>();
-        }
+            if (currentMarketSettings == null) 
+                return new Result<MarketSettingsErrorCodes>();
 
-        private static MarketSettings GetMarketSettingsWithDefaults(MarketSettingsCreateOrUpdateDto model)
-        {
-            return new MarketSettings
+            //This is the current day taking into account the timezone
+            var currentDay = DateTime.UtcNow.Add(TZConvert.GetTimeZoneInfo(currentMarketSettings.Timezone).BaseUtcOffset);
+
+            //Validate if we try to add holiday for already started trading day
+            if (model.Holidays.Select(x => x.Date.Date).Contains(currentDay.Date) &&
+                currentMarketSettings.Open <= currentDay.TimeOfDay &&
+                //Close will be Zero when it is set to 00h next day
+                (currentMarketSettings.Close >= currentDay.TimeOfDay || model.Close == TimeSpan.Zero))
             {
-                Id = model.Id,
-                Name = model.Name,
-                Dividends871M = model.Dividends871M,
-                DividendsLong = model.DividendsLong,
-                DividendsShort = model.DividendsShort,
-                MICCode = model.MICCode,
-                Holidays = model.Holidays,
-                Open = model.Open ?? MarketSettingsConstants.DefaultOpen,
-                Close = model.Close ?? MarketSettingsConstants.DefaultClose,
-                Timezone = string.IsNullOrEmpty(model.Timezone)
-                    ? MarketSettingsConstants.DefaultTimeZone
-                    : model.Timezone,
-            };
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
+            }
+
+            return new Result<MarketSettingsErrorCodes>();
         }
 
         private async Task PublishMarketSettingsChangedEvent

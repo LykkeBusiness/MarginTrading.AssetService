@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -93,7 +94,7 @@ namespace MarginTrading.AssetService
                     {
                         options.AddApiKeyAwareness();
                     }
-                });
+                }).AddSwaggerGenNewtonsoftSupport();
 
                 Log = CreateLogWithSlack(Configuration, services, _mtSettingsManager);
 

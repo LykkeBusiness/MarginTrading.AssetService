@@ -8,10 +8,10 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
     public class UpdateAssetTypeRequest
     {
         /// <summary>
-        /// Name of the asset type
+        /// Id of the related regulatory type
         /// </summary>
         [Required]
-        public string Name { get; set; }
+        public string RegulatoryTypeId { get; set; }
 
         /// <summary>
         /// Name of the user who sent the request

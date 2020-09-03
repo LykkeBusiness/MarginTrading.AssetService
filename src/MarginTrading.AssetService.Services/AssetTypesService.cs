@@ -6,7 +6,6 @@ using Common;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
-using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -23,7 +22,6 @@ namespace MarginTrading.AssetService.Services
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly IRegulatoryTypesApi _regulatoryTypesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
-        private readonly ITransactionRunner _transactionRunner;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -34,7 +32,6 @@ namespace MarginTrading.AssetService.Services
             IBrokerSettingsApi brokerSettingsApi,
             IRegulatoryTypesApi regulatoryTypesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
-            ITransactionRunner transactionRunner,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -44,7 +41,6 @@ namespace MarginTrading.AssetService.Services
             _brokerSettingsApi = brokerSettingsApi;
             _regulatoryTypesApi = regulatoryTypesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
-            _transactionRunner = transactionRunner;
             _brokerId = brokerId;
         }
 
@@ -64,15 +60,13 @@ namespace MarginTrading.AssetService.Services
                 regulatoryTypeResponse.RegulatoryType.RegulationId != regulationId)
                 throw new RegulatoryTypeDoesNotExistException();
 
-            model.Id = Guid.NewGuid();
-
             List<ClientProfileSettings> clientProfileSettings;
 
             //duplicate settings if we use template
-            if (model.AssetTypeTemplateId.HasValue)
+            if (!string.IsNullOrEmpty(model.AssetTypeTemplateId))
             {
                 var regulatoryProfileTemplateExists =
-                    await _assetTypesRepository.ExistsAsync(model.AssetTypeTemplateId.Value);
+                    await _assetTypesRepository.ExistsAsync(model.AssetTypeTemplateId);
 
                 if (!regulatoryProfileTemplateExists)
                     throw new AssetTypeDoesNotExistException();
@@ -108,12 +102,26 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.InsertAsync(model, clientProfileSettings);
 
-            await _auditService.TryAudit(correlationId, username, model.Id.ToString(), AuditDataType.AssetType,
+            await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson());
         }
 
         public async Task UpdateAsync(AssetType model, string username, string correlationId)
         {
+            var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
+
+            if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
+                throw new BrokerSettingsDoNotExistException();
+
+            var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
+
+            var regulatoryTypeResponse =
+                await _regulatoryTypesApi.GetRegulatoryTypeByIdAsync(model.RegulatoryTypeId);
+
+            if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
+                regulatoryTypeResponse.RegulatoryType.RegulationId != regulationId)
+                throw new RegulatoryTypeDoesNotExistException();
+
             var existing = await _assetTypesRepository.GetByIdAsync(model.Id);
 
             if (existing == null)
@@ -121,11 +129,11 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.UpdateAsync(model);
 
-            await _auditService.TryAudit(correlationId, username, model.Id.ToString(), AuditDataType.AssetType,
+            await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson(), existing.ToJson());
         }
 
-        public async Task DeleteAsync(Guid id, string username, string correlationId)
+        public async Task DeleteAsync(string id, string username, string correlationId)
         {
             var existing = await _assetTypesRepository.GetByIdAsync(id);
 
@@ -134,11 +142,11 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.DeleteAsync(id);
 
-            await _auditService.TryAudit(correlationId, username, id.ToString(), AuditDataType.AssetType,
+            await _auditService.TryAudit(correlationId, username, id, AuditDataType.AssetType,
                 oldStateJson: existing.ToJson());
         }
 
-        public Task<AssetType> GetByIdAsync(Guid id)
+        public Task<AssetType> GetByIdAsync(string id)
             => _assetTypesRepository.GetByIdAsync(id);
 
         public Task<IReadOnlyList<AssetType>> GetAllAsync()

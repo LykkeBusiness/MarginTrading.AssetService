@@ -8,17 +8,13 @@ namespace MarginTrading.AssetService.Contracts.ClientProfiles
     public class ClientProfileContract
     {
         /// <summary>
-        /// Id of the broker regulatory profile
+        /// Id of the client profile
         /// </summary>
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// Id of the regulatory profile from MDM
         /// </summary>
-        public Guid RegulatoryProfileId { get; set; }
-        /// <summary>
-        /// Name of the client profile
-        /// </summary>
-        public string Name { get; set; }
+        public string RegulatoryProfileId { get; set; }
         /// <summary>
         /// Is this the default broker profile
         /// </summary>

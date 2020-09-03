@@ -68,7 +68,7 @@ namespace MarginTrading.AssetService.Services
                 model.ToJson(), existing.ToJson());
         }
 
-        public Task<ClientProfileSettings> GetByIdAsync(Guid profileId, Guid typeId)
+        public Task<ClientProfileSettings> GetByIdAsync(string profileId, string typeId)
             => _regulatorySettingsRepository.GetByIdsAsync(profileId, typeId);
 
         public Task<List<ClientProfileSettings>> GetAllAsync()

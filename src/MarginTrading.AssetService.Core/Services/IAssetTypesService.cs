@@ -9,8 +9,8 @@ namespace MarginTrading.AssetService.Core.Services
     {
         Task InsertAsync(AssetTypeWithTemplate model, string username, string correlationId);
         Task UpdateAsync(AssetType model, string username, string correlationId);
-        Task DeleteAsync(Guid id, string username, string correlationId);
-        Task<AssetType> GetByIdAsync(Guid id);
+        Task DeleteAsync(string id, string username, string correlationId);
+        Task<AssetType> GetByIdAsync(string id);
         Task<IReadOnlyList<AssetType>> GetAllAsync();
     }
 }

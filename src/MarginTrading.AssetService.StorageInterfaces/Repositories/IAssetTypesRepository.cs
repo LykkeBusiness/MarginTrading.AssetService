@@ -9,10 +9,10 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     {
         Task InsertAsync(AssetTypeWithTemplate model, IEnumerable<ClientProfileSettings> clientProfileSettingsToAdd);
         Task UpdateAsync(AssetType model);
-        Task DeleteAsync(Guid id);
+        Task DeleteAsync(string id);
         Task<IReadOnlyList<AssetType>> GetAllAsync();
-        Task<IReadOnlyList<Guid>> GetAllIdsAsync();
-        Task<AssetType> GetByIdAsync(Guid id);
-        Task<bool> ExistsAsync(Guid id);
+        Task<IReadOnlyList<string>> GetAllIdsAsync();
+        Task<AssetType> GetByIdAsync(string id);
+        Task<bool> ExistsAsync(string id);
     }
 }

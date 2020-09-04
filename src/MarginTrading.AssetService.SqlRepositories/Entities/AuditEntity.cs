@@ -1,4 +1,5 @@
 ﻿using System;
+using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.SqlRepositories.Entities
@@ -13,9 +14,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 
         public string UserName { get; set; }
 
-        public string Type { get; set; }
+        public AuditEventType Type { get; set; }
 
-        public string DataType { get; set; }
+        public AuditDataType DataType { get; set; }
 
         public string DataReference { get; set; }
 

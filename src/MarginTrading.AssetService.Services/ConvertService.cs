@@ -70,6 +70,7 @@ namespace MarginTrading.AssetService.Services
                 
                 //Audit
                 cfg.CreateMap<IAuditModel, AuditContract>();
+                cfg.CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
 
                 //MarketSettings
                 cfg.CreateMap<MarketSettings, MarketSettingsContract>();

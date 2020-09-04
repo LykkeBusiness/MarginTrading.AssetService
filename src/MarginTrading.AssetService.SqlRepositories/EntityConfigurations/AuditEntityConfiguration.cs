@@ -1,4 +1,6 @@
-﻿using MarginTrading.AssetService.SqlRepositories.Entities;
+﻿using System;
+using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.SqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -18,6 +20,18 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.DataDiff).IsRequired();
             builder.Property(x => x.UserName).IsRequired();
             builder.Property(x => x.CorrelationId).IsRequired();
+
+            builder
+                .Property(e => e.DataType)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (AuditDataType)Enum.Parse(typeof(AuditDataType), v));
+
+            builder
+                .Property(e => e.Type)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (AuditEventType)Enum.Parse(typeof(AuditEventType), v));
         }
     }
 }

@@ -6,6 +6,7 @@ namespace MarginTrading.AssetService.Core.Domain
         ClientProfile,
         AssetType,
         ClientProfileSettings,
-        MarketSettings
+        MarketSettings,
+        Currency,
     }
 }

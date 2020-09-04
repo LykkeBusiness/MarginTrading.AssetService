@@ -4,6 +4,8 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Dapper;
+using Lykke.Common.MsSql;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarginTrading.AssetService.SqlRepositories
 {
@@ -28,6 +30,16 @@ namespace MarginTrading.AssetService.SqlRepositories
             {
                 connection.Close();
             }
+        }
+    }
+    
+    public static class DbUpdateExceptionExtensions
+    {
+        public static bool ValueAlreadyExistsException(this DbUpdateException e)
+        {
+            return e.InnerException is SqlException sqlException &&
+                   (sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation ||
+                    sqlException.Number == MsSqlErrorCodes.DuplicateIndex);
         }
     }
 }

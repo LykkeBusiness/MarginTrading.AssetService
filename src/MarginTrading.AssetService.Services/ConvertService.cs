@@ -11,6 +11,8 @@ using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.MarketSettings;
+using MarginTrading.AssetService.Contracts.Currencies;
+using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -78,6 +80,11 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
 
+                
+                //Currencies
+                cfg.CreateMap<AddCurrencyRequest, Currency>();
+                cfg.CreateMap<UpdateCurrencyRequest, Currency>();
+                cfg.CreateMap<CurrenciesErrorCodes, CurrenciesErrorCodesContract>();
             }).CreateMapper();
         }
 

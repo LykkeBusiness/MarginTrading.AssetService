@@ -116,6 +116,10 @@ namespace MarginTrading.AssetService.Modules
                 .As<IRateSettingsService>()
                 .SingleInstance();
 
+            builder.RegisterType<CurrenciesService>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
+
             RegisterRepositories(builder);
 
             builder.Populate(_services);
@@ -200,7 +204,10 @@ namespace MarginTrading.AssetService.Modules
                     .SingleInstance();
 
                 builder.RegisterType<SqlRepos.MarketSettingsRepository>()
-                    .As<IMarketSettingsRepository>()
+                    .As<IMarketSettingsRepository>();
+                    
+                builder.RegisterType<SqlRepos.CurrenciesRepository>()
+                    .AsImplementedInterfaces()
                     .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)

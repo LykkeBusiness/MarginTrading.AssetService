@@ -127,7 +127,7 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
-            model.RegulatoryTypeId = existing.RegulatoryTypeId;
+
             await _assetTypesRepository.UpdateAsync(model);
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,

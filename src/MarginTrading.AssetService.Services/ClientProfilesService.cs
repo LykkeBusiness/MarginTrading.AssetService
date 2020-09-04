@@ -126,7 +126,7 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 throw new ClientProfileDoesNotExistException();
-            model.RegulatoryProfileId = existing.RegulatoryProfileId;
+
             await _clientProfilesRepository.UpdateAsync(model);
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,

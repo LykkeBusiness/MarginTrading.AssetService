@@ -1,5 +1,4 @@
-﻿
-namespace MarginTrading.AssetService.Core.Domain
+﻿namespace MarginTrading.AssetService.Contracts.Audit
 {
     public enum AuditDataType
     {

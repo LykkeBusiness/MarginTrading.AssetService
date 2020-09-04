@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.StorageInterfaces.Repositories
@@ -8,6 +9,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     {
         Task InsertAsync(IAuditModel model);
 
-        Task<IReadOnlyList<IAuditModel>> GetAll(int? year, int? month);
+        Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take);
     }
 }

@@ -54,12 +54,7 @@ namespace MarginTrading.AssetService.Services
 
             var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
 
-            var regulatoryTypeResponse =
-                await _regulatoryTypesApi.GetRegulatoryTypeByIdAsync(model.RegulatoryTypeId);
-
-            if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
-                regulatoryTypeResponse.RegulatoryType.RegulationId != regulationId)
-                throw new RegulatoryTypeDoesNotExistException();
+            await ValidateRegulatoryType(model.RegulatoryTypeId, regulationId);
 
             List<ClientProfileSettings> clientProfileSettings;
 
@@ -116,12 +111,7 @@ namespace MarginTrading.AssetService.Services
 
             var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
 
-            var regulatoryTypeResponse =
-                await _regulatoryTypesApi.GetRegulatoryTypeByIdAsync(model.RegulatoryTypeId);
-
-            if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
-                regulatoryTypeResponse.RegulatoryType.RegulationId != regulationId)
-                throw new RegulatoryTypeDoesNotExistException();
+            await ValidateRegulatoryType(model.RegulatoryTypeId, regulationId);
 
             var existing = await _assetTypesRepository.GetByIdAsync(model.Id);
 
@@ -152,5 +142,15 @@ namespace MarginTrading.AssetService.Services
 
         public Task<IReadOnlyList<AssetType>> GetAllAsync()
             => _assetTypesRepository.GetAllAsync();
+
+        private async Task ValidateRegulatoryType(string regulatoryTypeId, string regulationId)
+        {
+            var regulatoryTypeResponse =
+                await _regulatoryTypesApi.GetRegulatoryTypeByIdAsync(regulatoryTypeId);
+
+            if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
+                !regulatoryTypeResponse.RegulatoryType.RegulationId.Equals(regulationId, StringComparison.InvariantCultureIgnoreCase))
+                throw new RegulatoryTypeDoesNotExistException();
+        }
     }
 }

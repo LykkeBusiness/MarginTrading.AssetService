@@ -48,17 +48,12 @@ namespace MarginTrading.AssetService.Services
         {
             var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
 
-            if(brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
+            if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
                 throw new BrokerSettingsDoNotExistException();
 
             var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
 
-            var regulatoryProfileResponse =
-                await _regulatoryProfilesApi.GetRegulatoryProfileByIdAsync(model.RegulatoryProfileId);
-
-            if (regulatoryProfileResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryProfileDoesNotExist ||
-                regulatoryProfileResponse.RegulatoryProfile.RegulationId != regulationId)
-                throw new RegulatoryProfileDoesNotExistException();
+            await ValidateRegulatoryProfile(model.RegulatoryProfileId, regulationId);
 
             List<ClientProfileSettings> clientProfileSettings;
 
@@ -115,12 +110,7 @@ namespace MarginTrading.AssetService.Services
 
             var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
 
-            var regulatoryProfileResponse =
-                await _regulatoryProfilesApi.GetRegulatoryProfileByIdAsync(model.RegulatoryProfileId);
-
-            if (regulatoryProfileResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryProfileDoesNotExist ||
-                regulatoryProfileResponse.RegulatoryProfile.RegulationId != regulationId)
-                throw new RegulatoryProfileDoesNotExistException();
+            await ValidateRegulatoryProfile(model.RegulatoryProfileId, regulationId);
 
             var existing = await _clientProfilesRepository.GetByIdAsync(model.Id);
 
@@ -154,5 +144,16 @@ namespace MarginTrading.AssetService.Services
 
         public Task<IReadOnlyList<ClientProfile>> GetAllAsync()
             => _clientProfilesRepository.GetAllAsync();
+
+        private async Task ValidateRegulatoryProfile(string regulatoryProfileId, string regulationId)
+        {
+            var regulatoryProfileResponse =
+                await _regulatoryProfilesApi.GetRegulatoryProfileByIdAsync(regulatoryProfileId);
+
+            if (regulatoryProfileResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryProfileDoesNotExist ||
+                !regulatoryProfileResponse.RegulatoryProfile.RegulationId.Equals(regulationId,
+                    StringComparison.InvariantCultureIgnoreCase))
+                throw new RegulatoryProfileDoesNotExistException();
+        }
     }
 }

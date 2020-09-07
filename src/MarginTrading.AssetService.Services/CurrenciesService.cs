@@ -91,8 +91,8 @@ namespace MarginTrading.AssetService.Services
             return existing.ToResultWithoutValue();
         }
 
-        public Task<Result<Currency, CurrenciesErrorCodes>> GetByIdAsync(string mdsCode)
-            => _currenciesRepository.GetByIdAsync(mdsCode);
+        public Task<Result<Currency, CurrenciesErrorCodes>> GetByIdAsync(string id)
+            => _currenciesRepository.GetByIdAsync(id);
 
         public Task<Result<List<Currency>, CurrenciesErrorCodes>> GetByPageAsync(int skip = default, int take = 20)
             => _currenciesRepository.GetByPageAsync(skip, take);

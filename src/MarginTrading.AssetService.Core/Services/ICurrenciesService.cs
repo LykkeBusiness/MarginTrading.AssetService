@@ -10,7 +10,7 @@ namespace MarginTrading.AssetService.Core.Services
         Task<Result<CurrenciesErrorCodes>> InsertAsync(Currency currency, string username, string correlationId);
         Task<Result<CurrenciesErrorCodes>> UpdateAsync(Currency currency, string username, string correlationId);
         Task<Result<CurrenciesErrorCodes>> DeleteAsync(string id, string username, string correlationId);
-        Task<Result<Currency, CurrenciesErrorCodes>> GetByIdAsync(string mdsCode);
+        Task<Result<Currency, CurrenciesErrorCodes>> GetByIdAsync(string id);
         Task<Result<List<Currency>, CurrenciesErrorCodes>> GetByPageAsync(int skip = default, int take = 20);
         Task<Result<List<Currency>, CurrenciesErrorCodes>> GetAllAsync();
     }

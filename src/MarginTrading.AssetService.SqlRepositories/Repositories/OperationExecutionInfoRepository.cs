@@ -11,6 +11,7 @@ using Dapper;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.SqlRepositories.Entities;
+using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Internal;
 using Newtonsoft.Json;

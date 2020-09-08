@@ -15,6 +15,7 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.SqlRepositories.Entities;
+using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories

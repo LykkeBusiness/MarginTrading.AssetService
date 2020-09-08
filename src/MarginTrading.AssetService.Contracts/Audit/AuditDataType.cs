@@ -4,6 +4,7 @@
     {
         ClientProfile,
         AssetType,
-        ClientProfileSettings
+        ClientProfileSettings,
+        MarketSettings,
     }
 }

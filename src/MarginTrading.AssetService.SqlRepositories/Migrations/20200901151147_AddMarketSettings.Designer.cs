@@ -4,14 +4,16 @@ using MarginTrading.AssetService.SqlRepositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MarginTrading.AssetService.SqlRepositories.Migrations
 {
     [DbContext(typeof(AssetDbContext))]
-    partial class AssetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200901151147_AddMarketSettings")]
+    partial class AddMarketSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -22,14 +24,25 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
             modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.AssetTypeEntity", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("RegulatoryTypeId")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("RegulatoryTypeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
 
                     b.ToTable("AssetTypes");
                 });
@@ -75,28 +88,39 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
             modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.ClientProfileEntity", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RegulatoryProfileId")
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("NormalizedName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("RegulatoryProfileId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("NormalizedName")
+                        .IsUnique();
 
                     b.ToTable("ClientProfiles");
                 });
 
             modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.ClientProfileSettingsEntity", b =>
                 {
-                    b.Property<string>("ClientProfileId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("ClientProfileId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("AssetTypeId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<Guid>("AssetTypeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("ExecutionFeesCap")
                         .HasColumnType("decimal(18,2)");
@@ -126,120 +150,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.ToTable("ClientProfileSettings");
                 });
 
-            modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.ProductEntity", b =>
-                {
-                    b.Property<string>("ProductId")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("AssetType")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("Category")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("Comments")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<int>("ContractSize")
-                        .HasColumnType("int")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("ForceId")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("IsinLong")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("IsinShort")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("Issuer")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("Keywords")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("Market")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("MarketMakerAssetAccountId")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<int>("MaxOrderSize")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaxPositionSize")
-                        .HasColumnType("int");
-
-                    b.Property<decimal>("MinOrderDistancePercent")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("MinOrderEntryInterval")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("MinOrderSize")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("NewsId")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<decimal>("OvernightMarginMultiplier")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("Parity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PublicationRic")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("SettlementCurrency")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<bool>("ShortPosition")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Tags")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<string>("TickFormula")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.Property<byte[]>("Timestamp")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate()
-                        .HasColumnType("rowversion");
-
-                    b.Property<string>("UnderlyingMdsCode")
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-
-                    b.HasKey("ProductId");
-
-                    b.HasIndex("Name");
-
-                    b.ToTable("Products");
-                });
-
             modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -256,6 +166,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
                     b.Property<decimal>("DividendsShort")
                         .HasColumnType("decimal(18,13)");
+
+                    b.Property<string>("MICCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
                         .IsRequired()

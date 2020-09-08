@@ -16,6 +16,7 @@ using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
 using MarginTrading.AssetService.Contracts.AssetPair;
+using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
@@ -26,6 +27,7 @@ namespace MarginTrading.AssetService.Modules
     {
         private const string DefaultRoute = "self";
         private const string DefaultPipeline = "commands";
+        private const string DefaultEventPipeline = "events";
         private readonly CqrsSettings _settings;
         private readonly ILog _log;
         private readonly long _defaultRetryDelayMs;
@@ -99,6 +101,7 @@ namespace MarginTrading.AssetService.Modules
             var contextRegistration = Register.BoundedContext(_contextNames.AssetService)
                 .FailedCommandRetryDelay(_defaultRetryDelayMs)
                 .ProcessingOptions(DefaultRoute).MultiThreaded(8).QueueCapacity(1024);
+            RegisterEventPublishing(contextRegistration);
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
             return contextRegistration;
         }
@@ -132,6 +135,14 @@ namespace MarginTrading.AssetService.Modules
         private ISagaRegistration RegisterSaga<TSaga>()
         {
             return Register.Saga<TSaga>($"{_contextNames.AssetService}.{typeof(TSaga).Name}");
+        }
+
+        private static void RegisterEventPublishing(
+            ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            contextRegistration.
+                PublishingEvents(typeof(MarketSettingsChangedEvent))
+                .With(DefaultEventPipeline);
         }
     }
 }

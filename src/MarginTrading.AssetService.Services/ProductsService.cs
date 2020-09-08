@@ -7,6 +7,7 @@ using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
 
 
 namespace MarginTrading.AssetService.Services

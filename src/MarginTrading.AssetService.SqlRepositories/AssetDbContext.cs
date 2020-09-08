@@ -16,6 +16,8 @@ namespace MarginTrading.AssetService.SqlRepositories
         internal DbSet<AuditEntity> AuditTrail { get; set; }
         internal DbSet<ProductEntity> Products { get; set; }
         internal DbSet<MarketSettingsEntity> MarketSettings { get; set; }
+        
+        internal DbSet<ProductCategoryEntity> ProductCategories { get; set; }
 
         // Used for EF migrations
         [UsedImplicitly]

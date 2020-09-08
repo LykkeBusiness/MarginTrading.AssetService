@@ -98,6 +98,8 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<MarketSettingsService>().As<IMarketSettingsService>().SingleInstance();
 
             builder.RegisterType<ProductsService>().AsImplementedInterfaces().SingleInstance();
+            
+            builder.RegisterType<ProductCategoriesService>().AsImplementedInterfaces().SingleInstance();
 
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();
@@ -207,6 +209,9 @@ namespace MarginTrading.AssetService.Modules
 
                 builder.RegisterType<SqlRepos.MarketSettingsRepository>()
                     .As<IMarketSettingsRepository>()
+                
+                builder.RegisterType<SqlRepos.ProductCategoriesRepository>()
+                    .AsImplementedInterfaces()
                     .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)

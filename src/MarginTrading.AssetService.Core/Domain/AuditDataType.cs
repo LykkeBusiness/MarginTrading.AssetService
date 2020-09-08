@@ -8,5 +8,6 @@ namespace MarginTrading.AssetService.Core.Domain
         ClientProfileSettings,
         Product,
         MarketSettings,
+        ProductCategory,
     }
 }

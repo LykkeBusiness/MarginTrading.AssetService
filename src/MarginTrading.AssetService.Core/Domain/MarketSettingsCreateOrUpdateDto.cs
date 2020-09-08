@@ -10,8 +10,6 @@ namespace MarginTrading.AssetService.Core.Domain
     {
         public string Id { get; set; }
 
-        public string MICCode { get; set; }
-
         public string Name { get; set; }
 
         public string NormalizedName { get; set; }

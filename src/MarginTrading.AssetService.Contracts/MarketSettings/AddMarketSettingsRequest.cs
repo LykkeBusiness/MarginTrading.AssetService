@@ -15,11 +15,6 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         [Required]
         public string Id { get; set; }
         /// <summary>
-        /// MIC code
-        /// </summary>
-        [Required]
-        public string MICCode { get; set; }
-        /// <summary>
         /// Name
         /// </summary>
         [Required]

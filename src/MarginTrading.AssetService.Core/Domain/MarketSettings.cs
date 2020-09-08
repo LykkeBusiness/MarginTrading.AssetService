@@ -8,8 +8,6 @@ namespace MarginTrading.AssetService.Core.Domain
     {
         public string Id { get; set; }
 
-        public string MICCode { get; set; }
-
         public string Name { get; set; }
 
         public decimal DividendsLong { get; set; }
@@ -35,7 +33,6 @@ namespace MarginTrading.AssetService.Core.Domain
                 Dividends871M = model.Dividends871M,
                 DividendsLong = model.DividendsLong,
                 DividendsShort = model.DividendsShort,
-                MICCode = model.MICCode,
                 Holidays = model.Holidays,
                 Open = model.Open ?? MarketSettingsConstants.DefaultOpen,
                 Close = model.Close ?? MarketSettingsConstants.DefaultClose,

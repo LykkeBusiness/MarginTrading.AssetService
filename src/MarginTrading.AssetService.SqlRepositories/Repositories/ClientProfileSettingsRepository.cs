@@ -55,7 +55,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<ClientProfileSettings> GetByIdsAsync(Guid profileId, Guid typeId)
+        public async Task<ClientProfileSettings> GetByIdsAsync(string profileId, string typeId)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -73,8 +73,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     AssetTypeId = entity.AssetTypeId,
                     Margin = entity.Margin,
                     IsAvailable = entity.IsAvailable,
-                    ClientProfileName = entity.ClientProfile.Name,
-                    AssetTypeName = entity.AssetType.Name,
                     OnBehalfFee = entity.OnBehalfFee,
                     ExecutionFeesRate = entity.ExecutionFeesRate,
                     ExecutionFeesFloor = entity.ExecutionFeesFloor,
@@ -86,17 +84,17 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<List<ClientProfileSettings>> GetAllAsync(Guid? clientProfileId, Guid? assetTypeId)
+        public async Task<List<ClientProfileSettings>> GetAllAsync(string clientProfileId, string assetTypeId)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
                 var query = context.ClientProfileSettings.AsNoTracking();
 
-                if (clientProfileId.HasValue)
-                    query = query.Where(x => x.ClientProfileId == clientProfileId.Value);
+                if (!string.IsNullOrEmpty(clientProfileId))
+                    query = query.Where(x => x.ClientProfileId == clientProfileId);
 
-                if (assetTypeId.HasValue)
-                    query = query.Where(x => x.AssetTypeId == assetTypeId.Value);
+                if (!string.IsNullOrEmpty(assetTypeId))
+                    query = query.Where(x => x.AssetTypeId == assetTypeId);
 
                 var result = await query
                     .Include(x => x.ClientProfile)
@@ -107,8 +105,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                         AssetTypeId = x.AssetTypeId,
                         Margin = x.Margin,
                         IsAvailable = x.IsAvailable,
-                        ClientProfileName = x.ClientProfile.Name,
-                        AssetTypeName = x.AssetType.Name,
                         OnBehalfFee = x.OnBehalfFee,
                         ExecutionFeesRate = x.ExecutionFeesRate,
                         ExecutionFeesFloor = x.ExecutionFeesFloor,

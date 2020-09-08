@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpGet("profile/{profileId}/type/{typeId}")]
         [ProducesResponseType(typeof(GetClientProfileSettingsByIdsResponse), (int)HttpStatusCode.OK)]
-        public async Task<GetClientProfileSettingsByIdsResponse> GetClientProfileSettingsByIdsAsync([FromRoute] Guid profileId, [FromRoute] Guid typeId)
+        public async Task<GetClientProfileSettingsByIdsResponse> GetClientProfileSettingsByIdsAsync([FromRoute][Required] string profileId, [FromRoute][Required] string typeId)
         {
             var response = new GetClientProfileSettingsByIdsResponse();
 
@@ -85,7 +85,7 @@ namespace MarginTrading.AssetService.Controllers
         [HttpPut("profile/{profileId}/type/{typeId}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int)HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileSettingsAsync(
-            [FromBody] UpdateClientProfileSettingsRequest request, [FromRoute][Required] Guid profileId, [FromRoute][Required] Guid typeId)
+            [FromBody] UpdateClientProfileSettingsRequest request, [FromRoute][Required] string profileId, [FromRoute][Required] string typeId)
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 

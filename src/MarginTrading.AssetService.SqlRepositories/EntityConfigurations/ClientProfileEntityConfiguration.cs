@@ -10,10 +10,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
         {
             builder.HasKey(x => x.Id);
 
-            builder.HasIndex(x => x.NormalizedName ).IsUnique();
-
-            builder.Property(x => x.Name).IsRequired();
-            builder.Property(x => x.NormalizedName).IsRequired();
             builder.Property(x => x.RegulatoryProfileId).IsRequired();
         }
     }

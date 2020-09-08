@@ -12,13 +12,13 @@ namespace MarginTrading.AssetService.Contracts.ClientProfiles
         /// Id of the related regulation
         /// </summary>
         [Required]
-        public Guid RegulatoryProfileId { get; set; }
+        public string RegulatoryProfileId { get; set; }
 
         /// <summary>
-        /// Name of the regulatory profile
+        /// Id of the client profile
         /// </summary>
         [Required]
-        public string Name { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Name of the user who sent the request
@@ -32,8 +32,8 @@ namespace MarginTrading.AssetService.Contracts.ClientProfiles
         public bool IsDefault { get; set; }
 
         /// <summary>
-        /// Id of existing broker regulatory profile which will be used as template for regulatory settings creation
+        /// Id of existing client profile which will be used as template for settings creation
         /// </summary>
-        public Guid? ClientProfileTemplateId { get; set; }
+        public string ClientProfileTemplateId { get; set; }
     }
 }

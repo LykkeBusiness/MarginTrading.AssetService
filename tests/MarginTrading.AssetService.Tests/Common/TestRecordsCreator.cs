@@ -11,43 +11,31 @@ namespace MarginTrading.AssetService.Tests.Common
 {
     public class TestRecordsCreator
     {
-        public static async Task<Guid> CreateAssetTypeAsync(HttpClient client, Guid regulatoryTypeId, string name, Guid? assetTypeTemplateId = null)
+        public static async Task CreateAssetTypeAsync(HttpClient client, string regulatoryTypeId, string id, string assetTypeTemplateId = null)
         {
             var request = new AddAssetTypeRequest
             {
                 RegulatoryTypeId = regulatoryTypeId,
                 Username = "asdasd",
-                Name = name,
                 AssetTypeTemplateId = assetTypeTemplateId,
+                Id =id,
             };
 
-            var res = await client.PostAsync($"/api/asset-types", request.ToJsonStringContent());
-
-            var getAssetTypesRequest = await client.GetAsync("/api/asset-types");
-            var assetTypeId = (await getAssetTypesRequest.Content.ReadAsStringAsync())
-                .DeserializeJson<GetAllAssetTypesResponse>().AssetTypes.First(x => x.Name == name).Id;
-
-            return assetTypeId;
+            await client.PostAsync($"/api/asset-types", request.ToJsonStringContent());
         }
 
-        public static async Task<Guid> CreateClientProfileAsync(HttpClient client, Guid regulatoryProfileId , string name, bool isDefault, Guid? clientProfileTemplateId = null)
+        public static async Task CreateClientProfileAsync(HttpClient client, string regulatoryProfileId, string id, bool isDefault, string clientProfileTemplateId = null)
         {
             var request = new AddClientProfileRequest
             {
                 RegulatoryProfileId = regulatoryProfileId,
                 Username = "asdasd",
-                Name = name,
                 IsDefault = isDefault,
                 ClientProfileTemplateId = clientProfileTemplateId,
+                Id = id,
             };
 
-            var res = await client.PostAsync($"/api/client-profiles", request.ToJsonStringContent());
-
-            var getClientProfilesRequest = await client.GetAsync("/api/client-profiles");
-            var clientProfileId = (await getClientProfilesRequest.Content.ReadAsStringAsync())
-                .DeserializeJson<GetAllClientProfilesResponse>().ClientProfiles.First(x => x.Name == name).Id;
-
-            return clientProfileId;
+            await client.PostAsync($"/api/client-profiles", request.ToJsonStringContent());
         }
     }
 }

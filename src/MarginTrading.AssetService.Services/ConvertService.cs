@@ -10,6 +10,7 @@ using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -70,6 +71,12 @@ namespace MarginTrading.AssetService.Services
                 //Audit
                 cfg.CreateMap<IAuditModel, AuditContract>();
                 cfg.CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
+                
+                //Products
+                cfg.CreateMap<Product, ProductContract>();
+                cfg.CreateMap<AddProductRequest, Product>();
+                cfg.CreateMap<UpdateProductRequest, Product>();
+                
             }).CreateMapper();
         }
 

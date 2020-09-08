@@ -62,7 +62,7 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(GetAllTickFormulasResponse), (int) HttpStatusCode.OK)]
         public async Task<GetAllTickFormulasResponse> GetAllAsync()
         {
-            var result = await _tickFormulaService.GetAllMarketSettingsAsync();
+            var result = await _tickFormulaService.GetAllAsync();
 
             return new GetAllTickFormulasResponse
             {

@@ -26,7 +26,7 @@ namespace MarginTrading.AssetService.Services
         public Task<ITickFormula> GetByIdAsync(string id)
             => _tickFormulaRepository.GetByIdAsync(id);
 
-        public Task<IReadOnlyList<ITickFormula>> GetAllMarketSettingsAsync()
+        public Task<IReadOnlyList<ITickFormula>> GetAllAsync()
             => _tickFormulaRepository.GetAllAsync();
 
         public async Task<Result<TickFormulaErrorCodes>> AddAsync(ITickFormula model, string username, string correlationId)

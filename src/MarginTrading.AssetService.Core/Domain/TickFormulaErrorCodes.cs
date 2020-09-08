@@ -9,5 +9,7 @@
         PdlLaddersMustStartFromZero,
         PdlLaddersMustBeInAscendingOrderWithoutDuplicates,
         PdlTicksMustBeInAscendingOrder,
+        PdlLaddersValuesMustBeGreaterOrEqualToZero,
+        PdlTicksValuesMustBeGreaterThanZero,
     }
 }

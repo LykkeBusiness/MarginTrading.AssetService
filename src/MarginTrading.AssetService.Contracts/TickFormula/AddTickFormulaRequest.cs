@@ -9,6 +9,7 @@ namespace MarginTrading.AssetService.Contracts.TickFormula
         /// id of the tick formula
         /// </summary>
         [Required]
+        [RegularExpression("^[A-Za-z][A-Za-z0-9_]*$", ErrorMessage = "Id must contain only alphanumeric values and underscores and must start with a letter.")]
         public string Id { get; set; }
 
         /// <summary>

@@ -104,6 +104,12 @@ namespace MarginTrading.AssetService.Services
             if(model.PdlLadders.Count != model.PdlTicks.Count)
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersAndTicksMustHaveEqualLengths);
 
+            if (model.PdlLadders.Any(x => x < 0))
+                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersValuesMustBeGreaterOrEqualToZero);
+
+            if (model.PdlTicks.Any(x => x <= 0))
+                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlTicksValuesMustBeGreaterThanZero);
+
             if (model.PdlLadders[0] != 0)
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersMustStartFromZero);
 

@@ -4,12 +4,10 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class ClientProfileSettings
     {
-        public Guid RegulatoryProfileId { get; set; }
-        public Guid RegulatoryTypeId { get; set; }
-        public Guid ClientProfileId { get; set; }
-        public string ClientProfileName { get; set; }
-        public Guid AssetTypeId { get; set; }
-        public string AssetTypeName { get; set; }
+        public string RegulatoryProfileId { get; set; }
+        public string RegulatoryTypeId { get; set; }
+        public string ClientProfileId { get; set; }
+        public string AssetTypeId { get; set; }
         public decimal Margin { get; set; }
         public decimal ExecutionFeesFloor { get; set; }
         public decimal ExecutionFeesCap { get; set; }

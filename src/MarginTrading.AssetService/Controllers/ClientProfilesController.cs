@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetClientProfileByIdResponse), (int)HttpStatusCode.OK)]
-        public async Task<GetClientProfileByIdResponse> GetClientProfileByIdAsync([FromRoute] Guid id)
+        public async Task<GetClientProfileByIdResponse> GetClientProfileByIdAsync([FromRoute][Required] string id)
         {
             var response = new GetClientProfileByIdResponse();
 
@@ -121,7 +121,7 @@ namespace MarginTrading.AssetService.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int)HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileAsync
-            ([FromRoute][Required] Guid id, [FromBody] UpdateClientProfileRequest request)
+            ([FromRoute][Required] string id, [FromBody] UpdateClientProfileRequest request)
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
@@ -142,6 +142,14 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.ClientProfileDoesNotExist;
             }
+            catch (BrokerSettingsDoNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.BrokerSettingsDoNotExist;
+            }
+            catch (RegulatoryProfileDoesNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulatoryProfileInMdmIsMissing;
+            }
 
             return response;
         }
@@ -152,7 +160,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int)HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteClientProfileAsync([FromRoute] Guid id, [FromQuery] string username)
+        public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteClientProfileAsync([FromRoute][Required] string id, [FromQuery][Required] string username)
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 

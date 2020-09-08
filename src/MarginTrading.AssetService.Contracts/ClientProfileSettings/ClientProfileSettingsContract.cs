@@ -10,19 +10,11 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         /// <summary>
         /// Id of the client profile
         /// </summary>
-        public Guid ClientProfileId { get; set; }
-        /// <summary>
-        /// Name of the client profile
-        /// </summary>
-        public string ClientProfileName { get; set; }
+        public string ClientProfileId { get; set; }
         /// <summary>
         /// Id of the asset type
         /// </summary>
-        public Guid AssetTypeId { get; set; }
-        /// <summary>
-        /// Name of the asset type
-        /// </summary>
-        public string AssetTypeName { get; set; }
+        public string AssetTypeId { get; set; }
         /// <summary>
         /// Margin rate
         /// </summary>

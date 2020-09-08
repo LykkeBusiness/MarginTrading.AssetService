@@ -8,7 +8,7 @@ namespace MarginTrading.AssetService.Core.Services
     public interface IClientProfileSettingsService
     {
         Task UpdateAsync(ClientProfileSettings model, string username, string correlationId);
-        Task<ClientProfileSettings> GetByIdAsync(Guid profileId, Guid typeId);
+        Task<ClientProfileSettings> GetByIdAsync(string profileId, string typeId);
         Task<List<ClientProfileSettings>> GetAllAsync();
     }
 }

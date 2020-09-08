@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(GetAssetTypeByIdResponse), (int)HttpStatusCode.OK)]
-        public async Task<GetAssetTypeByIdResponse> GetAssetTypeByIdAsync([FromRoute] Guid id)
+        public async Task<GetAssetTypeByIdResponse> GetAssetTypeByIdAsync([FromRoute][Required] string id)
         {
             var response = new GetAssetTypeByIdResponse();
 
@@ -123,7 +123,7 @@ namespace MarginTrading.AssetService.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int)HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateAssetTypeAsync
-            ([FromRoute][Required] Guid id, [FromBody] UpdateAssetTypeRequest request)
+            ([FromRoute][Required] string id, [FromBody] UpdateAssetTypeRequest request)
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
@@ -144,6 +144,15 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.AssetTypeDoesNotExist;
             }
+            catch (BrokerSettingsDoNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.BrokerSettingsDoNotExist;
+            }
+            catch (RegulatoryTypeDoesNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulatoryTypeInMdmIsMissing;
+
+            }
 
             return response;
         }
@@ -154,7 +163,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int)HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteAssetTypeAsync([FromRoute] Guid id, [FromQuery] string username)
+        public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteAssetTypeAsync([FromRoute][Required] string id, [FromQuery][Required] string username)
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 

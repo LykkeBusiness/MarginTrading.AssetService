@@ -1,16 +1,63 @@
+using System.Collections.Generic;
+
 namespace MarginTrading.AssetService.Core.Domain
 {
+    // todo: tests
     public class ProductCategoryName
     {
+        private readonly string _originalName;
+        private readonly Dictionary<string, string> _originalNodeNames = new Dictionary<string, string>();
         public string NormalizedName { get; }
+        
+        public List<ProductCategory> Nodes { get; } = new List<ProductCategory>();
 
         public ProductCategoryName(string category)
         {
-            // todo: tests
+            _originalName = category;
+            
             NormalizedName = category
                 .ToLower()
                 .Replace(' ', '_')
                 .Replace('/', '.');
+
+            Init();
+        }
+
+        public string GetOriginalNodeName(string normalizedCategoryId)
+        {
+            // only have normalized id, so nothing to return
+            if (_originalName == NormalizedName) return null;
+
+            return _originalNodeNames.TryGetValue(normalizedCategoryId, out var result) ? result : null;
+        }
+        
+        private void Init()
+        {
+            var originalNames = _originalName.Split('/');
+            // assumes that category does not contain dots
+            var normalizedNames = NormalizedName.Split('.');
+
+            string currentId = null;
+            string parentId = null;
+
+            for (var i = 0; i < normalizedNames.Length; i++)
+            {
+                currentId = i == 0 ? normalizedNames[0] : string.Join('.', currentId, normalizedNames[i]);
+                var productCategory = new ProductCategory()
+                {
+                    Id = currentId,
+                    LocalizationToken = $"categoryName.{currentId}",
+                    ParentId = parentId,
+                };
+                
+                Nodes.Add(productCategory);
+                if (originalNames.Length == normalizedNames.Length)
+                {
+                    _originalNodeNames.Add(currentId, originalNames[i]);    
+                }
+
+                parentId = currentId;
+            }
         }
     }
 }

@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Snow.Common.Model;
+using MarginTrading.AssetService.Contracts.Enums;
+using MarginTrading.AssetService.Contracts.ProductCategories;
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -14,12 +18,18 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly IProductCategoriesRepository _productCategoriesRepository;
         private readonly IAuditService _auditService;
+        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly IConvertService _convertService;
 
         public ProductCategoriesService(IProductCategoriesRepository productCategoriesRepository,
-            IAuditService auditService)
+            IAuditService auditService,
+            ICqrsMessageSender cqrsMessageSender,
+            IConvertService convertService)
         {
             _productCategoriesRepository = productCategoriesRepository;
             _auditService = auditService;
+            _cqrsMessageSender = cqrsMessageSender;
+            _convertService = convertService;
         }
 
         public async Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category,
@@ -33,7 +43,7 @@ namespace MarginTrading.AssetService.Services
             if (leaf.IsSuccess) return leaf;
 
             // check all the nodes in the hierarchy and create missing ones
-            var categories = ToCategories(categoryName);
+            var categories = categoryName.Nodes;
             var categoriesInDb = await _productCategoriesRepository.GetAllAsync();
 
             var categoriesToCreate = categories
@@ -57,6 +67,8 @@ namespace MarginTrading.AssetService.Services
                     await _auditService.TryAudit(correlationId, username, productCategory.Id,
                         AuditDataType.ProductCategory,
                         productCategory.ToJson());
+                    await PublishProductCategoryChangedEvent(null, productCategory, username, correlationId,
+                        ChangeType.Creation, categoryName.GetOriginalNodeName(productCategory.Id));
                 }
             }
 
@@ -90,6 +102,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, id, AuditDataType.ProductCategory,
                         oldStateJson: category.Value.ToJson());
+                    await PublishProductCategoryChangedEvent(category.Value, null, username, correlationId,
+                        ChangeType.Deletion);
                 }
             }
 
@@ -103,30 +117,20 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetByIdAsync(string id)
             => _productCategoriesRepository.GetByIdAsync(id);
 
-        // todo: extract into a separate service & add tests
-        private List<ProductCategory> ToCategories(ProductCategoryName categoryName)
+        private async Task PublishProductCategoryChangedEvent(ProductCategory oldCategory, ProductCategory newCategory,
+            string username, string correlationId, ChangeType changeType, string originalCategoryName = null)
         {
-            // assumes that category does not contain dots
-            var arr = categoryName.NormalizedName.Split('.');
-
-            var result = new List<ProductCategory>();
-            string fullPath = null;
-            string parentId = null;
-
-            for (var i = 0; i < arr.Length; i++)
+            await _cqrsMessageSender.SendEvent(new ProductCategoryChangedEvent()
             {
-                fullPath = i == 0 ? arr[0] : string.Join('.', fullPath, arr[i]);
-                var productCategory = new ProductCategory()
-                {
-                    Id = fullPath,
-                    LocalizationToken = $"categoryName.{fullPath}",
-                    ParentId = parentId,
-                };
-                result.Add(productCategory);
-                parentId = fullPath;
-            }
-
-            return result;
+                Username = username,
+                ChangeType = changeType,
+                CorrelationId = correlationId,
+                EventId = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.UtcNow,
+                OldProductCategory = _convertService.Convert<ProductCategory, ProductCategoryContract>(oldCategory),
+                NewProductCategory = _convertService.Convert<ProductCategory, ProductCategoryContract>(newCategory),
+                OriginalCategoryName = originalCategoryName,
+            });
         }
     }
 }

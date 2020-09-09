@@ -124,7 +124,6 @@ namespace MarginTrading.AssetService.Services
             var categoryResult = await _productCategoriesService.GetOrCreate(product.Category, username, correlationId);
             if (categoryResult.IsFailed)
             {
-                // todo: error code (cannot create a child for category with existing products?)
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotCreateCategory);
             }
 

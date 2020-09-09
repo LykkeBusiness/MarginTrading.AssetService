@@ -17,12 +17,18 @@ namespace MarginTrading.AssetService.Services
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
         private readonly IUnderlyingsApi _underlyingsApi;
+        private readonly IMarketSettingsRepository _marketSettingsRepository;
 
-        public ProductsService(IProductsRepository repository, IAuditService auditService, IUnderlyingsApi underlyingsApi)
+        public ProductsService(
+            IProductsRepository repository,
+            IAuditService auditService,
+            IUnderlyingsApi underlyingsApi,
+            IMarketSettingsRepository marketSettingsRepository)
         {
             _repository = repository;
             _auditService = auditService;
             _underlyingsApi = underlyingsApi;
+            _marketSettingsRepository = marketSettingsRepository;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username, string correlationId)
@@ -32,7 +38,12 @@ namespace MarginTrading.AssetService.Services
             {
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
             }
-            
+
+            if (!await _marketSettingsRepository.ExistsAsync(product.Market))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
+            }
+
             var result = await _repository.InsertAsync(product);
 
             if (result.IsSuccess)
@@ -51,7 +62,12 @@ namespace MarginTrading.AssetService.Services
             {
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
             }
-            
+
+            if (!await _marketSettingsRepository.ExistsAsync(product.Market))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
+            }
+
             var existing = await _repository.GetByIdAsync(product.ProductId);
 
             if (existing.IsSuccess)

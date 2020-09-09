@@ -15,6 +15,10 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
 
             builder.HasIndex(x => x.Name);
 
+            builder.HasOne(x => x.Market)
+                .WithMany()
+                .HasForeignKey(x => x.MarketId);
+
             builder.Property(x => x.ProductId).HasMaxLength(MaxLength);
             builder.Property(x => x.AssetType).HasMaxLength(MaxLength);
             builder.Property(x => x.Category).HasMaxLength(MaxLength);
@@ -23,7 +27,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.IsinLong).HasMaxLength(MaxLength);
             builder.Property(x => x.IsinShort).HasMaxLength(MaxLength);
             builder.Property(x => x.Issuer).HasMaxLength(MaxLength);
-            builder.Property(x => x.Market).HasMaxLength(MaxLength);
             builder.Property(x => x.MarketMakerAssetAccountId).HasMaxLength(MaxLength);
             builder.Property(x => x.Name).HasMaxLength(MaxLength);
             builder.Property(x => x.NewsId).HasMaxLength(MaxLength);

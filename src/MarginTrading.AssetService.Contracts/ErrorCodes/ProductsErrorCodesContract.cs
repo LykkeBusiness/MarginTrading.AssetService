@@ -6,5 +6,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         AlreadyExists,
         DoesNotExist,
         UnderlyingDoesNotExist,
+        MarketSettingsDoNotExist,
     }
 }

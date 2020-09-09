@@ -12,14 +12,14 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Get("/api/tick-formula/{id}")]
+        [Get("/api/tick-formulas/{id}")]
         Task<GetTickFormulaByIdResponse> GetByIdAsync(string id);
 
         /// <summary>
         /// Get all tick formulas
         /// </summary>
         /// <returns></returns>
-        [Get("/api/tick-formula")]
+        [Get("/api/tick-formulas")]
         Task<GetAllTickFormulasResponse> GetAllAsync();
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
-        [Post("/api/tick-formula")]
+        [Post("/api/tick-formulas")]
         Task<ErrorCodeResponse<TickFormulaErrorCodesContract>> AddAsync([Body] AddTickFormulaRequest request);
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="request"></param>
         /// <param name="id"></param>
         /// <returns></returns>
-        [Put("/api/tick-formula/{id}")]
+        [Put("/api/tick-formulas/{id}")]
         Task<ErrorCodeResponse<TickFormulaErrorCodesContract>> UpdateAsync([Body] UpdateTickFormulaRequest request, string id);
 
         /// <summary>
@@ -45,7 +45,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="id"></param>
         /// <param name="username"></param>
         /// <returns></returns>
-        [Delete("/api/tick-formula/{id}")]
+        [Delete("/api/tick-formulas/{id}")]
         Task<ErrorCodeResponse<TickFormulaErrorCodesContract>> DeleteAsync(string id, [Query]string username);
     }
 }

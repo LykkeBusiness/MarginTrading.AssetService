@@ -7,7 +7,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         
         public string AssetType { get; set; }
         
-        public string Category { get; set; }
+        public string CategoryId { get; set; }
+        
+        public ProductCategoryEntity Category { get; set; }
         
         public string Comments { get; set; }
         

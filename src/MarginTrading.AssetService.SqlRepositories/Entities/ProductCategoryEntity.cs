@@ -13,6 +13,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public string ParentId { get; set; }
 
         public List<ProductCategoryEntity> Children { get; set; } = new List<ProductCategoryEntity>();
+
+        public List<ProductEntity> Products { get; set; } = new List<ProductEntity>(); 
         
         public byte[] Timestamp { get; set; }
     }

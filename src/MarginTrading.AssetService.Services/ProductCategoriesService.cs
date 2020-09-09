@@ -22,10 +22,18 @@ namespace MarginTrading.AssetService.Services
             _auditService = auditService;
         }
 
-        public async Task<Result<ProductCategoriesErrorCodes>> UpsertAsync(string category, string username,
+        public async Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category,
+            string username,
             string correlationId)
         {
-            var categories = ToCategories(category);
+            var categoryName = new ProductCategoryName(category);
+
+            // early exit if the category leaf already exists
+            var leaf = await GetByIdAsync(categoryName.NormalizedName);
+            if (leaf.IsSuccess) return leaf;
+
+            // check all the nodes in the hierarchy and create missing ones
+            var categories = ToCategories(categoryName);
             var categoriesInDb = await _productCategoriesRepository.GetAllAsync();
 
             var categoriesToCreate = categories
@@ -33,7 +41,16 @@ namespace MarginTrading.AssetService.Services
 
             foreach (var productCategory in categoriesToCreate)
             {
-                // todo: check if parent category has products
+                // check if parent already has attached products - cannot create a leaf
+                if (productCategory.ParentId != null)
+                {
+                    var parentHasProducts =
+                        await _productCategoriesRepository.CategoryHasProducts(productCategory.ParentId);
+                    if (parentHasProducts)
+                        return new Result<ProductCategory, ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
+                            .ParentHasAttachedProducts);
+                }
+
                 var result = await _productCategoriesRepository.InsertAsync(productCategory);
                 if (result.IsSuccess)
                 {
@@ -43,23 +60,30 @@ namespace MarginTrading.AssetService.Services
                 }
             }
 
-            return new Result<ProductCategoriesErrorCodes>();
+            // return newly created leaf
+            var newLeaf = await GetByIdAsync(categoryName.NormalizedName);
+            return newLeaf;
         }
 
         public async Task<Result<ProductCategoriesErrorCodes>> DeleteAsync(string id, string username,
             string correlationId)
         {
-            // todo: check if category has products
             var category = await _productCategoriesRepository.GetByIdAsync(id);
 
             if (category.IsSuccess)
             {
+                // if category has children, deny the delete request
                 if (!category.Value.IsLeaf)
                 {
                     return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
                         .CannotDeleteNonLeafCategory);
                 }
 
+                // if category has attached products, deny the delete request
+                var hasProducts = await _productCategoriesRepository.CategoryHasProducts(id);
+                if (hasProducts)
+                    return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
+                        .CannotDeleteCategoryWithAttachedProducts);
 
                 var deleteResult = await _productCategoriesRepository.DeleteAsync(id, category.Value.Timestamp);
                 if (deleteResult.IsSuccess)
@@ -79,15 +103,11 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetByIdAsync(string id)
             => _productCategoriesRepository.GetByIdAsync(id);
 
-        private List<ProductCategory> ToCategories(string category)
+        // todo: extract into a separate service & add tests
+        private List<ProductCategory> ToCategories(ProductCategoryName categoryName)
         {
-            var str = category
-                .ToLower()
-                .Replace(' ', '_')
-                .Replace('/', '.');
-
             // assumes that category does not contain dots
-            var arr = str.Split('.');
+            var arr = categoryName.NormalizedName.Split('.');
 
             var result = new List<ProductCategory>();
             string fullPath = null;

@@ -6,5 +6,7 @@ namespace MarginTrading.AssetService.Core.Domain
         AlreadyExists,
         DoesNotExist,
         CannotDeleteNonLeafCategory,
+        ParentHasAttachedProducts,
+        CannotDeleteCategoryWithAttachedProducts,
     }
 }

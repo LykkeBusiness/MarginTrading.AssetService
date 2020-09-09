@@ -15,9 +15,14 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
 
             builder.HasIndex(x => x.Name);
 
+            builder.HasOne(x => x.Category)
+                .WithMany(x => x.Products)
+                .HasForeignKey(x => x.CategoryId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+
             builder.Property(x => x.ProductId).HasMaxLength(MaxLength);
             builder.Property(x => x.AssetType).HasMaxLength(MaxLength);
-            builder.Property(x => x.Category).HasMaxLength(MaxLength);
             builder.Property(x => x.Comments).HasMaxLength(MaxLength);
             builder.Property(x => x.ContractSize).HasMaxLength(MaxLength);
             builder.Property(x => x.IsinLong).HasMaxLength(MaxLength);
@@ -32,7 +37,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.SettlementCurrency).HasMaxLength(MaxLength);
             builder.Property(x => x.Tags).HasMaxLength(MaxLength);
             builder.Property(x => x.TickFormula).HasMaxLength(MaxLength);
-            builder.Property(x => x.UnderlyingMdsCode).HasMaxLength(MaxLength);
+            builder.Property(x => x.UnderlyingMdsCode).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.ForceId).HasMaxLength(MaxLength);
 
             builder.Property(x => x.MinOrderDistancePercent).HasColumnType(DbDecimal);
@@ -40,8 +45,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.OvernightMarginMultiplier).HasColumnType(DbDecimal);
             
             builder.Property(x => x.Timestamp).IsRowVersion();
-
-
         }
     }
 }

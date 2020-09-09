@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MarginTrading.AssetService.Contracts.Products
 {
     public class ProductContract
@@ -7,6 +9,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         
         public string AssetType { get; set; }
         
+        [Required]
         public string Category { get; set; }
         
         public string Comments { get; set; }
@@ -50,6 +53,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         public string TickFormula { get; set; }
 
         // underlying primary id
+        [Required]
         public string UnderlyingMdsCode { get; set; }
 
         public string ForceId { get; set; }

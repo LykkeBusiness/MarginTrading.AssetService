@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Controllers
             [FromBody] AddProductCategoryRequest request)
         {
             var result =
-                await _productCategoriesService.UpsertAsync(request.Category, request.UserName,
+                await _productCategoriesService.GetOrCreate(request.Category, request.UserName,
                     this.TryGetCorrelationId());
 
             var response = new ErrorCodeResponse<ProductCategoriesErrorCodesContract>();

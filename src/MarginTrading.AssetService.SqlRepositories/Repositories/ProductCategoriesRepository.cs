@@ -100,7 +100,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-    
+        public async Task<bool> CategoryHasProducts(string category)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var hasProducts = await context.Products.AnyAsync(x => x.CategoryId == category);
+                return hasProducts;
+            }
+        }
+
         private ProductCategory ToModel(ProductCategoryEntity entity)
         {
             if (entity == null) return null;

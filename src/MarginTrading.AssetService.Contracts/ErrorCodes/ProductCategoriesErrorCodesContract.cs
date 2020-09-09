@@ -6,5 +6,7 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         AlreadyExists,
         DoesNotExist,
         CannotDeleteNonLeafCategory,
+        ParentHasAttachedProducts,
+        CannotDeleteCategoryWithAttachedProducts,
     }
 }

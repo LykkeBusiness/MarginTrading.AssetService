@@ -15,5 +15,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         InvalidDividendsShortValue,
         InvalidDividendsLongValue,
         InvalidDividends871MValue,
+        CannotDeleteMarketSettingsAssignedToAnyProduct,
     }
 }

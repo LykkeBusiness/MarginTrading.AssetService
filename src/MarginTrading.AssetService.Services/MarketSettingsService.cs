@@ -9,11 +9,9 @@ using Common;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.MarketSettings;
-using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Microsoft.EntityFrameworkCore.Internal;
 using TimeZoneConverter;
 
 namespace MarginTrading.AssetService.Services
@@ -99,7 +97,10 @@ namespace MarginTrading.AssetService.Services
             if (existing == null)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
 
-            await _marketSettingsRepository.DeleteAsync(id);
+            var deleteResult = await _marketSettingsRepository.DeleteAsync(id);
+
+            if (deleteResult.IsFailed)
+                return deleteResult;
 
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.MarketSettings,
                 oldStateJson: existing.ToJson());

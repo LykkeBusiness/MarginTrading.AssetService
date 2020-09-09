@@ -15,5 +15,6 @@ namespace MarginTrading.AssetService.Core.Domain
         InvalidDividendsShortValue,
         InvalidDividendsLongValue,
         InvalidDividends871MValue,
+        CannotDeleteMarketSettingsAssignedToAnyProduct,
     }
 }

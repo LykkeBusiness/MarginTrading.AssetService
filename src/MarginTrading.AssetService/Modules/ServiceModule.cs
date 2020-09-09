@@ -209,6 +209,7 @@ namespace MarginTrading.AssetService.Modules
 
                 builder.RegisterType<SqlRepos.MarketSettingsRepository>()
                     .As<IMarketSettingsRepository>()
+                    .SingleInstance();
                 
                 builder.RegisterType<SqlRepos.ProductCategoriesRepository>()
                     .AsImplementedInterfaces()

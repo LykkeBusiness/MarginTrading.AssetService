@@ -4,6 +4,6 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class ClientProfileWithTemplate : ClientProfile
     {
-        public Guid? ClientProfileTemplateId { get; set; }
+        public string ClientProfileTemplateId { get; set; }
     }
 }

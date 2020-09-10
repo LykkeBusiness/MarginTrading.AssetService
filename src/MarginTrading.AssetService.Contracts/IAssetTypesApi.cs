@@ -16,7 +16,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <returns></returns>
         [Get("/api/asset-types/{id}")]
-        Task<GetAssetTypeByIdResponse> GetAssetTypeByIdAsync(Guid id);
+        Task<GetAssetTypeByIdResponse> GetAssetTypeByIdAsync(string id);
 
         /// <summary>
         /// Get all asset types
@@ -40,7 +40,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="request"></param>
         /// <returns></returns>
         [Put("/api/asset-types/{id}")]
-        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateAssetTypeAsync(Guid id,
+        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateAssetTypeAsync(string id,
             [Body] UpdateAssetTypeRequest request);
 
         /// <summary>
@@ -48,6 +48,6 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <returns></returns>
         [Delete("/api/asset-types/{id}")]
-        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteAssetTypeAsync(Guid id, [Query] string username);
+        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteAssetTypeAsync(string id, [Query] string username);
     }
 }

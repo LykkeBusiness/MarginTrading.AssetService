@@ -10,14 +10,10 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// <summary>
         /// Id of asset type
         /// </summary>
-        public Guid Id { get; set; }
+        public string Id { get; set; }
         /// <summary>
         /// Id of the related regulatory type from MDM
         /// </summary>
-        public Guid RegulatoryTypeId { get; set; }
-        /// <summary>
-        /// Name of the regulatory type
-        /// </summary>
-        public string Name { get; set; }
+        public string RegulatoryTypeId { get; set; }
     }
 }

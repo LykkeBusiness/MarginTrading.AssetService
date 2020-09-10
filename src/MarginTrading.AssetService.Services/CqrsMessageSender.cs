@@ -29,7 +29,7 @@ namespace MarginTrading.AssetService.Services
             _log = log;
         }
 
-        public async Task SendAssetPairChangedEvent(AssetPairChangedEvent @event)
+        public async Task SendEvent<TEvent>(TEvent @event)
         {
             try
             {
@@ -37,7 +37,7 @@ namespace MarginTrading.AssetService.Services
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(SendAssetPairChangedEvent), ex);
+                await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(TEvent), ex);
             }
         }
     }

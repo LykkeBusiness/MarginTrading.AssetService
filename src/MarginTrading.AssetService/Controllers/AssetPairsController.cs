@@ -121,7 +121,7 @@ namespace MarginTrading.AssetService.Controllers
             
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair,
                 inserted.Id);
-            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            await _cqrsMessageSender.SendEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
                 AssetPair = insertedContract,
@@ -158,7 +158,7 @@ namespace MarginTrading.AssetService.Controllers
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             foreach (var insertedContract in insertedContracts)
             {
-                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                await _cqrsMessageSender.SendEvent(new AssetPairChangedEvent
                 {
                     OperationId = Guid.NewGuid().ToString("N"),
                     AssetPair = insertedContract,
@@ -206,7 +206,7 @@ namespace MarginTrading.AssetService.Controllers
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair,
                 updated.Id);
-            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            await _cqrsMessageSender.SendEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
                 AssetPair = updatedContract,
@@ -246,7 +246,7 @@ namespace MarginTrading.AssetService.Controllers
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair);
             foreach (var updatedContract in updatedContracts)
             {
-                await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+                await _cqrsMessageSender.SendEvent(new AssetPairChangedEvent
                 {
                     OperationId = Guid.NewGuid().ToString("N"),
                     AssetPair = updatedContract,
@@ -267,7 +267,7 @@ namespace MarginTrading.AssetService.Controllers
 
             await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.AssetPair,
                 assetPairId);
-            await _cqrsMessageSender.SendAssetPairChangedEvent(new AssetPairChangedEvent
+            await _cqrsMessageSender.SendEvent(new AssetPairChangedEvent
             {
                 OperationId = Guid.NewGuid().ToString("N"),
                 AssetPair = new AssetPairContract { Id = assetPairId },

@@ -95,6 +95,9 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<ClientProfileSettingsService>().As<IClientProfileSettingsService>().SingleInstance();
             builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
+            builder.RegisterType<MarketSettingsService>().As<IMarketSettingsService>().SingleInstance();
+
+            builder.RegisterType<ProductsService>().AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterType<TickFormulaService>().As<ITickFormulaService>().SingleInstance();
 
@@ -198,6 +201,14 @@ namespace MarginTrading.AssetService.Modules
 
                 builder.RegisterType<SqlRepos.ClientProfileSettingsRepository>()
                     .As<IClientProfileSettingsRepository>()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.ProductsRepository>()
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.MarketSettingsRepository>()
+                    .As<IMarketSettingsRepository>()
                     .SingleInstance();
 
                 builder.RegisterType<SqlRepos.TickFormulaRepository>()

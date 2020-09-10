@@ -26,10 +26,10 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         private const string RegulationId = "03041938-177b-4178-928d-3d3696cfae15";
         private const string RegulatoryTypeId = "03041938-177b-4178-928d-3d3696cfae22";
         private const string RegulatoryProfileId = "12341938-177b-4178-928d-3d3696cfae22";
-        private const string AssetTypeName = "asset-1";
-        private const string ClientProfileName = "client-1";
-        private const string SecondAssetTypeName = "asset-2";
-        private const string SecondClientProfileName = "client-2";
+        private const string AssetTypeId = "asset-1";
+        private const string ClientProfileId = "client-1";
+        private const string SecondAssetTypeId = "asset-2";
+        private const string SecondClientProfileId = "client-2";
         private const decimal MarginRate = 0.6M;
         private const int MarginMinPercent = 50;
 
@@ -41,28 +41,28 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 .ReturnsAsync(new GetBrokerSettingsByIdResponse
                 {
                     ErrorCode = BrokerSettingsErrorCodesContract.None,
-                    BrokerSettings = new BrokerSettingsContract {RegulationId = Guid.Parse(RegulationId)}
+                    BrokerSettings = new BrokerSettingsContract {RegulationId = RegulationId}
                 });
 
-            _regulatoryTypesApiMock.Setup(x => x.GetRegulatoryTypeByIdAsync(Guid.Parse(RegulatoryTypeId)))
+            _regulatoryTypesApiMock.Setup(x => x.GetRegulatoryTypeByIdAsync(RegulatoryTypeId))
                 .ReturnsAsync(new GetRegulatoryTypeByIdResponse
                 {
                     RegulatoryType = new RegulatoryTypeContract
                     {
-                        RegulationId = Guid.Parse(RegulationId)
+                        RegulationId = RegulationId
                     }
                 });
 
-            _regulatoryProfilesApiMock.Setup(x => x.GetRegulatoryProfileByIdAsync(Guid.Parse(RegulatoryProfileId)))
+            _regulatoryProfilesApiMock.Setup(x => x.GetRegulatoryProfileByIdAsync(RegulatoryProfileId))
                 .ReturnsAsync(new GetRegulatoryProfileByIdResponse
                 {
                     RegulatoryProfile = new RegulatoryProfileContract
                     {
-                        RegulationId = Guid.Parse(RegulationId)
+                        RegulationId = RegulationId
                     }
                 });
 
-            _regulatorySettingsApiMock.Setup(x => x.GetRegulatorySettingsByIdsAsync(It.IsAny<Guid>(), It.IsAny<Guid>()))
+            _regulatorySettingsApiMock.Setup(x => x.GetRegulatorySettingsByIdsAsync(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new GetRegulatorySettingsByIdsResponse()
                 {
                     RegulatorySettings = new RegulatorySettingsContract()
@@ -72,7 +72,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                     }
                 });
 
-            _regulatorySettingsApiMock.Setup(x => x.GetRegulatorySettingsByRegulationAsync(It.IsAny<Guid>()))
+            _regulatorySettingsApiMock.Setup(x => x.GetRegulatorySettingsByRegulationAsync(It.IsAny<string>()))
                 .ReturnsAsync(new GetRegulatorySettingsResponse()
                 {
                     RegulatorySettings = new List<RegulatorySettingsContract>
@@ -81,8 +81,8 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                         {
                             MarginMinPercent = MarginMinPercent,
                             IsAvailable = true,
-                            TypeId = Guid.Parse(RegulatoryTypeId),
-                            ProfileId = Guid.Parse(RegulatoryProfileId)
+                            TypeId = RegulatoryTypeId,
+                            ProfileId = RegulatoryProfileId
                         }
                     }
                 });
@@ -96,9 +96,9 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 builder.RegisterInstance(_regulatoryProfilesApiMock.Object).As<IRegulatoryProfilesApi>().SingleInstance();
             });
 
-            var assetId = await TestRecordsCreator.CreateAssetTypeAsync(client, Guid.Parse(RegulatoryTypeId), AssetTypeName);
+            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, AssetTypeId);
 
-            var clientProfileId = await TestRecordsCreator.CreateClientProfileAsync(client, Guid.Parse(RegulatoryProfileId), ClientProfileName, true);
+            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, true);
 
             var updateClientProfileSettingsRequest = new UpdateClientProfileSettingsRequest
             {
@@ -107,12 +107,12 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 Username = "asd"
             };
 
-            await client.PutAsync($"/api/client-profile-settings/profile/{clientProfileId}/type/{assetId}",
+            await client.PutAsync($"/api/client-profile-settings/profile/{ClientProfileId}/type/{AssetTypeId}",
                 updateClientProfileSettingsRequest.ToJsonStringContent());
 
-            var assetI2d = await TestRecordsCreator.CreateAssetTypeAsync(client, Guid.Parse(RegulatoryTypeId), SecondAssetTypeName, assetId);
+            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, SecondAssetTypeId, AssetTypeId);
 
-            var clientProfileId2 = await TestRecordsCreator.CreateClientProfileAsync(client, Guid.Parse(RegulatoryProfileId), SecondClientProfileName, true, clientProfileId);
+            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, SecondClientProfileId, true, ClientProfileId);
 
             //Get all client profile settings for this regulation
             var getClientProfileSettingsRequest = await client.GetAsync($"/api/client-profile-settings");
@@ -121,11 +121,11 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 
             //Check if the result contains settings with copied values from the templates
             var containsSettingsCreatedFromProfileTemplate = clientProfileSettings.Any(s =>
-                s.IsAvailable && s.AssetTypeId == assetId && s.ClientProfileId == clientProfileId2 &&
+                s.IsAvailable && s.AssetTypeId == AssetTypeId && s.ClientProfileId == SecondClientProfileId &&
                 s.Margin == MarginRate);
 
             var containsSettingsCreatedFromTypeTemplate = clientProfileSettings.Any(s =>
-                s.IsAvailable && s.AssetTypeId == assetI2d && s.ClientProfileId == clientProfileId &&
+                s.IsAvailable && s.AssetTypeId == SecondAssetTypeId && s.ClientProfileId == ClientProfileId &&
                 s.Margin == MarginRate);
 
             Assert.True(containsSettingsCreatedFromProfileTemplate);

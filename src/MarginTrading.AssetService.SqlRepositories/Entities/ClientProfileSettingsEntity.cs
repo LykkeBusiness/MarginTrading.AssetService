@@ -5,9 +5,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 {
     public class ClientProfileSettingsEntity
     {
-        public Guid ClientProfileId { get; set; }
+        public string ClientProfileId { get; set; }
         public ClientProfileEntity ClientProfile { get; set; }
-        public Guid AssetTypeId { get; set; }
+        public string AssetTypeId { get; set; }
         public AssetTypeEntity AssetType { get; set; }
         public decimal Margin { get; set; }
         public decimal ExecutionFeesFloor { get; set; }

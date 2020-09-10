@@ -10,6 +10,8 @@ using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Contracts.MarketSettings;
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Domain;
@@ -71,6 +73,19 @@ namespace MarginTrading.AssetService.Services
                 //Audit
                 cfg.CreateMap<IAuditModel, AuditContract>();
                 cfg.CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
+                
+                //Products
+                cfg.CreateMap<Product, ProductContract>();
+                cfg.CreateMap<AddProductRequest, Product>();
+                cfg.CreateMap<UpdateProductRequest, Product>();
+                
+
+                //MarketSettings
+                cfg.CreateMap<MarketSettings, MarketSettingsContract>();
+                cfg.CreateMap<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>();
+                cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()
+                    .ForMember(x => x.Id, opt => opt.Ignore());
+
 
                 //Tick formula
                 cfg.CreateMap<ITickFormula, TickFormulaContract>();

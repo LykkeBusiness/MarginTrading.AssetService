@@ -6,6 +6,8 @@ namespace MarginTrading.AssetService.Core.Domain
         ClientProfile,
         AssetType,
         ClientProfileSettings,
+        Product,
+        MarketSettings,
         TickFormula,
     }
 }

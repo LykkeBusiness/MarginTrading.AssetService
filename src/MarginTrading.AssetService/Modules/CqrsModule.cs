@@ -18,6 +18,7 @@ using Lykke.Messaging.Serialization;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.MarketSettings;
+using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
@@ -143,7 +144,9 @@ namespace MarginTrading.AssetService.Modules
         {
             contextRegistration.
                 PublishingEvents(typeof(MarketSettingsChangedEvent),
-                    typeof(CurrencyChangedEvent))
+                    typeof(ProductCategoryChangedEvent),
+                    typeof(CurrencyChangedEvent)
+                    )
                 .With(DefaultEventPipeline);
         }
     }

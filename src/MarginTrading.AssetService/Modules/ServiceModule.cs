@@ -98,6 +98,8 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<MarketSettingsService>().As<IMarketSettingsService>().SingleInstance();
 
             builder.RegisterType<ProductsService>().AsImplementedInterfaces().SingleInstance();
+            
+            builder.RegisterType<ProductCategoriesService>().AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterType<TickFormulaService>().As<ITickFormulaService>().SingleInstance();
 
@@ -220,6 +222,10 @@ namespace MarginTrading.AssetService.Modules
 
                 builder.RegisterType<SqlRepos.TickFormulaRepository>()
                     .As<ITickFormulaRepository>()
+                    .SingleInstance();
+                
+                builder.RegisterType<SqlRepos.ProductCategoriesRepository>()
+                    .AsImplementedInterfaces()
                     .SingleInstance();
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)

@@ -5,11 +5,9 @@ using System.Threading.Tasks;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
@@ -151,7 +149,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 ProductId = product.ProductId,
                 AssetType = product.AssetType,
-                Category = product.Category,
+                CategoryId = product.Category,
                 Comments = product.Comments,
                 ContractSize = product.ContractSize,
                 IsinLong = product.IsinLong,
@@ -188,7 +186,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 ProductId = product.ProductId,
                 AssetType = product.AssetType,
-                Category = product.Category,
+                Category = product.CategoryId,
                 Comments = product.Comments,
                 ContractSize = product.ContractSize,
                 IsinLong = product.IsinLong,

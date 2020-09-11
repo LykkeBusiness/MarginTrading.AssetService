@@ -9,6 +9,7 @@ namespace MarginTrading.AssetService.Core.Domain
         Currency,
         Product,
         MarketSettings,
+        ProductCategory,
         TickFormula,
     }
 }

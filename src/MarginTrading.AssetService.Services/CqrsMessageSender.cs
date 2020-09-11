@@ -40,5 +40,16 @@ namespace MarginTrading.AssetService.Services
                 await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(TEvent), ex);
             }
         }
+
+        public async Task SendEntityCreatedEvent<TEntity>(TEntity entity)
+        {
+            
+        }
+    }
+
+    public class EntityEvent<TEntity>
+    {
+        public string UserName { get; set; }
+        public string CorrelationId { get; set; }
     }
 }

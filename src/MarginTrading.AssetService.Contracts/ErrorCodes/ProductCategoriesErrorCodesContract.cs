@@ -8,5 +8,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotDeleteNonLeafCategory,
         ParentHasAttachedProducts,
         CannotDeleteCategoryWithAttachedProducts,
+        CategoryStringIsNotValid,
     }
 }

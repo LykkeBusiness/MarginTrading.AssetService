@@ -2,14 +2,12 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Data;
-using Microsoft.Data.SqlClient;
 using Dapper;
-using Lykke.Common.MsSql;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 
-namespace MarginTrading.AssetService.SqlRepositories
+namespace MarginTrading.AssetService.SqlRepositories.Extensions
 {
-    public static class Extensions
+    public static class IDbConnectionExtensions
     {
         public static void CreateTableIfDoesntExists(this IDbConnection connection, string createQuery,
             string tableName)
@@ -30,16 +28,6 @@ namespace MarginTrading.AssetService.SqlRepositories
             {
                 connection.Close();
             }
-        }
-    }
-    
-    public static class DbUpdateExceptionExtensions
-    {
-        public static bool ValueAlreadyExistsException(this DbUpdateException e)
-        {
-            return e.InnerException is SqlException sqlException &&
-                   (sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation ||
-                    sqlException.Number == MsSqlErrorCodes.DuplicateIndex);
         }
     }
 }

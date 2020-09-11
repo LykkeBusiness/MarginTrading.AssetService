@@ -29,11 +29,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             var entity = new ClientProfileEntity
             {
-                Name = model.Name,
                 Id = model.Id,
                 RegulatoryProfileId = model.RegulatoryProfileId,
                 IsDefault = model.IsDefault,
-                NormalizedName = model.Name.ToLower(),
             };
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
@@ -41,6 +39,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x => x.IsDefault);
+
+                if(currentDefault?.Id == model.Id)
+                    throw new AlreadyExistsException();
 
                 if (currentDefault == null)
                 {
@@ -63,7 +64,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 catch (DbUpdateException e)
                 {
                     if (e.InnerException is SqlException sqlException &&
-                        sqlException.Number == MsSqlErrorCodes.DuplicateIndex)
+                        sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
                     {
                         throw new AlreadyExistsException();
                     }
@@ -82,9 +83,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (existingEntity == null)
                     throw new ClientProfileDoesNotExistException();
 
-                existingEntity.Name = model.Name;
                 existingEntity.IsDefault = model.IsDefault;
-                existingEntity.NormalizedName = model.Name.ToLower();
+                existingEntity.RegulatoryProfileId = model.RegulatoryProfileId;
 
                 var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x =>
                     x.IsDefault && x.Id != model.Id);
@@ -107,7 +107,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 catch (DbUpdateException e)
                 {
                     if (e.InnerException is SqlException sqlException &&
-                        sqlException.Number == MsSqlErrorCodes.DuplicateIndex)
+                        sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
                     {
                         throw new AlreadyExistsException();
                     }
@@ -117,7 +117,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -143,7 +143,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 var result = await context.ClientProfiles
                     .Select(r => new ClientProfile
                     {
-                        Name = r.Name,
                         Id = r.Id,
                         IsDefault = r.IsDefault,
                         RegulatoryProfileId = r.RegulatoryProfileId,
@@ -154,7 +153,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<ClientProfile> GetByIdAsync(Guid id)
+        public async Task<ClientProfile> GetByIdAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -166,14 +165,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return new ClientProfile
                 {
                     Id = entity.Id,
-                    Name = entity.Name,
                     IsDefault = entity.IsDefault,
                     RegulatoryProfileId = entity.RegulatoryProfileId,
                 };
             }
         }
 
-        public async Task<bool> ExistsAsync(Guid id)
+        public async Task<bool> ExistsAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())
             {

@@ -26,7 +26,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
                     });
 
             builder.Property(x => x.Name).IsRequired();
-            builder.Property(x => x.MICCode).IsRequired();
             builder.Property(x => x.Timezone).IsRequired();
             builder.Property(x => x.Open).IsRequired();
             builder.Property(x => x.Close).IsRequired();

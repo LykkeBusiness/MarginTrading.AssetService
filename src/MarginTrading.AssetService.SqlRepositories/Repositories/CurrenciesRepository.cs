@@ -6,6 +6,7 @@ using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
+using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 

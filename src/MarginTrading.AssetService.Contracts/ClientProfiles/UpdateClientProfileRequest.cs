@@ -8,10 +8,10 @@ namespace MarginTrading.AssetService.Contracts.ClientProfiles
     public class UpdateClientProfileRequest
     {
         /// <summary>
-        /// Name of the client profile
+        /// Id of the related regulatory profile
         /// </summary>
         [Required]
-        public string Name { get; set; }
+        public string RegulatoryProfileId { get; set; }
 
         /// <summary>
         /// Name of the user who sent the request

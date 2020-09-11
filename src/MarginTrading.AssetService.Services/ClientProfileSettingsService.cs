@@ -8,6 +8,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -68,7 +69,7 @@ namespace MarginTrading.AssetService.Services
                 model.ToJson(), existing.ToJson());
         }
 
-        public Task<ClientProfileSettings> GetByIdAsync(Guid profileId, Guid typeId)
+        public Task<ClientProfileSettings> GetByIdAsync(string profileId, string typeId)
             => _regulatorySettingsRepository.GetByIdsAsync(profileId, typeId);
 
         public Task<List<ClientProfileSettings>> GetAllAsync()

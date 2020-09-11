@@ -26,10 +26,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             var entity = new AssetTypeEntity
             {
-                Name = model.Name,
                 Id = model.Id,
                 RegulatoryTypeId = model.RegulatoryTypeId,
-                NormalizedName = model.Name.ToLower(),
             };
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
@@ -49,7 +47,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 catch (DbUpdateException e)
                 {
                     if (e.InnerException is SqlException sqlException &&
-                        sqlException.Number == MsSqlErrorCodes.DuplicateIndex)
+                        sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
                     {
                         throw new AlreadyExistsException();
                     }
@@ -68,8 +66,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (existingEntity == null)
                     throw new AssetTypeDoesNotExistException();
 
-                existingEntity.Name = model.Name;
-                existingEntity.NormalizedName = model.Name.ToLower();
+                existingEntity.RegulatoryTypeId = model.RegulatoryTypeId;
 
                 try
                 {
@@ -78,7 +75,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 catch (DbUpdateException e)
                 {
                     if (e.InnerException is SqlException sqlException &&
-                        sqlException.Number == MsSqlErrorCodes.DuplicateIndex)
+                        sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
                     {
                         throw new AlreadyExistsException();
                     }
@@ -88,7 +85,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task DeleteAsync(Guid id)
+        public async Task DeleteAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -114,7 +111,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 var result = await context.AssetTypes
                     .Select(r => new AssetType
                     {
-                        Name = r.Name,
                         Id = r.Id,
                         RegulatoryTypeId = r.RegulatoryTypeId
                     })
@@ -124,7 +120,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<Guid>> GetAllIdsAsync()
+        public async Task<IReadOnlyList<string>> GetAllIdsAsync()
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -136,7 +132,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<AssetType> GetByIdAsync(Guid id)
+        public async Task<AssetType> GetByIdAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -149,12 +145,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     Id = entity.Id,
                     RegulatoryTypeId = entity.RegulatoryTypeId,
-                    Name = entity.Name,
                 };
             }
         }
 
-        public async Task<bool> ExistsAsync(Guid id)
+        public async Task<bool> ExistsAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())
             {

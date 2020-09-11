@@ -4,6 +4,6 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class AssetTypeWithTemplate : AssetType
     {
-        public Guid? AssetTypeTemplateId { get; set; }
+        public string AssetTypeTemplateId { get; set; }
     }
 }

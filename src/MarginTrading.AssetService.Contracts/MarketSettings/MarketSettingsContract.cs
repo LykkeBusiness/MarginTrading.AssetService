@@ -24,44 +24,39 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         [Key(1)]
         public string Name { get; set; }
         /// <summary>
-        /// MIC code
-        /// </summary>
-        [Key(2)]
-        public string MICCode { get; set; }
-        /// <summary>
         /// Dividends long
         /// </summary>
-        [Key(3)]
+        [Key(2)]
         public decimal DividendsLong { get; set; }
         /// <summary>
         /// Dividends short
         /// </summary>
-        [Key(4)]
+        [Key(3)]
         public decimal DividendsShort { get; set; }
         /// <summary>
         /// Dividends 871M
         /// </summary>
-        [Key(5)]
+        [Key(4)]
         public decimal Dividends871M { get; set; }
         /// <summary>
         /// When the trading day opens
         /// </summary>
-        [Key(6)]
+        [Key(5)]
         public TimeSpan Open { get; set; }
         /// <summary>
         /// When the trading day closes
         /// </summary>
-        [Key(7)]
+        [Key(6)]
         public TimeSpan Close { get; set; }
         /// <summary>
         /// Timezone
         /// </summary>
-        [Key(8)]
+        [Key(7)]
         public string Timezone { get; set; }
         /// <summary>
         /// List of holidays
         /// </summary>
-        [Key(9)]
+        [Key(8)]
         public List<DateTime> Holidays { get; set; }
     }
 }

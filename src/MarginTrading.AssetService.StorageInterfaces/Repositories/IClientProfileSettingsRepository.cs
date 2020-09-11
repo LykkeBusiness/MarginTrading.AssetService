@@ -9,8 +9,8 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     public interface IClientProfileSettingsRepository
     {
         Task UpdateAsync(ClientProfileSettings model);
-        Task<ClientProfileSettings> GetByIdsAsync(Guid profileId, Guid typeId);
-        Task<List<ClientProfileSettings>> GetAllAsync(Guid? clientProfileId, Guid? assetTypeId);
+        Task<ClientProfileSettings> GetByIdsAsync(string profileId, string typeId);
+        Task<List<ClientProfileSettings>> GetAllAsync(string clientProfileId, string assetTypeId);
         Task InsertMultipleAsync(IEnumerable<ClientProfileSettings> settings, TransactionContext txContext = null);
     }
 }

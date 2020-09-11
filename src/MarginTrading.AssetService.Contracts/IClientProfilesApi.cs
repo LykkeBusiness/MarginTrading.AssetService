@@ -16,7 +16,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <returns></returns>
         [Get("/api/client-profiles/{id}")]
-        Task<GetClientProfileByIdResponse> GetClientProfileByIdAsync(Guid id);
+        Task<GetClientProfileByIdResponse> GetClientProfileByIdAsync(string id);
 
         /// <summary>
         /// Get all client profiles
@@ -41,13 +41,13 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="request"></param>
         /// <returns></returns>
         [Put("/api/client-profiles/{id}")]
-        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileAsync(Guid id, [Body] UpdateClientProfileRequest request);
+        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileAsync(string id, [Body] UpdateClientProfileRequest request);
 
         /// <summary>
         /// Delete a client profile
         /// </summary>
         /// <returns></returns>
         [Delete("/api/client-profiles/{id}")]
-        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteClientProfileAsync(Guid id, [Query] string username);
+        Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteClientProfileAsync(string id, [Query] string username);
     }
 }

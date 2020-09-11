@@ -16,7 +16,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <returns></returns>
         [Get("/api/client-profile-settings/profile/{profileId}/type/{typeId}")]
-        Task<GetClientProfileSettingsByIdsResponse> GetClientProfileSettingsByIdsAsync(Guid profileId, Guid typeId);
+        Task<GetClientProfileSettingsByIdsResponse> GetClientProfileSettingsByIdsAsync(string profileId, string typeId);
 
         /// <summary>
         /// Get all client profile settings
@@ -34,6 +34,6 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Put("/api/client-profile-settings/profile/{profileId}/type/{typeId}")]
         Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileSettingsAsync(
-            [Body] UpdateClientProfileSettingsRequest request, Guid profileId, Guid typeId);
+            [Body] UpdateClientProfileSettingsRequest request, string profileId, string typeId);
     }
 }

@@ -11,9 +11,9 @@ namespace MarginTrading.AssetService.Core.Services
 
         Task UpdateAsync(ClientProfile model, string username, string correlationId);
 
-        Task DeleteAsync(Guid id, string username, string correlationId);
+        Task DeleteAsync(string id, string username, string correlationId);
 
-        Task<ClientProfile> GetByIdAsync(Guid id);
+        Task<ClientProfile> GetByIdAsync(string id);
 
         Task<IReadOnlyList<ClientProfile>> GetAllAsync();
     }

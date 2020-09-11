@@ -142,7 +142,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 DividendsLong = entity.DividendsLong,
                 DividendsShort = entity.DividendsShort,
                 Dividends871M = entity.Dividends871M,
-                MICCode = entity.MICCode,
                 Close = entity.Close,
                 Open = entity.Open,
                 Timezone = entity.Timezone,

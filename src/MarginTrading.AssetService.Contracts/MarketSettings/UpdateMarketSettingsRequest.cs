@@ -10,12 +10,6 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
     public class UpdateMarketSettingsRequest
     {
         /// <summary>
-        /// MIC code
-        /// </summary>
-        [Required]
-        public string MICCode { get; set; }
-
-        /// <summary>
         /// Name
         /// </summary>
         [Required]

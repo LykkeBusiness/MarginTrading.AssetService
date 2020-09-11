@@ -12,8 +12,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
     {
         public string Id { get; set; }
 
-        public string MICCode { get; set; }
-
         public string Name { get; set; }
 
         public string NormalizedName { get; set; }
@@ -41,7 +39,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
                 DividendsLong = model.DividendsLong,
                 DividendsShort = model.DividendsShort,
                 Dividends871M = model.Dividends871M,
-                MICCode = model.MICCode,
                 Close = model.Close,
                 Open = model.Open,
                 Timezone = model.Timezone,
@@ -60,7 +57,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
             DividendsLong = model.DividendsLong;
             DividendsShort = model.DividendsShort;
             Dividends871M = model.Dividends871M;
-            MICCode = model.MICCode;
             Close = model.Close;
             Open = model.Open;
             Timezone = model.Timezone;

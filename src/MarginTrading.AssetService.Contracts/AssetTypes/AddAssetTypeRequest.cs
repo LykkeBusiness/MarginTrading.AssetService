@@ -17,17 +17,17 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// Id of the related regulatory type from Mdm
         /// </summary>
         [Required]
-        public Guid RegulatoryTypeId { get; set; }
+        public string RegulatoryTypeId { get; set; }
 
         /// <summary>
-        /// Name of the regulatory type
+        /// Id of the asset type
         /// </summary>
         [Required]
-        public string Name { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         /// Id of existing asset type which will be used as template for regulatory settings creation
         /// </summary>
-        public Guid? AssetTypeTemplateId { get; set; }
+        public string AssetTypeTemplateId { get; set; }
     }
 }

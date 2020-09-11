@@ -33,11 +33,11 @@ namespace MarginTrading.AssetService.Services
             string correlationId)
         {
             // underlyings check
-            var underlyingExistsResult = await UnderlyingExists(product);
+            var underlyingExistsResult = await UnderlyingExistsAsync(product);
             if (underlyingExistsResult.IsFailed) return underlyingExistsResult;
 
             // categories check
-            var productWithCategoryResult = await SetCategoryId(product, username, correlationId);
+            var productWithCategoryResult = await SetCategoryIdAsync(product, username, correlationId);
             if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
 
             var result = await _repository.InsertAsync(productWithCategoryResult.Value);
@@ -55,11 +55,11 @@ namespace MarginTrading.AssetService.Services
             string correlationId)
         {
             // underlyings check
-            var underlyingExistsResult = await UnderlyingExists(product);
+            var underlyingExistsResult = await UnderlyingExistsAsync(product);
             if (underlyingExistsResult.IsFailed) return underlyingExistsResult;
 
             // categories check
-            var productWithCategoryResult = await SetCategoryId(product, username, correlationId);
+            var productWithCategoryResult = await SetCategoryIdAsync(product, username, correlationId);
             if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
 
             var existing = await _repository.GetByIdAsync(product.ProductId);
@@ -111,7 +111,7 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(int skip = default, int take = 20)
             => _repository.GetByPageAsync(skip, take);
 
-        private async Task<Result<ProductsErrorCodes>> UnderlyingExists(Product product)
+        private async Task<Result<ProductsErrorCodes>> UnderlyingExistsAsync(Product product)
         {
             var underlyingResponse = await _underlyingsApi.GetByIdAsync(product.UnderlyingMdsCode);
             return underlyingResponse.ErrorCode == UnderlyingsErrorCodesContract.DoesNotExist
@@ -119,7 +119,7 @@ namespace MarginTrading.AssetService.Services
                 : new Result<ProductsErrorCodes>();
         }
 
-        private async Task<Result<Product, ProductsErrorCodes>> SetCategoryId(Product product, string username,
+        private async Task<Result<Product, ProductsErrorCodes>> SetCategoryIdAsync(Product product, string username,
             string correlationId)
         {
             var categoryResult = await _productCategoriesService.GetOrCreate(product.Category, username, correlationId);

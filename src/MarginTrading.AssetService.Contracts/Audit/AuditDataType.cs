@@ -5,6 +5,8 @@
         ClientProfile,
         AssetType,
         ClientProfileSettings,
+        Product,
         MarketSettings,
+        TickFormula,
     }
 }

@@ -101,6 +101,8 @@ namespace MarginTrading.AssetService.Modules
             
             builder.RegisterType<ProductCategoriesService>().AsImplementedInterfaces().SingleInstance();
 
+            builder.RegisterType<TickFormulaService>().As<ITickFormulaService>().SingleInstance();
+
             //TODO need to change with impl
             builder.RegisterType<FakeTradingService>().As<ITradingService>().SingleInstance();
 
@@ -118,6 +120,10 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<RateSettingsService>()
                 .As<IRateSettingsService>()
+                .SingleInstance();
+
+            builder.RegisterType<CurrenciesService>()
+                .AsImplementedInterfaces()
                 .SingleInstance();
 
             RegisterRepositories(builder);
@@ -208,7 +214,14 @@ namespace MarginTrading.AssetService.Modules
                     .SingleInstance();
 
                 builder.RegisterType<SqlRepos.MarketSettingsRepository>()
-                    .As<IMarketSettingsRepository>()
+                    .As<IMarketSettingsRepository>();
+                    
+                builder.RegisterType<SqlRepos.CurrenciesRepository>()
+                    .AsImplementedInterfaces()
+                    .SingleInstance();
+
+                builder.RegisterType<SqlRepos.TickFormulaRepository>()
+                    .As<ITickFormulaRepository>()
                     .SingleInstance();
                 
                 builder.RegisterType<SqlRepos.ProductCategoriesRepository>()

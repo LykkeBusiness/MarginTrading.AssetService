@@ -38,9 +38,9 @@ namespace MarginTrading.AssetService.Services
         {
             var categoryName = new ProductCategoryName(category);
 
-            // early exit if the category leaf already exists
-            var leaf = await GetByIdAsync(categoryName.NormalizedName);
-            if (leaf.IsSuccess) return leaf;
+            // early exit if the category already exists
+            var existingCategory = await GetByIdAsync(categoryName.NormalizedName);
+            if (existingCategory.IsSuccess) return existingCategory;
 
             // check all the nodes in the hierarchy and create missing ones
             var categories = categoryName.Nodes;

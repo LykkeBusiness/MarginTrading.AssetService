@@ -7,5 +7,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         DoesNotExist,
         UnderlyingDoesNotExist,
         CannotCreateCategory,
+        CannotCreateProductInNonLeafCategory,
     }
 }

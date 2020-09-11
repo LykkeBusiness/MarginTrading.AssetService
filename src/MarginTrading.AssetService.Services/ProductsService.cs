@@ -39,7 +39,7 @@ namespace MarginTrading.AssetService.Services
             // categories check
             var productWithCategoryResult = await SetCategoryId(product, username, correlationId);
             if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
-            
+
             var result = await _repository.InsertAsync(productWithCategoryResult.Value);
 
             if (result.IsSuccess)
@@ -61,7 +61,7 @@ namespace MarginTrading.AssetService.Services
             // categories check
             var productWithCategoryResult = await SetCategoryId(product, username, correlationId);
             if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
-            
+
             var existing = await _repository.GetByIdAsync(product.ProductId);
 
             if (existing.IsSuccess)
@@ -119,7 +119,8 @@ namespace MarginTrading.AssetService.Services
                 : new Result<ProductsErrorCodes>();
         }
 
-        private async Task<Result<Product, ProductsErrorCodes>> SetCategoryId(Product product, string username, string correlationId)
+        private async Task<Result<Product, ProductsErrorCodes>> SetCategoryId(Product product, string username,
+            string correlationId)
         {
             var categoryResult = await _productCategoriesService.GetOrCreate(product.Category, username, correlationId);
             if (categoryResult.IsFailed)
@@ -127,7 +128,11 @@ namespace MarginTrading.AssetService.Services
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotCreateCategory);
             }
 
-            product.Category = categoryResult.Value.Id;
+            var category = categoryResult.Value;
+            if (!category.IsLeaf)
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotCreateProductInNonLeafCategory);
+
+            product.Category = category.Id;
             return new Result<Product, ProductsErrorCodes>(product);
         }
     }

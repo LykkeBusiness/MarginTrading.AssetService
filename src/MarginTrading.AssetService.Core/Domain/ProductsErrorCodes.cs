@@ -7,5 +7,6 @@ namespace MarginTrading.AssetService.Core.Domain
         DoesNotExist,
         UnderlyingDoesNotExist,
         CannotCreateCategory,
+        CannotCreateProductInNonLeafCategory,
     }
 }

@@ -280,6 +280,30 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.ToTable("MarketSettings");
                 });
 
+            modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.CurrencyEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<int>("Accuracy")
+                        .HasColumnType("int");
+
+                    b.Property<string>("InterestRateMdsCode")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Currencies");
+                });
+                
             modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.TickFormulaEntity", b =>
                 {
                     b.Property<string>("Id")

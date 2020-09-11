@@ -16,6 +16,7 @@ using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
 using MarginTrading.AssetService.Contracts.AssetPair;
+using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
@@ -141,7 +142,8 @@ namespace MarginTrading.AssetService.Modules
             ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
         {
             contextRegistration.
-                PublishingEvents(typeof(MarketSettingsChangedEvent))
+                PublishingEvents(typeof(MarketSettingsChangedEvent),
+                    typeof(CurrencyChangedEvent))
                 .With(DefaultEventPipeline);
         }
     }

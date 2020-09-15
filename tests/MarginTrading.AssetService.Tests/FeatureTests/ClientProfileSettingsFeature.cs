@@ -31,7 +31,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         private const string SecondAssetTypeId = "asset-2";
         private const string SecondClientProfileId = "client-2";
         private const decimal MarginRate = 60M;
-        private const int MarginMinPercent = 50;
+        private const decimal MarginMinPercent = 50;
 
         [Fact]
         public async Task TestClientProfileSettingsWorkflow()

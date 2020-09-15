@@ -137,6 +137,14 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<bool> CurrencyHasProductsAsync(string id)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+
+            return await context.Products.AnyAsync(p => p.TradingCurrencyId == id);
+
+        }
+
         private CurrencyEntity ToEntity(Currency currency)
         {
             return new CurrencyEntity()

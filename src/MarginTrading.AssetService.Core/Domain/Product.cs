@@ -58,6 +58,8 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public decimal OvernightMarginMultiplier { get; set; }
         
+        public string TradingCurrency { get; set;}
+        
         public byte[] Timestamp { get; set; }
     }
 }

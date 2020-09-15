@@ -61,5 +61,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         public int Parity { get; set; }
 
         public decimal OvernightMarginMultiplier { get; set; }
+
+        public string TradingCurrency { get; set;}
     }
 }

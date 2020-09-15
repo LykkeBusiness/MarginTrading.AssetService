@@ -17,35 +17,47 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly IUnderlyingsApi _underlyingsApi;
         private readonly IProductCategoriesService _productCategoriesService;
+        private readonly ICurrenciesService _currenciesService;
 
         public ProductsService(IProductsRepository repository,
             IAuditService auditService,
             IUnderlyingsApi underlyingsApi,
-            IProductCategoriesService productCategoriesService)
+            IProductCategoriesService productCategoriesService,
+            ICurrenciesService currenciesService)
         {
             _repository = repository;
             _auditService = auditService;
             _underlyingsApi = underlyingsApi;
             _productCategoriesService = productCategoriesService;
+            _currenciesService = currenciesService;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
             string correlationId)
         {
             // underlyings check
-            var underlyingExistsResult = await UnderlyingExistsAsync(product);
+            var underlyingExistsResult = await UnderlyingExistsAndSetTradingCurrencyAsync(product);
             if (underlyingExistsResult.IsFailed) return underlyingExistsResult;
 
+            // currencies check
+            var currencyExistsResult = await CurrencyExistsAsync(product);
+            if (currencyExistsResult.IsFailed) return currencyExistsResult;
+            
+            // one product per underlying check
+            var oneUnderlyingPerProduct =
+                await _repository.UnderlyingHasOnlyOneProduct(product.UnderlyingMdsCode, product.ProductId);
+            if(!oneUnderlyingPerProduct) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CanOnlyCreateOneProductPerUnderlying);
+            
             // categories check
             var productWithCategoryResult = await SetCategoryIdAsync(product, username, correlationId);
-            if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
+            if (productWithCategoryResult.IsFailed) return productWithCategoryResult;
 
-            var result = await _repository.InsertAsync(productWithCategoryResult.Value);
+            var result = await _repository.InsertAsync(product);
 
             if (result.IsSuccess)
             {
                 await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                    productWithCategoryResult.Value.ToJson());
+                    product.ToJson());
             }
 
             return result;
@@ -55,24 +67,33 @@ namespace MarginTrading.AssetService.Services
             string correlationId)
         {
             // underlyings check
-            var underlyingExistsResult = await UnderlyingExistsAsync(product);
+            var underlyingExistsResult = await UnderlyingExistsAndSetTradingCurrencyAsync(product);
             if (underlyingExistsResult.IsFailed) return underlyingExistsResult;
+            
+            // currencies check
+            var currencyExistsResult = await CurrencyExistsAsync(product);
+            if (currencyExistsResult.IsFailed) return currencyExistsResult;
+            
+            // one product per underlying check
+            var oneUnderlyingPerProduct =
+                await _repository.UnderlyingHasOnlyOneProduct(product.UnderlyingMdsCode, product.ProductId);
+            if(!oneUnderlyingPerProduct) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CanOnlyCreateOneProductPerUnderlying);
 
             // categories check
             var productWithCategoryResult = await SetCategoryIdAsync(product, username, correlationId);
-            if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
+            if (productWithCategoryResult.IsFailed) return productWithCategoryResult;
 
             var existing = await _repository.GetByIdAsync(product.ProductId);
 
             if (existing.IsSuccess)
             {
-                productWithCategoryResult.Value.Timestamp = existing.Value.Timestamp;
-                var result = await _repository.UpdateAsync(productWithCategoryResult.Value);
+                product.Timestamp = existing.Value.Timestamp;
+                var result = await _repository.UpdateAsync(product);
 
                 if (result.IsSuccess)
                 {
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                        productWithCategoryResult.Value.ToJson(), existing.Value.ToJson());
+                        product.ToJson(), existing.Value.ToJson());
                 }
 
                 return result;
@@ -111,29 +132,44 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(int skip = default, int take = 20)
             => _repository.GetByPageAsync(skip, take);
 
-        private async Task<Result<ProductsErrorCodes>> UnderlyingExistsAsync(Product product)
+        private async Task<Result<ProductsErrorCodes>> UnderlyingExistsAndSetTradingCurrencyAsync(Product product)
         {
             var underlyingResponse = await _underlyingsApi.GetByIdAsync(product.UnderlyingMdsCode);
-            return underlyingResponse.ErrorCode == UnderlyingsErrorCodesContract.DoesNotExist
-                ? new Result<ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist)
-                : new Result<ProductsErrorCodes>();
+            if (underlyingResponse.ErrorCode == UnderlyingsErrorCodesContract.DoesNotExist)
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
+            }
+
+            product.TradingCurrency = underlyingResponse.Underlying.TradingCurrency;
+
+            return new Result<ProductsErrorCodes>();
         }
 
-        private async Task<Result<Product, ProductsErrorCodes>> SetCategoryIdAsync(Product product, string username,
+        private async Task<Result<ProductsErrorCodes>> CurrencyExistsAsync(Product product)
+        {
+            var currencyResult = await _currenciesService.GetByIdAsync(product.TradingCurrency);
+            if (currencyResult.IsFailed)
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CurrencyDoesNotExist);
+            }
+            return new Result<ProductsErrorCodes>();
+        }
+
+        private async Task<Result<ProductsErrorCodes>> SetCategoryIdAsync(Product product, string username,
             string correlationId)
         {
             var categoryResult = await _productCategoriesService.GetOrCreate(product.Category, username, correlationId);
             if (categoryResult.IsFailed)
             {
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotCreateCategory);
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotCreateCategory);
             }
 
             var category = categoryResult.Value;
             if (!category.IsLeaf)
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotCreateProductInNonLeafCategory);
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotCreateProductInNonLeafCategory);
 
             product.Category = category.Id;
-            return new Result<Product, ProductsErrorCodes>(product);
+            return new Result<ProductsErrorCodes>();
         }
     }
 }

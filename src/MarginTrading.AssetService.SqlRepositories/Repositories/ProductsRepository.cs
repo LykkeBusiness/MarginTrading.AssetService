@@ -186,6 +186,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
                 TradingCurrencyId = product.TradingCurrency,
+                IsSuspended =  product.IsSuspended,
+                IsFrozen = product.IsFrozen,
+                FreezeInfo = product.FreezeInfo,
+                IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };
 
@@ -224,6 +228,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
                 TradingCurrency = product.TradingCurrencyId,
+                IsSuspended =  product.IsSuspended,
+                IsFrozen = product.IsFrozen,
+                FreezeInfo = product.FreezeInfo,
+                IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };
 

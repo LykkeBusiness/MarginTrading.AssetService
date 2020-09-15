@@ -89,7 +89,7 @@ namespace MarginTrading.AssetService.Services
                     {
                         AssetTypeId = assetType.Id,
                         ClientProfileId = model.Id,
-                        Margin = regulatorySettings.MarginMinPercent / 100M,
+                        Margin = regulatorySettings.MarginMinPercent,
                         IsAvailable = regulatorySettings.IsAvailable,
                     });
                 }

@@ -74,5 +74,10 @@ namespace MarginTrading.AssetService.Services
 
         public Task<List<ClientProfileSettings>> GetAllAsync()
             => _regulatorySettingsRepository.GetAllAsync(null, null);
+
+        public Task<bool> WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(
+            RegulatorySettingsDto regulatorySettings)
+            => _regulatorySettingsRepository.WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(
+                regulatorySettings);
     }
 }

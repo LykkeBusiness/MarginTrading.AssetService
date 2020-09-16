@@ -14,5 +14,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<IReadOnlyList<string>> GetAllIdsAsync();
         Task<AssetType> GetByIdAsync(string id);
         Task<bool> ExistsAsync(string id);
+        Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync(string regulatoryTypeId);
     }
 }

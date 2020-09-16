@@ -158,5 +158,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return result != null;
             }
         }
+
+        public async Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync(string regulatoryTypeId)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.AssetTypes.AnyAsync(x => x.RegulatoryTypeId == regulatoryTypeId);
+
+                return result;
+            }
+        }
     }
 }

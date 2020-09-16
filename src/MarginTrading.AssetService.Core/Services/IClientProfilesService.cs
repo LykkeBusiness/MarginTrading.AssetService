@@ -16,5 +16,7 @@ namespace MarginTrading.AssetService.Core.Services
         Task<ClientProfile> GetByIdAsync(string id);
 
         Task<IReadOnlyList<ClientProfile>> GetAllAsync();
+
+        Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId);
     }
 }

@@ -118,5 +118,21 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return result;
             }
         }
+
+        public async Task<bool> WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(RegulatorySettingsDto regulatorySettings)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .Include(x => x.AssetType)
+                    .Include(x => x.ClientProfile)
+                    .AnyAsync(x => x.ClientProfile.RegulatoryProfileId == regulatorySettings.RegulatoryProfileId &&
+                                   x.AssetType.RegulatoryTypeId == regulatorySettings.RegulatoryTypeId &&
+                                   x.Margin < regulatorySettings.MarginMin ||
+                                   x.IsAvailable && !regulatorySettings.IsAvailable);
+
+                return result;
+            }
+        }
     }
 }

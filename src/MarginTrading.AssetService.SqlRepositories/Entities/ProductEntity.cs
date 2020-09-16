@@ -21,8 +21,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         
         public string Issuer { get; set; }
         
-        public string Market { get; set; }
-        
+        public string MarketId { get; set; }
+
+        public MarketSettingsEntity Market { get; set; }
+
         public string MarketMakerAssetAccountId { get; set; }
         
         public int MaxOrderSize { get; set; }

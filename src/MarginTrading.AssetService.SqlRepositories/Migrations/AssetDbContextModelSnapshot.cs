@@ -275,15 +275,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .HasColumnType("nvarchar(400)")
                         .HasMaxLength(400);
 
-<<<<<<< HEAD
-                    b.Property<string>("Market")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
-=======
                     b.Property<string>("MarketId")
                         .HasColumnType("nvarchar(450)");
->>>>>>> master
 
                     b.Property<string>("MarketMakerAssetAccountId")
                         .HasColumnType("nvarchar(400)")
@@ -359,50 +352,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
                     b.HasIndex("CategoryId");
 
-<<<<<<< HEAD
-                    b.HasIndex("Name")
-                        .IsUnique();
-=======
                     b.HasIndex("MarketId");
 
-                    b.HasIndex("Name");
-
-                    b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<TimeSpan>("Close")
-                        .HasColumnType("time");
-
-                    b.Property<decimal>("Dividends871M")
-                        .HasColumnType("decimal(18,13)");
-
-                    b.Property<decimal>("DividendsLong")
-                        .HasColumnType("decimal(18,13)");
-
-                    b.Property<decimal>("DividendsShort")
-                        .HasColumnType("decimal(18,13)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<TimeSpan>("Open")
-                        .HasColumnType("time");
-
-                    b.Property<string>("Timezone")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
->>>>>>> master
+                    b.HasIndex("Name")
+                        .IsUnique();
 
                     b.HasIndex("TradingCurrencyId");
 
@@ -477,20 +430,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", "Market")
+                        .WithMany()
+                        .HasForeignKey("MarketId");
+
                     b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.CurrencyEntity", "TradingCurrency")
                         .WithMany()
                         .HasForeignKey("TradingCurrencyId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
-               
-            modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.ProductEntity", b =>
-            {
-                b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", "Market")
-                    .WithMany()
-                    .HasForeignKey("MarketId");
-            });
-            
 #pragma warning restore 612, 618
         }
     }

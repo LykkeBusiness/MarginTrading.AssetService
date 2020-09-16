@@ -10,7 +10,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MarginTrading.AssetService.SqlRepositories.Migrations
 {
     [DbContext(typeof(AssetDbContext))]
-    [Migration("20200915070419_ProductConstraints")]
+    [Migration("20200916084159_ProductConstraints")]
     partial class ProductConstraints
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -246,6 +246,19 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .HasColumnType("nvarchar(400)")
                         .HasMaxLength(400);
 
+                    b.Property<string>("FreezeInfo")
+                        .HasColumnType("nvarchar(2000)")
+                        .HasMaxLength(2000);
+
+                    b.Property<bool>("IsDiscontinued")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsFrozen")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSuspended")
+                        .HasColumnType("bit");
+
                     b.Property<string>("IsinLong")
                         .IsRequired()
                         .HasColumnType("nvarchar(400)")
@@ -264,10 +277,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .HasColumnType("nvarchar(400)")
                         .HasMaxLength(400);
 
-                    b.Property<string>("Market")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
+                    b.Property<string>("MarketId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("MarketMakerAssetAccountId")
                         .HasColumnType("nvarchar(400)")
@@ -331,8 +342,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
                     b.Property<string>("TradingCurrencyId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(400)")
-                        .HasMaxLength(400);
+                        .HasColumnType("nvarchar(100)")
+                        .HasMaxLength(100);
 
                     b.Property<string>("UnderlyingMdsCode")
                         .IsRequired()
@@ -342,6 +353,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.HasKey("ProductId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("MarketId");
 
                     b.HasIndex("Name")
                         .IsUnique();
@@ -418,6 +431,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", "Market")
+                        .WithMany()
+                        .HasForeignKey("MarketId");
 
                     b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.CurrencyEntity", "TradingCurrency")
                         .WithMany()

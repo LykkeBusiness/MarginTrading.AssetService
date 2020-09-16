@@ -17,16 +17,19 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly IUnderlyingsApi _underlyingsApi;
         private readonly IProductCategoriesService _productCategoriesService;
+        private readonly IMarketSettingsRepository _marketSettingsRepository;
 
         public ProductsService(IProductsRepository repository,
             IAuditService auditService,
             IUnderlyingsApi underlyingsApi,
-            IProductCategoriesService productCategoriesService)
+            IProductCategoriesService productCategoriesService,
+            IMarketSettingsRepository marketSettingsRepository)
         {
             _repository = repository;
             _auditService = auditService;
             _underlyingsApi = underlyingsApi;
             _productCategoriesService = productCategoriesService;
+            _marketSettingsRepository = marketSettingsRepository;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
@@ -39,6 +42,12 @@ namespace MarginTrading.AssetService.Services
             // categories check
             var productWithCategoryResult = await SetCategoryIdAsync(product, username, correlationId);
             if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
+
+            // market settings check
+            if (!await _marketSettingsRepository.ExistsAsync(product.Market))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
+            }
 
             var result = await _repository.InsertAsync(productWithCategoryResult.Value);
 
@@ -61,6 +70,12 @@ namespace MarginTrading.AssetService.Services
             // categories check
             var productWithCategoryResult = await SetCategoryIdAsync(product, username, correlationId);
             if (productWithCategoryResult.IsFailed) return productWithCategoryResult.ToResultWithoutValue();
+
+            // market settings check
+            if (!await _marketSettingsRepository.ExistsAsync(product.Market))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
+            }
 
             var existing = await _repository.GetByIdAsync(product.ProductId);
 

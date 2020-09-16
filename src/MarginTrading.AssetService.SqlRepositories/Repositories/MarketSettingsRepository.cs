@@ -18,6 +18,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     {
         private const string DoesNotExistException =
             "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
+        private const int ForeignKeyConstraintViolation = 547;
 
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
 
@@ -131,6 +132,34 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                     throw;
                 }
+                catch (DbUpdateException e)
+                {
+                    if (e.InnerException is SqlException sqlException &&
+                        sqlException.Number == ForeignKeyConstraintViolation)
+                        return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.CannotDeleteMarketSettingsAssignedToAnyProduct);
+
+                    throw;
+                }
+            }
+        }
+
+        public async Task<bool> ExistsAsync(string id)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.MarketSettings.AnyAsync(x => x.Id == id);
+
+                return result;
+            }
+        }
+
+        public async Task<bool> MarketSettingsAssignedToAnyProductAsync(string id)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.Products.AnyAsync(x => x.MarketId == id);
+
+                return result;
             }
         }
 

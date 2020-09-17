@@ -5,7 +5,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         // primary id
         public string ProductId { get; set; }
         
-        public string AssetType { get; set; }
+        public string AssetTypeId { get; set; }
+        public AssetTypeEntity AssetType { get; set; }
         
         public string CategoryId { get; set; }
         
@@ -51,7 +52,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 
         public string Tags { get; set; }
 
-        public string TickFormula { get; set; }
+        public string TickFormulaId { get; set; }
+        
+        public TickFormulaEntity TickFormula { get; set; }
 
         // underlying primary id
         public string UnderlyingMdsCode { get; set; }

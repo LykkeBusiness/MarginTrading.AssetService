@@ -13,9 +13,10 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public ProductCategoryName(string category)
         {
-            _originalName = category;
+            var processedName = category.Trim().Trim('/');
+            _originalName = processedName;
             
-            NormalizedName = category
+            NormalizedName = processedName
                 .ToLower()
                 .Replace(' ', '_')
                 .Replace('/', '.');
@@ -25,9 +26,6 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public string GetOriginalNodeName(string normalizedCategoryId)
         {
-            // only have normalized id, so nothing to return
-            if (_originalName == NormalizedName) return null;
-
             return _originalNodeNames.TryGetValue(normalizedCategoryId, out var result) ? result : null;
         }
         

@@ -36,6 +36,9 @@ namespace MarginTrading.AssetService.Services
             string username,
             string correlationId)
         {
+            if(string.IsNullOrEmpty(category) || category.Contains('.')) 
+                return new Result<ProductCategory, ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.CategoryStringIsNotValid);
+            
             var categoryName = new ProductCategoryName(category);
 
             // early exit if the category already exists

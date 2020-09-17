@@ -13,9 +13,10 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public ProductCategoryName(string category)
         {
-            _originalName = category;
+            var processedName = category.Trim().Trim('/');
+            _originalName = processedName;
             
-            NormalizedName = category
+            NormalizedName = processedName
                 .ToLower()
                 .Replace(' ', '_')
                 .Replace('/', '.');

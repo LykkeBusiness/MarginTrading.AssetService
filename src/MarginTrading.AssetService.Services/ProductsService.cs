@@ -18,6 +18,8 @@ namespace MarginTrading.AssetService.Services
         private readonly IUnderlyingsApi _underlyingsApi;
         private readonly IProductCategoriesService _productCategoriesService;
         private readonly ICurrenciesService _currenciesService;
+        private readonly ITickFormulaRepository _tickFormulaRepository;
+        private readonly IAssetTypesRepository _assetTypesRepository;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
 
         public ProductsService(IProductsRepository repository,
@@ -25,14 +27,18 @@ namespace MarginTrading.AssetService.Services
             IUnderlyingsApi underlyingsApi,
             IProductCategoriesService productCategoriesService,
             IMarketSettingsRepository marketSettingsRepository,
-            ICurrenciesService currenciesService)
+            ICurrenciesService currenciesService,
+            ITickFormulaRepository tickFormulaRepository,
+            IAssetTypesRepository assetTypesRepository)
         {
             _repository = repository;
             _auditService = auditService;
             _underlyingsApi = underlyingsApi;
             _productCategoriesService = productCategoriesService;
             _marketSettingsRepository = marketSettingsRepository;
-            _currenciesService = currenciesService;            
+            _currenciesService = currenciesService;
+            _tickFormulaRepository = tickFormulaRepository;
+            _assetTypesRepository = assetTypesRepository;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
@@ -59,6 +65,18 @@ namespace MarginTrading.AssetService.Services
             if (!await _marketSettingsRepository.ExistsAsync(product.Market))
             {
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
+            }
+            
+            // tick formula check
+            if (!await _tickFormulaRepository.ExistsAsync(product.TickFormula))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.TickFormulaDoesNotExist);
+            }
+            
+            // asset type check
+            if (!await _assetTypesRepository.ExistsAsync(product.AssetType))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.AssetTypeDoesNotExist);
             }
 
             var result = await _repository.InsertAsync(product);
@@ -96,6 +114,18 @@ namespace MarginTrading.AssetService.Services
             if (!await _marketSettingsRepository.ExistsAsync(product.Market))
             {
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
+            }
+            
+            // tick formula check
+            if (!await _tickFormulaRepository.ExistsAsync(product.TickFormula))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.TickFormulaDoesNotExist);
+            }
+            
+            // asset type check
+            if (!await _assetTypesRepository.ExistsAsync(product.AssetType))
+            {
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.AssetTypeDoesNotExist);
             }
 
             var existing = await _repository.GetByIdAsync(product.ProductId);

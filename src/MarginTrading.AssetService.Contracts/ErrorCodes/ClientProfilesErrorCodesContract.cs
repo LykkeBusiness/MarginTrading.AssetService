@@ -18,5 +18,6 @@
         InvalidExecutionFeesRate,
         InvalidExecutionFeesCap,
         InvalidExecutionFeesFloor,
+        CannotDeleteAssetTypeAssignedToAnyProduct,
     }
 }

@@ -130,6 +130,9 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
+            
+            if(await _assetTypesRepository.AssignedToAnyProductAsync(id))
+                throw new CannotDeleteAssetTypeAssignedToAnyProductException();
 
             await _assetTypesRepository.DeleteAsync(id);
 

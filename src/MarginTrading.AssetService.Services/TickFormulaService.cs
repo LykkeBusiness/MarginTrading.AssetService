@@ -29,7 +29,8 @@ namespace MarginTrading.AssetService.Services
         public Task<IReadOnlyList<ITickFormula>> GetAllAsync()
             => _tickFormulaRepository.GetAllAsync();
 
-        public async Task<Result<TickFormulaErrorCodes>> AddAsync(ITickFormula model, string username, string correlationId)
+        public async Task<Result<TickFormulaErrorCodes>> AddAsync(ITickFormula model, string username,
+            string correlationId)
         {
             SetDefaultLadderAndTicksIfNeeded(model);
 
@@ -49,7 +50,8 @@ namespace MarginTrading.AssetService.Services
             return new Result<TickFormulaErrorCodes>();
         }
 
-        public async Task<Result<TickFormulaErrorCodes>> UpdateAsync(ITickFormula model, string username, string correlationId)
+        public async Task<Result<TickFormulaErrorCodes>> UpdateAsync(ITickFormula model, string username,
+            string correlationId)
         {
             var currentSettings = await _tickFormulaRepository.GetByIdAsync(model.Id);
 
@@ -81,31 +83,38 @@ namespace MarginTrading.AssetService.Services
             if (existing == null)
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.TickFormulaDoesNotExist);
 
-            await _tickFormulaRepository.DeleteAsync(id);
+            if (await _tickFormulaRepository.AssignedToAnyProductAsync(id))
+            {
+                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.CannotDeleteTickFormulaAssignedToAnyProduct);
+            }
+            var result = await _tickFormulaRepository.DeleteAsync(id);
+            if (result.IsSuccess)
+            {
+                await _auditService.TryAudit(correlationId, username, id, AuditDataType.TickFormula,
+                    oldStateJson: existing.ToJson());    
+            }
 
-            await _auditService.TryAudit(correlationId, username, id, AuditDataType.TickFormula,
-                oldStateJson: existing.ToJson());
-
-            return new Result<TickFormulaErrorCodes>();
+            return result;
         }
 
         private void SetDefaultLadderAndTicksIfNeeded(ITickFormula model)
         {
             if (model.PdlTicks != null && model.PdlTicks.Any() ||
-                model.PdlLadders != null && model.PdlLadders.Any()) 
+                model.PdlLadders != null && model.PdlLadders.Any())
                 return;
 
-            model.PdlTicks = new List<decimal> { 0.01M };
-            model.PdlLadders = new List<decimal> { 0 };
+            model.PdlTicks = new List<decimal> {0.01M};
+            model.PdlLadders = new List<decimal> {0};
         }
 
         private Result<TickFormulaErrorCodes> ValidateLaddersAndTicks(ITickFormula model)
         {
-            if(model.PdlLadders.Count != model.PdlTicks.Count)
+            if (model.PdlLadders.Count != model.PdlTicks.Count)
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersAndTicksMustHaveEqualLengths);
 
             if (model.PdlLadders.Any(x => x < 0))
-                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersValuesMustBeGreaterOrEqualToZero);
+                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes
+                    .PdlLaddersValuesMustBeGreaterOrEqualToZero);
 
             if (model.PdlTicks.Any(x => x <= 0))
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlTicksValuesMustBeGreaterThanZero);
@@ -113,8 +122,9 @@ namespace MarginTrading.AssetService.Services
             if (model.PdlLadders[0] != 0)
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersMustStartFromZero);
 
-            if(!model.PdlLadders.IsAscendingSortedWithNoDuplicates())
-                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlLaddersMustBeInAscendingOrderWithoutDuplicates);
+            if (!model.PdlLadders.IsAscendingSortedWithNoDuplicates())
+                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes
+                    .PdlLaddersMustBeInAscendingOrderWithoutDuplicates);
 
             if (!model.PdlTicks.IsAscendingSorted())
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlTicksMustBeInAscendingOrder);

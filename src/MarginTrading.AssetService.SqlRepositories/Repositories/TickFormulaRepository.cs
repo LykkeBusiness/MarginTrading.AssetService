@@ -113,5 +113,23 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 }
             }
         }
+
+        public async Task<bool> ExistsAsync(string id)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+            
+            var result = await context.TickFormulas.AnyAsync(x => x.Id == id);
+
+            return result;
+        }
+        
+        public async Task<bool> AssignedToAnyProductAsync(string id)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+            
+            var result = await context.Products.AnyAsync(x => x.TickFormulaId == id);
+
+            return result;
+        }
     }
 }

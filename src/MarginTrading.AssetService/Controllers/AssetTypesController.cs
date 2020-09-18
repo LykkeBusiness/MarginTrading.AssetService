@@ -177,6 +177,10 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.AssetTypeDoesNotExist;
             }
+            catch (CannotDeleteAssetTypeAssignedToAnyProductException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.CannotDeleteAssetTypeAssignedToAnyProduct;
+            }
 
             return response;
         }

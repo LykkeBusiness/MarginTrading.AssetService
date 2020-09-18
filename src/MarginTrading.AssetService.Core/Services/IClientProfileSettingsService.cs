@@ -10,5 +10,6 @@ namespace MarginTrading.AssetService.Core.Services
         Task UpdateAsync(ClientProfileSettings model, string username, string correlationId);
         Task<ClientProfileSettings> GetByIdAsync(string profileId, string typeId);
         Task<List<ClientProfileSettings>> GetAllAsync();
+        Task<bool> WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(RegulatorySettingsDto regulatorySettings);
     }
 }

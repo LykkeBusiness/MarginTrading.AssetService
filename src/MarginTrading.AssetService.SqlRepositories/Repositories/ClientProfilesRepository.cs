@@ -180,5 +180,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return result != null;
             }
         }
+
+        public async Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfiles.AnyAsync(x => x.RegulatoryProfileId == regulatoryProfileId);
+
+                return result;
+            }
+        }
     }
 }

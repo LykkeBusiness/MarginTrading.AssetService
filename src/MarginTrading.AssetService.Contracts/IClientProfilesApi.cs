@@ -49,5 +49,12 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Delete("/api/client-profiles/{id}")]
         Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteClientProfileAsync(string id, [Query] string username);
+
+        /// <summary>
+        /// Check if there is any client profile with this regulatory profile id
+        /// </summary>
+        /// <returns></returns>
+        [Get("/api/client-profiles/any/assigned-to-regulatory-profile/{regulatoryProfileId}")]
+        Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId);
     }
 }

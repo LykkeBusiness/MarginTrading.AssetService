@@ -119,13 +119,13 @@ namespace MarginTrading.AssetService.Services
             if (model.Open.TotalHours >= 24 || model.Close.TotalHours >= 24 || (model.Open > model.Close && model.Close != TimeSpan.Zero))
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
 
-            if (model.DividendsLong < 0 || model.DividendsLong > 1)
+            if (model.DividendsLong < 0 || model.DividendsLong > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
 
-            if (model.DividendsShort < 0 || model.DividendsShort > 1)
+            if (model.DividendsShort < 0 || model.DividendsShort > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsShortValue);
 
-            if (model.Dividends871M < 0 || model.Dividends871M > 1)
+            if (model.Dividends871M < 0 || model.Dividends871M > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
 
             if (currentMarketSettings == null) 

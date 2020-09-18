@@ -36,6 +36,22 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
+        /// Check if changes in regulatory settings will violate constraints for any entity
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("will-violate-regulation-constraint")]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        public async Task<bool> WillViolateRegulationConstraintAsync([FromQuery] CheckRegulationConstraintViolationRequest request)
+        {
+            var model =
+                _convertService.Convert<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>(request);
+
+            var response = await _clientProfileSettingsService.WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(model);
+
+            return response;
+        }
+
+        /// <summary>
         /// Get client profile settings by ids
         /// </summary>
         /// <returns></returns>

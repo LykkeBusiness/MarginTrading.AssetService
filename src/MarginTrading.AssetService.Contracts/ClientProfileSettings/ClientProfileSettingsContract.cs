@@ -43,5 +43,13 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         /// Sets the availability of asset type for trading
         /// </summary>
         public bool IsAvailable { get; set; }
+        /// <summary>
+        /// Id of the regulatory profile of the client profile
+        /// </summary>
+        public string RegulatoryProfileId { get; set; }
+        /// <summary>
+        /// Id of the regulatory type of the asset type
+        /// </summary>
+        public string RegulatoryTypeId { get; set; }
     }
 }

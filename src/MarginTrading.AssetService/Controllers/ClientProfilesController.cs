@@ -36,6 +36,19 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
+        /// Check if there is any client profile with this regulatory profile id
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("any/assigned-to-regulatory-profile/{regulatoryProfileId}")]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        public async Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync([FromRoute][Required] string regulatoryProfileId)
+        {
+            var response = await _regulatoryProfilesService.IsRegulatoryProfileAssignedToAnyClientProfileAsync(regulatoryProfileId);
+
+            return response;
+        }
+
+        /// <summary>
         /// Get client profile by id
         /// </summary>
         /// <returns></returns>
@@ -108,6 +121,14 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulatoryProfileInMdmIsMissing;
             }
+            catch (RegulatorySettingsDoNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulatorySettingsAreMissing;
+            }
+            catch (RegulationConstraintViolationException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
+            }
 
             return response;
         }
@@ -149,6 +170,14 @@ namespace MarginTrading.AssetService.Controllers
             catch (RegulatoryProfileDoesNotExistException)
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulatoryProfileInMdmIsMissing;
+            }
+            catch (RegulatorySettingsDoNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulatorySettingsAreMissing;
+            }
+            catch (RegulationConstraintViolationException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
             }
 
             return response;

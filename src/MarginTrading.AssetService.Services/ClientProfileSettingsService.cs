@@ -46,7 +46,7 @@ namespace MarginTrading.AssetService.Services
             if(model.IsAvailable && !regulatorySettings.RegulatorySettings.IsAvailable)
                 throw new CannotSetToAvailableException();
 
-            if(model.Margin > 1 || model.Margin < regulatorySettings.RegulatorySettings.MarginMinPercent / 100M)
+            if(model.Margin > 100 || model.Margin < regulatorySettings.RegulatorySettings.MarginMinPercent)
                 throw new InvalidMarginValueException();
 
             if (model.OnBehalfFee < 0)
@@ -74,5 +74,10 @@ namespace MarginTrading.AssetService.Services
 
         public Task<List<ClientProfileSettings>> GetAllAsync()
             => _regulatorySettingsRepository.GetAllAsync(null, null);
+
+        public Task<bool> WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(
+            RegulatorySettingsDto regulatorySettings)
+            => _regulatorySettingsRepository.WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(
+                regulatorySettings);
     }
 }

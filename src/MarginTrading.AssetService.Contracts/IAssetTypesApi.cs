@@ -49,5 +49,12 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Delete("/api/asset-types/{id}")]
         Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> DeleteAssetTypeAsync(string id, [Query] string username);
+
+        /// <summary>
+        /// Check if there is any asset type with this regulatory type id
+        /// </summary>
+        /// <returns></returns>
+        [Get("/api/asset-types/any/assigned-to-regulatory-type/{regulatoryTypeId}")]
+        Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync(string regulatoryTypeId);
     }
 }

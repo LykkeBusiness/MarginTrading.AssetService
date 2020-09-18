@@ -35,5 +35,12 @@ namespace MarginTrading.AssetService.Contracts
         [Put("/api/client-profile-settings/profile/{profileId}/type/{typeId}")]
         Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileSettingsAsync(
             [Body] UpdateClientProfileSettingsRequest request, string profileId, string typeId);
+
+        /// <summary>
+        /// Check if changes in regulatory settings will violate constraints for any entity
+        /// </summary>
+        /// <returns></returns>
+        [Get("/api/client-profile-settings/will-violate-regulation-constraint")]
+        Task<bool> WillViolateRegulationConstraintAsync([Query] CheckRegulationConstraintViolationRequest request);
     }
 }

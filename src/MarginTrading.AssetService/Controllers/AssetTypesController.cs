@@ -36,6 +36,19 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
+        /// Check if there is any asset type with this regulatory type id
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("any/assigned-to-regulatory-type/{regulatoryTypeId}")]
+        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
+        public async Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync([FromRoute][Required] string regulatoryTypeId)
+        {
+            var response = await _assetTypesService.IsRegulatoryTypeAssignedToAnyAssetTypeAsync(regulatoryTypeId);
+
+            return response;
+        }
+
+        /// <summary>
         /// Get asset type by id
         /// </summary>
         /// <returns></returns>
@@ -108,7 +121,14 @@ namespace MarginTrading.AssetService.Controllers
             catch (RegulatoryTypeDoesNotExistException)
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulatoryTypeInMdmIsMissing;
-
+            }
+            catch (RegulatorySettingsDoNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulatorySettingsAreMissing;
+            }
+            catch (RegulationConstraintViolationException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
             }
 
             return response;
@@ -151,7 +171,14 @@ namespace MarginTrading.AssetService.Controllers
             catch (RegulatoryTypeDoesNotExistException)
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulatoryTypeInMdmIsMissing;
-
+            }
+            catch (RegulatorySettingsDoNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulatorySettingsAreMissing;
+            }
+            catch (RegulationConstraintViolationException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
             }
 
             return response;

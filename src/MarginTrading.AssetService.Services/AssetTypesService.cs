@@ -6,6 +6,7 @@ using Common;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -73,6 +74,11 @@ namespace MarginTrading.AssetService.Services
                 foreach (var clientProfileSetting in clientProfileSettings)
                 {
                     clientProfileSetting.AssetTypeId = model.Id;
+
+                    var regulatorySettings = await _regulatorySettingsApi.GetRegulatorySettingsByIdsAsync(
+                        clientProfileSetting.RegulatoryProfileId, model.RegulatoryTypeId);
+
+                    ValidateRegulatoryConstraint(regulatorySettings, clientProfileSetting);
                 }
             }
             else
@@ -90,7 +96,7 @@ namespace MarginTrading.AssetService.Services
                     {
                         AssetTypeId = model.Id,
                         ClientProfileId = clientProfile.Id,
-                        Margin = regulatorySettings.MarginMinPercent / 100M,
+                        Margin = regulatorySettings.MarginMinPercent,
                         IsAvailable = regulatorySettings.IsAvailable,
                     });
                 }
@@ -117,6 +123,17 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
+
+            var clientProfileSettings = await
+                _clientProfileSettingsRepository.GetAllAsync(null, model.Id);
+
+            foreach (var setting in clientProfileSettings)
+            {
+                var regulatorySettings = await _regulatorySettingsApi.GetRegulatorySettingsByIdsAsync(
+                    setting.RegulatoryProfileId, model.RegulatoryTypeId);
+
+                ValidateRegulatoryConstraint(regulatorySettings, setting);
+            }
 
             await _assetTypesRepository.UpdateAsync(model);
 
@@ -146,6 +163,9 @@ namespace MarginTrading.AssetService.Services
         public Task<IReadOnlyList<AssetType>> GetAllAsync()
             => _assetTypesRepository.GetAllAsync();
 
+        public Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync(string regulatoryTypeId)
+            => _assetTypesRepository.IsRegulatoryTypeAssignedToAnyAssetTypeAsync(regulatoryTypeId);
+
         private async Task ValidateRegulatoryType(string regulatoryTypeId, string regulationId)
         {
             var regulatoryTypeResponse =
@@ -154,6 +174,17 @@ namespace MarginTrading.AssetService.Services
             if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
                 !regulatoryTypeResponse.RegulatoryType.RegulationId.Equals(regulationId, StringComparison.InvariantCultureIgnoreCase))
                 throw new RegulatoryTypeDoesNotExistException();
+        }
+
+        private static void ValidateRegulatoryConstraint(GetRegulatorySettingsByIdsResponse regulatorySettings,
+            ClientProfileSettings setting)
+        {
+            if (regulatorySettings.ErrorCode != RegulationsErrorCodesContract.None)
+                throw new RegulatorySettingsDoNotExistException();
+
+            if (!regulatorySettings.RegulatorySettings.IsAvailable && setting.IsAvailable ||
+                regulatorySettings.RegulatorySettings.MarginMinPercent > setting.Margin)
+                throw new RegulationConstraintViolationException();
         }
     }
 }

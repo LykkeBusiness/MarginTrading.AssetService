@@ -12,5 +12,6 @@ namespace MarginTrading.AssetService.Core.Services
         Task DeleteAsync(string id, string username, string correlationId);
         Task<AssetType> GetByIdAsync(string id);
         Task<IReadOnlyList<AssetType>> GetAllAsync();
+        Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync(string regulatoryTypeId);
     }
 }

@@ -133,10 +133,10 @@ namespace MarginTrading.AssetService.Services
 
             //This is the current day taking into account the timezone
             var currentDay = DateTime.UtcNow.Add(TZConvert.GetTimeZoneInfo(currentMarketSettings.Timezone).BaseUtcOffset);
+            var newHolidays = model.Holidays.Select(x => x.Date.Date).Except(currentMarketSettings.Holidays);
 
             //Validate if we try to add holiday for already started trading day
-            if (model.Holidays.Select(x => x.Date.Date).Contains(currentDay.Date) &&
-                currentMarketSettings.Open <= currentDay.TimeOfDay &&
+            if (newHolidays.Contains(currentDay.Date) && currentMarketSettings.Open <= currentDay.TimeOfDay &&
                 //Close will be Zero when it is set to 00h next day
                 (currentMarketSettings.Close >= currentDay.TimeOfDay || model.Close == TimeSpan.Zero))
             {

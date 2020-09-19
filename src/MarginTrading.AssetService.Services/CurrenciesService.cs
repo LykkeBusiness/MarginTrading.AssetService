@@ -75,6 +75,9 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
+                var productsExist = await _currenciesRepository.CurrencyHasProductsAsync(id);
+                if(productsExist) return new Result<CurrenciesErrorCodes>(CurrenciesErrorCodes.CannotDeleteCurrencyWithAttachedProducts);
+                
                 var result = await _currenciesRepository.DeleteAsync(id, existing.Value.Timestamp);
 
                 if (result.IsSuccess)

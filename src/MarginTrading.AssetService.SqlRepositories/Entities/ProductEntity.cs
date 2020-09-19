@@ -62,6 +62,18 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 
         public decimal OvernightMarginMultiplier { get; set; }
         
+        public string TradingCurrencyId { get; set;}
+        
+        public CurrencyEntity TradingCurrency { get; set; }
+        
+        public bool IsSuspended { get; set; }
+        
+        public bool IsFrozen { get; set; }
+        
+        public string FreezeInfo { get; set; }
+        
+        public bool IsDiscontinued { get; set; }
+        
         public byte[] Timestamp { get; set; }
     }
 }

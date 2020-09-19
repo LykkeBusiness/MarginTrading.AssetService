@@ -9,5 +9,7 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotCreateCategory,
         CannotCreateProductInNonLeafCategory,
         MarketSettingsDoNotExist,
+        CurrencyDoesNotExist,
+        CanOnlyCreateOneProductPerUnderlying,        
     }
 }

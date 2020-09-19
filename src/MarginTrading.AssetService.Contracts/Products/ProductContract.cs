@@ -61,5 +61,15 @@ namespace MarginTrading.AssetService.Contracts.Products
         public int Parity { get; set; }
 
         public decimal OvernightMarginMultiplier { get; set; }
+
+        public string TradingCurrency { get; set;}
+
+        public bool IsSuspended { get; set; }
+        
+        public bool IsFrozen { get; set; }
+        
+        public string FreezeInfo { get; set; }
+        
+        public bool IsDiscontinued { get; set; }
     }
 }

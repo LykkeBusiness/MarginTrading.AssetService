@@ -143,6 +143,17 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<bool> UnderlyingHasOnlyOneProduct(string mdsCode, string productId)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+
+            var result = await context.Products
+                .AnyAsync(p => p.UnderlyingMdsCode == mdsCode 
+                               && p.ProductId != productId);
+
+            return !result;
+        }
+
         private static ProductEntity ToEntity(Product product)
         {
             var result = new ProductEntity()
@@ -174,6 +185,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 ForceId = product.ForceId,
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
+                TradingCurrencyId = product.TradingCurrency,
+                IsSuspended =  product.IsSuspended,
+                IsFrozen = product.IsFrozen,
+                FreezeInfo = product.FreezeInfo,
+                IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };
 
@@ -211,6 +227,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 ForceId = product.ForceId,
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
+                TradingCurrency = product.TradingCurrencyId,
+                IsSuspended =  product.IsSuspended,
+                IsFrozen = product.IsFrozen,
+                FreezeInfo = product.FreezeInfo,
+                IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };
 

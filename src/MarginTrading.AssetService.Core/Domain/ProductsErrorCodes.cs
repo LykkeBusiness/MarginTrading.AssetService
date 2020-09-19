@@ -9,5 +9,7 @@ namespace MarginTrading.AssetService.Core.Domain
         CannotCreateCategory,
         CannotCreateProductInNonLeafCategory,
         MarketSettingsDoNotExist,
+        CurrencyDoesNotExist,
+        CanOnlyCreateOneProductPerUnderlying,        
     }
 }

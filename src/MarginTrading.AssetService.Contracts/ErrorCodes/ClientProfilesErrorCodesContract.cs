@@ -19,5 +19,6 @@
         InvalidExecutionFeesCap,
         InvalidExecutionFeesFloor,
         RegulationConstraintViolation,
+        CannotDeleteAssetTypeAssignedToAnyProduct,
     }
 }

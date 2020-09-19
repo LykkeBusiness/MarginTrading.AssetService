@@ -30,10 +30,22 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
                 
             builder.HasOne(x => x.Market)
                 .WithMany()
+                .IsRequired()
                 .HasForeignKey(x => x.MarketId);
+            
+            builder.HasOne(x => x.AssetType)
+                .WithMany()
+                .HasForeignKey(x => x.AssetTypeId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            builder.HasOne(x => x.TickFormula)
+                .WithMany()
+                .HasForeignKey(x => x.TickFormulaId)
+                .IsRequired()
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.Property(x => x.ProductId).HasMaxLength(MaxLength);
-            builder.Property(x => x.AssetType).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.Comments).HasMaxLength(MaxLength);
             builder.Property(x => x.ContractSize).HasMaxLength(MaxLength);
             builder.Property(x => x.IsinLong).HasMaxLength(MaxLength).IsRequired();
@@ -46,7 +58,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.PublicationRic).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.SettlementCurrency).HasMaxLength(MaxLength);
             builder.Property(x => x.Tags).HasMaxLength(MaxLength);
-            builder.Property(x => x.TickFormula).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.UnderlyingMdsCode).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.ForceId).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.TradingCurrencyId).HasMaxLength(100).IsRequired();

@@ -159,7 +159,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             var result = new ProductEntity()
             {
                 ProductId = product.ProductId,
-                AssetType = product.AssetType,
+                AssetTypeId = product.AssetType,
                 CategoryId = product.Category,
                 Comments = product.Comments,
                 ContractSize = product.ContractSize,
@@ -180,7 +180,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 SettlementCurrency = product.SettlementCurrency,
                 ShortPosition = product.ShortPosition,
                 Tags = product.Tags,
-                TickFormula = product.TickFormula,
+                TickFormulaId = product.TickFormula,
                 UnderlyingMdsCode = product.UnderlyingMdsCode,
                 ForceId = product.ForceId,
                 Parity = product.Parity,
@@ -201,7 +201,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             var result = new Product()
             {
                 ProductId = product.ProductId,
-                AssetType = product.AssetType,
+                AssetType = product.AssetTypeId,
                 Category = product.CategoryId,
                 Comments = product.Comments,
                 ContractSize = product.ContractSize,
@@ -222,7 +222,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 SettlementCurrency = product.SettlementCurrency,
                 ShortPosition = product.ShortPosition,
                 Tags = product.Tags,
-                TickFormula = product.TickFormula,
+                TickFormula = product.TickFormulaId,
                 UnderlyingMdsCode = product.UnderlyingMdsCode,
                 ForceId = product.ForceId,
                 Parity = product.Parity,

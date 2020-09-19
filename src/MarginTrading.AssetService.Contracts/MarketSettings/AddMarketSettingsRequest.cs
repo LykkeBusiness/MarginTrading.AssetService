@@ -13,6 +13,7 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         /// Id
         /// </summary>
         [Required]
+        [MaxLength(100)]
         public string Id { get; set; }
         /// <summary>
         /// Name

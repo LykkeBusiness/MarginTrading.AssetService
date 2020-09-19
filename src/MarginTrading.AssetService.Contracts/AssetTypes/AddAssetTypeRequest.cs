@@ -23,6 +23,7 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// Id of the asset type
         /// </summary>
         [Required]
+        [MaxLength(100)]
         public string Id { get; set; }
 
         /// <summary>

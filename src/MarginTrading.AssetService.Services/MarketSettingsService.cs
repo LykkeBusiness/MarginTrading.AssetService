@@ -96,6 +96,9 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
+            
+            if(await _marketSettingsRepository.MarketSettingsAssignedToAnyProductAsync(id))
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.CannotDeleteMarketSettingsAssignedToAnyProduct);
 
             var deleteResult = await _marketSettingsRepository.DeleteAsync(id);
 

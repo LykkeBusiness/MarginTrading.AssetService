@@ -42,5 +42,8 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         [Get("/api/products")]
         Task<GetProductsResponse> GetAllAsync([Query] int skip = default, [Query] int take = 20);
+
+        [Put("/api/products/{productId}/frozen-status")]
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request);
     }
 }

@@ -179,6 +179,24 @@ namespace MarginTrading.AssetService.Services
 
             return existing.ToResultWithoutValue();
         }
+        
+        public async Task<Result<ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
+            ProductFreezeInfo freezeInfo, string userName, string correlationId)
+        {
+            var existing = await _repository.GetByIdAsync(productId);
+            if (existing.IsFailed) return existing.ToResultWithoutValue();
+
+            var result =
+                await _repository.ChangeFrozenStatus(productId, isFrozen, existing.Value.Timestamp, freezeInfo);
+
+            if (result.IsSuccess)
+            {
+                await _auditService.TryAudit(correlationId, userName, productId, AuditDataType.Product,
+                    result.Value.ToJson(), existing.Value.ToJson());
+            }
+
+            return result.ToResultWithoutValue();
+        }
 
         public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
             => _repository.GetByIdAsync(productId);

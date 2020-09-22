@@ -101,7 +101,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         public bool IsFrozen { get; set; }
         
         [MessagePack.Key(30)]
-        public string FreezeInfo { get; set; }
+        public ProductFreezeInfoContract FreezeInfo { get; set; }
         
         [MessagePack.Key(31)]
         public bool IsDiscontinued { get; set; }

@@ -131,5 +131,27 @@ namespace MarginTrading.AssetService.Controllers
 
             return response;
         }
+
+        [HttpPut("{productId}/frozen-status")]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request)
+        {
+            var freezeInfo = _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeInfo);
+            
+            var correlationId = this.TryGetCorrelationId();
+
+            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, freezeInfo, request.UserName, correlationId);
+
+            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+
+            if (result.IsFailed)
+            {
+                response.ErrorCode =
+                    _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                        result.Error.GetValueOrDefault());
+            }
+
+            return response;
+        }
     }
 }

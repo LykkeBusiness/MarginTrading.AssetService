@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
-using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -20,20 +18,17 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsMessageSender _cqrsMessageSender;
-        private readonly IConvertService _convertService;
 
         public ClientProfileSettingsService(
             IClientProfileSettingsRepository regulatorySettingsRepository,
             IAuditService auditService,
             IRegulatorySettingsApi regulatorySettingsApi,
-            ICqrsMessageSender cqrsMessageSender,
-            IConvertService convertService)
+            ICqrsMessageSender cqrsMessageSender)
         {
             _regulatorySettingsRepository = regulatorySettingsRepository;
             _auditService = auditService;
             _regulatorySettingsApi = regulatorySettingsApi;
             _cqrsMessageSender = cqrsMessageSender;
-            _convertService = convertService;
         }
 
         public async Task UpdateAsync(ClientProfileSettings model, string username, string correlationId)
@@ -48,13 +43,13 @@ namespace MarginTrading.AssetService.Services
                     existing.RegulatoryTypeId);
 
             //This should not happen when we handle deleting of RegulatorySettings in MDM
-            if(regulatorySettings.ErrorCode == RegulationsErrorCodesContract.RegulatorySettingsDoNotExist)
+            if (regulatorySettings.ErrorCode == RegulationsErrorCodesContract.RegulatorySettingsDoNotExist)
                 throw new RegulatorySettingsDoNotExistException();
 
-            if(model.IsAvailable && !regulatorySettings.RegulatorySettings.IsAvailable)
+            if (model.IsAvailable && !regulatorySettings.RegulatorySettings.IsAvailable)
                 throw new CannotSetToAvailableException();
 
-            if(model.Margin > 100 || model.Margin < regulatorySettings.RegulatorySettings.MarginMinPercent)
+            if (model.Margin > 100 || model.Margin < regulatorySettings.RegulatorySettings.MarginMinPercent)
                 throw new InvalidMarginValueException();
 
             if (model.OnBehalfFee < 0)
@@ -75,9 +70,10 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, referenceId, AuditDataType.ClientProfileSettings,
                 model.ToJson(), existing.ToJson());
-            
-            await PublishClientProfileSettingsChangedEvent(existing, model, username, correlationId,
-                ChangeType.Edition);
+
+            await _cqrsMessageSender
+                .SendEntityEditedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                    ClientProfileSettingsChangedEvent>(existing, model, username, correlationId);
         }
 
         public Task<ClientProfileSettings> GetByIdAsync(string profileId, string typeId)
@@ -90,25 +86,5 @@ namespace MarginTrading.AssetService.Services
             RegulatorySettingsDto regulatorySettings)
             => _regulatorySettingsRepository.WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(
                 regulatorySettings);
-        
-        private async Task PublishClientProfileSettingsChangedEvent(ClientProfileSettings oldClientProfileSettings,
-            ClientProfileSettings newClientProfileSettings,
-            string username, string correlationId, ChangeType changeType)
-        {
-            await _cqrsMessageSender.SendEvent(new ClientProfileSettingsChangedEvent()
-            {
-                Username = username,
-                ChangeType = changeType,
-                CorrelationId = correlationId,
-                EventId = Guid.NewGuid().ToString(),
-                Timestamp = DateTime.UtcNow,
-                OldClientProfileSettings =
-                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(
-                        oldClientProfileSettings),
-                NewClientProfileSettings =
-                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(
-                        newClientProfileSettings),
-            });
-        }
     }
 }

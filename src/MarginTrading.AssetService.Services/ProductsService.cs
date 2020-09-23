@@ -1,11 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
-using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
@@ -24,7 +22,6 @@ namespace MarginTrading.AssetService.Services
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAssetTypesRepository _assetTypesRepository;
         private readonly ICqrsMessageSender _cqrsMessageSender;
-        private readonly IConvertService _convertService;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
 
         public ProductsService(IProductsRepository repository,
@@ -35,8 +32,7 @@ namespace MarginTrading.AssetService.Services
             ICurrenciesService currenciesService,
             ITickFormulaRepository tickFormulaRepository,
             IAssetTypesRepository assetTypesRepository,
-            ICqrsMessageSender cqrsMessageSender,
-            IConvertService convertService)
+            ICqrsMessageSender cqrsMessageSender)
         {
             _repository = repository;
             _auditService = auditService;
@@ -47,7 +43,6 @@ namespace MarginTrading.AssetService.Services
             _tickFormulaRepository = tickFormulaRepository;
             _assetTypesRepository = assetTypesRepository;
             _cqrsMessageSender = cqrsMessageSender;
-            _convertService = convertService;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
@@ -95,7 +90,8 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                     product.ToJson());
-                await PublishProductChangedEvent(null, product, username, correlationId, ChangeType.Creation);
+                await _cqrsMessageSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product,
+                    username, correlationId);
             }
 
             return result;
@@ -151,7 +147,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
-                    await PublishProductChangedEvent(existing.Value, product, username, correlationId, ChangeType.Edition);
+                    await _cqrsMessageSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product,
+                        username, correlationId);
                 }
 
                 return result;
@@ -173,7 +170,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, productId, AuditDataType.Product,
                         oldStateJson: existing.Value.ToJson());
-                    await PublishProductChangedEvent(existing.Value, null, username, correlationId, ChangeType.Deletion);
+                    await _cqrsMessageSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value,
+                        username, correlationId);
                 }
 
                 return result;
@@ -230,21 +228,6 @@ namespace MarginTrading.AssetService.Services
 
             product.Category = category.Id;
             return new Result<ProductsErrorCodes>();
-        }
-
-        private async Task PublishProductChangedEvent(Product oldProduct, Product newProduct,
-            string username, string correlationId, ChangeType changeType)
-        {
-            await _cqrsMessageSender.SendEvent(new ProductChangedEvent()
-            {
-                Username = username,
-                ChangeType = changeType,
-                CorrelationId = correlationId,
-                EventId = Guid.NewGuid().ToString(),
-                Timestamp = DateTime.UtcNow,
-                OldProduct = _convertService.Convert<Product, ProductContract>(oldProduct),
-                NewProduct = _convertService.Convert<Product, ProductContract>(newProduct),
-            });
         }
     }
 }

@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Lykke.Common.MsSql;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
-using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -27,7 +25,6 @@ namespace MarginTrading.AssetService.Services
         private readonly IRegulatoryTypesApi _regulatoryTypesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsMessageSender _cqrsMessageSender;
-        private readonly IConvertService _convertService;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -39,7 +36,6 @@ namespace MarginTrading.AssetService.Services
             IRegulatoryTypesApi regulatoryTypesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
             ICqrsMessageSender cqrsMessageSender,
-            IConvertService convertService,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -50,7 +46,6 @@ namespace MarginTrading.AssetService.Services
             _regulatoryTypesApi = regulatoryTypesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
             _cqrsMessageSender = cqrsMessageSender;
-            _convertService = convertService;
             _brokerId = brokerId;
         }
 
@@ -116,8 +111,9 @@ namespace MarginTrading.AssetService.Services
                 model.ToJson());
             foreach (var profileSettings in clientProfileSettings)
             {
-                await PublishClientProfileSettingsChangedEvent(null, profileSettings, username, correlationId,
-                    ChangeType.Creation);
+                await _cqrsMessageSender
+                    .SendEntityCreatedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
             }
         }
 
@@ -173,8 +169,9 @@ namespace MarginTrading.AssetService.Services
                 oldStateJson: existing.ToJson());
             foreach (var profileSettings in clientProfileSettings)
             {
-                await PublishClientProfileSettingsChangedEvent(profileSettings, null , username, correlationId,
-                    ChangeType.Deletion);
+                await _cqrsMessageSender
+                    .SendEntityDeletedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
             }
         }
 
@@ -206,26 +203,6 @@ namespace MarginTrading.AssetService.Services
             if (!regulatorySettings.RegulatorySettings.IsAvailable && setting.IsAvailable ||
                 regulatorySettings.RegulatorySettings.MarginMinPercent > setting.Margin)
                 throw new RegulationConstraintViolationException();
-        }
-        
-        private async Task PublishClientProfileSettingsChangedEvent(ClientProfileSettings oldClientProfileSettings,
-            ClientProfileSettings newClientProfileSettings,
-            string username, string correlationId, ChangeType changeType)
-        {
-            await _cqrsMessageSender.SendEvent(new ClientProfileSettingsChangedEvent()
-            {
-                Username = username,
-                ChangeType = changeType,
-                CorrelationId = correlationId,
-                EventId = Guid.NewGuid().ToString(),
-                Timestamp = DateTime.UtcNow,
-                OldClientProfileSettings =
-                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(
-                        oldClientProfileSettings),
-                NewClientProfileSettings =
-                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(
-                        newClientProfileSettings),
-            });
         }
     }
 }

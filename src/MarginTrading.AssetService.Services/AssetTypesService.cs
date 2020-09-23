@@ -6,6 +6,7 @@ using Common;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
+using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
@@ -87,7 +88,8 @@ namespace MarginTrading.AssetService.Services
             else
             {
                 clientProfileSettings = new List<ClientProfileSettings>();
-                var allRegulatorySettings = await _regulatorySettingsApi.GetRegulatorySettingsByRegulationAsync(regulationId);
+                var allRegulatorySettings =
+                    await _regulatorySettingsApi.GetRegulatorySettingsByRegulationAsync(regulationId);
                 var clientProfiles = await _clientProfilesRepository.GetAllAsync();
 
                 foreach (var clientProfile in clientProfiles)
@@ -109,6 +111,9 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson());
+
+            await _cqrsMessageSender.SendEntityCreatedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(model,
+                username, correlationId);
             foreach (var profileSettings in clientProfileSettings)
             {
                 await _cqrsMessageSender
@@ -148,6 +153,9 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson(), existing.ToJson());
+
+            await _cqrsMessageSender.SendEntityEditedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(
+                existing, model, username, correlationId);
         }
 
         public async Task DeleteAsync(string id, string username, string correlationId)
@@ -156,10 +164,10 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
-            
-            if(await _assetTypesRepository.AssignedToAnyProductAsync(id))
+
+            if (await _assetTypesRepository.AssignedToAnyProductAsync(id))
                 throw new CannotDeleteAssetTypeAssignedToAnyProductException();
-            
+
             var clientProfileSettings = await
                 _clientProfileSettingsRepository.GetAllAsync(id, null);
 
@@ -167,6 +175,9 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.AssetType,
                 oldStateJson: existing.ToJson());
+
+            await _cqrsMessageSender.SendEntityDeletedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(
+                existing, username, correlationId);
             foreach (var profileSettings in clientProfileSettings)
             {
                 await _cqrsMessageSender
@@ -190,7 +201,8 @@ namespace MarginTrading.AssetService.Services
                 await _regulatoryTypesApi.GetRegulatoryTypeByIdAsync(regulatoryTypeId);
 
             if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
-                !regulatoryTypeResponse.RegulatoryType.RegulationId.Equals(regulationId, StringComparison.InvariantCultureIgnoreCase))
+                !regulatoryTypeResponse.RegulatoryType.RegulationId.Equals(regulationId,
+                    StringComparison.InvariantCultureIgnoreCase))
                 throw new RegulatoryTypeDoesNotExistException();
         }
 

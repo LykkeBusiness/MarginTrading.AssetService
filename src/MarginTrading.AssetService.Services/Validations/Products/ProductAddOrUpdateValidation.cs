@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
@@ -8,11 +9,9 @@ using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.AssetService.Services.Validations.Products
 {
-    public class ProductAddOrUpdateValidation
+    [UsedImplicitly]
+    public class ProductAddOrUpdateValidation : ValidationChainEngine<Product, ProductsErrorCodes>
     {
-        private readonly ValidationChainEngine<Product, ProductsErrorCodes> _engine =
-            new ValidationChainEngine<Product, ProductsErrorCodes>();
-
         private readonly IUnderlyingsApi _underlyingsApi;
         private readonly ICurrenciesService _currenciesService;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
@@ -37,19 +36,15 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             _tickFormulaRepository = tickFormulaRepository;
             _assetTypesRepository = assetTypesRepository;
 
-            _engine.AddValidation(UnderlyingMustExist);
-            _engine.AddValidation(CurrencyMustExist);
-            _engine.AddValidation(MarketSettingsMustExist);
-            _engine.AddValidation(TickFormulaMustExist);
-            _engine.AddValidation(AssetTypeMustExist);
-            _engine.AddValidation(SingleProductPerUnderlying);
-            _engine.AddValidation(SetCategoryIdAsync);
-            _engine.AddValidation(SetExistingFields);
+            AddValidation(UnderlyingMustExist);
+            AddValidation(CurrencyMustExist);
+            AddValidation(MarketSettingsMustExist);
+            AddValidation(TickFormulaMustExist);
+            AddValidation(AssetTypeMustExist);
+            AddValidation(SingleProductPerUnderlying);
+            AddValidation(SetCategoryIdAsync);
+            AddValidation(SetExistingFields);
         }
-
-        public Task<Result<Product, ProductsErrorCodes>> ValidateAllAsync(Product value, string userName,
-            string correlationId, Product existing = null)
-            => _engine.ValidateAllAsync(value, userName, correlationId, existing);
 
         private async Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,
             string correlationId, Product existing = null)

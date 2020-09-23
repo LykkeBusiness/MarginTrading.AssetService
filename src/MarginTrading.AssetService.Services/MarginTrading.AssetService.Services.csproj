@@ -11,6 +11,7 @@
     <PackageReference Include="JsonDiffPatch.Net" Version="2.2.0" />
     <PackageReference Include="Lykke.Cqrs" Version="9.0.1" />
     <PackageReference Include="Lykke.Common" Version="7.5.0" />
+    <PackageReference Include="Lykke.MarginTrading.CorporateActions.Contracts" Version="1.0.0" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.13.2" />
     <PackageReference Include="Lykke.SlackNotifications" Version="2.0.0" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="2.2.0" />

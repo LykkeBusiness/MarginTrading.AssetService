@@ -16,6 +16,7 @@ namespace MarginTrading.AssetService.Tests.Common
         [UsedImplicitly]
         public override void ConfigureContainer(ContainerBuilder builder)
         {
+            builder.RegisterModule(new TestCqrsModule());
             builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
             builder.RegisterModule(new TestMsSqlModule());
         }

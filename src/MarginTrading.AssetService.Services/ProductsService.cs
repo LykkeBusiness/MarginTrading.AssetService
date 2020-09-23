@@ -171,11 +171,11 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
             => _repository.GetByIdAsync(productId);
 
-        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync()
-            => _repository.GetAllAsync();
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
+            => _repository.GetAllAsync(mdsCodes, productIds);
 
-        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(int skip = default, int take = 20)
-            => _repository.GetByPageAsync(skip, take);
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds, int skip = default, int take = 20)
+            => _repository.GetByPageAsync(mdsCodes, productIds, skip, take);
 
         private async Task<Result<ProductsErrorCodes>> UnderlyingExistsAndSetTradingCurrencyAsync(Product product)
         {

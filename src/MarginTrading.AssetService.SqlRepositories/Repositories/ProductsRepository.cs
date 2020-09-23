@@ -109,11 +109,19 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync()
+        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entities = await context.Products
+                var query = context.Products.AsNoTracking();
+
+                if (mdsCodes != null && mdsCodes.Any())
+                    query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
+
+                if (productIds != null && productIds.Any())
+                    query = query.Where(x => productIds.Contains(x.ProductId));
+
+                var entities = await query
                     .OrderBy(u => u.Name)
                     .ToListAsync();
 
@@ -121,7 +129,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(int skip = default, int take = 20)
+        public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
+            string[] productIds, int skip = default, int take = 20)
         {
             skip = Math.Max(0, skip);
             take = take < 0 ? 20 : Math.Min(take, 100);
@@ -133,7 +142,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entities = await context.Products
+                var query = context.Products.AsNoTracking();
+
+                if (mdsCodes != null && mdsCodes.Any())
+                    query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
+
+                if (productIds != null && productIds.Any())
+                    query = query.Where(x => productIds.Contains(x.ProductId));
+
+                var entities = await query
                     .OrderBy(u => u.Name)
                     .Skip(skip)
                     .Take(take)

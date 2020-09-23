@@ -115,12 +115,12 @@ namespace MarginTrading.AssetService.Controllers
 
         [HttpGet]
         [ProducesResponseType(typeof(GetProductsResponse), (int) HttpStatusCode.OK)]
-        public async Task<GetProductsResponse> GetAllAsync(int skip = default, int take = 20)
+        public async Task<GetProductsResponse> GetAllAsync([FromQuery] GetProductsRequest request, int skip = default, int take = 20)
         {
             // if take == 0 return all rows
             var result = take == default
-                ? await _productsService.GetAllAsync()
-                : await _productsService.GetByPageAsync(skip, take);
+                ? await _productsService.GetAllAsync(request?.MdsCodes, request?.ProductIds)
+                : await _productsService.GetByPageAsync(request?.MdsCodes, request?.ProductIds, skip, take);
 
             var response = new GetProductsResponse
             {

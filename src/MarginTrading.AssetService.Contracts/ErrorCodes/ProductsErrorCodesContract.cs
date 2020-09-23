@@ -13,5 +13,8 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CanOnlyCreateOneProductPerUnderlying,
         TickFormulaDoesNotExist,
         AssetTypeDoesNotExist,
+        CanOnlySetFreezeInfoForFrozenProduct,
+        CannotFreezeDiscontinuedProduct,
+        CannotManuallyUnfreezeCorporateActionsFreeze,
     }
 }

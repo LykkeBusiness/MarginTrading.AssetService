@@ -1,4 +1,5 @@
 ﻿using Autofac;
+using CorporateActions.Contracts;
 using Lykke.HttpClientGenerator;
 using Lykke.SettingsReader;
 using Lykke.Snow.Mdm.Contracts.Api;
@@ -25,6 +26,8 @@ namespace MarginTrading.AssetService.Modules
             RegisterClientWithName<IRegulatorySettingsApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
             RegisterClientWithName<IBrokerSettingsApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
             RegisterClientWithName<IUnderlyingsApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
+            
+            RegisterClientWithName<ICorporateActionsApi>(builder, "CA", _appSettings.MarginTradingAssetService.CorporateActionsService);
         }
 
         private static void RegisterClientWithName<TApi>(ContainerBuilder builder, string name,

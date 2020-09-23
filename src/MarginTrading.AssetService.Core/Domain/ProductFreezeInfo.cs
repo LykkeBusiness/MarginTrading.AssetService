@@ -9,6 +9,11 @@ namespace MarginTrading.AssetService.Core.Domain
         public string Comment { get; set; }
         
         public DateTime? UnfreezeDate { get; set; }
+
+        public bool IsDefault => Comment == null &&
+                               Reason == ProductFreezeReason.Undefined &&
+                               UnfreezeDate == null; 
+       
     }
 
 }

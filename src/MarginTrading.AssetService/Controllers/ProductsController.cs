@@ -140,7 +140,15 @@ namespace MarginTrading.AssetService.Controllers
             
             var correlationId = this.TryGetCorrelationId();
 
-            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, freezeInfo, request.UserName, correlationId);
+            if (!request.IsFrozen && request.FreezeInfo != null)
+            {
+                return new ErrorCodeResponse<ProductsErrorCodesContract>()
+                {
+                    ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct,
+                }; 
+            }
+            
+            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.ForceFreezeIfAlreadyFrozen, freezeInfo, request.UserName, correlationId);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 

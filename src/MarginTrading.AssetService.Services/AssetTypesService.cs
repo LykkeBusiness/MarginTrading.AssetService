@@ -7,6 +7,8 @@ using Lykke.Common.MsSql;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
+using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -24,6 +26,8 @@ namespace MarginTrading.AssetService.Services
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly IRegulatoryTypesApi _regulatoryTypesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
+        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly IConvertService _convertService;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -34,6 +38,8 @@ namespace MarginTrading.AssetService.Services
             IBrokerSettingsApi brokerSettingsApi,
             IRegulatoryTypesApi regulatoryTypesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
+            ICqrsMessageSender cqrsMessageSender,
+            IConvertService convertService,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -43,6 +49,8 @@ namespace MarginTrading.AssetService.Services
             _brokerSettingsApi = brokerSettingsApi;
             _regulatoryTypesApi = regulatoryTypesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
+            _cqrsMessageSender = cqrsMessageSender;
+            _convertService = convertService;
             _brokerId = brokerId;
         }
 
@@ -106,6 +114,11 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson());
+            foreach (var profileSettings in clientProfileSettings)
+            {
+                await PublishClientProfileSettingsChangedEvent(null, profileSettings, username, correlationId,
+                    ChangeType.Creation);
+            }
         }
 
         public async Task UpdateAsync(AssetType model, string username, string correlationId)
@@ -150,11 +163,19 @@ namespace MarginTrading.AssetService.Services
             
             if(await _assetTypesRepository.AssignedToAnyProductAsync(id))
                 throw new CannotDeleteAssetTypeAssignedToAnyProductException();
+            
+            var clientProfileSettings = await
+                _clientProfileSettingsRepository.GetAllAsync(id, null);
 
             await _assetTypesRepository.DeleteAsync(id);
 
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.AssetType,
                 oldStateJson: existing.ToJson());
+            foreach (var profileSettings in clientProfileSettings)
+            {
+                await PublishClientProfileSettingsChangedEvent(profileSettings, null , username, correlationId,
+                    ChangeType.Deletion);
+            }
         }
 
         public Task<AssetType> GetByIdAsync(string id)
@@ -185,6 +206,26 @@ namespace MarginTrading.AssetService.Services
             if (!regulatorySettings.RegulatorySettings.IsAvailable && setting.IsAvailable ||
                 regulatorySettings.RegulatorySettings.MarginMinPercent > setting.Margin)
                 throw new RegulationConstraintViolationException();
+        }
+        
+        private async Task PublishClientProfileSettingsChangedEvent(ClientProfileSettings oldClientProfileSettings,
+            ClientProfileSettings newClientProfileSettings,
+            string username, string correlationId, ChangeType changeType)
+        {
+            await _cqrsMessageSender.SendEvent(new ClientProfileSettingsChangedEvent()
+            {
+                Username = username,
+                ChangeType = changeType,
+                CorrelationId = correlationId,
+                EventId = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.UtcNow,
+                OldClientProfileSettings =
+                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(
+                        oldClientProfileSettings),
+                NewClientProfileSettings =
+                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(
+                        newClientProfileSettings),
+            });
         }
     }
 }

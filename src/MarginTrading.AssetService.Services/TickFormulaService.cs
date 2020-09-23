@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Snow.Common.Model;
+using MarginTrading.AssetService.Contracts.Enums;
+using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Extensions;
 using MarginTrading.AssetService.Core.Services;
@@ -14,13 +17,19 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAuditService _auditService;
+        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly IConvertService _convertService;
 
         public TickFormulaService(
             ITickFormulaRepository tickFormulaRepository,
-            IAuditService auditService)
+            IAuditService auditService,
+            ICqrsMessageSender cqrsMessageSender,
+            IConvertService convertService)
         {
             _tickFormulaRepository = tickFormulaRepository;
             _auditService = auditService;
+            _cqrsMessageSender = cqrsMessageSender;
+            _convertService = convertService;
         }
 
         public Task<ITickFormula> GetByIdAsync(string id)
@@ -46,6 +55,7 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.TickFormula,
                 model.ToJson());
+            await PublishTickFormulaChangedEvent(null, model, username, correlationId, ChangeType.Creation);
 
             return new Result<TickFormulaErrorCodes>();
         }
@@ -72,6 +82,7 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, currentSettings.Id, AuditDataType.TickFormula,
                 model.ToJson(), currentSettings.ToJson());
+            await PublishTickFormulaChangedEvent(currentSettings, model, username, correlationId, ChangeType.Edition);
 
             return new Result<TickFormulaErrorCodes>();
         }
@@ -91,7 +102,8 @@ namespace MarginTrading.AssetService.Services
             if (result.IsSuccess)
             {
                 await _auditService.TryAudit(correlationId, username, id, AuditDataType.TickFormula,
-                    oldStateJson: existing.ToJson());    
+                    oldStateJson: existing.ToJson());  
+                await PublishTickFormulaChangedEvent(existing, null, username, correlationId, ChangeType.Deletion);
             }
 
             return result;
@@ -130,6 +142,26 @@ namespace MarginTrading.AssetService.Services
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlTicksMustBeInAscendingOrder);
 
             return new Result<TickFormulaErrorCodes>();
+        }
+        
+        private async Task PublishTickFormulaChangedEvent(ITickFormula oldTickFormula,
+            ITickFormula newTickFormula,
+            string username, string correlationId, ChangeType changeType)
+        {
+            await _cqrsMessageSender.SendEvent(new TickFormulaChangedEvent()
+            {
+                Username = username,
+                ChangeType = changeType,
+                CorrelationId = correlationId,
+                EventId = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.UtcNow,
+                OldTickFormula = 
+                    _convertService.Convert<ITickFormula, TickFormulaContract>(
+                        oldTickFormula),
+                NewTickFormula = 
+                    _convertService.Convert<ITickFormula, TickFormulaContract>(
+                        newTickFormula),
+            });
         }
     }
 }

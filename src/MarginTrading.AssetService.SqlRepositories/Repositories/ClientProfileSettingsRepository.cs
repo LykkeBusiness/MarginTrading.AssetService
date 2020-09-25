@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Lykke.Common.MsSql;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
@@ -97,6 +98,35 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     query = query.Where(x => x.AssetTypeId == assetTypeId);
 
                 var result = await query
+                    .Include(x => x.ClientProfile)
+                    .Include(x => x.AssetType)
+                    .Select(x => new ClientProfileSettings
+                    {
+                        ClientProfileId = x.ClientProfileId,
+                        AssetTypeId = x.AssetTypeId,
+                        Margin = x.Margin,
+                        IsAvailable = x.IsAvailable,
+                        OnBehalfFee = x.OnBehalfFee,
+                        ExecutionFeesRate = x.ExecutionFeesRate,
+                        ExecutionFeesFloor = x.ExecutionFeesFloor,
+                        ExecutionFeesCap = x.ExecutionFeesCap,
+                        FinancingFeesRate = x.FinancingFeesRate,
+                        RegulatoryProfileId = x.ClientProfile.RegulatoryProfileId,
+                        RegulatoryTypeId = x.AssetType.RegulatoryTypeId,
+                    })
+                    .ToListAsync();
+
+                return result;
+            }
+        }
+
+        public async Task<List<ClientProfileSettings>> GetAllByProfileAndMultipleAssetTypesAsync(string clientProfileId, IEnumerable<string> assetTypeIds)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .Where(x => x.ClientProfileId == clientProfileId)
+                    .Where(x => assetTypeIds.Contains(x.AssetTypeId))
                     .Include(x => x.ClientProfile)
                     .Include(x => x.AssetType)
                     .Select(x => new ClientProfileSettings

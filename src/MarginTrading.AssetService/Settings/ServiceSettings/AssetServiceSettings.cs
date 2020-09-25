@@ -42,6 +42,9 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public ServiceSettings MdmService { get; set; }
         public ServiceSettings CorporateActionsService { get; set; }
 
+        [Optional]
+        public DefaultTradingConditionsSettings TradingConditionsDefaults { get; set; } = new DefaultTradingConditionsSettings();
+
         public string BrokerId { get; set; }
     }
 }

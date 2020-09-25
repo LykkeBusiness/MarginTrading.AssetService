@@ -59,6 +59,8 @@ namespace MarginTrading.AssetService.Modules
             
             builder.RegisterInstance(_settings.CurrentValue.DefaultRateSettings).SingleInstance();
 
+            builder.RegisterInstance(_settings.CurrentValue.TradingConditionsDefaults).SingleInstance();
+
             builder.RegisterType<HealthService>().As<IHealthService>().SingleInstance();
 
             builder.RegisterType<StartupManager>().As<IStartupManager>();
@@ -132,6 +134,14 @@ namespace MarginTrading.AssetService.Modules
                 .Where(t => t.Name.EndsWith("Validation"))
                 .AsSelf();
 
+            builder.RegisterType<AssetPairService>()
+                .As<IAssetPairService>()
+                .SingleInstance();
+
+            builder.RegisterType<TradingConditionsService>()
+                .As<ITradingConditionsService>()
+                .SingleInstance();
+
             RegisterRepositories(builder);
 
             builder.Populate(_services);
@@ -159,7 +169,7 @@ namespace MarginTrading.AssetService.Modules
                     .WithParameter(connstrParameter)
                     .SingleInstance();
 
-                builder.RegisterType<SqlRepos.AssetsRepository>()
+                builder.RegisterType<SqlRepos.AssetsEfRepository>()
                     .As<IAssetsRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();

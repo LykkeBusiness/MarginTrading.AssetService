@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.Core.Domain
@@ -66,6 +67,32 @@ namespace MarginTrading.AssetService.Core.Domain
                 isFrozen: this.IsFrozen,
                 isDiscontinued: this.IsDiscontinued,
                 freezeInfo: this.FreezeInfo
+            );
+        }
+
+        public static IAssetPair CreateFromProduct(Product product, string legalEntity)
+        {
+            return new AssetPair(
+                id: product.ProductId,
+                name: product.Name,
+                baseAssetId: product.ProductId,
+                quoteAssetId: product.TradingCurrency,
+                accuracy: AssetPairConstants.Accuracy,
+                marketId: product.Market,
+                legalEntity: legalEntity,
+                basePairId: AssetPairConstants.BasePairId,
+                matchingEngineMode: AssetPairConstants.MatchingEngineMode,
+                stpMultiplierMarkupBid: AssetPairConstants.StpMultiplierMarkupBid,
+                stpMultiplierMarkupAsk: AssetPairConstants.StpMultiplierMarkupAsk,
+                isSuspended: product.IsSuspended,
+                isFrozen: product.IsFrozen,
+                isDiscontinued: product.IsDiscontinued,
+                freezeInfo: new FreezeInfo
+                {
+                    Comment = product.FreezeInfo.Comment,
+                    Reason = (FreezeReason)product.FreezeInfo.Reason,
+                    UnfreezeDate = product.FreezeInfo.UnfreezeDate,
+                }
             );
         }
     }

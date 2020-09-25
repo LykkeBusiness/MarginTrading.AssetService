@@ -29,16 +29,13 @@ namespace MarginTrading.AssetService.Controllers
     {
         private readonly IAssetsRepository _assetsRepository;
         private readonly IConvertService _convertService;
-        private readonly IEventSender _eventSender;
         
         public AssetsController(
             IAssetsRepository assetsRepository,
-            IConvertService convertService,
-            IEventSender eventSender)
+            IConvertService convertService)
         {
             _assetsRepository = assetsRepository;
             _convertService = convertService;
-            _eventSender = eventSender;
         }
         
         /// <summary>
@@ -74,26 +71,6 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
-        /// Create new asset
-        /// </summary>
-        [HttpPost]
-        [Route("")]
-        public async Task<AssetContract> Insert([FromBody] AssetContract asset)
-        {
-            Validate(asset);
-
-            if (!await _assetsRepository.TryInsertAsync(_convertService.Convert<AssetContract, Asset>(asset)))
-            {
-                throw new ArgumentException($"Asset with id {asset.Id} already exists", nameof(asset.Id));
-            }
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset,
-                asset.Id);
-
-            return asset;
-        }
-
-        /// <summary>
         /// Get the asset
         /// </summary>
         [HttpGet]
@@ -103,58 +80,6 @@ namespace MarginTrading.AssetService.Controllers
             var obj = await _assetsRepository.GetAsync(assetId);
             
             return _convertService.Convert<IAsset, AssetContract>(obj);
-        }
-
-        /// <summary>
-        /// Update the asset
-        /// </summary>
-        [HttpPut]
-        [Route("{assetId}")]
-        public async Task<AssetContract> Update(string assetId, [FromBody] AssetContract asset)
-        {
-            Validate(asset);
-            ValidateId(assetId, asset);
-
-            await _assetsRepository.UpdateAsync(_convertService.Convert<AssetContract, Asset>(asset));
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset,
-                assetId);
-            
-            return asset;
-        }
-
-        /// <summary>
-        /// Delete the asset
-        /// </summary>
-        [HttpDelete]
-        [Route("{assetId}")]
-        public async Task Delete(string assetId)
-        {
-            await _assetsRepository.DeleteAsync(assetId);
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Asset,
-                assetId);
-        }
-
-        private void ValidateId(string id, AssetContract contract)
-        {
-            if (contract?.Id != id)
-            {
-                throw new ArgumentException("Id must match with contract id");
-            }
-        }
-
-        private void Validate(AssetContract newValue)
-        {
-            if (newValue == null)
-            {
-                throw new ArgumentNullException("asset", "Model is incorrect");
-            }
-            
-            if (string.IsNullOrWhiteSpace(newValue.Id))
-            {
-                throw new ArgumentNullException(nameof(newValue.Id), "asset Id must be set");
-            }
         }
     }
 }

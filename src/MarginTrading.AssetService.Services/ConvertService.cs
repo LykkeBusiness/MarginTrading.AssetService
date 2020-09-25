@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
+using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
@@ -16,10 +17,12 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
+using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -101,6 +104,9 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<AddTickFormulaRequest, ITickFormula>();
                 cfg.CreateMap<UpdateTickFormulaRequest, ITickFormula>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
+
+                //Underlying
+                cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>();
             }).CreateMapper();
         }
 

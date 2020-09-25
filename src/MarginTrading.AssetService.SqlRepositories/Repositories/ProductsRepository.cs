@@ -77,7 +77,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = new ProductEntity() {ProductId = productId, Timestamp = timestamp};
+                var entity = new ProductEntity() { ProductId = productId, Timestamp = timestamp };
 
                 context.Attach(entity);
                 context.Products.Remove(entity);
@@ -171,6 +171,89 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             await context.SaveChangesAsync();
 
             return new Result<Product, ProductsErrorCodes>(ToModel(entity));
+        }
+
+        public async Task<Dictionary<string,string>> GetAssetTypesByProductsIdsAsync(IEnumerable<string> productIds = null)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products.AsNoTracking();
+
+                if (productIds != null && productIds.Any())
+                    query = query.Where(x => productIds.Contains(x.ProductId));
+
+                var result = await query.ToDictionaryAsync(k => k.AssetTypeId, v => v.ProductId);
+
+                return result;
+            }
+        }
+
+        public async Task<IReadOnlyList<Product>> GetByProductsIdsAsync(IEnumerable<string> productIds = null)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products.AsNoTracking();
+
+                if (productIds != null && productIds.Any())
+                    query = query.Where(x => productIds.Contains(x.ProductId));
+
+                var result = await query.ToListAsync();
+
+                return result.Select(ToModel).ToList();
+            }
+        }
+
+        public async Task<PaginatedResponse<Product>> GetPagedWithFilterAsync(string nameOrIdFilter, int skip = default, int take = 20)
+        {
+            skip = Math.Max(0, skip);
+            take = take < 0 ? 20 : Math.Min(take, 100);
+
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products
+                    .Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter));
+
+                var total = await query.CountAsync();
+                var products = await query
+                    .OrderBy(u => u.Name)
+                    .Skip(skip)
+                    .Take(take)
+                    .ToListAsync();
+
+                return new PaginatedResponse<Product>(products.Select(ToModel).ToList(), skip, products.Count, total);
+            }
+        }
+
+        public async Task<PaginatedResponse<Product>> GetPagedAsync(int skip = default, int take = 20)
+        {
+            skip = Math.Max(0, skip);
+            take = take < 0 ? 20 : Math.Min(take, 100);
+
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products.AsNoTracking();
+
+                var total = await query.CountAsync();
+                var products = await query
+                    .OrderBy(u => u.Name)
+                    .Skip(skip)
+                    .Take(take)
+                    .ToListAsync();
+
+                return new PaginatedResponse<Product>(products.Select(ToModel).ToList(), skip, products.Count, total);
+            }
+        }
+
+        public async Task<IReadOnlyList<Product>> GetWithFilterAsync(string nameOrIdFilter)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var products = await context.Products
+                    .Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter))
+                    .ToListAsync();
+
+                return products.Select(ToModel).ToList();
+            }
         }
 
         private static ProductEntity ToEntity(Product product)

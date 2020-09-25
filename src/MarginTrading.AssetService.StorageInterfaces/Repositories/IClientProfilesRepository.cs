@@ -14,5 +14,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<ClientProfile> GetByIdAsync(string id);
         Task<bool> ExistsAsync(string id);
         Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId);
+        Task<ClientProfile> GetDefaultAsync();
     }
 }

@@ -19,37 +19,14 @@ namespace MarginTrading.AssetService.Contracts
         /// <summary>
         /// Get the list of Markets
         /// </summary>
-        [Obsolete]
         [Get("/api/markets")]
         Task<List<MarketContract>> List();
 
         /// <summary>
-        /// Create new market
-        /// </summary>
-        [Obsolete]
-        [Post("/api/markets")]
-        Task<MarketContract> Insert([Body] MarketContract market);
-
-        /// <summary>
         /// Get the market
         /// </summary>
-        [Obsolete]
         [ItemCanBeNull]
         [Get("/api/markets/{marketId}")]
         Task<MarketContract> Get([NotNull] string marketId);
-
-        /// <summary>
-        /// Update the market
-        /// </summary>
-        [Obsolete]
-        [Put("/api/markets/{marketId}")]
-        Task<MarketContract> Update([NotNull] string marketId, [Body] MarketContract market);
-
-        /// <summary>
-        /// Delete the market
-        /// </summary>
-        [Obsolete]
-        [Delete("/api/markets/{marketId}")]
-        Task Delete([NotNull] string marketId);
     }
 }

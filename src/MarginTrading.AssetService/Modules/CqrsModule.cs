@@ -160,5 +160,11 @@ namespace MarginTrading.AssetService.Modules
                     )
                 .With(DefaultEventPipeline);
         }
+
+        private void RegisterUnderlyingsProjection(
+            ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            //TODO:Implement when we have contracts
+        }
     }
 }

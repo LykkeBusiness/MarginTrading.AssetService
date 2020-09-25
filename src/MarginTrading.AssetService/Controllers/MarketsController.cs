@@ -25,18 +25,15 @@ namespace MarginTrading.AssetService.Controllers
     [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class MarketsController : Controller, IMarketsApi
     {
-        private readonly IMarketRepository _marketRepository;
+        private readonly IMarketsService _marketsService;
         private readonly IConvertService _convertService;
-        private readonly IEventSender _eventSender;
         
         public MarketsController(
-            IMarketRepository marketRepository,
-            IConvertService convertService,
-            IEventSender eventSender)
+            IMarketsService marketsService,
+            IConvertService convertService)
         {
-            _marketRepository = marketRepository;
+            _marketsService = marketsService;
             _convertService = convertService;
-            _eventSender = eventSender;
         }
         
         /// <summary>
@@ -46,29 +43,9 @@ namespace MarginTrading.AssetService.Controllers
         [Route("")]
         public async Task<List<MarketContract>> List()
         {
-            var data = await _marketRepository.GetAsync();
+            var data = await _marketsService.GetAllAsync();
             
             return data.Select(x => _convertService.Convert<IMarket, MarketContract>(x)).ToList();
-        }
-        
-        /// <summary>
-        /// Create new market
-        /// </summary>
-        [HttpPost]
-        [Route("")]
-        public async Task<MarketContract> Insert([FromBody] MarketContract market)
-        {
-            Validate(market);
-
-            if (!await _marketRepository.TryInsertAsync(_convertService.Convert<MarketContract, Market>(market)))
-            {
-                throw new ArgumentException($"Market with id {market.Id} already exists", nameof(market.Id));
-            }
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market,
-                market.Id);
-
-            return market;
         }
 
         /// <summary>
@@ -78,61 +55,9 @@ namespace MarginTrading.AssetService.Controllers
         [Route("{marketId}")]
         public async Task<MarketContract> Get(string marketId)
         {
-            var obj = await _marketRepository.GetAsync(marketId);
+            var obj = await _marketsService.GetByIdAsync(marketId);
             
             return _convertService.Convert<IMarket, MarketContract>(obj);
-        }
-
-        /// <summary>
-        /// Update the market
-        /// </summary>
-        [HttpPut]
-        [Route("{marketId}")]
-        public async Task<MarketContract> Update(string marketId, [FromBody] MarketContract market)
-        {
-            Validate(market);
-            ValidateId(marketId, market);
-
-            await _marketRepository.UpdateAsync(_convertService.Convert<MarketContract, Market>(market));
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market,
-                marketId);
-            
-            return market;
-        }
-
-        /// <summary>
-        /// Delete the market
-        /// </summary>
-        [HttpDelete]
-        [Route("{marketId}")]
-        public async Task Delete(string marketId)
-        {
-            await _marketRepository.DeleteAsync(marketId);
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.Market,
-                marketId);
-        }
-
-        private void ValidateId(string id, MarketContract contract)
-        {
-            if (contract?.Id != id)
-            {
-                throw new ArgumentException("Id must match with contract id");
-            }
-        }
-
-        private void Validate(MarketContract newValue)
-        {
-            if (newValue == null)
-            {
-                throw new ArgumentNullException("market", "Model is incorrect");
-            }
-            
-            if (string.IsNullOrWhiteSpace(newValue.Id))
-            {
-                throw new ArgumentNullException(nameof(newValue.Id), "market Id must be set");
-            }
         }
     }
 }

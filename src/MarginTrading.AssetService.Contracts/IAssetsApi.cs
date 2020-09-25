@@ -30,28 +30,10 @@ namespace MarginTrading.AssetService.Contracts
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
 
         /// <summary>
-        /// Create new asset
-        /// </summary>
-        [Post("/api/assets")]
-        Task<AssetContract> Insert([Body] AssetContract asset);
-
-        /// <summary>
         /// Get the asset
         /// </summary>
         [ItemCanBeNull]
         [Get("/api/assets/{assetId}")]
         Task<AssetContract> Get([NotNull] string assetId);
-
-        /// <summary>
-        /// Update the asset
-        /// </summary>
-        [Put("/api/assets/{assetId}")]
-        Task<AssetContract> Update([NotNull] string assetId, [Body] AssetContract asset);
-
-        /// <summary>
-        /// Delete the asset
-        /// </summary>
-        [Delete("/api/assets/{assetId}")]
-        Task Delete([NotNull] string assetId);
     }
 }

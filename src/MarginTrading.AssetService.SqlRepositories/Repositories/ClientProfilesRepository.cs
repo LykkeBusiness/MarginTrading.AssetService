@@ -171,6 +171,24 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<ClientProfile> GetDefaultAsync()
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var entity = await context.ClientProfiles.FirstOrDefaultAsync(x => x.IsDefault);
+
+                if (entity == null)
+                    return null;
+
+                return new ClientProfile
+                {
+                    Id = entity.Id,
+                    IsDefault = entity.IsDefault,
+                    RegulatoryProfileId = entity.RegulatoryProfileId,
+                };
+            }
+        }
+
         public async Task<bool> ExistsAsync(string id)
         {
             using (var context = _contextFactory.CreateDataContext())

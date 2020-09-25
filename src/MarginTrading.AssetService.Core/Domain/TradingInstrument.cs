@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
+using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.Core.Domain
@@ -53,5 +55,21 @@ namespace MarginTrading.AssetService.Core.Domain
         public string CommissionCurrency { get; }
         public decimal HedgeCost { get; }
         public decimal Spread { get; }
+
+        public static TradingInstrument CreateFromProduct(Product product, string profileId, decimal marginRate,
+            decimal hedgeCost, decimal spread)
+        {
+            throw new NotImplementedException();
+            //return new TradingInstrument(
+            //    tradingConditionId:profileId,
+            //    instrument:product.ProductId,
+            //    //leverageInit:1/marginRate/100,
+            //    //leverageMaintenance:1/marginRate/100,
+            //    swapLong:TradingInstrumentsConstants.SwapLong,
+            //    swapShort:TradingInstrumentsConstants.SwapShort,
+            //    delta:TradingInstrumentsConstants.Delta,
+            //    dea
+            //);
+        }
     }
 }

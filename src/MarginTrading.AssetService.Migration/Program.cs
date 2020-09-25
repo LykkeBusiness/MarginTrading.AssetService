@@ -98,8 +98,8 @@ namespace MarginTrading.AssetService.Migration
             var assetsSucceeded = 0;
             foreach (var asset in assets)
             {
-                if (await assetsRepos.Last().TryInsertAsync(asset))
-                    assetsSucceeded++;
+                //if (await assetsRepos.Last().TryInsertAsync(asset))
+                //    assetsSucceeded++;
             }
             Console.WriteLine($"Assets succeeded: {assetsSucceeded}, failed: {assets.Count - assetsSucceeded}.");
 

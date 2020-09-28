@@ -9,10 +9,10 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class TradingInstrument : ITradingInstrument
     {
-        public TradingInstrument(string tradingConditionId, string instrument, int leverageInit, 
-            int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit, 
-            decimal dealMaxLimit, decimal positionLimit, bool shortPosition, decimal liquidationThreshold, 
-            decimal overnightMarginMultiplier, decimal commissionRate, decimal commissionMin, decimal commissionMax, 
+        public TradingInstrument(string tradingConditionId, string instrument, int leverageInit,
+            int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit,
+            decimal dealMaxLimit, decimal positionLimit, bool shortPosition, decimal liquidationThreshold,
+            decimal overnightMarginMultiplier, decimal commissionRate, decimal commissionMin, decimal commissionMax,
             string commissionCurrency, decimal hedgeCost, decimal spread)
         {
             TradingConditionId = tradingConditionId;
@@ -59,17 +59,27 @@ namespace MarginTrading.AssetService.Core.Domain
         public static TradingInstrument CreateFromProduct(Product product, string profileId, decimal marginRate,
             decimal hedgeCost, decimal spread)
         {
-            throw new NotImplementedException();
-            //return new TradingInstrument(
-            //    tradingConditionId:profileId,
-            //    instrument:product.ProductId,
-            //    //leverageInit:1/marginRate/100,
-            //    //leverageMaintenance:1/marginRate/100,
-            //    swapLong:TradingInstrumentsConstants.SwapLong,
-            //    swapShort:TradingInstrumentsConstants.SwapShort,
-            //    delta:TradingInstrumentsConstants.Delta,
-            //    dea
-            //);
+            return new TradingInstrument(
+                tradingConditionId: profileId,
+                instrument: product.ProductId,
+                leverageInit: (int)(1 / marginRate / 100),
+                leverageMaintenance: (int)(1 / marginRate / 100),
+                swapLong: TradingInstrumentsConstants.SwapLong,
+                swapShort: TradingInstrumentsConstants.SwapShort,
+                delta: TradingInstrumentsConstants.Delta,
+                dealMinLimit:product.MinOrderSize,
+                dealMaxLimit:product.MaxOrderSize,
+                positionLimit:product.MaxPositionSize,
+                shortPosition:product.ShortPosition,
+                liquidationThreshold: TradingInstrumentsConstants.LiquidationThreshold,
+                overnightMarginMultiplier:product.OvernightMarginMultiplier,
+                commissionRate:TradingInstrumentsConstants.CommissionRate,
+                commissionMin:TradingInstrumentsConstants.CommissionMin,
+                commissionMax:TradingInstrumentsConstants.CommissionMax,
+                commissionCurrency:TradingInstrumentsConstants.CommissionCurrency,
+                hedgeCost:hedgeCost,
+                spread:spread
+            );
         }
     }
 }

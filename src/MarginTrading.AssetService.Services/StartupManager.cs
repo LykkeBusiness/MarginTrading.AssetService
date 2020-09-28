@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Common.Log;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Services;
 
 namespace MarginTrading.AssetService.Services
@@ -20,17 +21,21 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly ILog _log;
         private readonly ICqrsEngine _cqrsEngine;
+        private readonly IUnderlyingsCache _underlyingsCache;
 
-        public StartupManager(ILog log, ICqrsEngine cqrsEngine)
+        public StartupManager(ILog log, ICqrsEngine cqrsEngine, IUnderlyingsCache underlyingsCache)
         {
             _log = log;
             _cqrsEngine = cqrsEngine;
+            _underlyingsCache = underlyingsCache;
         }
 
         public async Task StartAsync()
         {
+            _underlyingsCache.Start();
             _cqrsEngine.StartSubscribers();
             _cqrsEngine.StartProcesses();
+            _cqrsEngine.StartPublishers();
 
             await Task.CompletedTask;
         }

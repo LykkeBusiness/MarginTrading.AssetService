@@ -4,7 +4,7 @@
     {
         public void Start();
         public UnderlyingsCacheModel GetByMdsCode(string mdsCode);
-        public void AddOrUpdate(UnderlyingsCacheModel underlying);
+        public void AddOrUpdateByMdsCode(UnderlyingsCacheModel underlying);
         public void Remove(UnderlyingsCacheModel underlying);
     }
 }

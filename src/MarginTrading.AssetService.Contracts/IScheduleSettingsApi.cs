@@ -22,12 +22,21 @@ namespace MarginTrading.AssetService.Contracts
         [Get("/api/scheduleSettings")]
         Task<List<ScheduleSettingsContract>> List([Query][CanBeNull] string marketId = null);
 
+
         /// <summary>
-        /// Get the schedule setting
+        /// Get the list of compiled schedule settings based on array of asset pairs
         /// </summary>
-        [ItemCanBeNull]
-        [Get("/api/scheduleSettings/{settingId}")]
-        Task<ScheduleSettingsContract> Get([NotNull] string settingId);
+        /// <param name="assetPairIds">Null by default</param>
+        [Post("/api/scheduleSettings/compiled")]
+        Task<List<CompiledScheduleContract>> StateList([Body][CanBeNull] string[] assetPairIds);
+
+        /// <summary>
+        /// Get current trading day info for markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+        /// </summary>
+        /// <param name="marketIds">Optional. List of market Id's.</param>
+        /// <param name="date">Timestamp of check (allows to check as at any moment of time</param>
+        [Post("/api/scheduleSettings/markets-info")]
+        Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([Body] string[] marketIds = null, [Query] DateTime? date = null);
 
         /// <summary>
         /// Get current platform trading info: is trading enabled, and last trading day.

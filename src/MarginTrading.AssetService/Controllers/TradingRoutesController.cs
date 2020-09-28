@@ -30,8 +30,8 @@ namespace MarginTrading.AssetService.Controllers
     {
         private readonly IAssetsRepository _assetsRepository;
         private readonly ITradingRoutesRepository _tradingRoutesRepository;
-        private readonly ITradingConditionsRepository _tradingConditionsRepository;
-        private readonly IAssetPairsRepository _assetPairsRepository;
+        private readonly ITradingConditionsService _tradingConditionsService;
+        private readonly IAssetPairService _assetPairsService;
         private readonly IConvertService _convertService;
         private readonly IEventSender _eventSender;
         
@@ -40,15 +40,15 @@ namespace MarginTrading.AssetService.Controllers
         public TradingRoutesController(
             IAssetsRepository assetsRepository,
             ITradingRoutesRepository tradingRoutesRepository,
-            ITradingConditionsRepository tradingConditionsRepository,
-            IAssetPairsRepository assetPairsRepository,
+            ITradingConditionsService tradingConditionsService,
+            IAssetPairService assetPairsService,
             IConvertService convertService,
             IEventSender eventSender)
         {
             _assetsRepository = assetsRepository;
             _tradingRoutesRepository = tradingRoutesRepository;
-            _tradingConditionsRepository = tradingConditionsRepository;
-            _assetPairsRepository = assetPairsRepository;
+            _tradingConditionsService = tradingConditionsService;
+            _assetPairsService = assetPairsService;
             _convertService = convertService;
             _eventSender = eventSender;
         }
@@ -169,13 +169,13 @@ namespace MarginTrading.AssetService.Controllers
             }
 
             if (!string.IsNullOrEmpty(route.TradingConditionId)
-                && await _tradingConditionsRepository.GetAsync(route.TradingConditionId) == null)
+                && await _tradingConditionsService.GetAsync(route.TradingConditionId) == null)
             {
                 throw new InvalidOperationException($"Trading condition {route.TradingConditionId} does not exist");
             }
 
             if (!string.IsNullOrEmpty(route.Instrument) 
-                && await _assetPairsRepository.GetAsync(route.Instrument) == null)
+                && await _assetPairsService.GetByIdAsync(route.Instrument) == null)
             {
                 throw new InvalidOperationException($"Asset pair {route.Instrument} does not exist");
             }

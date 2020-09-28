@@ -1,138 +1,97 @@
-﻿// Copyright (c) 2019 Lykke Corp.
-// See the LICENSE file in the project root for more information.
-
-using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
-using Dapper;
+using Lykke.Common.MsSql;
 using MarginTrading.AssetService.Core;
+using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
-using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.SqlRepositories.Entities;
-using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
-    public class AssetsRepository: IAssetsRepository
+    public class AssetsRepository : IAssetsRepository
     {
-        private const string TableName = "Assets";
-        private const string CreateTableScript = "CREATE TABLE [{0}](" +
-                                                 "[Oid] [bigint] NOT NULL IDENTITY(1,1) PRIMARY KEY," +
-                                                 "[Id] [nvarchar] (64) NOT NULL, " +
-                                                 "[Name] [nvarchar] (64) NOT NULL, " +
-                                                 "[Accuracy] [int] NOT NULL, " +
-                                                 "CONSTRAINT {0}_Id UNIQUE(Id)" +
-                                                 ");";
-        
-        private static Type DataType => typeof(IAsset);
-        private static readonly string GetColumns = "[" + string.Join("],[", DataType.GetProperties().Select(x => x.Name)) + "]";
-        private static readonly string GetFields = string.Join(",", DataType.GetProperties().Select(x => "@" + x.Name));
-        private static readonly string GetUpdateClause = string.Join(",",
-            DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
+        private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
 
-        private readonly IConvertService _convertService;
-        private readonly string _connectionString;
-        private readonly ILog _log;
-        
-        public AssetsRepository(IConvertService convertService, string connectionString, ILog log)
+        public AssetsRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
         {
-            _convertService = convertService;
-            _log = log;
-            _connectionString = connectionString;
-            
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
-                catch (Exception ex)
-                {
-                    _log?.WriteErrorAsync(nameof(AssetsRepository), "CreateTableIfDoesntExists", null, ex);
-                    throw;
-                }
-            }
+            _contextFactory = contextFactory;
         }
 
         public async Task<IReadOnlyList<IAsset>> GetAsync()
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var context = _contextFactory.CreateDataContext())
             {
-                var objects = await conn.QueryAsync<AssetEntity>($"SELECT * FROM {TableName}");
-                
-                return objects.Select(_convertService.Convert<AssetEntity, Asset>).ToList();
+                var products = await context.Products.Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy)).ToListAsync();
+                var currencies = await context.Currencies.Select(x => new Asset(x.Id, x.Id, AssetConstants.Accuracy)).ToListAsync();
+
+                return products.Union(currencies).ToList();
             }
         }
 
         public async Task<PaginatedResponse<IAsset>> GetByPagesAsync(int? skip = null, int? take = null)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            //Used raw SQL cause EF does not support Union after select from different tables yet
+            skip ??= 0;
+            take = PaginationHelper.GetTake(take);
+
+            using (var context = _contextFactory.CreateDataContext())
+            using (var command = context.Database.GetDbConnection().CreateCommand())
             {
-                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
-                var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
-                var assets = (await gridReader.ReadAsync<AssetEntity>()).ToList();
-                var totalCount = await gridReader.ReadSingleAsync<int>();
-            
+                var query = @$"SELECT ProductId as Id, Name as Name
+                                    FROM [Products]
+                                    Union
+                                    SELECT Id as Id, Id as Name
+                                    FROM [Currencies]
+                                    ORDER BY Name
+                                    OFFSET @skip ROWS FETCH NEXT @take ROWS ONLY";
+
+                command.CommandText = query;
+                command.Parameters.Add(new SqlParameter("@skip", SqlDbType.Int) { Value = skip.Value });
+                command.Parameters.Add(new SqlParameter("@take", SqlDbType.Int) { Value = take.Value });
+
+                await context.Database.OpenConnectionAsync();
+
+                var reader = await command.ExecuteReaderAsync();
+
+                var assets = new List<IAsset>();
+                while (await reader.ReadAsync())
+                {
+                    assets.Add(new Asset(reader["Id"].ToString(), reader["Name"].ToString(), AssetConstants.Accuracy));
+                }
+
+                await reader.CloseAsync();
+
+                var totalCountQuery = "SELECT (SELECT COUNT(*) FROM [Products]) + (SELECT COUNT(*) FROM [Currencies])";
+                command.CommandText = totalCountQuery;
+                command.Parameters.Clear();
+
+                var totalCount = (int)await command.ExecuteScalarAsync();
+
                 return new PaginatedResponse<IAsset>(
-                    contents: assets, 
-                    start: skip ?? 0, 
-                    size: assets.Count, 
+                    contents: assets,
+                    start: skip.Value,
+                    size: assets.Count,
                     totalSize: totalCount
                 );
+
             }
         }
 
         public async Task<IAsset> GetAsync(string assetId)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            using (var context = _contextFactory.CreateDataContext())
             {
-                var objects = await conn.QueryAsync<AssetEntity>(
-                    $"SELECT * FROM {TableName} WHERE Id=@id", new {id = assetId});
-                
-                return objects.Select(_convertService.Convert<AssetEntity, Asset>).FirstOrDefault();
-            }
-        }
+                var result = await context.Products.Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy))
+                                 .FirstOrDefaultAsync(x => x.Id == assetId) ??
+                             await context.Currencies.Select(x => new Asset(x.Id, x.Id, AssetConstants.Accuracy))
+                                 .FirstOrDefaultAsync(x => x.Id == assetId);
 
-        public async Task<bool> TryInsertAsync(IAsset asset)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                try
-                {
-                    await conn.ExecuteAsync(
-                        $"insert into {TableName} ({GetColumns}) values ({GetFields})",
-                        _convertService.Convert<IAsset, AssetEntity>(asset));
-                }
-                catch (Exception ex)
-                {
-                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
-                        $"Failed to insert an asset with Id {asset.Id}", ex);
-                    return false;
-                }
-
-                return true;
-            }
-        }
-
-        public async Task UpdateAsync(IAsset asset)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                await conn.ExecuteAsync(
-                    $"update {TableName} set {GetUpdateClause} where Id=@Id", 
-                    _convertService.Convert<IAsset, AssetEntity>(asset));
-            }
-        }
-
-        public async Task DeleteAsync(string assetId)
-        {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                await conn.ExecuteAsync(
-                    $"DELETE {TableName} WHERE Id=@Id", new { Id = assetId});
+                return result;
             }
         }
     }

@@ -11,8 +11,7 @@ using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Middleware;
-using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using MarginTrading.AssetService.Core.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -25,21 +24,27 @@ namespace MarginTrading.AssetService.Controllers
     [Route("api/scheduleSettings")]
     public class ScheduleSettingsController : Controller, IScheduleSettingsApi
     {
-        private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
+        private readonly IScheduleSettingsService _scheduleSettingsService;
+        private readonly IMarketSettingsService _marketSettingsService;
+        private readonly IAssetPairService _assetPairsService;
         private readonly IMarketDayOffService _marketDayOffService;
         private readonly IConvertService _convertService;
-        
+        private readonly PlatformSettings _platformSettings;
+
         public ScheduleSettingsController(
-            IScheduleSettingsRepository scheduleSettingsRepository,
-            IMarketRepository marketRepository,
-            IAssetPairsRepository assetPairsRepository,
+            IScheduleSettingsService scheduleSettingsService,
+            IMarketSettingsService marketSettingsService,
+            IAssetPairService assetPairsService,
             IMarketDayOffService marketDayOffService,
             IConvertService convertService,
-            IEventSender eventSender)
+            PlatformSettings platformSettings)
         {
-            _scheduleSettingsRepository = scheduleSettingsRepository;
+            _scheduleSettingsService = scheduleSettingsService;
+            _marketSettingsService = marketSettingsService;
+            _assetPairsService = assetPairsService;
             _marketDayOffService = marketDayOffService;
             _convertService = convertService;
+            _platformSettings = platformSettings;
         }
         
         /// <summary>
@@ -49,7 +54,7 @@ namespace MarginTrading.AssetService.Controllers
         [Route("")]
         public async Task<List<ScheduleSettingsContract>> List([FromQuery] string marketId = null)
         {
-            var data = await _scheduleSettingsRepository.GetFilteredAsync(marketId);
+            var data = await _scheduleSettingsService.GetFilteredAsync(marketId);
             return data
                 .Select(x => _convertService.Convert<IScheduleSettings, ScheduleSettings>(x))
                 .Select(x => _convertService.Convert<ScheduleSettings, ScheduleSettingsContract>(x))
@@ -57,15 +62,84 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
-        /// Get the schedule setting
+        /// Get the list of compiled schedule settings based on array of asset pairs
         /// </summary>
-        [HttpGet]
-        [Route("{settingId}")]
-        public async Task<ScheduleSettingsContract> Get(string settingId)
+        /// <param name="assetPairIds">Null by default</param>
+        [HttpPost]
+        [Route("compiled")]
+        public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
-            var obj = await _scheduleSettingsRepository.GetAsync(settingId);
+            var allSettings = await _scheduleSettingsService.GetFilteredAsync();
+            var assetPairs = await _assetPairsService.GetByIdsAsync(assetPairIds);
+
+            //extract the list of assetPairs with same settings based on regex, market or list
+            var result = assetPairs.Select(assetPair => new CompiledScheduleContract
+            {
+                AssetPairId = assetPair.Id,
+                ScheduleSettings = allSettings
+                    .Where(setting => setting.AssetPairs.Contains(assetPair.Id)
+                                      || (!string.IsNullOrWhiteSpace(setting.AssetPairRegex)
+                                          && Regex.IsMatch(assetPair.Id,
+                                              setting.AssetPairRegex,
+                                              RegexOptions.IgnoreCase))
+                                      || setting.MarketId == assetPair.MarketId)
+                    .Select(x =>
+                        _convertService.Convert<IScheduleSettings, CompiledScheduleSettingsContract>(x)).ToList()
+            }).ToList();
+            return result;
+        }
+
+        /// <summary>
+        /// Get current trading status of markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+        /// </summary>
+        /// <param name="marketIds">Optional. List of market Id's.</param>
+        [HttpPost]
+        [Route("markets-status")]
+        [Obsolete]
+        public async Task<Dictionary<string, bool>> MarketsStatus([FromBody] string[] marketIds = null)
+        {
+            var info = await GetMarketsInfo(marketIds);
+
+            return info.ToDictionary(k => k.Key, v => v.Value.IsTradingEnabled);
+        }
+
+        /// <summary>
+        /// Get current trading day info for markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+        /// </summary>
+        /// <param name="marketIds">Optional. List of market Id's.</param>
+        /// <param name="date">Timestamp of check (allows to check as at any moment of time)</param>
+        [HttpPost]
+        [Route("markets-info")]
+        public async Task<Dictionary<string, TradingDayInfoContract>> GetMarketsInfo([FromBody] string[] marketIds = null, 
+            [FromQuery] DateTime? date = null)
+        {
+            var allMarkets = (await _marketSettingsService.GetAllMarketSettingsAsync()).Select(x => x.Id).ToHashSet();
+            allMarkets.Add(_platformSettings.PlatformMarketId);
+            if (marketIds == null || !marketIds.Any())
+            {
+                marketIds = allMarkets.ToArray();
+            }
+            else
+            {
+                foreach (var marketId in marketIds)
+                {
+                    if (allMarkets.Contains(marketId))
+                    {
+                        continue;
+                    }
+                        
+                    throw new ArgumentException($"Market {marketId} does not exist", nameof(marketIds));
+                }
+            }
             
-            return _convertService.Convert<IScheduleSettings, ScheduleSettingsContract>(obj);
+            var info = await _marketDayOffService.GetMarketsInfo(marketIds, date);
+
+            return info.ToDictionary(k => k.Key, v => new TradingDayInfoContract()
+            {
+                IsTradingEnabled = v.Value.IsTradingEnabled,
+                LastTradingDay = v.Value.LastTradingDay,
+                NextTradingDayStart = v.Value.NextTradingDayStart
+            });
         }
 
         /// <summary>

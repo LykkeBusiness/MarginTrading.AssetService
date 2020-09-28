@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
+using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -56,13 +57,13 @@ namespace MarginTrading.AssetService.Tests
         private static async Task TestMarket(string marketId, bool isTradingEnabled, string lastTradingDay,
             string nextTradingDay, List<IScheduleSettings> repoData)
         {
-            var repoMock = new Mock<IScheduleSettingsRepository>();
-            repoMock.Setup(r => r.GetFilteredAsync(null)).ReturnsAsync(repoData);
+            var scheduleServiceMock = new Mock<IScheduleSettingsService>();
+            scheduleServiceMock.Setup(r => r.GetFilteredAsync(null)).ReturnsAsync(repoData);
 
             var systemClockMock = new Mock<ISystemClock>();
             systemClockMock.SetupGet(c => c.UtcNow).Returns(new DateTimeOffset(2019, 10, 11, 11, 0, 0, TimeSpan.Zero));
 
-            var service = new MarketDayOffService(repoMock.Object, systemClockMock.Object, new PlatformSettings());
+            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings());
 
             var info = (await service.GetMarketsInfo(new[] {marketId}, null))[marketId];
 

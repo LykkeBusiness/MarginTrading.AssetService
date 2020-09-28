@@ -15,6 +15,7 @@ using Lykke.Messaging;
 using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
+using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
@@ -28,6 +29,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
+using MarginTrading.AssetService.Workflow.Underlyings;
 
 namespace MarginTrading.AssetService.Modules
 {
@@ -71,7 +73,7 @@ namespace MarginTrading.AssetService.Modules
 
             // Sagas & command handlers
             builder.RegisterAssemblyTypes(GetType().Assembly)
-                .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler"))
+                .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler") || t.Name.EndsWith("Projection"))
                 .AsSelf();
 
             builder.Register(ctx => CreateEngine(ctx, messagingEngine))
@@ -86,7 +88,7 @@ namespace MarginTrading.AssetService.Modules
                 "RabbitMq",
                 SerializationFormat.MessagePack,
                 environment: _settings.EnvironmentName);
-            
+
             var engine = new CqrsEngine(
                 _log,
                 ctx.Resolve<IDependencyResolver>(),
@@ -98,7 +100,7 @@ namespace MarginTrading.AssetService.Modules
                 RegisterContext(),
                 Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
                 Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
-            
+
             engine.StartPublishers();
 
             return engine;
@@ -109,8 +111,9 @@ namespace MarginTrading.AssetService.Modules
             var contextRegistration = Register.BoundedContext(_contextNames.AssetService)
                 .FailedCommandRetryDelay(_defaultRetryDelayMs)
                 .ProcessingOptions(DefaultRoute).MultiThreaded(8).QueueCapacity(1024);
-            RegisterEventPublishing(contextRegistration);
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
+            RegisterEventPublishing(contextRegistration);
+            RegisterUnderlyingsProjection(contextRegistration);
             return contextRegistration;
         }
 
@@ -164,7 +167,10 @@ namespace MarginTrading.AssetService.Modules
         private void RegisterUnderlyingsProjection(
             ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
         {
-            //TODO:Implement when we have contracts
+            contextRegistration.ListeningEvents(
+                    typeof(UnderlyingChangedEvent))
+                .From(_settings.ContextNames.MdmService).On(nameof(UnderlyingChangedEvent))
+                .WithProjection(typeof(UnderlyingsProjection), _settings.ContextNames.MdmService);
         }
     }
 }

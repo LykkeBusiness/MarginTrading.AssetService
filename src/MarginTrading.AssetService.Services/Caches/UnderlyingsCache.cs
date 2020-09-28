@@ -64,7 +64,7 @@ namespace MarginTrading.AssetService.Services.Caches
             }
         }
 
-        public void AddOrUpdate(UnderlyingsCacheModel underlying)
+        public void AddOrUpdateByMdsCode(UnderlyingsCacheModel underlying)
         {
             _lockSlim.EnterWriteLock();
             try

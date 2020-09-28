@@ -173,7 +173,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             return new Result<Product, ProductsErrorCodes>(ToModel(entity));
         }
 
-        public async Task<Dictionary<string,string>> GetAssetTypesByProductsIdsAsync(IEnumerable<string> productIds = null)
+        public async Task<Dictionary<string,string>> GetProductAssetTypeMapAsync(IEnumerable<string> productIds = null)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -182,7 +182,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (productIds != null && productIds.Any())
                     query = query.Where(x => productIds.Contains(x.ProductId));
 
-                var result = await query.ToDictionaryAsync(k => k.AssetTypeId, v => v.ProductId);
+                var result = await query.ToDictionaryAsync(k => k.ProductId, v => v.AssetTypeId);
 
                 return result;
             }
@@ -210,8 +210,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             using (var context = _contextFactory.CreateDataContext())
             {
-                var query = context.Products
-                    .Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter));
+                var query = context.Products.AsNoTracking();
+
+                if(!string.IsNullOrEmpty(nameOrIdFilter))
+                   query =  query.Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter));
 
                 var total = await query.CountAsync();
                 var products = await query
@@ -248,11 +250,31 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var products = await context.Products
-                    .Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter))
-                    .ToListAsync();
+                var query = context.Products.AsNoTracking();
+
+                if (!string.IsNullOrEmpty(nameOrIdFilter))
+                    query = query.Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter));
+
+                var products = await query.ToListAsync();
 
                 return products.Select(ToModel).ToList();
+            }
+        }
+
+        public async Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var product = await context.Products.FindAsync(id);
+
+                if(product == null)
+                    return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+                product.IsSuspended = value;
+                context.Products.Update(product);
+
+                await context.SaveChangesAsync();
+                return new Result<Product, ProductsErrorCodes>(ToModel(product));
             }
         }
 

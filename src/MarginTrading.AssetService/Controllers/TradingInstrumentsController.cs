@@ -29,14 +29,14 @@ namespace MarginTrading.AssetService.Controllers
     [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class TradingInstrumentsController : Controller, ITradingInstrumentsApi
     {
-        private readonly ITradingInstrumentsRepository _tradingInstrumentsRepository;
+        private readonly ITradingInstrumentsService _tradingInstrumentsService;
         private readonly IConvertService _convertService;
         
         public TradingInstrumentsController(
-            ITradingInstrumentsRepository tradingInstrumentsRepository,
+            ITradingInstrumentsService tradingInstrumentsService,
             IConvertService convertService)
         {
-            _tradingInstrumentsRepository = tradingInstrumentsRepository;
+            _tradingInstrumentsService = tradingInstrumentsService;
             _convertService = convertService;
         }
         
@@ -48,8 +48,8 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<List<TradingInstrumentContract>> List([FromQuery] string tradingConditionId)
         {
             var data = string.IsNullOrWhiteSpace(tradingConditionId)
-                ? await _tradingInstrumentsRepository.GetAsync()
-                : await _tradingInstrumentsRepository.GetByTradingConditionAsync(tradingConditionId);
+                ? await _tradingInstrumentsService.GetAsync()
+                : await _tradingInstrumentsService.GetByTradingConditionAsync(tradingConditionId);
             
             return data.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList();
         }
@@ -64,7 +64,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             ApiValidationHelper.ValidatePagingParams(skip, take);
             
-            var data = await _tradingInstrumentsRepository.GetByPagesAsync(tradingConditionId, skip, take);
+            var data = await _tradingInstrumentsService.GetByPagesAsync(tradingConditionId, skip, take);
             
             return new PaginatedResponseContract<TradingInstrumentContract>(
                 contents: data.Contents.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList(),
@@ -81,7 +81,7 @@ namespace MarginTrading.AssetService.Controllers
         [Route("{tradingConditionId}/{assetPairId}")]
         public async Task<TradingInstrumentContract> Get(string tradingConditionId, string assetPairId)
         {
-            var obj = await _tradingInstrumentsRepository.GetAsync(assetPairId, tradingConditionId);
+            var obj = await _tradingInstrumentsService.GetAsync(assetPairId, tradingConditionId);
 
             return _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(obj);
         }

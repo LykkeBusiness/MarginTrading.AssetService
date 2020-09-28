@@ -21,8 +21,8 @@ namespace MarginTrading.AssetService.Services
         private readonly ICurrenciesService _currenciesService;
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAssetTypesRepository _assetTypesRepository;
-        private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ProductsService(IProductsRepository repository,
             IAuditService auditService,
@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Services
             ICurrenciesService currenciesService,
             ITickFormulaRepository tickFormulaRepository,
             IAssetTypesRepository assetTypesRepository,
-            ICqrsMessageSender cqrsMessageSender)
+            ICqrsEntityChangedSender entityChangedSender)
         {
             _repository = repository;
             _auditService = auditService;
@@ -42,7 +42,7 @@ namespace MarginTrading.AssetService.Services
             _currenciesService = currenciesService;
             _tickFormulaRepository = tickFormulaRepository;
             _assetTypesRepository = assetTypesRepository;
-            _cqrsMessageSender = cqrsMessageSender;
+            _entityChangedSender = entityChangedSender;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
@@ -90,7 +90,7 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                     product.ToJson());
-                await _cqrsMessageSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product,
+                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product,
                     username, correlationId);
             }
 
@@ -147,7 +147,7 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
-                    await _cqrsMessageSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product,
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product,
                         username, correlationId);
                 }
 
@@ -170,7 +170,7 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, productId, AuditDataType.Product,
                         oldStateJson: existing.Value.ToJson());
-                    await _cqrsMessageSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value,
+                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value,
                         username, correlationId);
                 }
 

@@ -25,7 +25,7 @@ namespace MarginTrading.AssetService.Services
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly IRegulatoryProfilesApi _regulatoryProfilesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
-        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
         private readonly string _brokerId;
 
         public ClientProfilesService(
@@ -36,7 +36,7 @@ namespace MarginTrading.AssetService.Services
             IBrokerSettingsApi brokerSettingsApi,
             IRegulatoryProfilesApi regulatoryProfilesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
-            ICqrsMessageSender cqrsMessageSender,
+            ICqrsEntityChangedSender entityChangedSender,
             string brokerId)
         {
             _clientProfilesRepository = clientProfilesRepository;
@@ -46,7 +46,7 @@ namespace MarginTrading.AssetService.Services
             _brokerSettingsApi = brokerSettingsApi;
             _regulatoryProfilesApi = regulatoryProfilesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
-            _cqrsMessageSender = cqrsMessageSender;
+            _entityChangedSender = entityChangedSender;
             _brokerId = brokerId;
         }
 
@@ -111,12 +111,12 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
                 model.ToJson());
-            await _cqrsMessageSender
+            await _entityChangedSender
                 .SendEntityCreatedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(model,
                     username, correlationId);
             foreach (var profileSettings in clientProfileSettings)
             {
-                await _cqrsMessageSender
+                await _entityChangedSender
                     .SendEntityCreatedEvent<ClientProfileSettings, ClientProfileSettingsContract,
                         ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
             }
@@ -153,7 +153,7 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
                 model.ToJson(), existing.ToJson());
-            await _cqrsMessageSender
+            await _entityChangedSender
                 .SendEntityEditedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(existing,
                     model, username, correlationId);
         }
@@ -176,12 +176,12 @@ namespace MarginTrading.AssetService.Services
             await _auditService.TryAudit(correlationId, username, id.ToString(), AuditDataType.ClientProfile,
                 oldStateJson: existing.ToJson());
 
-            await _cqrsMessageSender
+            await _entityChangedSender
                 .SendEntityDeletedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(existing,
                     username, correlationId);
             foreach (var profileSettings in clientProfileSettings)
             {
-                await _cqrsMessageSender
+                await _entityChangedSender
                     .SendEntityDeletedEvent<ClientProfileSettings, ClientProfileSettingsContract,
                         ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
             }

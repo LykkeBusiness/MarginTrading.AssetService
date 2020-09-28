@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using CorporateActions.Contracts;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
@@ -20,20 +19,17 @@ namespace MarginTrading.AssetService.Services
         private readonly ProductAddOrUpdateValidation _addOrUpdateValidation;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
-        private readonly ICorporateActionsApi _corporateActionsApi;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ProductsService(
             ProductAddOrUpdateValidation addOrUpdateValidation,
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
-            IAuditService auditService,
-            ICorporateActionsApi corporateActionsApi)
+            IAuditService auditService)
         {
             _addOrUpdateValidation = addOrUpdateValidation;
             _repository = repository;
             _auditService = auditService;
-            _corporateActionsApi = corporateActionsApi;
             _entityChangedSender = entityChangedSender;
         }
 
@@ -132,12 +128,6 @@ namespace MarginTrading.AssetService.Services
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotFreezeDiscontinuedProduct);
             }
 
-            if (!isFrozen && existing.Value.FreezeInfo?.Reason != ProductFreezeReason.CostAndChargesGeneration)
-            {
-                var validateCAFreezeResult = await ValidateCAFreezeState(existing.Value);
-                if (validateCAFreezeResult.IsFailed) return validateCAFreezeResult;
-            }
-
             var result =
                 await _repository.ChangeFrozenStatus(productId, isFrozen, existing.Value.Timestamp, freezeInfo);
 
@@ -145,31 +135,11 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, userName, productId, AuditDataType.Product,
                     result.Value.ToJson(), existing.Value.ToJson());
-                await _cqrsMessageSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
                     existing.Value, result.Value, userName, correlationId);
             }
 
             return result.ToResultWithoutValue();
-        }
-
-        private async Task<Result<ProductsErrorCodes>> ValidateCAFreezeState(Product product)
-        {
-            if (product.FreezeInfo?.Reason == ProductFreezeReason.CorporateAction)
-            {
-                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotManuallyUnfreezeCorporateActionsFreeze);
-            }
-
-            if (product.FreezeInfo != null && product.FreezeInfo.IsDefault)
-            {
-                var frozenAssetDict = await _corporateActionsApi.GetFrozenAssetInfo();
-                if (frozenAssetDict.Keys.Contains(product.ProductId))
-                {
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes
-                        .CannotManuallyUnfreezeCorporateActionsFreeze);
-                }
-            }
-
-            return new Result<ProductsErrorCodes>();
         }
 
         public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)

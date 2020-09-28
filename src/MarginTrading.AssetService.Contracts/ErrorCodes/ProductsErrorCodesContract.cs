@@ -15,6 +15,5 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         AssetTypeDoesNotExist,
         CanOnlySetFreezeInfoForFrozenProduct,
         CannotFreezeDiscontinuedProduct,
-        CannotManuallyUnfreezeCorporateActionsFreeze,
     }
 }

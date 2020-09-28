@@ -15,6 +15,5 @@ namespace MarginTrading.AssetService.Core.Domain
         AssetTypeDoesNotExist,
         CanOnlySetFreezeInfoForFrozenProduct,
         CannotFreezeDiscontinuedProduct,
-        CannotManuallyUnfreezeCorporateActionsFreeze,
     }
 }

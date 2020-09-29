@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Interfaces;
 
@@ -35,12 +36,17 @@ namespace MarginTrading.AssetService.Core.Domain
         public string Name { get; }
         public string BaseAssetId { get; }
         public string QuoteAssetId { get; }
+        [Obsolete]
         public int Accuracy { get; }
         public string MarketId { get; }
         public string LegalEntity { get; }
+        [Obsolete]
         public string BasePairId { get; }
+        [Obsolete]
         public MatchingEngineMode MatchingEngineMode { get; }
+        [Obsolete]
         public decimal StpMultiplierMarkupBid { get; }
+        [Obsolete]
         public decimal StpMultiplierMarkupAsk { get; }
         
         public bool IsSuspended { get; }

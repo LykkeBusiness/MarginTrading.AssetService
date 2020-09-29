@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -32,9 +33,13 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal MarginCall1 { get; }
         public decimal MarginCall2 { get; }
         public decimal StopOut { get; }
+        [Obsolete]
         public decimal DepositLimit { get; }
+        [Obsolete]
         public decimal WithdrawalLimit { get; }
+        [Obsolete]
         public string LimitCurrency { get; }
+        [Obsolete]
         public List<string> BaseAssets { get; }
         public bool IsDefault { get; set; }
 

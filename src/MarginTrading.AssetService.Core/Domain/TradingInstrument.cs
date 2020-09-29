@@ -40,18 +40,26 @@ namespace MarginTrading.AssetService.Core.Domain
         public string Instrument { get; }
         public int LeverageInit { get; }
         public int LeverageMaintenance { get; }
+        [Obsolete]
         public decimal SwapLong { get; }
+        [Obsolete]
         public decimal SwapShort { get; }
+        [Obsolete]
         public decimal Delta { get; }
         public decimal DealMinLimit { get; }
         public decimal DealMaxLimit { get; }
         public decimal PositionLimit { get; }
         public bool ShortPosition { get; }
+        [Obsolete]
         public decimal LiquidationThreshold { get; }
         public decimal OvernightMarginMultiplier { get; }
+        [Obsolete]
         public decimal CommissionRate { get; }
+        [Obsolete]
         public decimal CommissionMin { get; }
+        [Obsolete]
         public decimal CommissionMax { get; }
+        [Obsolete]
         public string CommissionCurrency { get; }
         public decimal HedgeCost { get; }
         public decimal Spread { get; }

@@ -164,5 +164,30 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return result;
             }
         }
+
+        public async Task<List<string>> GetActiveAssetTypeIdsForDefaultProfileAsync()
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .Include(x => x.ClientProfile)
+                    .Where(x => x.IsAvailable && x.ClientProfile.IsDefault)
+                    .Select(x => x.AssetTypeId)
+                    .ToListAsync();
+
+                return result;
+            }
+        }
+
+        public async Task<bool> IsAvailableForDefaultProfileAsync(string assetTypeId)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .AnyAsync(x => x.AssetTypeId == assetTypeId && x.IsAvailable && x.ClientProfile.IsDefault);
+
+                return result;
+            }
+        }
     }
 }

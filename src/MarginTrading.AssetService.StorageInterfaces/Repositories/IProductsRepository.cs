@@ -25,6 +25,10 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<PaginatedResponse<Product>> GetPagedAsync(int skip = default, int take = 20);
         Task<IReadOnlyList<Product>> GetWithFilterAsync(string nameOrIdFilter);
         Task<IReadOnlyList<Product>> GetByProductsIdsAsync(IEnumerable<string> productIds = null);
+
+        Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds,
+            int skip = default, int take = 20);
+        Task<IReadOnlyList<Product>> GetByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds);
         Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value);
     }
 }

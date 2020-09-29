@@ -16,5 +16,8 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
 
         Task<List<ClientProfileSettings>> GetAllByProfileAndMultipleAssetTypesAsync(string clientProfileId,
             IEnumerable<string> assetTypeIds);
+
+        Task<List<string>> GetActiveAssetTypeIdsForDefaultProfileAsync();
+        Task<bool> IsAvailableForDefaultProfileAsync(string assetTypeId);
     }
 }

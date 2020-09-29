@@ -8,6 +8,6 @@ namespace MarginTrading.AssetService.Core.Services
     {
         Task<IReadOnlyList<ITradingCondition>> GetAsync();
         Task<ITradingCondition> GetAsync(string tradingConditionId);
-        Task<IReadOnlyList<ITradingCondition>> GetDefaultAsync();
+        Task<IReadOnlyList<ITradingCondition>> GetByDefaultFilterAsync(bool isDefault);
     }
 }

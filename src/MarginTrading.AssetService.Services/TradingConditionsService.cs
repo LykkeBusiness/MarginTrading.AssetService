@@ -42,17 +42,11 @@ namespace MarginTrading.AssetService.Services
             return MapTradingCondition(clientProfile);
         }
 
-        public async Task<IReadOnlyList<ITradingCondition>> GetDefaultAsync()
+        public async Task<IReadOnlyList<ITradingCondition>> GetByDefaultFilterAsync(bool isDefault)
         {
-            var clientProfile = await _clientProfilesRepository.GetDefaultAsync();
+            var profiles = await _clientProfilesRepository.GetByDefaultFilterAsync(isDefault);
 
-            if (clientProfile == null)
-                return null;
-
-            return new List<ITradingCondition>
-            {
-                MapTradingCondition(clientProfile)
-            };
+            return profiles.Select(MapTradingCondition).ToList();
         }
         private ITradingCondition MapTradingCondition(ClientProfile clientProfile)
         {

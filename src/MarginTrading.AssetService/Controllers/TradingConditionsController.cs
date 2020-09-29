@@ -46,7 +46,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<List<TradingConditionContract>> List([FromQuery] bool? isDefault = null)
         {
             var data = isDefault.HasValue ? 
-                await _tradingConditionsService.GetDefaultAsync():
+                await _tradingConditionsService.GetByDefaultFilterAsync(isDefault.Value):
                 await _tradingConditionsService.GetAsync();
             
             return data

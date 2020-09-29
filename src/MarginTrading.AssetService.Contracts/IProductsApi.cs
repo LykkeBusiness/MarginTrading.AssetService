@@ -41,7 +41,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Gets all Products with pagination
         /// </summary>
         [Get("/api/products")]
-        Task<GetProductsResponse> GetAllAsync([Query] GetProductsRequest request, [Query] int skip = default,
+        Task<GetProductsResponse> GetAllAsync([Query(CollectionFormat.Multi)] GetProductsRequest request, [Query] int skip = default,
             [Query] int take = 20);
     }
 }

@@ -81,6 +81,23 @@ namespace MarginTrading.AssetService.Services.Caches
             }
         }
 
+        public void AddOrUpdateByChangedMdsCode(string oldMdsCode, UnderlyingsCacheModel underlying)
+        {
+            _lockSlim.EnterWriteLock();
+            try
+            {
+                var isInCache = _cache.TryGetValue(oldMdsCode, out _);
+                if (isInCache)
+                    _cache.Remove(oldMdsCode);
+                else
+                    _cache.Add(underlying.MdsCode, underlying);
+            }
+            finally
+            {
+                _lockSlim.ExitWriteLock();
+            }
+        }
+
         public void Remove(UnderlyingsCacheModel underlying)
         {
             _lockSlim.EnterWriteLock();

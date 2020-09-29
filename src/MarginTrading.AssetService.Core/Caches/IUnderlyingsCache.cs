@@ -2,9 +2,10 @@
 {
     public interface IUnderlyingsCache
     {
-        public void Start();
-        public UnderlyingsCacheModel GetByMdsCode(string mdsCode);
-        public void AddOrUpdateByMdsCode(UnderlyingsCacheModel underlying);
-        public void Remove(UnderlyingsCacheModel underlying);
+        void Start();
+        UnderlyingsCacheModel GetByMdsCode(string mdsCode);
+        void AddOrUpdateByMdsCode(UnderlyingsCacheModel underlying);
+        void AddOrUpdateByChangedMdsCode(string oldMdsCode, UnderlyingsCacheModel underlying);
+        void Remove(UnderlyingsCacheModel underlying);
     }
 }

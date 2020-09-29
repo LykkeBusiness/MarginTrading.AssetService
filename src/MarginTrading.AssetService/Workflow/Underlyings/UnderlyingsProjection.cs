@@ -28,11 +28,10 @@ namespace MarginTrading.AssetService.Workflow.Underlyings
                     _underlyingsCache.AddOrUpdateByMdsCode(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
                     break;
                 case ChangeType.Edition:
-                    //If mds code was updated delete the existing record in the cache first
                     if(e.OldValue.MdsCode != e.NewValue.MdsCode)
-                        _underlyingsCache.Remove(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.OldValue));
-
-                    _underlyingsCache.AddOrUpdateByMdsCode(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
+                        _underlyingsCache.AddOrUpdateByChangedMdsCode(e.OldValue.MdsCode, _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
+                    else
+                        _underlyingsCache.AddOrUpdateByMdsCode(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
                     break;
                 case ChangeType.Deletion:
                     _underlyingsCache.Remove(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.OldValue));

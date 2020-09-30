@@ -14,6 +14,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Post("/api/product-categories")]
         Task<ErrorCodeResponse<ProductCategoriesErrorCodesContract>> UpsertAsync(
             [Body] AddProductCategoryRequest request);
 
@@ -23,6 +24,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="id"></param>
         /// <param name="request"></param>
         /// <returns></returns>
+        [Delete("/api/product-categories/{id}")]
         Task<ErrorCodeResponse<ProductCategoriesErrorCodesContract>> DeleteAsync(string id,
             [Body] DeleteProductCategoryRequest request);
 
@@ -30,6 +32,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Gets a list of all product categories 
         /// </summary>
         /// <returns></returns>
+        [Get("/api/product-categories")]
         Task<GetProductCategoriesResponse> GetAllAsync();
 
         /// <summary>
@@ -37,6 +40,7 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
+        [Get("/api/product-categories/{id}")]
         Task<GetProductCategoryByIdResponse> GetByIdAsync(string id);
     }
 }

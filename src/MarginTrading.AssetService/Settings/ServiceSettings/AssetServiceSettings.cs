@@ -46,5 +46,7 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public DefaultTradingConditionsSettings TradingConditionsDefaults { get; set; } = new DefaultTradingConditionsSettings();
 
         public string BrokerId { get; set; }
+
+        public RabbitMqSettings LegacyAssetUpdatedRabbitMqSettings { get; set; }
     }
 }

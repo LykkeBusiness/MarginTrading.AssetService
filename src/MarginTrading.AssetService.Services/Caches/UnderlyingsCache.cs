@@ -20,7 +20,7 @@ namespace MarginTrading.AssetService.Services.Caches
         private Dictionary<string, UnderlyingsCacheModel> _cache = new Dictionary<string, UnderlyingsCacheModel>();
         private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
 
-        public UnderlyingsCache(IUnderlyingsApi underlyingsApi,IConvertService convertService, ILog log)
+        public UnderlyingsCache(IUnderlyingsApi underlyingsApi, IConvertService convertService, ILog log)
         {
             _underlyingsApi = underlyingsApi;
             _convertService = convertService;

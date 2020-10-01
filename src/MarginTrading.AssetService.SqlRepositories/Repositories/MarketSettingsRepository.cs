@@ -163,6 +163,23 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<IReadOnlyList<MarketSettings>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.MarketSettings.AsNoTracking();
+
+                if (ids != null && ids.Any())
+                    query = query.Where(x => ids.Contains(x.Id));
+
+                var result = await query
+                    .Select(x => ToDomain(x))
+                    .ToListAsync();
+
+                return result;
+            }
+        }
+
         private static MarketSettings ToDomain(MarketSettingsEntity entity)
         {
             return new MarketSettings{

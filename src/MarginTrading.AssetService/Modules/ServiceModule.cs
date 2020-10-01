@@ -161,6 +161,14 @@ namespace MarginTrading.AssetService.Modules
                 .As<IUnderlyingsCache>()
                 .SingleInstance();
 
+            builder.RegisterType<LegacyAssetsService>()
+                .As<ILegacyAssetsService>()
+                .SingleInstance();
+
+            builder.RegisterType<LegacyAssetCache>()
+                .As<ILegacyAssetsCache>()
+                .SingleInstance();
+
             RegisterRepositories(builder);
 
             builder.Populate(_services);

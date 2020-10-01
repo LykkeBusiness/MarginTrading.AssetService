@@ -16,6 +16,7 @@ using MarginTrading.AssetService.Middleware;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Asset = Cronut.Dto.Assets.Asset;
 
 namespace MarginTrading.AssetService.Controllers
 {
@@ -27,13 +28,16 @@ namespace MarginTrading.AssetService.Controllers
     [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class AssetsController : Controller, IAssetsApi
     {
+        private readonly ILegacyAssetsService _legacyAssetsService;
         private readonly IAssetsRepository _assetsRepository;
         private readonly IConvertService _convertService;
         
         public AssetsController(
+            ILegacyAssetsService legacyAssetsService,
             IAssetsRepository assetsRepository,
             IConvertService convertService)
         {
+            _legacyAssetsService = legacyAssetsService;
             _assetsRepository = assetsRepository;
             _convertService = convertService;
         }
@@ -80,6 +84,18 @@ namespace MarginTrading.AssetService.Controllers
             var obj = await _assetsRepository.GetAsync(assetId);
             
             return _convertService.Convert<IAsset, AssetContract>(obj);
+        }
+
+        /// <summary>
+        /// Get the list of assets
+        /// </summary>
+        [HttpGet]
+        [Route("legacy")]
+        public async Task<List<Asset>> GetLegacyAssets()
+        {
+            var result = await _legacyAssetsService.GetLegacyAssets();
+
+            return result;
         }
     }
 }

@@ -29,6 +29,12 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
+using MarginTrading.AssetService.Workflow.ClientProfiles;
+using MarginTrading.AssetService.Workflow.ClientProfileSettings;
+using MarginTrading.AssetService.Workflow.MarketSettings;
+using MarginTrading.AssetService.Workflow.ProductCategories;
+using MarginTrading.AssetService.Workflow.Products;
+using MarginTrading.AssetService.Workflow.TickFormulas;
 using MarginTrading.AssetService.Workflow.Underlyings;
 
 namespace MarginTrading.AssetService.Modules
@@ -114,6 +120,7 @@ namespace MarginTrading.AssetService.Modules
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
             RegisterEventPublishing(contextRegistration);
             RegisterUnderlyingsProjection(contextRegistration);
+            RegisterAssetServiceProjections(contextRegistration);
             return contextRegistration;
         }
 
@@ -171,6 +178,34 @@ namespace MarginTrading.AssetService.Modules
                     typeof(UnderlyingChangedEvent))
                 .From(_settings.ContextNames.MdmService).On(nameof(UnderlyingChangedEvent))
                 .WithProjection(typeof(UnderlyingsProjection), _settings.ContextNames.MdmService);
+        }
+
+        private void RegisterAssetServiceProjections(
+            ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            contextRegistration.ListeningEvents(typeof(MarketSettingsChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On(DefaultEventPipeline).WithProjection(typeof(MarketSettingsChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ProductCategoryChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On(DefaultEventPipeline).WithProjection(typeof(ProductCategoryChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ProductChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On(DefaultEventPipeline).WithProjection(typeof(ProductChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ClientProfileChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On(DefaultEventPipeline).WithProjection(typeof(ClientProfileChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ClientProfileSettingsChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On(DefaultEventPipeline).WithProjection(typeof(ClientProfileSettingsChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(TickFormulaChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On(DefaultEventPipeline).WithProjection(typeof(TickFormulaChangedProjection), _settings.ContextNames.AssetService);
         }
     }
 }

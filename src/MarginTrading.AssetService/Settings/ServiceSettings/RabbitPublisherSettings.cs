@@ -5,7 +5,7 @@ using Lykke.SettingsReader.Attributes;
 
 namespace MarginTrading.AssetService.Settings.ServiceSettings
 {
-    public class RabbitMqSettings
+    public class RabbitPublisherSettings
     {
         [AmqpCheck]
         public string ConnectionString { get; set; }

@@ -12,6 +12,8 @@ namespace MarginTrading.AssetService.Core.Caches
 
         List<Asset> GetByFilter(Func<Asset, bool> filter);
 
+        List<Asset> GetAll();
+
         void AddOrUpdateMultiple(IEnumerable<Asset> assets);
 
         void Remove(Asset asset);

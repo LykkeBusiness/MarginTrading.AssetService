@@ -13,9 +13,11 @@ using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Services.Caches;
+using MarginTrading.AssetService.Services.RabbitMq.Handlers;
 using MarginTrading.AssetService.Settings.Candles;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.SqlRepositories;
@@ -167,6 +169,14 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<LegacyAssetCache>()
                 .As<ILegacyAssetsCache>()
+                .SingleInstance();
+
+            builder.RegisterType<ReferentialDataChangedHandler>()
+                .As<IReferentialDataChangedHandler>()
+                .SingleInstance();
+
+            builder.RegisterType<UnderlyingChangedHandler>()
+                .AsSelf()
                 .SingleInstance();
 
             RegisterRepositories(builder);

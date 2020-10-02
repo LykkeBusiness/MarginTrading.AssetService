@@ -1,26 +1,30 @@
 ﻿using System;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Core.Caches;
+using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
 
-namespace MarginTrading.AssetService.Workflow.Underlyings
+namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 {
-    public class UnderlyingsProjection
+    public class UnderlyingChangedHandler
     {
         private readonly IUnderlyingsCache _underlyingsCache;
+        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
         private readonly IConvertService _convertService;
 
-        public UnderlyingsProjection(IUnderlyingsCache underlyingsCache, IConvertService convertService)
+        public UnderlyingChangedHandler(
+            IUnderlyingsCache underlyingsCache,
+            IReferentialDataChangedHandler referentialDataChangedHandler,
+            IConvertService convertService)
         {
             _underlyingsCache = underlyingsCache;
+            _referentialDataChangedHandler = referentialDataChangedHandler;
             _convertService = convertService;
         }
 
-        [UsedImplicitly]
-        public async Task Handle(UnderlyingChangedEvent e)
+        public Task Handle(UnderlyingChangedEvent e)
         {
             switch (e.ChangeType)
             {
@@ -28,10 +32,14 @@ namespace MarginTrading.AssetService.Workflow.Underlyings
                     _underlyingsCache.AddOrUpdateByMdsCode(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
                     break;
                 case ChangeType.Edition:
-                    if(e.OldValue.MdsCode != e.NewValue.MdsCode)
-                        _underlyingsCache.AddOrUpdateByChangedMdsCode(e.OldValue.MdsCode, _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
+
+                    var model = _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue);
+                    if (e.OldValue.MdsCode != e.NewValue.MdsCode)
+                        _underlyingsCache.AddOrUpdateByChangedMdsCode(e.OldValue.MdsCode, model);
                     else
-                        _underlyingsCache.AddOrUpdateByMdsCode(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
+                        _underlyingsCache.AddOrUpdateByMdsCode(model);
+
+                    _referentialDataChangedHandler.HandleUnderlyingUpdated(e.OldValue.MdsCode, model);
                     break;
                 case ChangeType.Deletion:
                     _underlyingsCache.Remove(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.OldValue));
@@ -39,6 +47,8 @@ namespace MarginTrading.AssetService.Workflow.Underlyings
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
+            return Task.CompletedTask;
         }
     }
 }

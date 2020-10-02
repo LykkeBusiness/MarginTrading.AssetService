@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -28,16 +29,16 @@ namespace MarginTrading.AssetService.Controllers
     [MiddlewareFilter(typeof(RequestLoggingPipeline))]
     public class AssetsController : Controller, IAssetsApi
     {
-        private readonly ILegacyAssetsService _legacyAssetsService;
+        private readonly ILegacyAssetsCache _legacyAssetsCache;
         private readonly IAssetsRepository _assetsRepository;
         private readonly IConvertService _convertService;
         
         public AssetsController(
-            ILegacyAssetsService legacyAssetsService,
+            ILegacyAssetsCache legacyAssetsCache,
             IAssetsRepository assetsRepository,
             IConvertService convertService)
         {
-            _legacyAssetsService = legacyAssetsService;
+            _legacyAssetsCache = legacyAssetsCache;
             _assetsRepository = assetsRepository;
             _convertService = convertService;
         }
@@ -93,7 +94,7 @@ namespace MarginTrading.AssetService.Controllers
         [Route("legacy")]
         public async Task<List<Asset>> GetLegacyAssets()
         {
-            var result = await _legacyAssetsService.GetLegacyAssets();
+            var result = _legacyAssetsCache.GetAll();
 
             return result;
         }

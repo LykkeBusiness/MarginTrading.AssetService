@@ -45,9 +45,7 @@ namespace MarginTrading.AssetService.Services.Caches
             _lockSlim.EnterReadLock();
             try
             {
-                var isInCache = _cache.TryGetValue(id, out var result);
-                if (!isInCache)
-                    _log.WriteWarning(nameof(LegacyAssetCache), nameof(GetById), $"Cannot find legacy Asset in cache by id: {id}");
+                _cache.TryGetValue(id, out var result);
 
                 return result;
             }
@@ -63,6 +61,21 @@ namespace MarginTrading.AssetService.Services.Caches
             try
             {
                 var result = _cache.Values.Where(filter).ToList();
+
+                return result;
+            }
+            finally
+            {
+                _lockSlim.ExitReadLock();
+            }
+        }
+
+        public List<Asset> GetAll()
+        {
+            _lockSlim.EnterReadLock();
+            try
+            {
+                var result = _cache.Values.ToList();
 
                 return result;
             }

@@ -31,11 +31,11 @@ using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
 using MarginTrading.AssetService.Workflow.ClientProfiles;
 using MarginTrading.AssetService.Workflow.ClientProfileSettings;
+using MarginTrading.AssetService.Workflow.Currencies;
 using MarginTrading.AssetService.Workflow.MarketSettings;
 using MarginTrading.AssetService.Workflow.ProductCategories;
 using MarginTrading.AssetService.Workflow.Products;
 using MarginTrading.AssetService.Workflow.TickFormulas;
-using MarginTrading.AssetService.Workflow.Underlyings;
 
 namespace MarginTrading.AssetService.Modules
 {
@@ -46,13 +46,15 @@ namespace MarginTrading.AssetService.Modules
         private const string DefaultEventPipeline = "events";
         private readonly CqrsSettings _settings;
         private readonly ILog _log;
+        private readonly string _instanceId;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsModule(CqrsSettings settings, ILog log)
+        public CqrsModule(CqrsSettings settings, ILog log, string instanceId)
         {
             _settings = settings;
             _log = log;
+            _instanceId = instanceId;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
         }
@@ -119,7 +121,6 @@ namespace MarginTrading.AssetService.Modules
                 .ProcessingOptions(DefaultRoute).MultiThreaded(8).QueueCapacity(1024);
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
             RegisterEventPublishing(contextRegistration);
-            RegisterUnderlyingsProjection(contextRegistration);
             RegisterAssetServiceProjections(contextRegistration);
             return contextRegistration;
         }
@@ -171,41 +172,36 @@ namespace MarginTrading.AssetService.Modules
                 .With(DefaultEventPipeline);
         }
 
-        private void RegisterUnderlyingsProjection(
-            ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
-        {
-            contextRegistration.ListeningEvents(
-                    typeof(UnderlyingChangedEvent))
-                .From(_settings.ContextNames.MdmService).On(nameof(UnderlyingChangedEvent))
-                .WithProjection(typeof(UnderlyingsProjection), _settings.ContextNames.MdmService);
-        }
-
         private void RegisterAssetServiceProjections(
             ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
         {
             contextRegistration.ListeningEvents(typeof(MarketSettingsChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On(DefaultEventPipeline).WithProjection(typeof(MarketSettingsChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(MarketSettingsChangedEvent)}{_instanceId}").WithProjection(typeof(MarketSettingsChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ProductCategoryChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On(DefaultEventPipeline).WithProjection(typeof(ProductCategoryChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ProductCategoryChangedEvent)}{_instanceId}").WithProjection(typeof(ProductCategoryChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ProductChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On(DefaultEventPipeline).WithProjection(typeof(ProductChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ProductChangedEvent)}{_instanceId}").WithProjection(typeof(ProductChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ClientProfileChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On(DefaultEventPipeline).WithProjection(typeof(ClientProfileChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ClientProfileChangedEvent)}{_instanceId}").WithProjection(typeof(ClientProfileChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ClientProfileSettingsChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On(DefaultEventPipeline).WithProjection(typeof(ClientProfileSettingsChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ClientProfileSettingsChangedEvent)}{_instanceId}").WithProjection(typeof(ClientProfileSettingsChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(TickFormulaChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On(DefaultEventPipeline).WithProjection(typeof(TickFormulaChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(TickFormulaChangedEvent)}{_instanceId}").WithProjection(typeof(TickFormulaChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(CurrencyChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(CurrencyChangedEvent)}{_instanceId}").WithProjection(typeof(CurrencyChangedProjection), _settings.ContextNames.AssetService);
         }
     }
 }

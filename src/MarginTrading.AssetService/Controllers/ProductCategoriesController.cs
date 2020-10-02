@@ -10,6 +10,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using MoreLinq;
 
 namespace MarginTrading.AssetService.Controllers
 {
@@ -103,6 +104,24 @@ namespace MarginTrading.AssetService.Controllers
                     _convertService.Convert<ProductCategoriesErrorCodes, ProductCategoriesErrorCodesContract>(
                         result.Error.GetValueOrDefault());
             }
+
+            return response;
+        }
+
+        [HttpPost("validate")]
+        [ProducesResponseType(typeof(ValidateProductCategoriesResponse), (int) HttpStatusCode.OK)]
+        public async Task<ValidateProductCategoriesResponse> Validate(ValidateProductCategoriesRequest request)
+        {
+            var pairs = request.Pairs
+                .Select(p => _convertService.Convert<ProductAndCategoryPairContract, ProductAndCategoryPair>(p))
+                .ToList();
+
+            var errorMessages = await _productCategoriesService.Validate(pairs);
+            
+            var response = new ValidateProductCategoriesResponse()
+            {
+                ErrorMessages = errorMessages,
+            };
 
             return response;
         }

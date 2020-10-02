@@ -25,5 +25,7 @@ namespace MarginTrading.AssetService.Core.Services
         Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category,
             string username,
             string correlationId);
+
+        Task<List<string>> Validate(List<ProductAndCategoryPair> pairs);
     }
 }

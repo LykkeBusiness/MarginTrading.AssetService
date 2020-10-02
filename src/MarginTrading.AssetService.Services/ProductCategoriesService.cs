@@ -6,8 +6,8 @@ using Common;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.ProductCategories;
-using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Helpers;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
@@ -17,16 +17,19 @@ namespace MarginTrading.AssetService.Services
     public class ProductCategoriesService : IProductCategoriesService
     {
         private readonly IProductCategoriesRepository _productCategoriesRepository;
+        private readonly IProductCategoryStringService _productCategoryStringService;
         private readonly IAuditService _auditService;
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
 
         public ProductCategoriesService(IProductCategoriesRepository productCategoriesRepository,
+            IProductCategoryStringService productCategoryStringService,
             IAuditService auditService,
             ICqrsMessageSender cqrsMessageSender,
             IConvertService convertService)
         {
             _productCategoriesRepository = productCategoriesRepository;
+            _productCategoryStringService = productCategoryStringService;
             _auditService = auditService;
             _cqrsMessageSender = cqrsMessageSender;
             _convertService = convertService;
@@ -36,10 +39,11 @@ namespace MarginTrading.AssetService.Services
             string username,
             string correlationId)
         {
-            if(string.IsNullOrEmpty(category) || category.Contains('.')) 
-                return new Result<ProductCategory, ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.CategoryStringIsNotValid);
-            
-            var categoryName = new ProductCategoryName(category);
+            var categoryNameResult = await _productCategoryStringService.Create(category);
+            if (categoryNameResult.IsFailed)
+                return new Result<ProductCategory, ProductCategoriesErrorCodes>(categoryNameResult.Error.Value);
+
+            var categoryName = categoryNameResult.Value;
 
             // early exit if the category already exists
             var existingCategory = await GetByIdAsync(categoryName.NormalizedName);
@@ -119,6 +123,47 @@ namespace MarginTrading.AssetService.Services
 
         public Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetByIdAsync(string id)
             => _productCategoriesRepository.GetByIdAsync(id);
+
+        public async Task<List<string>> Validate(List<ProductAndCategoryPair> pairs)
+        {
+            var categoryNames = pairs.Select(x => x.Category).Distinct();
+
+            var categoryNameValidations =
+                new Dictionary<string, Result<ProductCategoryName, ProductCategoriesErrorCodes>>();
+            foreach (var category in categoryNames)
+            {
+                var validationResult = await _productCategoryStringService.Create(category);
+                categoryNameValidations.Add(category, validationResult);
+            }
+
+            // product category name validation failed
+            if (categoryNameValidations.Any(kvp => kvp.Value.IsFailed))
+            {
+                return categoryNameValidations
+                    .Select((kvp) => $"Category \"{kvp.Key}\" is not a valid category")
+                    .ToList();
+            }
+
+            var allNodes = categoryNameValidations
+                .SelectMany(kvp => kvp.Value.Value.Nodes)
+                .ToList();
+
+            var leafHelper = new CategoryLeafHelper(allNodes);
+
+            var errorMessages = new List<string>();
+
+            // product must be in a leaf category validation
+            foreach (var pair in pairs)
+            {
+                var categoryName = pair.Category;
+                var normalizedCategoryName = categoryNameValidations[categoryName].Value.NormalizedName;
+                if (!leafHelper.IsLeaf(normalizedCategoryName))
+                    errorMessages.Add(
+                        $"Product {pair.ProductId} cannot be attached to a category {categoryName} because it is not a leaf category");
+            }
+
+            return errorMessages;
+        }
 
         private async Task PublishProductCategoryChangedEvent(ProductCategory oldCategory, ProductCategory newCategory,
             string username, string correlationId, ChangeType changeType, string originalCategoryName = null)

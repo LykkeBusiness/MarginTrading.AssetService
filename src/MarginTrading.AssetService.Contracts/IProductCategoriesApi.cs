@@ -38,5 +38,14 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="id"></param>
         /// <returns></returns>
         Task<GetProductCategoryByIdResponse> GetByIdAsync(string id);
+
+        /// <summary>
+        /// Validates a list of categories with products
+        /// Also checks data in db
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Post("/api/product-categories/validate")]
+        Task<ValidateProductCategoriesResponse> Validate([Body] ValidateProductCategoriesRequest request);
     }
 }

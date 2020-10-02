@@ -13,6 +13,7 @@ using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
+using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
@@ -83,6 +84,8 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<UpdateProductRequest, Product>();
                 cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>();
                 
+                //ProductCategories
+                cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();
 
                 //MarketSettings
                 cfg.CreateMap<MarketSettings, MarketSettingsContract>();

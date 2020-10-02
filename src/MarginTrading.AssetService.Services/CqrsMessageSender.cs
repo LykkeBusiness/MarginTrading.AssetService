@@ -7,6 +7,8 @@ using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
+using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 
@@ -22,6 +24,7 @@ namespace MarginTrading.AssetService.Services
         public CqrsMessageSender(
             ICqrsEngine cqrsEngine,
             CqrsContextNamesSettings contextNames,
+            IConvertService convertService,
             ILog log)
         {
             _cqrsEngine = cqrsEngine;
@@ -40,16 +43,5 @@ namespace MarginTrading.AssetService.Services
                 await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(TEvent), ex);
             }
         }
-
-        public async Task SendEntityCreatedEvent<TEntity>(TEntity entity)
-        {
-            
-        }
-    }
-
-    public class EntityEvent<TEntity>
-    {
-        public string UserName { get; set; }
-        public string CorrelationId { get; set; }
     }
 }

@@ -6,6 +6,8 @@ using Common;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
+using MarginTrading.AssetService.Contracts.ClientProfiles;
+using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -23,6 +25,7 @@ namespace MarginTrading.AssetService.Services
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly IRegulatoryProfilesApi _regulatoryProfilesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
         private readonly string _brokerId;
 
         public ClientProfilesService(
@@ -33,6 +36,7 @@ namespace MarginTrading.AssetService.Services
             IBrokerSettingsApi brokerSettingsApi,
             IRegulatoryProfilesApi regulatoryProfilesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
+            ICqrsEntityChangedSender entityChangedSender,
             string brokerId)
         {
             _clientProfilesRepository = clientProfilesRepository;
@@ -42,6 +46,7 @@ namespace MarginTrading.AssetService.Services
             _brokerSettingsApi = brokerSettingsApi;
             _regulatoryProfilesApi = regulatoryProfilesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
+            _entityChangedSender = entityChangedSender;
             _brokerId = brokerId;
         }
 
@@ -83,7 +88,8 @@ namespace MarginTrading.AssetService.Services
             else
             {
                 clientProfileSettings = new List<ClientProfileSettings>();
-                var allRegulatorySettings = await _regulatorySettingsApi.GetRegulatorySettingsByRegulationAsync(regulationId);
+                var allRegulatorySettings =
+                    await _regulatorySettingsApi.GetRegulatorySettingsByRegulationAsync(regulationId);
                 var assetTypes = await _assetTypesRepository.GetAllAsync();
 
                 foreach (var assetType in assetTypes)
@@ -105,6 +111,15 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
                 model.ToJson());
+            await _entityChangedSender
+                .SendEntityCreatedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(model,
+                    username, correlationId);
+            foreach (var profileSettings in clientProfileSettings)
+            {
+                await _entityChangedSender
+                    .SendEntityCreatedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
+            }
         }
 
         public async Task UpdateAsync(ClientProfile model, string username, string correlationId)
@@ -138,6 +153,9 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
                 model.ToJson(), existing.ToJson());
+            await _entityChangedSender
+                .SendEntityEditedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(existing,
+                    model, username, correlationId);
         }
 
         public async Task DeleteAsync(string id, string username, string correlationId)
@@ -150,10 +168,23 @@ namespace MarginTrading.AssetService.Services
             if (existing.IsDefault)
                 throw new CannotDeleteException();
 
+            var clientProfileSettings = await
+                _clientProfileSettingsRepository.GetAllAsync(id, null);
+
             await _clientProfilesRepository.DeleteAsync(id);
 
             await _auditService.TryAudit(correlationId, username, id.ToString(), AuditDataType.ClientProfile,
                 oldStateJson: existing.ToJson());
+
+            await _entityChangedSender
+                .SendEntityDeletedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(existing,
+                    username, correlationId);
+            foreach (var profileSettings in clientProfileSettings)
+            {
+                await _entityChangedSender
+                    .SendEntityDeletedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
+            }
         }
 
         public Task<ClientProfile> GetByIdAsync(string id)

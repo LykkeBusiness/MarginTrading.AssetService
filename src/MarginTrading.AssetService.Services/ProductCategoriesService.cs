@@ -130,8 +130,8 @@ namespace MarginTrading.AssetService.Services
                 CorrelationId = correlationId,
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
-                OldProductCategory = _convertService.Convert<ProductCategory, ProductCategoryContract>(oldCategory),
-                NewProductCategory = _convertService.Convert<ProductCategory, ProductCategoryContract>(newCategory),
+                OldValue = _convertService.Convert<ProductCategory, ProductCategoryContract>(oldCategory),
+                NewValue = _convertService.Convert<ProductCategory, ProductCategoryContract>(newCategory),
                 OriginalCategoryName = originalCategoryName,
             });
         }

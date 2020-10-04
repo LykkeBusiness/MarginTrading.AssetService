@@ -2,7 +2,6 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Threading.Tasks;
-using MarginTrading.AssetService.Contracts.AssetPair;
 
 namespace MarginTrading.AssetService.Core.Services
 {

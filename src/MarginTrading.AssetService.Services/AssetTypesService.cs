@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Lykke.Common.MsSql;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
+using MarginTrading.AssetService.Contracts.AssetTypes;
+using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -24,6 +25,7 @@ namespace MarginTrading.AssetService.Services
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly IRegulatoryTypesApi _regulatoryTypesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -34,6 +36,7 @@ namespace MarginTrading.AssetService.Services
             IBrokerSettingsApi brokerSettingsApi,
             IRegulatoryTypesApi regulatoryTypesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
+            ICqrsEntityChangedSender entityChangedSender,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -43,6 +46,7 @@ namespace MarginTrading.AssetService.Services
             _brokerSettingsApi = brokerSettingsApi;
             _regulatoryTypesApi = regulatoryTypesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
+            _entityChangedSender = entityChangedSender;
             _brokerId = brokerId;
         }
 
@@ -84,7 +88,8 @@ namespace MarginTrading.AssetService.Services
             else
             {
                 clientProfileSettings = new List<ClientProfileSettings>();
-                var allRegulatorySettings = await _regulatorySettingsApi.GetRegulatorySettingsByRegulationAsync(regulationId);
+                var allRegulatorySettings =
+                    await _regulatorySettingsApi.GetRegulatorySettingsByRegulationAsync(regulationId);
                 var clientProfiles = await _clientProfilesRepository.GetAllAsync();
 
                 foreach (var clientProfile in clientProfiles)
@@ -106,6 +111,15 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson());
+
+            await _entityChangedSender.SendEntityCreatedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(model,
+                username, correlationId);
+            foreach (var profileSettings in clientProfileSettings)
+            {
+                await _entityChangedSender
+                    .SendEntityCreatedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
+            }
         }
 
         public async Task UpdateAsync(AssetType model, string username, string correlationId)
@@ -139,6 +153,9 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson(), existing.ToJson());
+
+            await _entityChangedSender.SendEntityEditedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(
+                existing, model, username, correlationId);
         }
 
         public async Task DeleteAsync(string id, string username, string correlationId)
@@ -147,14 +164,26 @@ namespace MarginTrading.AssetService.Services
 
             if (existing == null)
                 throw new AssetTypeDoesNotExistException();
-            
-            if(await _assetTypesRepository.AssignedToAnyProductAsync(id))
+
+            if (await _assetTypesRepository.AssignedToAnyProductAsync(id))
                 throw new CannotDeleteAssetTypeAssignedToAnyProductException();
+
+            var clientProfileSettings = await
+                _clientProfileSettingsRepository.GetAllAsync(id, null);
 
             await _assetTypesRepository.DeleteAsync(id);
 
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.AssetType,
                 oldStateJson: existing.ToJson());
+
+            await _entityChangedSender.SendEntityDeletedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(
+                existing, username, correlationId);
+            foreach (var profileSettings in clientProfileSettings)
+            {
+                await _entityChangedSender
+                    .SendEntityDeletedEvent<ClientProfileSettings, ClientProfileSettingsContract,
+                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
+            }
         }
 
         public Task<AssetType> GetByIdAsync(string id)
@@ -172,7 +201,8 @@ namespace MarginTrading.AssetService.Services
                 await _regulatoryTypesApi.GetRegulatoryTypeByIdAsync(regulatoryTypeId);
 
             if (regulatoryTypeResponse.ErrorCode == RegulationsErrorCodesContract.RegulatoryTypeDoesNotExist ||
-                !regulatoryTypeResponse.RegulatoryType.RegulationId.Equals(regulationId, StringComparison.InvariantCultureIgnoreCase))
+                !regulatoryTypeResponse.RegulatoryType.RegulationId.Equals(regulationId,
+                    StringComparison.InvariantCultureIgnoreCase))
                 throw new RegulatoryTypeDoesNotExistException();
         }
 

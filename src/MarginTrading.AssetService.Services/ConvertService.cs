@@ -81,6 +81,7 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<Product, ProductContract>();
                 cfg.CreateMap<AddProductRequest, Product>();
                 cfg.CreateMap<UpdateProductRequest, Product>();
+                cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>();
                 
 
                 //MarketSettings

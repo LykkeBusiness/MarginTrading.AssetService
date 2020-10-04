@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Common;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
@@ -148,10 +149,28 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             await using var context = _contextFactory.CreateDataContext();
 
             var result = await context.Products
-                .AnyAsync(p => p.UnderlyingMdsCode == mdsCode 
+                .AnyAsync(p => p.UnderlyingMdsCode == mdsCode
                                && p.ProductId != productId);
 
             return !result;
+        }
+
+        public async Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
+            byte[] valueTimestamp,
+            ProductFreezeInfo freezeInfo)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+
+            var entity = await context.Products.FirstOrDefaultAsync(p => p.ProductId == productId);
+            if (entity == null)
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+            entity.IsFrozen = isFrozen;
+            entity.FreezeInfo = freezeInfo.ToJsonWithStringEnums();
+
+            await context.SaveChangesAsync();
+
+            return new Result<Product, ProductsErrorCodes>(ToModel(entity));
         }
 
         private static ProductEntity ToEntity(Product product)
@@ -186,9 +205,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
                 TradingCurrencyId = product.TradingCurrency,
-                IsSuspended =  product.IsSuspended,
+                IsSuspended = product.IsSuspended,
                 IsFrozen = product.IsFrozen,
-                FreezeInfo = product.FreezeInfo,
+                FreezeInfo = product.FreezeInfo.ToJsonWithStringEnums(),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };
@@ -228,9 +247,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Parity = product.Parity,
                 OvernightMarginMultiplier = product.OvernightMarginMultiplier,
                 TradingCurrency = product.TradingCurrencyId,
-                IsSuspended =  product.IsSuspended,
+                IsSuspended = product.IsSuspended,
                 IsFrozen = product.IsFrozen,
-                FreezeInfo = product.FreezeInfo,
+                FreezeInfo = product.FreezeInfo?.DeserializeJson<ProductFreezeInfo>(),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };

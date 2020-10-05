@@ -8,6 +8,7 @@ using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Tests.Common;
 using MarginTrading.AssetService.Tests.Extensions;
 using Moq;

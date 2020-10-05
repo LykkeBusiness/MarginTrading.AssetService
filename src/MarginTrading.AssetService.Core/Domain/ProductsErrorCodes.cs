@@ -13,5 +13,7 @@ namespace MarginTrading.AssetService.Core.Domain
         CanOnlyCreateOneProductPerUnderlying,
         TickFormulaDoesNotExist,
         AssetTypeDoesNotExist,
+        CanOnlySetFreezeInfoForFrozenProduct,
+        CannotFreezeDiscontinuedProduct,
     }
 }

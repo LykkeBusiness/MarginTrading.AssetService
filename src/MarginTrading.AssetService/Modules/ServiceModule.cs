@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
@@ -21,6 +22,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using AzureRepos = MarginTrading.AssetService.AzureRepositories.Repositories;
+using Module = Autofac.Module;
 using SqlRepos = MarginTrading.AssetService.SqlRepositories.Repositories;
 
 namespace MarginTrading.AssetService.Modules
@@ -111,6 +113,10 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<CqrsMessageSender>()
                 .As<ICqrsMessageSender>()
                 .SingleInstance();
+
+            builder.RegisterType<CqrsEntityChangedSender>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
             
             builder.RegisterChaosKitty(_settings.CurrentValue.ChaosKitty);
 
@@ -125,6 +131,10 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<CurrenciesService>()
                 .AsImplementedInterfaces()
                 .SingleInstance();
+            
+            builder.RegisterAssemblyTypes(typeof(MarginTrading.AssetService.Services.AssemblyDummy).Assembly)
+                .Where(t => t.Name.EndsWith("Validation"))
+                .AsSelf();
 
             RegisterRepositories(builder);
 

@@ -64,7 +64,7 @@ namespace MarginTrading.AssetService.Core.Domain
         
         public bool IsFrozen { get; set; }
         
-        public string FreezeInfo { get; set; }
+        public ProductFreezeInfo FreezeInfo { get; set; }
         
         public bool IsDiscontinued { get; set; }
         

@@ -17,18 +17,18 @@ namespace MarginTrading.AssetService.Services
         private readonly IClientProfileSettingsRepository _regulatorySettingsRepository;
         private readonly IAuditService _auditService;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
-        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ClientProfileSettingsService(
             IClientProfileSettingsRepository regulatorySettingsRepository,
             IAuditService auditService,
             IRegulatorySettingsApi regulatorySettingsApi,
-            ICqrsMessageSender cqrsMessageSender)
+            ICqrsEntityChangedSender entityChangedSender)
         {
             _regulatorySettingsRepository = regulatorySettingsRepository;
             _auditService = auditService;
             _regulatorySettingsApi = regulatorySettingsApi;
-            _cqrsMessageSender = cqrsMessageSender;
+            _entityChangedSender = entityChangedSender;
         }
 
         public async Task UpdateAsync(ClientProfileSettings model, string username, string correlationId)
@@ -71,7 +71,7 @@ namespace MarginTrading.AssetService.Services
             await _auditService.TryAudit(correlationId, username, referenceId, AuditDataType.ClientProfileSettings,
                 model.ToJson(), existing.ToJson());
 
-            await _cqrsMessageSender
+            await _entityChangedSender
                 .SendEntityEditedEvent<ClientProfileSettings, ClientProfileSettingsContract,
                     ClientProfileSettingsChangedEvent>(existing, model, username, correlationId);
         }

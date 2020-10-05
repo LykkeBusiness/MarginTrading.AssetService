@@ -119,6 +119,10 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<CqrsMessageSender>()
                 .As<ICqrsMessageSender>()
                 .SingleInstance();
+
+            builder.RegisterType<CqrsEntityChangedSender>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
             
             builder.RegisterChaosKitty(_settings.CurrentValue.ChaosKitty);
 

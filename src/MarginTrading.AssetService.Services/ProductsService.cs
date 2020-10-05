@@ -20,21 +20,18 @@ namespace MarginTrading.AssetService.Services
         private readonly ProductAddOrUpdateValidation _addOrUpdateValidation;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
-        private readonly ICorporateActionsApi _corporateActionsApi;
-        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ProductsService(
             ProductAddOrUpdateValidation addOrUpdateValidation,
             IProductsRepository repository,
-            ICqrsMessageSender cqrsMessageSender,
-            IAuditService auditService,
-            ICorporateActionsApi corporateActionsApi)
+            ICqrsEntityChangedSender entityChangedSender,
+            IAuditService auditService)
         {
             _addOrUpdateValidation = addOrUpdateValidation;
             _repository = repository;
             _auditService = auditService;
-            _corporateActionsApi = corporateActionsApi;
-            _cqrsMessageSender = cqrsMessageSender;
+            _entityChangedSender = entityChangedSender;
         }
 
 
@@ -52,7 +49,7 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                     product.ToJson());
-                await _cqrsMessageSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product,
+                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product,
                     username, correlationId);
             }
 
@@ -78,8 +75,7 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
-                    await _cqrsMessageSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existing.Value, product,
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product,
                         username, correlationId);
                 }
 
@@ -102,8 +98,7 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, productId, AuditDataType.Product,
                         oldStateJson: existing.Value.ToJson());
-                    await _cqrsMessageSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existing.Value,
+                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value,
                         username, correlationId);
                 }
 
@@ -134,12 +129,6 @@ namespace MarginTrading.AssetService.Services
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotFreezeDiscontinuedProduct);
             }
 
-            if (!isFrozen && existing.Value.FreezeInfo?.Reason != ProductFreezeReason.CostAndChargesGeneration)
-            {
-                var validateCAFreezeResult = await ValidateCAFreezeState(existing.Value);
-                if (validateCAFreezeResult.IsFailed) return validateCAFreezeResult;
-            }
-
             var result =
                 await _repository.ChangeFrozenStatus(productId, isFrozen, existing.Value.Timestamp, freezeInfo);
 
@@ -147,40 +136,20 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, userName, productId, AuditDataType.Product,
                     result.Value.ToJson(), existing.Value.ToJson());
-                await _cqrsMessageSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
                     existing.Value, result.Value, userName, correlationId);
             }
 
             return result.ToResultWithoutValue();
         }
 
-        private async Task<Result<ProductsErrorCodes>> ValidateCAFreezeState(Product product)
-        {
-            if (product.FreezeInfo?.Reason == ProductFreezeReason.CorporateAction)
-            {
-                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotManuallyUnfreezeCorporateActionsFreeze);
-            }
-
-            if (product.FreezeInfo != null && product.FreezeInfo.IsDefault)
-            {
-                var frozenAssetDict = await _corporateActionsApi.GetFrozenAssetInfo();
-                if (frozenAssetDict.Keys.Contains(product.ProductId))
-                {
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes
-                        .CannotManuallyUnfreezeCorporateActionsFreeze);
-                }
-            }
-
-            return new Result<ProductsErrorCodes>();
-        }
-
         public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
             => _repository.GetByIdAsync(productId);
 
-        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync()
-            => _repository.GetAllAsync();
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
+            => _repository.GetAllAsync(mdsCodes, productIds);
 
-        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(int skip = default, int take = 20)
-            => _repository.GetByPageAsync(skip, take);
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds, int skip = default, int take = 20)
+            => _repository.GetByPageAsync(mdsCodes, productIds, skip, take);
     }
 }

@@ -16,16 +16,16 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAuditService _auditService;
-        private readonly ICqrsMessageSender _cqrsMessageSender;
+        private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public TickFormulaService(
             ITickFormulaRepository tickFormulaRepository,
             IAuditService auditService,
-            ICqrsMessageSender cqrsMessageSender)
+            ICqrsEntityChangedSender entityChangedSender)
         {
             _tickFormulaRepository = tickFormulaRepository;
             _auditService = auditService;
-            _cqrsMessageSender = cqrsMessageSender;
+            _entityChangedSender = entityChangedSender;
         }
 
         public Task<ITickFormula> GetByIdAsync(string id)
@@ -51,7 +51,7 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.TickFormula,
                 model.ToJson());
-            await _cqrsMessageSender.SendEntityCreatedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(
+            await _entityChangedSender.SendEntityCreatedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(
                 model, username, correlationId);
             
             return new Result<TickFormulaErrorCodes>();
@@ -79,7 +79,7 @@ namespace MarginTrading.AssetService.Services
 
             await _auditService.TryAudit(correlationId, username, currentSettings.Id, AuditDataType.TickFormula,
                 model.ToJson(), currentSettings.ToJson());
-            await _cqrsMessageSender.SendEntityEditedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(
+            await _entityChangedSender.SendEntityEditedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(
                 currentSettings, model, username, correlationId);
 
             return new Result<TickFormulaErrorCodes>();
@@ -101,7 +101,7 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, username, id, AuditDataType.TickFormula,
                     oldStateJson: existing.ToJson());  
-                await _cqrsMessageSender
+                await _entityChangedSender
                     .SendEntityDeletedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(existing,
                         username, correlationId);
             }

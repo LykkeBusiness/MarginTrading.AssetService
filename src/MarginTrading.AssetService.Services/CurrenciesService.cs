@@ -113,8 +113,8 @@ namespace MarginTrading.AssetService.Services
                 CorrelationId = correlationId,
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
-                OldCurrency = _convertService.Convert<Currency, CurrencyContract>(oldCurrency),
-                NewCurrency = _convertService.Convert<Currency, CurrencyContract>(newCurrency),
+                OldValue = _convertService.Convert<Currency, CurrencyContract>(oldCurrency),
+                NewValue = _convertService.Convert<Currency, CurrencyContract>(newCurrency),
             });
         }
     }

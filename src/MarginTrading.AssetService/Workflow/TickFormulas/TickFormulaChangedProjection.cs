@@ -11,12 +11,12 @@ namespace MarginTrading.AssetService.Workflow.TickFormulas
 {
     public class TickFormulaChangedProjection
     {
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
-        public TickFormulaChangedProjection(IReferentialDataChangedHandler referentialDataChangedHandler, IConvertService convertService)
+        public TickFormulaChangedProjection(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, IConvertService convertService)
         {
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -28,8 +28,8 @@ namespace MarginTrading.AssetService.Workflow.TickFormulas
                 case ChangeType.Creation:
                     break;
                 case ChangeType.Edition:
-                    await _referentialDataChangedHandler.HandleTickFormulaUpdated(
-                        _convertService.Convert<TickFormulaContract, TickFormula>(e.NewValue));
+                    await _legacyAssetsCacheUpdater.HandleTickFormulaUpdated(
+                        _convertService.Convert<TickFormulaContract, TickFormula>(e.NewValue), e.Timestamp);
                     break;
                 case ChangeType.Deletion:
                     break;

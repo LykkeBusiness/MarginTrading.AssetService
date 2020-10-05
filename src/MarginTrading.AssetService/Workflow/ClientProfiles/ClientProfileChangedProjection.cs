@@ -11,12 +11,12 @@ namespace MarginTrading.AssetService.Workflow.ClientProfiles
 {
     public class ClientProfileChangedProjection
     {
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
-        public ClientProfileChangedProjection(IReferentialDataChangedHandler referentialDataChangedHandler, IConvertService convertService)
+        public ClientProfileChangedProjection(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, IConvertService convertService)
         {
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Workflow.ClientProfiles
 
                     var updated = _convertService.Convert<ClientProfileContract, ClientProfile>(e.NewValue);
 
-                    await _referentialDataChangedHandler.HandleClientProfileUpserted(old, updated);
+                    await _legacyAssetsCacheUpdater.HandleClientProfileUpserted(old, updated, e.Timestamp);
 
                     break;
                 case ChangeType.Deletion:

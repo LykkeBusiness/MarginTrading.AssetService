@@ -220,64 +220,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<PaginatedResponse<Product>> GetPagedWithFilterAsync(string nameOrIdFilter, int skip = default, int take = 20)
-        {
-            skip = Math.Max(0, skip);
-            take = take < 0 ? 20 : Math.Min(take, 100);
-
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
-
-                if(!string.IsNullOrEmpty(nameOrIdFilter))
-                   query =  query.Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter));
-
-                var total = await query.CountAsync();
-                var products = await query
-                    .OrderBy(u => u.Name)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync();
-
-                return new PaginatedResponse<Product>(products.Select(ToModel).ToList(), skip, products.Count, total);
-            }
-        }
-
-        public async Task<PaginatedResponse<Product>> GetPagedAsync(int skip = default, int take = 20)
-        {
-            skip = Math.Max(0, skip);
-            take = take < 0 ? 20 : Math.Min(take, 100);
-
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
-
-                var total = await query.CountAsync();
-                var products = await query
-                    .OrderBy(u => u.Name)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync();
-
-                return new PaginatedResponse<Product>(products.Select(ToModel).ToList(), skip, products.Count, total);
-            }
-        }
-
-        public async Task<IReadOnlyList<Product>> GetWithFilterAsync(string nameOrIdFilter)
-        {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
-
-                if (!string.IsNullOrEmpty(nameOrIdFilter))
-                    query = query.Where(x => x.ProductId.Contains(nameOrIdFilter) || x.Name.Contains(nameOrIdFilter));
-
-                var products = await query.ToListAsync();
-
-                return products.Select(ToModel).ToList();
-            }
-        }
-
         public async Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds, int skip = default, int take = 20)
         {
             skip = Math.Max(0, skip);

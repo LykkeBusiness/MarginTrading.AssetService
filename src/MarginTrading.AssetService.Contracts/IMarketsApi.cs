@@ -25,6 +25,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <summary>
         /// Get the market
         /// </summary>
+        [Obsolete]
         [ItemCanBeNull]
         [Get("/api/markets/{marketId}")]
         Task<MarketContract> Get([NotNull] string marketId);

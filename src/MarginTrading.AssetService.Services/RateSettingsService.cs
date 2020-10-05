@@ -74,8 +74,9 @@ namespace MarginTrading.AssetService.Services
             var result = new List<OrderExecutionRate>();
             foreach (var assetPairId in assetPairIds)
             {
-                if (!productAssetTypeMap.ContainsKey(assetPairId) ||
-                    clientProfileSettingsMap.ContainsKey(productAssetTypeMap[assetPairId]))
+                var containsAssetType = productAssetTypeMap.TryGetValue(assetPairId, out var assetTypeId);
+
+                if (!containsAssetType || clientProfileSettingsMap.ContainsKey(assetTypeId))
                 {
                     _log.WriteWarning(nameof(RateSettingsService), nameof(GetOrderExecutionRatesAsync),
                         $"Missing product with id: {assetPairId} , default values will be used to create OrderExecutionRates");
@@ -84,7 +85,7 @@ namespace MarginTrading.AssetService.Services
                     continue;
                 }
 
-                var clientProfileSettings = clientProfileSettingsMap[productAssetTypeMap[assetPairId]];
+                var clientProfileSettings = clientProfileSettingsMap[assetTypeId];
                 result.Add(OrderExecutionRate.Create(assetPairId,
                     clientProfileSettings.ExecutionFeesCap,
                     clientProfileSettings.ExecutionFeesFloor,
@@ -151,16 +152,21 @@ namespace MarginTrading.AssetService.Services
                     continue;
                 }
 
+                var productId = product.ProductId;
                 underlyings.TryGetValue(product.UnderlyingMdsCode, out var underlying);
                 var baseCurrencyId = underlying?.BaseCurrency;
                 var baseCurrency = string.IsNullOrEmpty(baseCurrencyId) ? null :
                     baseCurrencies.ContainsKey(baseCurrencyId) ? baseCurrencies[baseCurrencyId] : null;
+                var tradingCurrencyId = productTradingCurrencyMap[productId];
+                var tradingCurrency = tradingCurrencies[tradingCurrencyId];
+                var assetTypeId = productAssetTypeIdMap[productId];
+                var profileSettings = clientProfileSettings[assetTypeId];
 
                 var rate = new OvernightSwapRate
                 {
-                    AssetPairId = product.ProductId,
-                    VariableRateQuote = tradingCurrencies[productTradingCurrencyMap[product.ProductId]].InterestRateMdsCode,
-                    FixRate = clientProfileSettings[productAssetTypeIdMap[product.ProductId]].FinancingFeesRate,
+                    AssetPairId = productId,
+                    VariableRateQuote = tradingCurrency.InterestRateMdsCode,
+                    FixRate = profileSettings.FinancingFeesRate,
                     RepoSurchargePercent = underlying?.RepoSurchargePercent ?? _defaultRateSettings.DefaultOvernightSwapSettings.RepoSurchargePercent,
                     VariableRateBase = baseCurrency?.InterestRateMdsCode,
                 };
@@ -178,12 +184,7 @@ namespace MarginTrading.AssetService.Services
         public async Task<OnBehalfRate> GetOnBehalfRateAsync()
         {
             //Changes will be made in ComissionsService, this is just a mock
-            return new OnBehalfRate
-            {
-                CommissionAsset = "EUR",
-                LegalEntity = _defaultLegalEntitySettings.DefaultLegalEntity,
-                Commission = 0,
-            };
+            return OnBehalfRate.FromDefault(_defaultRateSettings.DefaultOnBehalfSettings);
         }
 
         #endregion On Behalf

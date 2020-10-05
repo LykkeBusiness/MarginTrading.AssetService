@@ -16,6 +16,7 @@ namespace MarginTrading.AssetService.Services.Caches
 
         private Dictionary<string, Asset> _cache = new Dictionary<string, Asset>();
         private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
+        public DateTime CacheInitTimestamp { get; private set; }
 
         public LegacyAssetCache(ILegacyAssetsService legacyAssetsService, ILog log)
         {
@@ -29,6 +30,7 @@ namespace MarginTrading.AssetService.Services.Caches
             try
             {
                 _log.WriteInfo(nameof(LegacyAssetCache), nameof(Start), "Asset(Legacy) Cache init started.");
+                CacheInitTimestamp = DateTime.UtcNow;
 
                 var response = _legacyAssetsService.GetLegacyAssets().GetAwaiter().GetResult();
 
@@ -92,12 +94,7 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 foreach (var asset in assets)
                 {
-                    var key = asset.AssetId;
-                    var isInCache = _cache.TryGetValue(key, out _);
-                    if (isInCache)
-                        _cache[key] = asset;
-                    else
-                        _cache.Add(key, asset);
+                    _cache[asset.AssetId] = asset;
                 }
             }
             finally
@@ -106,14 +103,14 @@ namespace MarginTrading.AssetService.Services.Caches
             }
         }
 
-        public void Remove(Asset asset)
+        public void Remove(string assetId)
         {
             _lockSlim.EnterWriteLock();
             try
             {
-                var isInCache = _cache.TryGetValue(asset.AssetId, out _);
+                var isInCache = _cache.TryGetValue(assetId, out _);
                 if (isInCache)
-                    _cache.Remove(asset.AssetId);
+                    _cache.Remove(assetId);
             }
             finally
             {

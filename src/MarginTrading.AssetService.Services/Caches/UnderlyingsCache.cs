@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), "Underlyings Cache init started.");
 
-                var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequest{MdsCodes = null},0, 0).GetAwaiter().GetResult();
+                var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequest { MdsCodes = null }, 0, 0).GetAwaiter().GetResult();
 
                 _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), $"{response.Underlyings.Count} underlyings read.");
 
@@ -54,7 +54,7 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 var isInCache = _cache.TryGetValue(mdsCode, out var result);
                 if (!isInCache)
-                    _log.WriteWarning(nameof(UnderlyingsCache), nameof(GetByMdsCode), $"Cannot find underlying in chache by mdsCode: {mdsCode}");
+                    _log.WriteWarning(nameof(UnderlyingsCache), nameof(GetByMdsCode), $"Cannot find underlying in cache by mdsCode: {mdsCode}");
 
                 return result;
             }
@@ -69,11 +69,7 @@ namespace MarginTrading.AssetService.Services.Caches
             _lockSlim.EnterWriteLock();
             try
             {
-                var isInCache = _cache.TryGetValue(underlying.MdsCode, out var result);
-                if (isInCache)
-                    _cache[underlying.MdsCode] = underlying;
-                else
-                    _cache.Add(underlying.MdsCode, underlying);
+                _cache[underlying.MdsCode] = underlying;
             }
             finally
             {
@@ -89,8 +85,8 @@ namespace MarginTrading.AssetService.Services.Caches
                 var isInCache = _cache.TryGetValue(oldMdsCode, out _);
                 if (isInCache)
                     _cache.Remove(oldMdsCode);
-                else
-                    _cache.Add(underlying.MdsCode, underlying);
+
+                _cache.Add(underlying.MdsCode, underlying);
             }
             finally
             {

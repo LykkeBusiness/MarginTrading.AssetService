@@ -11,16 +11,16 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
     public class UnderlyingChangedHandler
     {
         private readonly IUnderlyingsCache _underlyingsCache;
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
         public UnderlyingChangedHandler(
             IUnderlyingsCache underlyingsCache,
-            IReferentialDataChangedHandler referentialDataChangedHandler,
+            ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater,
             IConvertService convertService)
         {
             _underlyingsCache = underlyingsCache;
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -39,7 +39,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                     else
                         _underlyingsCache.AddOrUpdateByMdsCode(model);
 
-                    _referentialDataChangedHandler.HandleUnderlyingUpdated(e.OldValue.MdsCode, model);
+                    _legacyAssetsCacheUpdater.HandleUnderlyingUpdated(e.OldValue.MdsCode, model, e.Timestamp);
                     break;
                 case ChangeType.Deletion:
                     _underlyingsCache.Remove(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.OldValue));

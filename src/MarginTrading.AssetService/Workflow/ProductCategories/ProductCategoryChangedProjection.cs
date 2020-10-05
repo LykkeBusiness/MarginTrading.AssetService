@@ -11,12 +11,12 @@ namespace MarginTrading.AssetService.Workflow.ProductCategories
 {
     public class ProductCategoryChangedProjection
     {
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
-        public ProductCategoryChangedProjection(IReferentialDataChangedHandler referentialDataChangedHandler, IConvertService convertService)
+        public ProductCategoryChangedProjection(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, IConvertService convertService)
         {
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -28,8 +28,8 @@ namespace MarginTrading.AssetService.Workflow.ProductCategories
                 case ChangeType.Creation:
                     break;
                 case ChangeType.Edition:
-                    await _referentialDataChangedHandler.HandleProductCategoryUpdated(
-                        _convertService.Convert<ProductCategoryContract, ProductCategory>(e.NewProductCategory));
+                    await _legacyAssetsCacheUpdater.HandleProductCategoryUpdated(
+                        _convertService.Convert<ProductCategoryContract, ProductCategory>(e.NewValue), e.Timestamp);
                     break;
                 case ChangeType.Deletion:
                     break;

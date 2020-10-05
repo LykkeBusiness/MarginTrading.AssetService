@@ -14,23 +14,20 @@ namespace MarginTrading.AssetService.Services
     public class AssetPairService : IAssetPairService
     {
         private readonly IProductsRepository _productsRepository;
+        private readonly ICurrenciesRepository _currenciesRepository;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         private readonly ILog _log;
 
         public AssetPairService(
             IProductsRepository productsRepository,
+            ICurrenciesRepository currenciesRepository,
             DefaultLegalEntitySettings defaultLegalEntitySettings,
             ILog log)
         {
             _productsRepository = productsRepository;
+            _currenciesRepository = currenciesRepository;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
             _log = log;
-        }
-        public async Task<IAssetPair> GetByIdAsync(string assetPairId)
-        {
-            var result = await _productsRepository.GetByIdAsync(assetPairId);
-
-            return result.IsSuccess ? AssetPair.CreateFromProduct(result.Value, _defaultLegalEntitySettings.DefaultLegalEntity) : null;
         }
 
         public async Task<IReadOnlyList<IAssetPair>> GetByIdsAsync(IEnumerable<string> assetPairIds)
@@ -42,24 +39,23 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<PaginatedResponse<IAssetPair>> GetPaginatedWithFilterAsync(string filter, int? skip, int? take)
+        public async Task<IAssetPair> GetByIdAsync(string assetPairId)
         {
-            skip ??= 0;
-            take = PaginationHelper.GetTake(take);
-            var products = await _productsRepository.GetPagedWithFilterAsync(filter, skip.Value, take.Value);
+            var result = await _productsRepository.GetByIdAsync(assetPairId);
 
-            var assetPairs = products.Contents
-                .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
-
-            return new PaginatedResponse<IAssetPair>(assetPairs,products.Start, products.Size, products.TotalSize);
+            return result.IsSuccess ? AssetPair.CreateFromProduct(result.Value, _defaultLegalEntitySettings.DefaultLegalEntity) : null;
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetWithFilterAsync(string filter)
+        public async Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync()
         {
-            var products = await _productsRepository.GetWithFilterAsync(filter);
+            var products = await _productsRepository.GetByProductsIdsAsync();
+            var currencies = await _currenciesRepository.GetAllAsync();
 
             var assetPairs = products
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
+
+            assetPairs.AddRange(currencies.Value.Select(x =>
+                AssetPair.CreateFromCurrency(x, _defaultLegalEntitySettings.DefaultLegalEntity)));
 
             return assetPairs;
         }

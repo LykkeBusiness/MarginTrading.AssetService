@@ -41,10 +41,10 @@ namespace MarginTrading.AssetService.Core.Domain
             return $"Id: {Id}, IsTradeEnabled: {IsTradeEnabled}, Rank: {Rank}, MarketId: {MarketId}, Start: {Start}, End: {End}, AssetPairRegex: {AssetPairRegex}, AssetPairs: {string.Join(",", AssetPairs)}, PendingOrdersCutOff: {PendingOrdersCutOff}.";
         }
 
-        public static ScheduleSettings Create(string marketId, ScheduleConstraint start, ScheduleConstraint end, string assetPairRegex)
+        public static ScheduleSettings Create(string id, string marketId, ScheduleConstraint start, ScheduleConstraint end, string assetPairRegex)
         {
             return new ScheduleSettings(
-                id: Guid.NewGuid().ToString("N", CultureInfo.InvariantCulture),
+                id: id,
                 rank: 0,
                 assetPairRegex: assetPairRegex,
                 assetPairs: new HashSet<string>(), 

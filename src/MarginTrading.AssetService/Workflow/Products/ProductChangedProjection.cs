@@ -11,12 +11,12 @@ namespace MarginTrading.AssetService.Workflow.Products
 {
     public class ProductChangedProjection
     {
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
-        public ProductChangedProjection(IReferentialDataChangedHandler referentialDataChangedHandler, IConvertService convertService)
+        public ProductChangedProjection(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, IConvertService convertService)
         {
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -27,9 +27,10 @@ namespace MarginTrading.AssetService.Workflow.Products
             {
                 case ChangeType.Creation:
                 case ChangeType.Edition:
-                    await _referentialDataChangedHandler.HandleProductUpserted(_convertService.Convert<ProductContract, Product>(e.NewValue));
+                    await _legacyAssetsCacheUpdater.HandleProductUpserted(_convertService.Convert<ProductContract, Product>(e.NewValue), e.Timestamp);
                     break;
                 case ChangeType.Deletion:
+                    await _legacyAssetsCacheUpdater.HandleProductRemoved(e.OldValue.ProductId, e.Timestamp);
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

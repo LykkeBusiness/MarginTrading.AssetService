@@ -10,12 +10,12 @@ namespace MarginTrading.AssetService.Workflow.MarketSettings
 {
     public class MarketSettingsChangedProjection
     {
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
-        public MarketSettingsChangedProjection(IReferentialDataChangedHandler referentialDataChangedHandler, IConvertService convertService)
+        public MarketSettingsChangedProjection(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, IConvertService convertService)
         {
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -27,8 +27,8 @@ namespace MarginTrading.AssetService.Workflow.MarketSettings
                 case ChangeType.Creation:
                     break;
                 case ChangeType.Edition:
-                    await _referentialDataChangedHandler.HandleMarketSettingsUpdated(
-                        _convertService.Convert<MarketSettingsContract, Core.Domain.MarketSettings>(e.NewMarketSettings));
+                    await _legacyAssetsCacheUpdater.HandleMarketSettingsUpdated(
+                        _convertService.Convert<MarketSettingsContract, Core.Domain.MarketSettings>(e.NewMarketSettings), e.Timestamp);
                     break;
                 case ChangeType.Deletion:
                     break;

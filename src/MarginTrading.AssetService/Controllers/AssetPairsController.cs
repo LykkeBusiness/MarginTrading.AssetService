@@ -43,16 +43,12 @@ namespace MarginTrading.AssetService.Controllers
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode
         /// </summary>
-        /// <param name="legalEntity"></param>
-        /// <param name="matchingEngineMode"></param>
-        /// <param name="filter">Search by Id and Name</param>
         [HttpGet]
         [Route("")]
-        public async Task<List<AssetPairContract>> List([FromQuery] string legalEntity = null,
-            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null, string filter = null)
+        public async Task<List<AssetPairContract>> List()
         {
             //Some filters are ignored because they are not relevant anymore
-            var data = await _assetPairsService.GetWithFilterAsync(filter);
+            var data = await _assetPairsService.GetAllIncludingFxParisWithFilterAsync();
             
             return data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList();
         }
@@ -60,40 +56,23 @@ namespace MarginTrading.AssetService.Controllers
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
         /// </summary>
-        /// <param name="legalEntity"></param>
-        /// <param name="matchingEngineMode"></param>
-        /// <param name="filter">Search by Id and Name</param>
         /// <param name="skip"></param>
         /// <param name="take"></param>
         [HttpGet]
         [Route("by-pages")]
-        public async Task<PaginatedResponseContract<AssetPairContract>> ListByPages([FromQuery] string legalEntity = null, 
-            [FromQuery] MatchingEngineModeContract? matchingEngineMode = null, [FromQuery] string filter = null,
-            [FromQuery] int? skip = null, [FromQuery] int? take = null)
+        public async Task<PaginatedResponseContract<AssetPairContract>> ListByPages([FromQuery] int? skip = null, [FromQuery] int? take = null)
         {
             //Some filters are ignored because they are not relevant anymore
 
-            ApiValidationHelper.ValidatePagingParams(skip, take);
-            
-            var data = await _assetPairsService.GetPaginatedWithFilterAsync(filter, skip, take);
-            
+            var data = await _assetPairsService.GetAllIncludingFxParisWithFilterAsync();
+            var count = data.Count;
+            //Just proxy of get all without actual pagination, done this way to avoid breaking changes
             return new PaginatedResponseContract<AssetPairContract>(
-                contents: data.Contents.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList(),
-                start: data.Start,
-                size: data.Size,
-                totalSize: data.TotalSize
+                contents: data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList(),
+                start: 0,
+                size: count,
+                totalSize: count
             );
-        }
-
-        /// <summary>
-        /// Get asset pair by id
-        /// </summary>
-        [HttpGet]
-        [Route("{assetPairId}")]
-        public async Task<AssetPairContract> Get(string assetPairId)
-        {
-            var obj = await _assetPairsService.GetByIdAsync(assetPairId);
-            return _convertService.Convert<IAssetPair, AssetPairContract>(obj);
         }
     }
 }

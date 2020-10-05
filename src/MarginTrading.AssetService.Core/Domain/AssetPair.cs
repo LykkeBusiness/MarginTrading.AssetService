@@ -9,9 +9,9 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class AssetPair : IAssetPair
     {
-        public AssetPair(string id, string name, string baseAssetId, string quoteAssetId, int accuracy, string marketId, 
-            string legalEntity, string basePairId, MatchingEngineMode matchingEngineMode, 
-            decimal stpMultiplierMarkupBid, decimal stpMultiplierMarkupAsk, 
+        public AssetPair(string id, string name, string baseAssetId, string quoteAssetId, int accuracy, string marketId,
+            string legalEntity, string basePairId, MatchingEngineMode matchingEngineMode,
+            decimal stpMultiplierMarkupBid, decimal stpMultiplierMarkupAsk,
             bool isSuspended, bool isFrozen, bool isDiscontinued, FreezeInfo freezeInfo)
         {
             Id = id;
@@ -25,7 +25,7 @@ namespace MarginTrading.AssetService.Core.Domain
             MatchingEngineMode = matchingEngineMode;
             StpMultiplierMarkupBid = stpMultiplierMarkupBid;
             StpMultiplierMarkupAsk = stpMultiplierMarkupAsk;
-            
+
             IsSuspended = isSuspended;
             IsFrozen = isFrozen;
             IsDiscontinued = isDiscontinued;
@@ -48,7 +48,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal StpMultiplierMarkupBid { get; }
         [Obsolete]
         public decimal StpMultiplierMarkupAsk { get; }
-        
+
         public bool IsSuspended { get; }
         public bool IsFrozen { get; }
         public bool IsDiscontinued { get; }
@@ -68,7 +68,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 matchingEngineMode: this.MatchingEngineMode,
                 stpMultiplierMarkupBid: this.StpMultiplierMarkupBid,
                 stpMultiplierMarkupAsk: this.StpMultiplierMarkupAsk,
-                
+
                 isSuspended: isSuspended,
                 isFrozen: this.IsFrozen,
                 isDiscontinued: this.IsDiscontinued,
@@ -100,6 +100,29 @@ namespace MarginTrading.AssetService.Core.Domain
                     UnfreezeDate = product.FreezeInfo.UnfreezeDate,
                 }
             );
+        }
+
+        public static IAssetPair CreateFromCurrency(Currency currency, string legalEntity)
+        {
+            var id = $"{AssetPairConstants.BaseCurrencyId}{currency.Id}";
+
+            return new AssetPair(
+                id: id,
+                name: id,
+                baseAssetId: AssetPairConstants.BaseCurrencyId,
+                quoteAssetId: currency.Id,
+                accuracy: AssetPairConstants.Accuracy,
+                marketId: AssetPairConstants.FxMarketId,
+                legalEntity: legalEntity,
+                basePairId: AssetPairConstants.BasePairId,
+                matchingEngineMode: AssetPairConstants.MatchingEngineMode,
+                stpMultiplierMarkupBid: AssetPairConstants.StpMultiplierMarkupBid,
+                stpMultiplierMarkupAsk: AssetPairConstants.StpMultiplierMarkupAsk,
+                isSuspended: false,
+                isFrozen: false,
+                isDiscontinued: false,
+                freezeInfo: new FreezeInfo()
+                );
         }
     }
 }

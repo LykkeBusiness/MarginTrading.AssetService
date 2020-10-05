@@ -175,8 +175,8 @@ namespace MarginTrading.AssetService.Modules
                 .As<ILegacyAssetsCache>()
                 .SingleInstance();
 
-            builder.RegisterType<ReferentialDataChangedHandler>()
-                .As<IReferentialDataChangedHandler>()
+            builder.RegisterType<LegacyAssetsCacheUpdater>()
+                .As<ILegacyAssetsCacheUpdater>()
                 .SingleInstance();
 
             builder.RegisterType<UnderlyingChangedHandler>()

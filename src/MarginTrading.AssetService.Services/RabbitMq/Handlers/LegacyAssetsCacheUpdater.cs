@@ -15,7 +15,7 @@ using Asset = Cronut.Dto.Assets.Asset;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 {
-    public class ReferentialDataChangedHandler : IReferentialDataChangedHandler
+    public class LegacyAssetsCacheUpdater : ILegacyAssetsCacheUpdater
     {
         private readonly ILegacyAssetsService _legacyAssetsService;
         private readonly ILegacyAssetsCache _legacyAssetsCache;
@@ -23,7 +23,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         private readonly ILog _log;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
 
-        public ReferentialDataChangedHandler(
+        public LegacyAssetsCacheUpdater(
             ILegacyAssetsService legacyAssetsService,
             ILegacyAssetsCache legacyAssetsCache,
             IMessageProducer<AssetUpsertedEvent> assetUpsertedPublisher,
@@ -35,8 +35,27 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             _log = log;
         }
 
-        public async Task HandleProductUpserted(Product product)
+        public async Task HandleProductRemoved(string productId, DateTime timestamp)
         {
+            if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+                return;
+
+            try
+            {
+                await _semaphore.WaitAsync();
+                _legacyAssetsCache.Remove(productId);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
+        public async Task HandleProductUpserted(Product product, DateTime timestamp)
+        {
+            if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+                return;
+
             var assets = await _legacyAssetsService.GetLegacyAssets(new List<string> { product.ProductId });
             string oldMdsCodeIfUpdated = null;
 
@@ -54,7 +73,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
                 if (asset == null)
                 {
-                    _log.WriteWarning(nameof(ReferentialDataChangedHandler), nameof(HandleProductUpserted),
+                    _log.WriteWarning(nameof(LegacyAssetsCacheUpdater), nameof(HandleProductUpserted),
                         $"We received ProductChanged with productId: {product.ProductId} but cannot find it in DB to update LegacyAssetCache");
                     return;
                 }
@@ -67,47 +86,50 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             }
         }
 
-        public async Task HandleMarketSettingsUpdated(MarketSettings marketSettings)
+        public async Task HandleMarketSettingsUpdated(MarketSettings marketSettings, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.MarketName == marketSettings.Id;
-            await Handle(marketSettings, filter, CronutAssetExtensions.SetAssetFieldsFromMarketSettings);
+            await Handle(marketSettings, filter, CronutAssetExtensions.SetAssetFieldsFromMarketSettings, timestamp);
         }
 
-        public async Task HandleTickFormulaUpdated(TickFormula tickFormula)
+        public async Task HandleTickFormulaUpdated(TickFormula tickFormula, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.TickFormulaName == tickFormula.Id;
-            await Handle(tickFormula, filter, CronutAssetExtensions.SetAssetFieldsFromTickFormula);
+            await Handle(tickFormula, filter, CronutAssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
         }
 
-        public async Task HandleProductCategoryUpdated(ProductCategory productCategory)
+        public async Task HandleProductCategoryUpdated(ProductCategory productCategory, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.CategoryRaw == productCategory.Id;
-            await Handle(productCategory, filter, CronutAssetExtensions.SetAssetFieldsFromCategory);
+            await Handle(productCategory, filter, CronutAssetExtensions.SetAssetFieldsFromCategory, timestamp);
         }
 
-        public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings)
+        public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.ExecutionFeeParameter.AssetType == clientProfileSettings.AssetTypeId;
-            await Handle(clientProfileSettings, filter, CronutAssetExtensions.SetAssetFieldsFromClientProfileSettings);
+            await Handle(clientProfileSettings, filter, CronutAssetExtensions.SetAssetFieldsFromClientProfileSettings, timestamp);
         }
 
-        public async Task HandleCurrencyUpdated(string oldInterestRateMdsCode, Currency currency)
+        public async Task HandleCurrencyUpdated(string oldInterestRateMdsCode, Currency currency, DateTime timestamp)
         {
             Func<Asset, bool> tradingCurrencyFilter = x => x.Underlying.InterestRates.Any(c => c.Currency == currency.Id);
-            await Handle(currency, tradingCurrencyFilter, CronutAssetExtensions.SetAssetFieldsFromTradingCurrency);
+            await Handle(currency, tradingCurrencyFilter, CronutAssetExtensions.SetAssetFieldsFromTradingCurrency, timestamp);
 
             Func<Asset, bool> baseCurrencyFilter = x => x.Underlying.VariableInterestRate1 == oldInterestRateMdsCode;
-            await Handle(currency, baseCurrencyFilter, CronutAssetExtensions.SetAssetFieldsFromBaseCurrency);
+            await Handle(currency, baseCurrencyFilter, CronutAssetExtensions.SetAssetFieldsFromBaseCurrency, timestamp);
         }
 
-        public async Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying)
+        public async Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.MdsCode == oldMdsCode;
-            await Handle(underlying, filter, CronutAssetExtensions.SetAssetFieldsFromUnderlying);
+            await Handle(underlying, filter, CronutAssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
         }
 
-        public async Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated)
+        public async Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp)
         {
+            if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+                return;
+
             if (updated.IsDefault && old == null || !old.IsDefault)
             {
                 //If default client profile is changed all assets will be affected
@@ -126,8 +148,11 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             }
         }
 
-        private async Task Handle<T>(T changedEntity, Func<Asset, bool> getAffectedFilter, Action<Asset, T> dataModifier)
+        private async Task Handle<T>(T changedEntity, Func<Asset, bool> getAffectedFilter, Action<Asset, T> dataModifier, DateTime timestamp)
         {
+            if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+                return;
+
             await _semaphore.WaitAsync();
             try
             {
@@ -158,17 +183,19 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
         private async Task PublishAssetUpsertedEvent(Asset asset, string oldMdsCodeIfUpdated = null)
         {
-            await _assetUpsertedPublisher.ProduceAsync(new AssetUpsertedEvent
+            var evt = new AssetUpsertedEvent
             {
                 Asset = asset,
                 EventMetadata = new EventMetadata(
-                        eventId: Guid.NewGuid().ToString(),
-                        eventCreationDate: DateTime.UtcNow),
+                    eventId: Guid.NewGuid().ToString(),
+                    eventCreationDate: DateTime.UtcNow),
                 PropertiesPriorValueIfUpdated = new AssetUpdatedProperties
                 {
                     UnderlyingMdsCode = oldMdsCodeIfUpdated
                 }
-            });
+            };
+            await _assetUpsertedPublisher.ProduceAsync(evt);
+            _log.WriteInfo(nameof(LegacyAssetsCacheUpdater), evt, "Published asset upserted event");
         }
     }
 }

@@ -11,12 +11,12 @@ namespace MarginTrading.AssetService.Workflow.Currencies
 {
     public class CurrencyChangedProjection
     {
-        private readonly IReferentialDataChangedHandler _referentialDataChangedHandler;
+        private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IConvertService _convertService;
 
-        public CurrencyChangedProjection(IReferentialDataChangedHandler referentialDataChangedHandler, IConvertService convertService)
+        public CurrencyChangedProjection(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, IConvertService convertService)
         {
-            _referentialDataChangedHandler = referentialDataChangedHandler;
+            _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _convertService = convertService;
         }
 
@@ -28,8 +28,8 @@ namespace MarginTrading.AssetService.Workflow.Currencies
                 case ChangeType.Creation:
                     break;
                 case ChangeType.Edition:
-                    await _referentialDataChangedHandler.HandleCurrencyUpdated(e.OldCurrency?.InterestRateMdsCode,
-                        _convertService.Convert<CurrencyContract, Currency>(e.NewCurrency));
+                    await _legacyAssetsCacheUpdater.HandleCurrencyUpdated(e.OldValue?.InterestRateMdsCode,
+                        _convertService.Convert<CurrencyContract, Currency>(e.NewValue), e.Timestamp);
                     break;
                 case ChangeType.Deletion:
                     break;

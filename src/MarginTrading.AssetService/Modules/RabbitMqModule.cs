@@ -42,28 +42,17 @@ namespace MarginTrading.AssetService.Modules
             IRabbitMqPublishStrategy rabbitMqPublishStrategy = null,
             IRabbitMqSerializer<T> serializer = null)
         {
-            var mappedSettings = MapSettings(settings);
-            rabbitMqPublishStrategy = rabbitMqPublishStrategy ?? new DefaultFanoutPublishStrategy(mappedSettings);
+            rabbitMqPublishStrategy = rabbitMqPublishStrategy ?? new DefaultFanoutPublishStrategy(settings);
             serializer = serializer ?? new JsonMessageSerializer<T>();
 
             builder.RegisterInstance(
-                    new RabbitMqPublisher<T>(mappedSettings)
+                    new RabbitMqPublisher<T>(settings)
                         .SetSerializer(serializer)
                         .SetLogger(_log)
                         .SetPublishStrategy(rabbitMqPublishStrategy)
                         .DisableInMemoryQueuePersistence())
                 .As<IMessageProducer<T>>()
                 .As<IStartStop>();
-        }
-
-        private RabbitMqSubscriptionSettings MapSettings(RabbitPublisherSettings rabbitMqSettings)
-        {
-            return new RabbitMqSubscriptionSettings
-            {
-                ConnectionString = rabbitMqSettings.ConnectionString,
-                ExchangeName = rabbitMqSettings.ExchangeName,
-                IsDurable = rabbitMqSettings.IsDurable,
-            };
         }
     }
 }

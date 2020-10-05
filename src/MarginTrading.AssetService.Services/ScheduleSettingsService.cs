@@ -111,7 +111,8 @@ namespace MarginTrading.AssetService.Services
             {
                 DayOfWeek = DayOfWeek.Monday
             };
-            var settings = ScheduleSettings.Create(marketId, start, end, assetPairRegex);
+            var id = $"{marketId}_weekend";
+            var settings = ScheduleSettings.Create(id, marketId, start, end, assetPairRegex);
 
             return settings;
         }
@@ -130,7 +131,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     Date = holiday.Date.AddDays(1)
                 };
-                result.Add(ScheduleSettings.Create(marketId, start, end, assetPairRegex));
+                var id = $"{marketId}_holiday_{holiday.Date}";
+                result.Add(ScheduleSettings.Create(id, marketId, start, end, assetPairRegex));
             }
 
             return result;
@@ -153,7 +155,8 @@ namespace MarginTrading.AssetService.Services
             {
                 Time = openUtcWithoutDays
             };
-            var settings = ScheduleSettings.Create(marketId, start, end, assetPairRegex);
+            var id = $"{marketId}_working_hours_open{openUtcWithoutDays}_close{closeUtcWithoutDays}";
+            var settings = ScheduleSettings.Create(id, marketId, start, end, assetPairRegex);
 
             return settings;
         }

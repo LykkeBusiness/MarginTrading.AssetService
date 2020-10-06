@@ -66,7 +66,8 @@ namespace MarginTrading.AssetService.Services
                 (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var clientProfileSettings =
-                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id, productAssetTypeIdMap.Values))
+                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id,
+                    productAssetTypeIdMap.Values.Distinct()))
                 .ToDictionary(x => x.AssetTypeId, v => v);
 
             var underlyings = products.Select(x => x.Value.UnderlyingMdsCode).Distinct()
@@ -80,13 +81,13 @@ namespace MarginTrading.AssetService.Services
                 (await _currenciesRepository.GetByIdsAsync(baseCurrenciesIds)).ToDictionary(x => x.Id, v => v);
 
             var productCategories =
-                (await _productCategoriesRepository.GetByIdsAsync(productToCategoryMap.Values)).ToDictionary(x => x.Id, v => v);
+                (await _productCategoriesRepository.GetByIdsAsync(productToCategoryMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var productMarketSettings =
-                (await _marketSettingsRepository.GetByIdsAsync(productMarketSettingsMap.Values)).ToDictionary(x => x.Id, v => v);
+                (await _marketSettingsRepository.GetByIdsAsync(productMarketSettingsMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var productTickFormulas =
-                (await _tickFormulaRepository.GetByIdsAsync(productTickFormulaMap.Values)).ToDictionary(x => x.Id, v => v);
+                (await _tickFormulaRepository.GetByIdsAsync(productTickFormulaMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var result = new List<Asset>();
             foreach (var product in products.Values)

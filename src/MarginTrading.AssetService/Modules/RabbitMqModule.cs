@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Modules
             AddRabbitPublisher<AssetUpsertedEvent>(builder, _settings.LegacyAssetUpdatedRabbitPublisherSettings);
 
             builder.Register(x => new UnderlyingChangedSubscriber(x.Resolve<UnderlyingChangedHandler>(),
-                    _settings.UnderlyingChangedRabbitSubscriptionSettings.AppendToQueueName(_settings.InstanceId), _log))
+                    _settings.UnderlyingChangedRabbitSubscriptionSettings.AppendToQueueName($"{_settings.InstanceId}:{_settings.BrokerId}"), _log))
                 .As<IStartStop>()
                 .SingleInstance();
         }

@@ -63,7 +63,7 @@ namespace MarginTrading.AssetService.Services
             var productAssetTypeIdMap = products.ToDictionary(x => x.Key, v => v.Value.AssetType);
 
             var tradingCurrencies =
-                (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values)).ToDictionary(x => x.Id, v => v);
+                (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var clientProfileSettings =
                 (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id, productAssetTypeIdMap.Values))

@@ -35,5 +35,11 @@ namespace MarginTrading.AssetService.Contracts
         [ItemCanBeNull]
         [Get("/api/assets/{assetId}")]
         Task<AssetContract> Get([NotNull] string assetId);
+
+        /// <summary>
+        /// Get the list of assets
+        /// </summary>
+        [Get("/api/assets/legacy")]
+        Task<List<Cronut.Dto.Assets.Asset>> GetLegacyAssets();
     }
 }

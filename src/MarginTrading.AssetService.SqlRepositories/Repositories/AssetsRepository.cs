@@ -86,10 +86,12 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var result = await context.Products.Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy))
-                                 .FirstOrDefaultAsync(x => x.Id == assetId) ??
-                             await context.Currencies.Select(x => new Asset(x.Id, x.Id, AssetConstants.Accuracy))
-                                 .FirstOrDefaultAsync(x => x.Id == assetId);
+                var result = await context.Products.Where(x => x.ProductId == assetId)
+                                 .Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy))
+                                 .FirstOrDefaultAsync() ??
+                             await context.Currencies.Where(x => x.Id == assetId)
+                                 .Select(x => new Asset(x.Id, x.Id, AssetConstants.Accuracy))
+                                 .FirstOrDefaultAsync();
 
                 return result;
             }

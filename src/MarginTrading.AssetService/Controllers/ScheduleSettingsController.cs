@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Scheduling;
+using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -115,6 +116,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             var allMarkets = (await _marketSettingsService.GetAllMarketSettingsAsync()).Select(x => x.Id).ToHashSet();
             allMarkets.Add(_platformSettings.PlatformMarketId);
+            allMarkets.Add(AssetPairConstants.FxMarketId);
             if (marketIds == null || !marketIds.Any())
             {
                 marketIds = allMarkets.ToArray();

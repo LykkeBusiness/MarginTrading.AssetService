@@ -31,46 +31,11 @@ namespace MarginTrading.AssetService.Contracts
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
 
         /// <summary>
-        /// Create new trading instrument
-        /// </summary>
-        [Post("/api/tradingInstruments")]
-        Task<TradingInstrumentContract> Insert([Body] TradingInstrumentContract instrument);
-
-        /// <summary>
-        /// Assign trading instrument to a trading condition with default values
-        /// </summary>
-        [Post("/api/tradingInstruments/{tradingConditionId}")]
-        Task<List<TradingInstrumentContract>> AssignCollection(
-            [NotNull] string tradingConditionId,
-            [Body] string[] instruments);
-        
-        /// <summary>
         /// Get trading instrument
         /// </summary>
         [ItemCanBeNull]
         [Get("/api/tradingInstruments/{tradingConditionId}/{assetPairId}")]
         Task<TradingInstrumentContract> Get(
-            [NotNull] string tradingConditionId,
-            [NotNull] string assetPairId);
-
-        /// <summary>
-        /// Update the trading instrument
-        /// </summary>
-        [Put("/api/tradingInstruments/{tradingConditionId}/{assetPairId}")]
-        Task<TradingInstrumentContract> Update(
-            [NotNull] string tradingConditionId,
-            [NotNull] string assetPairId,
-            [Body] TradingInstrumentContract instrument);
-
-        [Put("/api/tradingInstruments/{tradingConditionId}/batch")]
-        Task<List<TradingInstrumentContract>> UpdateList(string tradingConditionId,
-            TradingInstrumentContract[] instruments);
-
-        /// <summary>
-        /// Delete the trading instrument
-        /// </summary>
-        [Delete("/api/tradingInstruments/{tradingConditionId}/{assetPairId}")]
-        Task Delete(
             [NotNull] string tradingConditionId,
             [NotNull] string assetPairId);
     }

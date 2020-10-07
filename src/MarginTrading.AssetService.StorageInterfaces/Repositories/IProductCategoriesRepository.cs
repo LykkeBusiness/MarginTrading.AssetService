@@ -12,5 +12,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetByIdAsync(string id);
         Task<Result<List<ProductCategory>, ProductCategoriesErrorCodes>> GetAllAsync();
         Task<bool> CategoryHasProducts(string category);
+        Task<IReadOnlyList<ProductCategory>> GetByIdsAsync(IEnumerable<string> ids);
     }
 }

@@ -1,6 +1,7 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
@@ -15,20 +16,21 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 {
     public class AssetPairFlagsCommandsHandler
     {
-        private readonly IAssetPairsRepository _assetPairsRepository;
+        private readonly TimeSpan _delay = TimeSpan.FromSeconds(15);
+        private readonly IAssetPairService _assetPairService;
         private readonly IConvertService _convertService;
         private readonly IChaosKitty _chaosKitty;
         
         public AssetPairFlagsCommandsHandler(
-            IAssetPairsRepository assetPairsRepository,
+            IAssetPairService assetPairService,
             IConvertService convertService,
             IChaosKitty chaosKitty)
         {
-            _assetPairsRepository = assetPairsRepository;
+            _assetPairService = assetPairService;
             _convertService = convertService;
             _chaosKitty = chaosKitty;
         }
-        
+
         /// <summary>
         /// Suspend asset pair
         /// </summary>
@@ -37,9 +39,11 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             IEventPublisher publisher)
         {
             //idempotency handling not required
+            var assetPair = await _assetPairService.ChangeSuspendStatusAsync(command.AssetPairId, true);
 
-            var assetPair = await _assetPairsRepository.ChangeSuspendFlag(command.AssetPairId, true);
-            
+            if (assetPair == null)
+                return CommandHandlingResult.Fail(_delay);
+
             _chaosKitty.Meow(command.OperationId);
 
             publisher.PublishEvent(new AssetPairChangedEvent
@@ -47,7 +51,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
                 OperationId = command.OperationId,
                 AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
             });
-            
+
             return CommandHandlingResult.Ok();
         }
 
@@ -59,16 +63,19 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             IEventPublisher publisher)
         {
             //idempotency handling not required
-            var assetPair = await _assetPairsRepository.ChangeSuspendFlag(command.AssetPairId, false);
-            
+            var assetPair = await _assetPairService.ChangeSuspendStatusAsync(command.AssetPairId, false);
+
             _chaosKitty.Meow(command.OperationId);
-            
+
+            if(assetPair == null)
+                return CommandHandlingResult.Fail(_delay);
+
             publisher.PublishEvent(new AssetPairChangedEvent
             {
                 OperationId = command.OperationId,
                 AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
             });
-            
+
             return CommandHandlingResult.Ok();
         }
     }

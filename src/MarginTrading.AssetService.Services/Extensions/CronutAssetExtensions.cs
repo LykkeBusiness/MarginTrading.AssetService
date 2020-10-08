@@ -121,13 +121,13 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
         {
+            asset.Underlying.ExecutionFeeParameter.Currency = "EUR";
             asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
             asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
             asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;
-            asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate;
-            asset.Underlying.ExecutionFeeParameter.Currency = "EUR";
-            asset.Underlying.MarginRate = clientProfileSettings.Margin;
-            asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate;
+            asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
+            asset.Underlying.MarginRate = clientProfileSettings.Margin / 100;
+            asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
         }
     }
 }

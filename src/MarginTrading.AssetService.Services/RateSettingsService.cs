@@ -89,7 +89,7 @@ namespace MarginTrading.AssetService.Services
                 result.Add(OrderExecutionRate.Create(assetPairId,
                     clientProfileSettings.ExecutionFeesCap,
                     clientProfileSettings.ExecutionFeesFloor,
-                    clientProfileSettings.ExecutionFeesRate,
+                    clientProfileSettings.ExecutionFeesRate / 100,
                     _defaultLegalEntitySettings.DefaultLegalEntity));
             }
 
@@ -166,7 +166,7 @@ namespace MarginTrading.AssetService.Services
                 {
                     AssetPairId = productId,
                     VariableRateQuote = tradingCurrency.InterestRateMdsCode,
-                    FixRate = profileSettings.FinancingFeesRate,
+                    FixRate = profileSettings.FinancingFeesRate / 100,
                     RepoSurchargePercent = underlying?.RepoSurchargePercent ?? _defaultRateSettings.DefaultOvernightSwapSettings.RepoSurchargePercent,
                     VariableRateBase = baseCurrency?.InterestRateMdsCode,
                 };

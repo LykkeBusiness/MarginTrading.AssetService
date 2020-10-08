@@ -88,13 +88,28 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
-        /// Get the list of assets
+        /// Get the list of legacy assets
         /// </summary>
         [HttpGet]
         [Route("legacy")]
         public async Task<List<Asset>> GetLegacyAssets()
         {
             var result = _legacyAssetsCache.GetAll();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Get legacy asset by id
+        /// </summary>
+        [HttpGet]
+        [Route("legacy/{assetId}")]
+        public async Task<Asset> GetLegacyAssetById(string assetId)
+        {
+            if (string.IsNullOrEmpty(assetId))
+                return null;
+
+            var result = _legacyAssetsCache.GetById(assetId);
 
             return result;
         }

@@ -70,8 +70,8 @@ namespace MarginTrading.AssetService.Core.Domain
             return new TradingInstrument(
                 tradingConditionId: profileId,
                 instrument: product.ProductId,
-                leverageInit: (int)(1 / marginRate / 100),
-                leverageMaintenance: (int)(1 / marginRate / 100),
+                leverageInit: (int)(100 / marginRate),
+                leverageMaintenance: (int)(100 / marginRate),
                 swapLong: TradingInstrumentsConstants.SwapLong,
                 swapShort: TradingInstrumentsConstants.SwapShort,
                 delta: TradingInstrumentsConstants.Delta,

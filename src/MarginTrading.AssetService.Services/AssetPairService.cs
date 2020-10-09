@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
+using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Core;
+using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -54,8 +57,10 @@ namespace MarginTrading.AssetService.Services
             var assetPairs = products
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
 
-            assetPairs.AddRange(currencies.Value.Select(x =>
-                AssetPair.CreateFromCurrency(x, _defaultLegalEntitySettings.DefaultLegalEntity)));
+            assetPairs.AddRange(currencies.Value
+                .Where(x => !x.Id.Equals(AssetPairConstants.BaseCurrencyId,
+                    StringComparison.InvariantCultureIgnoreCase)).Select(x =>
+                    AssetPair.CreateFromCurrency(x, _defaultLegalEntitySettings.DefaultLegalEntity)));
 
             return assetPairs;
         }

@@ -19,5 +19,7 @@ namespace MarginTrading.AssetService.Core.Services
 
         Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username, string correlationId);
         Task<Result<ProductsErrorCodes>> DeleteBatchAsync(List<string> productIds, string username, string correlationId);
+        Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username,
+            string correlationId);
     }
 }

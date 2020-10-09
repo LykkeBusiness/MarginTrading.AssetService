@@ -69,5 +69,10 @@ namespace MarginTrading.AssetService.Core.Domain
         public bool IsDiscontinued { get; set; }
         
         public byte[] Timestamp { get; set; }
+
+        public Product ShallowCopy()
+        {
+            return (Product)this.MemberwiseClone();
+        }
     }
 }

@@ -12,7 +12,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public AssetPair(string id, string name, string baseAssetId, string quoteAssetId, int accuracy, string marketId,
             string legalEntity, string basePairId, MatchingEngineMode matchingEngineMode,
             decimal stpMultiplierMarkupBid, decimal stpMultiplierMarkupAsk,
-            bool isSuspended, bool isFrozen, bool isDiscontinued, FreezeInfo freezeInfo)
+            bool isSuspended, bool isFrozen, bool isDiscontinued, FreezeInfo freezeInfo, string assetType)
         {
             Id = id;
             Name = name;
@@ -30,6 +30,7 @@ namespace MarginTrading.AssetService.Core.Domain
             IsFrozen = isFrozen;
             IsDiscontinued = isDiscontinued;
             FreezeInfo = freezeInfo ?? new FreezeInfo();
+            AssetType = assetType;
         }
 
         public string Id { get; }
@@ -53,28 +54,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public bool IsFrozen { get; }
         public bool IsDiscontinued { get; }
         public FreezeInfo FreezeInfo { get; }
-
-        public IAssetPair CreateForUpdate(bool isSuspended)
-        {
-            return new AssetPair(
-                id: this.Id,
-                name: this.Name,
-                baseAssetId: this.BaseAssetId,
-                quoteAssetId: this.QuoteAssetId,
-                accuracy: this.Accuracy,
-                marketId: this.MarketId,
-                legalEntity: this.LegalEntity,
-                basePairId: this.BasePairId,
-                matchingEngineMode: this.MatchingEngineMode,
-                stpMultiplierMarkupBid: this.StpMultiplierMarkupBid,
-                stpMultiplierMarkupAsk: this.StpMultiplierMarkupAsk,
-
-                isSuspended: isSuspended,
-                isFrozen: this.IsFrozen,
-                isDiscontinued: this.IsDiscontinued,
-                freezeInfo: this.FreezeInfo
-            );
-        }
+        public string AssetType { get; }
 
         public static IAssetPair CreateFromProduct(Product product, string legalEntity)
         {
@@ -98,7 +78,8 @@ namespace MarginTrading.AssetService.Core.Domain
                     Comment = product.FreezeInfo.Comment,
                     Reason = (FreezeReason)product.FreezeInfo.Reason,
                     UnfreezeDate = product.FreezeInfo.UnfreezeDate,
-                }
+                },
+                assetType:product.AssetType
             );
         }
 
@@ -121,7 +102,8 @@ namespace MarginTrading.AssetService.Core.Domain
                 isSuspended: false,
                 isFrozen: false,
                 isDiscontinued: false,
-                freezeInfo: new FreezeInfo()
+                freezeInfo: new FreezeInfo(),
+                assetType: null
                 );
         }
     }

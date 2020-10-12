@@ -61,5 +61,8 @@ namespace MarginTrading.AssetService.Contracts.AssetPair
         
         [Key(14)]
         public FreezeInfoContract FreezeInfo { get; set; }
+
+        [Key(15)]
+        public string AssetType { get; set; }
     }
 }

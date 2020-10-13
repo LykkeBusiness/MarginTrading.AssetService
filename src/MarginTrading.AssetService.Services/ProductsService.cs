@@ -150,5 +150,8 @@ namespace MarginTrading.AssetService.Services
 
         public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds, int skip = default, int take = 20)
             => _repository.GetByPageAsync(mdsCodes, productIds, skip, take);
+
+        public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds) 
+            => _repository.GetAllCountAsync(mdsCodes, productIds);
     }
 }

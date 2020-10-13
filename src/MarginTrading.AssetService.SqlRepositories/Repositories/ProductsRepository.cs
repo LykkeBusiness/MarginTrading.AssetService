@@ -130,6 +130,24 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products.AsNoTracking();
+
+                if (mdsCodes != null && mdsCodes.Any())
+                    query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
+
+                if (productIds != null && productIds.Any())
+                    query = query.Where(x => productIds.Contains(x.ProductId));
+
+                var counter = await query.CountAsync();
+                
+                return new Result<ProductsCounter, ProductsErrorCodes>(new ProductsCounter(counter, mdsCodes, productIds));
+            }
+        }
+
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
             string[] productIds, int skip = default, int take = 20)
         {

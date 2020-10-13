@@ -43,7 +43,20 @@ namespace MarginTrading.AssetService.Contracts
         [Get("/api/products")]
         Task<GetProductsResponse> GetAllAsync([Query(CollectionFormat.Multi)] GetProductsRequest request, [Query] int skip = default,
             [Query] int take = 20);
+        
+        /// <summary>
+        /// Gets products count for particular request
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Get("/api/products/counter")]
+        Task<GetProductsCountResponse> GetAllCountAsync([Query(CollectionFormat.Multi)] GetProductsRequest request);
 
+        /// <summary>
+        /// Updates product frozen status
+        /// </summary>
+        /// <param name="productId">The product id</param>
+        /// <returns></returns>
         [Put("/api/products/{productId}/frozen-status")]
         Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request);
     }

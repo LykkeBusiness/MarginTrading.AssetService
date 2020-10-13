@@ -12,6 +12,7 @@ namespace MarginTrading.AssetService.Core.Services
         Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, string username, string correlationId);
         Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId);
         Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds);
+        Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds);
         Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds, int skip = default, int take = 20);
         Task<Result<ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
             bool forceFreezeIfAlreadyFrozen,

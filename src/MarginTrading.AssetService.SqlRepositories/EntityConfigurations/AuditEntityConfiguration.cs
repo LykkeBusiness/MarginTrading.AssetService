@@ -32,6 +32,8 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
                 .HasConversion(
                     v => v.ToString(),
                     v => (AuditEventType)Enum.Parse(typeof(AuditEventType), v));
+
+            builder.HasIndex(x => x.Timestamp).IsUnique(false);
         }
     }
 }

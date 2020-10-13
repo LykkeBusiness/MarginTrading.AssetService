@@ -60,6 +60,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                 var total = await query.CountAsync();
 
+                query = query.OrderByDescending(x => x.Timestamp);
+
                 if (skip.HasValue && take.HasValue)
                     query = query.Skip(skip.Value).Take(take.Value);
 

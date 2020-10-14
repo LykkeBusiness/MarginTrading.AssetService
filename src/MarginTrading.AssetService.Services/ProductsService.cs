@@ -107,12 +107,12 @@ namespace MarginTrading.AssetService.Services
             return existing.ToResultWithoutValue();
         }
 
-        public async Task<Result<ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
+        public async Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
             bool forceFreezeIfAlreadyFrozen,
             ProductFreezeInfo freezeInfo, string userName, string correlationId)
         {
             var existing = await _repository.GetByIdAsync(productId);
-            if (existing.IsFailed) return existing.ToResultWithoutValue();
+            if (existing.IsFailed) return existing;
 
             if (isFrozen == false)
             {
@@ -121,11 +121,11 @@ namespace MarginTrading.AssetService.Services
 
             // can only freeze already frozen products with force freeze
             if (isFrozen && existing.Value.IsFrozen && !forceFreezeIfAlreadyFrozen)
-                return new Result<ProductsErrorCodes>();
+                return existing;
 
             if (existing.Value.IsDiscontinued)
             {
-                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotFreezeDiscontinuedProduct);
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotFreezeDiscontinuedProduct);
             }
 
             var result =
@@ -139,7 +139,7 @@ namespace MarginTrading.AssetService.Services
                     existing.Value, result.Value, userName, correlationId);
             }
 
-            return result.ToResultWithoutValue();
+            return result;
         }
 
         public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)

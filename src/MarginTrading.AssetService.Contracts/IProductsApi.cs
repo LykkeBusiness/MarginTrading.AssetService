@@ -45,6 +45,6 @@ namespace MarginTrading.AssetService.Contracts
             [Query] int take = 20);
 
         [Put("/api/products/{productId}/frozen-status")]
-        Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request);
+        Task<ChangeProductFrozenStatusResponse> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request);
     }
 }

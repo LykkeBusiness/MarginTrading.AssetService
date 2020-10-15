@@ -115,12 +115,19 @@ namespace MarginTrading.AssetService.Services
 
         private Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model, MarketSettings currentMarketSettings = null)
         {
-            var valid = TZConvert.TryGetTimeZoneInfo(model.Timezone, out _);
+            var valid = TZConvert.TryGetTimeZoneInfo(model.Timezone, out var timezone);
             if (!valid)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidTimezone);
 
             if (model.Open.TotalHours >= 24 || model.Close.TotalHours >= 24 || (model.Open > model.Close && model.Close != TimeSpan.Zero))
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
+
+            var openWithTimezone = model.Open.Add(timezone.BaseUtcOffset);
+            var closeWithTimezone = model.Close.Add(timezone.BaseUtcOffset);
+
+            if (openWithTimezone.TotalHours >= 24 || closeWithTimezone.TotalHours >= 24 ||
+                openWithTimezone.TotalHours < 0 || closeWithTimezone.TotalHours < 0)
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
 
             if (model.DividendsLong < 0 || model.DividendsLong > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);

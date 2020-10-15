@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Cronut.Dto.Assets;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
@@ -43,6 +44,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)
         {
+            const string dateFormat = "dd/MM/yyyy";
             asset.Underlying.AlmParam = underlying.AlmParam;
             asset.Underlying.CfiCode = underlying.CfiCode;
             asset.Underlying.Eligible871m = underlying.Eligible871M;
@@ -59,9 +61,9 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.IndexName = underlying.IndexName;
             asset.Underlying.EMIRType = underlying.EmirType;
             asset.Underlying.CommodityDetails = underlying.CommodityDetails;
-            asset.LastTradingDate = underlying.LastTradingDate?.ToString();
-            asset.ExpiryDate = underlying.ExpiryDate?.ToString();
-            asset.Underlying.MaturityDate = underlying.MaturityDate?.ToString();
+            asset.LastTradingDate = underlying.LastTradingDate?.ToString(dateFormat, CultureInfo.InvariantCulture);
+            asset.ExpiryDate = underlying.ExpiryDate?.ToString(dateFormat, CultureInfo.InvariantCulture);
+            asset.Underlying.MaturityDate = underlying.MaturityDate?.ToString(dateFormat, CultureInfo.InvariantCulture);
         }
 
         public static void SetAssetFieldsFromMarketSettings(this Asset asset, MarketSettings marketSettings)

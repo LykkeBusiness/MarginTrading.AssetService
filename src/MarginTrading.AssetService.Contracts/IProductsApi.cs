@@ -64,5 +64,9 @@ namespace MarginTrading.AssetService.Contracts
         [Delete("/api/products/batch")]
         Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteBatchAsync(
             [Body] DeleteProductBatchRequest request);
+
+        [Put("/api/products/batch/discontinue")]
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> MarkMultipleAsDiscontinuedAsync(
+            [Body] MarkProductsAsDiscontinuedRequest request);
     }
 }

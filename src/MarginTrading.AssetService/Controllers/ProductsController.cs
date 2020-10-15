@@ -216,5 +216,30 @@ namespace MarginTrading.AssetService.Controllers
             return response;
           
         }
+
+        /// <summary>
+        /// Discontinue a batch of products
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPut("batch/discontinue")]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int)HttpStatusCode.OK)]
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> MarkMultipleAsDiscontinuedAsync([FromBody] MarkProductsAsDiscontinuedRequest request)
+        {
+            var correlationId = this.TryGetCorrelationId();
+
+            var result = await _productsService.DiscontinueBatchAsync(request.ProductIds, request.UserName, correlationId);
+
+            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+
+            if (result.IsFailed)
+            {
+                response.ErrorCode =
+                    _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                        result.Error.GetValueOrDefault());
+            }
+
+            return response;
+        }
     }
 }

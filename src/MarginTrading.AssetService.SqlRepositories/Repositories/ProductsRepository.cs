@@ -190,6 +190,52 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             return new Result<Product, ProductsErrorCodes>(ToModel(entity));
         }
 
+        public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+            var entities = products.Select(ToEntity);
+
+            context.UpdateRange(entities);
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return new Result<ProductsErrorCodes>();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                if (e.Message.Contains(DoesNotExistException))
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+                throw;
+            }
+        }
+
+        public async Task<Result<ProductsErrorCodes>> DeleteBatchAsync(
+            Dictionary<string, byte[]> productIdsWithTimestamps)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+            var entities = productIdsWithTimestamps.Select(kvp =>
+                    new ProductEntity() {ProductId = kvp.Key, Timestamp = kvp.Value})
+                .ToArray();
+
+            context.AttachRange(entities);
+            context.Products.RemoveRange(entities);
+
+            try
+            {
+                await context.SaveChangesAsync();
+                return new Result<ProductsErrorCodes>();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                if (e.Message.Contains(DoesNotExistException))
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+                throw;
+            }
+        }
+
         public async Task<Dictionary<string,string>> GetProductAssetTypeMapAsync(IEnumerable<string> productIds = null)
         {
             using (var context = _contextFactory.CreateDataContext())

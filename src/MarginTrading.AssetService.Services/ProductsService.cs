@@ -2,10 +2,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using CorporateActions.Contracts;
+using Common.Log;
 using Lykke.Snow.Common.Model;
-using Lykke.Snow.Mdm.Contracts.Api;
-using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
@@ -20,17 +18,20 @@ namespace MarginTrading.AssetService.Services
         private readonly ProductAddOrUpdateValidation _addOrUpdateValidation;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
+        private readonly ILog _log;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ProductsService(
             ProductAddOrUpdateValidation addOrUpdateValidation,
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
-            IAuditService auditService)
+            IAuditService auditService,
+            ILog log)
         {
             _addOrUpdateValidation = addOrUpdateValidation;
             _repository = repository;
             _auditService = auditService;
+            _log = log;
             _entityChangedSender = entityChangedSender;
         }
 
@@ -49,7 +50,8 @@ namespace MarginTrading.AssetService.Services
             {
                 await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                     product.ToJson());
-                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product,
+                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(
+                    product,
                     username, correlationId);
             }
 
@@ -75,7 +77,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product,
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                        existing.Value, product,
                         username, correlationId);
                 }
 
@@ -98,7 +101,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     await _auditService.TryAudit(correlationId, username, productId, AuditDataType.Product,
                         oldStateJson: existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value,
+                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
+                        existing.Value,
                         username, correlationId);
                 }
 
@@ -149,7 +153,109 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
             => _repository.GetAllAsync(mdsCodes, productIds);
 
-        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds, int skip = default, int take = 20)
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
+            int skip = default, int take = 20)
             => _repository.GetByPageAsync(mdsCodes, productIds, skip, take);
+
+        public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username,
+            string correlationId)
+        {
+            var existing = await _repository.GetAllAsync(null, products.Select(p => p.ProductId).ToArray());
+            foreach (var product in products)
+            {
+                var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
+                var validationResult =
+                    await _addOrUpdateValidation.ValidateAllAsync(product, username, correlationId, existingProduct);
+
+                if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
+            }
+
+            var result = await _repository.UpdateBatchAsync(products);
+
+            if (result.IsSuccess)
+            {
+                foreach (var product in products)
+                {
+                    var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
+
+                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
+                        product.ToJson(), existingProduct.ToJson());
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                        existingProduct, product,
+                        username, correlationId);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<Result<ProductsErrorCodes>> DeleteBatchAsync(List<string> productIds, string username,
+            string correlationId)
+        {
+            var existing = await _repository.GetAllAsync(null, productIds.ToArray());
+            var withTimestamps = productIds.ToDictionary(productId => productId,
+                productId => existing.Value.FirstOrDefault(p => p.ProductId == productId)?.Timestamp);
+
+            var result = await _repository.DeleteBatchAsync(withTimestamps);
+
+            if (result.IsSuccess)
+            {
+                foreach (var product in existing.Value)
+                {
+                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
+                        oldStateJson: existing.Value.ToJson());
+                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
+                        product,
+                        username, correlationId);
+                }
+            }
+
+            return result;
+        }
+
+        public async Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username, string correlationId)
+        {
+            if (!productIds.Any())
+            {
+                _log.WriteWarning(nameof(ProductsService), nameof(DiscontinueBatchAsync),"Received empty list of product ids to discontinue");
+                return new Result<ProductsErrorCodes>();
+            }
+
+            var existing = (await _repository.GetAllAsync(null, productIds)).Value.ToHashSet();
+            var updated = new HashSet<Product>();
+
+            foreach (var productId in productIds)
+            {
+                var existingProduct = existing.FirstOrDefault(p => p.ProductId == productId);
+                if (existingProduct == null)
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+                if (existingProduct.IsDiscontinued)
+                    continue;
+
+                var productToUpdate = existingProduct.ShallowCopy();
+                productToUpdate.IsDiscontinued = true;
+
+                updated.Add(productToUpdate);
+            }
+
+            var result = await _repository.UpdateBatchAsync(updated.ToList());
+
+            if (!result.IsSuccess)
+                return result;
+
+            foreach (var updatedProduct in updated)
+            {
+                var existingProduct = existing.FirstOrDefault(p => p.ProductId == updatedProduct.ProductId);
+
+                await _auditService.TryAudit(correlationId, username, updatedProduct.ProductId, AuditDataType.Product,
+                    updatedProduct.ToJson(), existingProduct.ToJson());
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                    existingProduct, updatedProduct,
+                    username, correlationId);
+            }
+
+            return result;
+        }
     }
 }

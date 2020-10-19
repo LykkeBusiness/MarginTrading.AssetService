@@ -161,5 +161,85 @@ namespace MarginTrading.AssetService.Controllers
 
             return response;
         }
+        
+        [HttpPut("batch")]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> UpdateBatchAsync(
+            [FromBody] UpdateProductBatchRequest request)
+        {
+            var products = request.Requests
+                .Select(kvp =>
+                {
+                    var product = _convertService.Convert<UpdateProductRequest, Product>(kvp.Value);
+                    product.ProductId = kvp.Key;
+                    return product;
+                })
+                .ToList();
+
+            var correlationId = this.TryGetCorrelationId();
+
+            var result = await _productsService.UpdateBatchAsync(products,
+                request.Requests.FirstOrDefault().Value.UserName, correlationId);
+
+            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+            
+            if (result.IsFailed)
+            {
+                response.ErrorCode =
+                    _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                        result.Error.GetValueOrDefault());
+            }
+
+            return response;
+          
+        }
+        
+        [HttpDelete("batch")]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteBatchAsync(
+            [FromBody] DeleteProductBatchRequest request)
+        {
+            var correlationId = this.TryGetCorrelationId();
+
+            var result = await _productsService.DeleteBatchAsync(request.ProductIds.ToList(),
+                request.UserName, correlationId);
+
+            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+            
+            if (result.IsFailed)
+            {
+                response.ErrorCode =
+                    _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                        result.Error.GetValueOrDefault());
+            }
+
+            return response;
+          
+        }
+
+        /// <summary>
+        /// Discontinue a batch of products
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPut("batch/discontinue")]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int)HttpStatusCode.OK)]
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> MarkMultipleAsDiscontinuedAsync([FromBody] MarkProductsAsDiscontinuedRequest request)
+        {
+            var correlationId = this.TryGetCorrelationId();
+
+            var result = await _productsService.DiscontinueBatchAsync(request.ProductIds, request.UserName, correlationId);
+
+            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+
+            if (result.IsFailed)
+            {
+                response.ErrorCode =
+                    _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                        result.Error.GetValueOrDefault());
+            }
+
+            return response;
+        }
     }
 }

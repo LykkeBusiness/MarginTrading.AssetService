@@ -18,6 +18,9 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
             bool isFrozen,
             byte[] valueTimestamp,
             ProductFreezeInfo freezeInfo);
+
+        Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products);
+        Task<Result<ProductsErrorCodes>> DeleteBatchAsync(Dictionary<string,byte[]> productIdsWithTimestamps);
         Task<Dictionary<string, string>> GetProductAssetTypeMapAsync(IEnumerable<string> productIds = null);
         Task<IReadOnlyList<Product>> GetByProductsIdsAsync(IEnumerable<string> productIds = null);
         Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds,

@@ -15,6 +15,7 @@ using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Services.Caches;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
@@ -137,6 +138,10 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<CurrenciesService>()
                 .AsImplementedInterfaces()
                 .SingleInstance();
+
+            builder.RegisterType<ProductCategoryStringService>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
             
             builder.RegisterAssemblyTypes(typeof(MarginTrading.AssetService.Services.AssemblyDummy).Assembly)
                 .Where(t => t.Name.EndsWith("Validation"))
@@ -233,9 +238,7 @@ namespace MarginTrading.AssetService.Modules
                     .As<IClientProfilesRepository>()
                     .SingleInstance();
 
-                builder.RegisterType<SqlRepos.AssetTypesRepository>()
-                    .As<IAssetTypesRepository>()
-                    .SingleInstance();
+                builder.RegisterSingletonIfNotRegistered<SqlRepos.AssetTypesRepository, IAssetTypesRepository>();
 
                 builder.RegisterType<SqlRepos.ClientProfileSettingsRepository>()
                     .As<IClientProfileSettingsRepository>()

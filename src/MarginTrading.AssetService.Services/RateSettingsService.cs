@@ -76,7 +76,7 @@ namespace MarginTrading.AssetService.Services
             {
                 var containsAssetType = productAssetTypeMap.TryGetValue(assetPairId, out var assetTypeId);
 
-                if (!containsAssetType || clientProfileSettingsMap.ContainsKey(assetTypeId))
+                if (!containsAssetType || !clientProfileSettingsMap.ContainsKey(assetTypeId))
                 {
                     _log.WriteWarning(nameof(RateSettingsService), nameof(GetOrderExecutionRatesAsync),
                         $"Missing product with id: {assetPairId} , default values will be used to create OrderExecutionRates");

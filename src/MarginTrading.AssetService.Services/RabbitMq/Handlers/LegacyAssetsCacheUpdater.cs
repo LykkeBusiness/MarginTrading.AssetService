@@ -130,7 +130,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
                 return;
 
-            if (updated.IsDefault && old == null || !old.IsDefault)
+            if (updated.IsDefault && (old == null || !old.IsDefault))
             {
                 //If default client profile is changed all assets will be affected
                 var reinitializedAssets = await _legacyAssetsService.GetLegacyAssets();

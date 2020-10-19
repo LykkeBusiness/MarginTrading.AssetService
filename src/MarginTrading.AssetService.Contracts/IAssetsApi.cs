@@ -30,12 +30,6 @@ namespace MarginTrading.AssetService.Contracts
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
 
         /// <summary>
-        /// Create new asset
-        /// </summary>
-        [Post("/api/assets")]
-        Task<AssetContract> Insert([Body] AssetContract asset);
-
-        /// <summary>
         /// Get the asset
         /// </summary>
         [ItemCanBeNull]
@@ -43,15 +37,15 @@ namespace MarginTrading.AssetService.Contracts
         Task<AssetContract> Get([NotNull] string assetId);
 
         /// <summary>
-        /// Update the asset
+        /// Get the list of legacy assets
         /// </summary>
-        [Put("/api/assets/{assetId}")]
-        Task<AssetContract> Update([NotNull] string assetId, [Body] AssetContract asset);
+        [Get("/api/assets/legacy")]
+        Task<List<Cronut.Dto.Assets.Asset>> GetLegacyAssets();
 
         /// <summary>
-        /// Delete the asset
+        /// Get legacy asset by id
         /// </summary>
-        [Delete("/api/assets/{assetId}")]
-        Task Delete([NotNull] string assetId);
+        [Get("/api/assets/legacy/{assetId}")]
+        Task<Cronut.Dto.Assets.Asset> GetLegacyAssetById(string assetId);
     }
 }

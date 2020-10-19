@@ -10,5 +10,8 @@ namespace MarginTrading.AssetService.Core.Settings
         [Optional] public string AssetService { get; set; } = "SettingsService";
 
         [Optional] public string TradingEngine { get; set; } = nameof(TradingEngine);
+
+        [Optional] public string MdmService { get; set; } = "MdmService";
+
     }
 }

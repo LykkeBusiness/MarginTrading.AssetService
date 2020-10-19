@@ -114,8 +114,10 @@ namespace MarginTrading.AssetService
         {
             builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
             builder.RegisterModule(new MsSqlModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService)));
-            builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAssetService.Cqrs, Log));
+            builder.RegisterModule(new CqrsModule(_mtSettingsManager.CurrentValue.MarginTradingAssetService.Cqrs, Log,
+                _mtSettingsManager.CurrentValue.MarginTradingAssetService.InstanceId));
             builder.RegisterModule(new ClientsModule(_mtSettingsManager));
+            builder.RegisterModule(new RabbitMqModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
         }
 
         [UsedImplicitly]

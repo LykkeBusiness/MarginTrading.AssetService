@@ -19,5 +19,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<Result<MarketSettingsErrorCodes>> DeleteAsync(string id);
         Task<bool> ExistsAsync(string id);
         Task<bool> MarketSettingsAssignedToAnyProductAsync(string id);
+        Task<IReadOnlyList<MarketSettings>> GetByIdsAsync(IEnumerable<string> ids);
     }
 }

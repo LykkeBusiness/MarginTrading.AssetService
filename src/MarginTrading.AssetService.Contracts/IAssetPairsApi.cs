@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Common;
-using MarginTrading.AssetService.Contracts.Enums;
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts
@@ -23,45 +22,13 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         [Get("/api/assetPairs")]
         [Obsolete("Use paginated action")]
-        Task<List<AssetPairContract>> List(
-            [Query] [CanBeNull] string legalEntity = null,
-            [Query] [CanBeNull] MatchingEngineModeContract? matchingEngineMode = null, 
-            [Query] [CanBeNull] string filter = null);
+        Task<List<AssetPairContract>> List();
         
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
         /// </summary>
         [Get("/api/assetPairs/by-pages")]
         Task<PaginatedResponseContract<AssetPairContract>> ListByPages(
-            [Query, CanBeNull] string legalEntity = null,
-            [Query, CanBeNull] MatchingEngineModeContract? matchingEngineMode = null,
-            [Query] [CanBeNull] string filter = null,
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
-
-
-        [Post("/api/assetPairs")]
-        Task<AssetPairContract> Insert([Body] AssetPairContract assetPair);
-
-        
-        [Post("/api/assetPairs/batch")]
-        Task<List<AssetPairContract>> BatchInsert([Body] AssetPairContract[] assetPairs);
-
-
-        [ItemCanBeNull]
-        [Get("/api/assetPairs/{assetPairId}")]
-        Task<AssetPairContract> Get([NotNull] string assetPairId);
-
-
-        [Put("/api/assetPairs/{assetPairId}")]
-        Task<AssetPairContract> Update([NotNull] string assetPairId, 
-            [Body] AssetPairUpdateRequest assetPairUpdateRequest);
-
-
-        [Put("/api/assetPairs/batch")]
-        Task<List<AssetPairContract>> BatchUpdate([Body] AssetPairUpdateRequest[] assetPairsUpdateRequest);
-
-
-        [Delete("/api/assetPairs/{assetPairId}")]
-        Task Delete([NotNull] string assetPairId);
     }
 }

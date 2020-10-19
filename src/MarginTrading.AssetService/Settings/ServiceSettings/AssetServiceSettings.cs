@@ -3,6 +3,7 @@
 
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
+using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.SettingsReader.Attributes;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Core.Settings.Rates;
@@ -15,7 +16,7 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
     {
         public DbSettings Db { get; set; }
         
-        public RabbitMqSettings SettingsChangedRabbitMqSettings { get; set; }
+        public RabbitPublisherSettings SettingsChangedRabbitMqSettings { get; set; }
         
         public DefaultTradingInstrumentSettings TradingInstrumentDefaults { get; set; }
         
@@ -40,7 +41,14 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public CandlesShardingSettings CandlesSharding { get; set; }
 
         public ServiceSettings MdmService { get; set; }
+        public ServiceSettings CorporateActionsService { get; set; }
+
+        [Optional]
+        public DefaultTradingConditionsSettings TradingConditionsDefaults { get; set; } = new DefaultTradingConditionsSettings();
 
         public string BrokerId { get; set; }
+        public string InstanceId { get; set; }
+        public RabbitPublisherSettings LegacyAssetUpdatedRabbitPublisherSettings { get; set; }
+        public RabbitSubscriptionSettings UnderlyingChangedRabbitSubscriptionSettings { get; set; }
     }
 }

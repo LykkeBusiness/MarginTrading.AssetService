@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
+using Lykke.Common;
 using MarginTrading.AssetService.Core.Services;
 
 namespace MarginTrading.AssetService.Services
@@ -19,17 +21,19 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly ILog _log;
         private readonly IEnumerable<IStopable> _items;
+        private readonly IEnumerable<IStartStop> _stopables;
 
-        public ShutdownManager(ILog log, IEnumerable<IStopable> items)
+        public ShutdownManager(ILog log, IEnumerable<IStopable> items, IEnumerable<IStartStop> stopables)
         {
             _log = log;
             _items = items;
+            _stopables = stopables;
         }
 
         public async Task StopAsync()
         {
-            // TODO: Implement your shutdown logic here. Good idea is to log every step
-            foreach (var item in _items)
+            var allItems = _items.Concat(_stopables).Distinct();
+            foreach (var item in allItems)
             {
                 try
                 {

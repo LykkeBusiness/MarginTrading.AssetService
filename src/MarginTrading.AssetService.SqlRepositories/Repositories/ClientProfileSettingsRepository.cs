@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Lykke.Common.MsSql;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
@@ -119,6 +120,35 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<List<ClientProfileSettings>> GetAllByProfileAndMultipleAssetTypesAsync(string clientProfileId, IEnumerable<string> assetTypeIds)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .Where(x => x.ClientProfileId == clientProfileId)
+                    .Where(x => assetTypeIds.Contains(x.AssetTypeId))
+                    .Include(x => x.ClientProfile)
+                    .Include(x => x.AssetType)
+                    .Select(x => new ClientProfileSettings
+                    {
+                        ClientProfileId = x.ClientProfileId,
+                        AssetTypeId = x.AssetTypeId,
+                        Margin = x.Margin,
+                        IsAvailable = x.IsAvailable,
+                        OnBehalfFee = x.OnBehalfFee,
+                        ExecutionFeesRate = x.ExecutionFeesRate,
+                        ExecutionFeesFloor = x.ExecutionFeesFloor,
+                        ExecutionFeesCap = x.ExecutionFeesCap,
+                        FinancingFeesRate = x.FinancingFeesRate,
+                        RegulatoryProfileId = x.ClientProfile.RegulatoryProfileId,
+                        RegulatoryTypeId = x.AssetType.RegulatoryTypeId,
+                    })
+                    .ToListAsync();
+
+                return result;
+            }
+        }
+
         public async Task<bool> WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(RegulatorySettingsDto regulatorySettings)
         {
             using (var context = _contextFactory.CreateDataContext())
@@ -130,6 +160,31 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                                    x.AssetType.RegulatoryTypeId == regulatorySettings.RegulatoryTypeId &&
                                    x.Margin < regulatorySettings.MarginMin ||
                                    x.IsAvailable && !regulatorySettings.IsAvailable);
+
+                return result;
+            }
+        }
+
+        public async Task<List<string>> GetActiveAssetTypeIdsForDefaultProfileAsync()
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .Include(x => x.ClientProfile)
+                    .Where(x => x.IsAvailable && x.ClientProfile.IsDefault)
+                    .Select(x => x.AssetTypeId)
+                    .ToListAsync();
+
+                return result;
+            }
+        }
+
+        public async Task<bool> IsAvailableForDefaultProfileAsync(string assetTypeId)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var result = await context.ClientProfileSettings
+                    .AnyAsync(x => x.AssetTypeId == assetTypeId && x.IsAvailable && x.ClientProfile.IsDefault);
 
                 return result;
             }

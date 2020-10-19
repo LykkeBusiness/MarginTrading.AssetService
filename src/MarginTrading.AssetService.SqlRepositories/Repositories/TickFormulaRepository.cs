@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
@@ -130,6 +131,19 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             var result = await context.Products.AnyAsync(x => x.TickFormulaId == id);
 
             return result;
+        }
+
+        public async Task<IReadOnlyList<ITickFormula>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.TickFormulas.AsNoTracking();
+
+                if (ids != null && ids.Any())
+                    query = query.Where(x => ids.Contains(x.Id));
+
+                return await query.ToListAsync();
+            }
         }
     }
 }

@@ -23,16 +23,13 @@ namespace MarginTrading.AssetService.Controllers
     {
         private readonly IRateSettingsService _rateSettingsService;
         private readonly IConvertService _convertService;
-        private readonly IEventSender _eventSender;
 
         public RateSettingsController(
             IRateSettingsService rateSettingsService,
-            IConvertService convertService,
-            IEventSender eventSender)
+            IConvertService convertService)
         {
             _rateSettingsService = rateSettingsService;
             _convertService = convertService;
-            _eventSender = eventSender;
         }
 
         [ProducesResponseType(typeof(IReadOnlyList<OrderExecutionRateContract>), 200)]
@@ -70,33 +67,7 @@ namespace MarginTrading.AssetService.Controllers
                 .ToList();
         }
 
-        /// <summary>
-        /// Replace order execution rates
-        /// </summary>
-        /// <param name="rates"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [HttpPost("replace-order-exec")]
-        public async Task ReplaceOrderExecutionRatesAsync([FromBody] OrderExecutionRateContract[] rates)
-        {
-            if (rates == null || !rates.Any() || rates.Any(x => 
-                    string.IsNullOrWhiteSpace(x.AssetPairId)
-                    || string.IsNullOrWhiteSpace(x.CommissionAsset)))
-            {
-                throw new ArgumentNullException(nameof(rates));
-            }
 
-            await _rateSettingsService.ReplaceOrderExecutionRatesAsync(rates
-                .Select(x => _convertService.Convert<OrderExecutionRateContract, OrderExecutionRate>(x))
-                .ToList());
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OrderExecution);
-        }
-
-        
-        
         [ProducesResponseType(typeof(IReadOnlyList<OvernightSwapRateContract>), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-overnight-swap")]
@@ -132,26 +103,6 @@ namespace MarginTrading.AssetService.Controllers
                 .ToList();
         }
 
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [HttpPost("replace-overnight-swap")]
-        public async Task ReplaceOvernightSwapRatesAsync([FromBody] OvernightSwapRateContract[] rates)
-        {
-            if (rates == null || !rates.Any() || rates.Any(x => 
-                    string.IsNullOrWhiteSpace(x.AssetPairId)))
-            {
-                throw new ArgumentNullException(nameof(rates));
-            }
-
-            await _rateSettingsService.ReplaceOvernightSwapRatesAsync(rates
-                .Select(x => _convertService.Convert<OvernightSwapRateContract, OvernightSwapRate>(x))
-                .ToList());
-
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OvernightSwap);
-        }
-
-        
-        
         [ProducesResponseType(typeof(OnBehalfRateContract), 200)]
         [ProducesResponseType(400)]
         [HttpGet("get-on-behalf")]
@@ -159,22 +110,6 @@ namespace MarginTrading.AssetService.Controllers
         {
             var item = await _rateSettingsService.GetOnBehalfRateAsync();
             return item == null ? null : _convertService.Convert<OnBehalfRate, OnBehalfRateContract>(item);
-        }
-
-        [ProducesResponseType(200)]
-        [ProducesResponseType(400)]
-        [HttpPost("replace-on-behalf")]
-        public async Task ReplaceOnBehalfRateAsync([FromBody] OnBehalfRateContract rate)
-        {
-            if (string.IsNullOrWhiteSpace(rate.CommissionAsset))
-            {
-                throw new ArgumentNullException(nameof(rate.CommissionAsset));
-            }
-
-            await _rateSettingsService.ReplaceOnBehalfRateAsync(
-                _convertService.Convert<OnBehalfRateContract, OnBehalfRate>(rate));
-            
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.OnBehalf);
         }
     }
 }

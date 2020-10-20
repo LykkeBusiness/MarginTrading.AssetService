@@ -132,6 +132,15 @@ namespace MarginTrading.AssetService.Controllers
             return response;
         }
 
+        [HttpGet("counter")]
+        [ProducesResponseType(typeof(GetProductsCountResponse), (int) HttpStatusCode.OK)]
+        public async Task<GetProductsCountResponse> GetAllCountAsync([FromQuery] GetProductsRequest request)
+        {
+            var result = await _productsService.GetAllCountAsync(request.MdsCodes, request.ProductIds);
+
+            return new GetProductsCountResponse {Count = result.Value.Counter};
+        }
+
         [HttpPut("{productId}/frozen-status")]
         [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request)

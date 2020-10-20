@@ -145,6 +145,21 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         }
 
+        public async Task<IReadOnlyList<Currency>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Currencies.AsNoTracking();
+
+                if(ids!=null && ids.Any())
+                    query= query.Where(c => ids.Contains(c.Id));
+
+                var result = await query.ToListAsync();
+
+                return result.Select(ToModel).ToList();
+            }
+        }
+
         private CurrencyEntity ToEntity(Currency currency)
         {
             return new CurrencyEntity()

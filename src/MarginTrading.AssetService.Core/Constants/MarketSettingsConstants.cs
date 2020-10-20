@@ -4,7 +4,7 @@
 
 namespace MarginTrading.AssetService.Core.Constants
 {
-    public class MarketSettingsConstants
+    public static class MarketSettingsConstants
     {
         public static readonly string DefaultTimeZone = TimeZoneInfo.Utc.Id;
         public static readonly TimeSpan DefaultOpen = new TimeSpan(8, 0, 0);

@@ -14,5 +14,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<Result<TickFormulaErrorCodes>> DeleteAsync(string id);
         Task<bool> ExistsAsync(string id);
         Task<bool> AssignedToAnyProductAsync(string id);
+        Task<IReadOnlyList<ITickFormula>> GetByIdsAsync(IEnumerable<string> ids);
     }
 }

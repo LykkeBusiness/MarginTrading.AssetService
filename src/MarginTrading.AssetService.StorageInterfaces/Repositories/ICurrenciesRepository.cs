@@ -14,5 +14,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<Result<List<Currency>, CurrenciesErrorCodes>> GetAllAsync();
         Task<Result<List<Currency>, CurrenciesErrorCodes>> GetByPageAsync(int skip, int take);
         Task<bool> CurrencyHasProductsAsync(string id);
+        Task<IReadOnlyList<Currency>> GetByIdsAsync(IEnumerable<string> ids);
     }
 }

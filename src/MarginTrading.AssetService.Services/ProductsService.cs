@@ -257,5 +257,8 @@ namespace MarginTrading.AssetService.Services
 
             return result;
         }
+
+        public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds) 
+            => _repository.GetAllCountAsync(mdsCodes, productIds);
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using Cronut.Dto.Assets;
+using Lykke.Snow.Common.Extensions;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using TimeZoneConverter;
@@ -68,9 +69,9 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromMarketSettings(this Asset asset, MarketSettings marketSettings)
         {
-            var utcOffset = TZConvert.GetTimeZoneInfo(marketSettings.Timezone).BaseUtcOffset;
-            var openUtc = marketSettings.Open.Add(utcOffset);
-            var closeUtc = marketSettings.Close.Add(utcOffset);
+            var timezoneInfo = TZConvert.GetTimeZoneInfo(marketSettings.Timezone);
+            var openUtc = marketSettings.Open.ShiftToUtc(timezoneInfo);
+            var closeUtc = marketSettings.Close.ShiftToUtc(timezoneInfo);
             //Maybe we can have more than a day after we apply timezone, so we need to remove day portion
             var openUtcWithoutDays = new TimeSpan(openUtc.Hours, openUtc.Minutes, openUtc.Seconds);
             var closeUtcWithoutDays = new TimeSpan(closeUtc.Hours, closeUtc.Minutes, closeUtc.Seconds);

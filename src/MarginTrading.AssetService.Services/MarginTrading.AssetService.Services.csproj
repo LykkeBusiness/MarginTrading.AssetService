@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
-    <Version>2.1.1</Version>
+    <Version>2.1.2</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -15,6 +15,7 @@
     <PackageReference Include="Lykke.MarginTrading.CorporateActions.Contracts" Version="1.0.0" />
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.13.2" />
     <PackageReference Include="Lykke.SlackNotifications" Version="2.0.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.6.0" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="2.6.0" />
     <PackageReference Include="TimeZoneConverter" Version="3.2.0" />
   </ItemGroup>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Snow.Common.Extensions;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Domain;
@@ -140,9 +141,9 @@ namespace MarginTrading.AssetService.Services
 
         private ScheduleSettings MapClosedHours(string marketId, TimeSpan open, TimeSpan close, string timezone, string assetPairRegex)
         {
-            var utcOffset = TZConvert.GetTimeZoneInfo(timezone).BaseUtcOffset;
-            var openUtc = open.Add(utcOffset);
-            var closeUtc = close.Add(utcOffset);
+            var timezoneInfo = TZConvert.GetTimeZoneInfo(timezone);
+            var openUtc = open.ShiftToUtc(timezoneInfo);
+            var closeUtc = close.ShiftToUtc(timezoneInfo);
             //Maybe we can have more than a day after we apply timezone, so we need to remove day portion
             var openUtcWithoutDays = new TimeSpan(openUtc.Hours, openUtc.Minutes, openUtc.Seconds);
             var closeUtcWithoutDays = new TimeSpan(closeUtc.Hours, closeUtc.Minutes, closeUtc.Seconds);

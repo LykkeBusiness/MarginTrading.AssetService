@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Common.Extensions;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.MarketSettings;
@@ -122,11 +123,11 @@ namespace MarginTrading.AssetService.Services
             if (model.Open.TotalHours >= 24 || model.Close.TotalHours >= 24 || (model.Open > model.Close && model.Close != TimeSpan.Zero))
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
 
-            var openWithTimezone = model.Open.Add(timezone.BaseUtcOffset);
-            var closeWithTimezone = model.Close.Add(timezone.BaseUtcOffset);
+            var openUtc = model.Open.ShiftToUtc(timezone);
+            var closeUtc = model.Close.ShiftToUtc(timezone);
 
-            if (openWithTimezone.TotalHours >= 24 || closeWithTimezone.TotalHours >= 24 ||
-                openWithTimezone.TotalHours < 0 || closeWithTimezone.TotalHours < 0)
+            if (openUtc.TotalHours >= 24 || closeUtc.TotalHours >= 24 ||
+                openUtc.TotalHours < 0 || closeUtc.TotalHours < 0)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
 
             if (model.DividendsLong < 0 || model.DividendsLong > 100)
@@ -142,7 +143,7 @@ namespace MarginTrading.AssetService.Services
                 return new Result<MarketSettingsErrorCodes>();
 
             //This is the current day taking into account the timezone
-            var currentDay = DateTime.UtcNow.Add(TZConvert.GetTimeZoneInfo(currentMarketSettings.Timezone).BaseUtcOffset);
+            var currentDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TZConvert.GetTimeZoneInfo(currentMarketSettings.Timezone));
             var newHolidays = model.Holidays.Select(x => x.Date.Date).Except(currentMarketSettings.Holidays);
 
             //Validate if we try to add holiday for already started trading day

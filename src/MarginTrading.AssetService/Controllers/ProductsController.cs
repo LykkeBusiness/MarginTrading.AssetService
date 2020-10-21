@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -142,8 +143,8 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         [HttpPut("{productId}/frozen-status")]
-        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
-        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeFrozenStatus(string productId, ChangeProductFrozenStatusRequest request)
+        [ProducesResponseType(typeof(ChangeProductFrozenStatusResponse), (int) HttpStatusCode.OK)]
+        public async Task<ChangeProductFrozenStatusResponse> ChangeFrozenStatusAsync(string productId, ChangeProductFrozenStatusRequest request)
         {
             var freezeInfo = _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeInfo);
             
@@ -151,7 +152,7 @@ namespace MarginTrading.AssetService.Controllers
 
             if (!request.IsFrozen && request.FreezeInfo != null)
             {
-                return new ErrorCodeResponse<ProductsErrorCodesContract>()
+                return new ChangeProductFrozenStatusResponse()
                 {
                     ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct,
                 }; 
@@ -159,13 +160,68 @@ namespace MarginTrading.AssetService.Controllers
             
             var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.ForceFreezeIfAlreadyFrozen, freezeInfo, request.UserName, correlationId);
 
-            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+            var response = new ChangeProductFrozenStatusResponse();
 
             if (result.IsFailed)
             {
                 response.ErrorCode =
                     _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
                         result.Error.GetValueOrDefault());
+            }
+            else
+            {
+                response.Product = _convertService.Convert<Product, ProductContract>(result.Value);
+            }
+
+            return response;
+        }
+
+        [HttpPut("frozen-status")]
+        [ProducesResponseType(typeof(ChangeMultipleProductFrozenStatusResponse), (int) HttpStatusCode.OK)]
+        public async Task<ChangeMultipleProductFrozenStatusResponse> ChangeFrozenStatusMultipleAsync(
+            ChangeMultipleProductFrozenStatusRequest request)
+        {
+            var freezeInfo =
+                _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeParameters
+                    .FreezeInfo);
+
+            var correlationId = this.TryGetCorrelationId();
+
+            if (!request.FreezeParameters.IsFrozen && request.FreezeParameters.FreezeInfo != null)
+            {
+                return new ChangeMultipleProductFrozenStatusResponse
+                {
+                    ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct,
+                    Results = new Dictionary<string, ChangeProductFrozenStatusResponse>()
+                };
+            }
+
+            var response = new ChangeMultipleProductFrozenStatusResponse
+                {Results = new Dictionary<string, ChangeProductFrozenStatusResponse>()};
+
+            foreach (var requestProductId in request.ProductIds)
+            {
+                var result = await _productsService.ChangeFrozenStatus(requestProductId,
+                    request.FreezeParameters.IsFrozen, 
+                    request.FreezeParameters.ForceFreezeIfAlreadyFrozen, 
+                    freezeInfo,
+                    request.FreezeParameters.UserName, 
+                    correlationId);
+
+                var singleProductResponse = new ChangeProductFrozenStatusResponse();
+
+                if (result.IsFailed)
+                {
+                    singleProductResponse.ErrorCode =
+                        _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                            result.Error.GetValueOrDefault());
+                }
+                else
+                {
+                    singleProductResponse.Product = _convertService.Convert<Product, ProductContract>(result.Value);
+                }
+
+                response.Results.Add(requestProductId, singleProductResponse);
             }
 
             return response;

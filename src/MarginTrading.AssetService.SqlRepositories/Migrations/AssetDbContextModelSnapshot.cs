@@ -70,6 +70,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Timestamp");
+
                     b.ToTable("AuditTrail");
                 });
 
@@ -442,7 +444,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", "Market")
                         .WithMany()
                         .HasForeignKey("MarketId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MarginTrading.AssetService.SqlRepositories.Entities.TickFormulaEntity", "TickFormula")

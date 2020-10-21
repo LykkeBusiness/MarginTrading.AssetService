@@ -16,5 +16,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         InvalidDividendsLongValue,
         InvalidDividends871MValue,
         CannotDeleteMarketSettingsAssignedToAnyProduct,
+        OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay,
     }
 }

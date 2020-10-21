@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
+using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
@@ -13,13 +14,16 @@ using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
+using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
+using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -55,14 +59,14 @@ namespace MarginTrading.AssetService.Services
                     string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
 
                 //Client profile Settings
-                cfg.CreateMap<ClientProfileSettings, ClientProfileSettingsContract>();
+                cfg.CreateMap<ClientProfileSettings, ClientProfileSettingsContract>().ReverseMap();
                 cfg.CreateMap<UpdateClientProfileSettingsRequest, ClientProfileSettings>()
                     .ForMember(x => x.RegulatoryProfileId, opt => opt.Ignore())
                     .ForMember(x => x.RegulatoryTypeId, opt => opt.Ignore());
                 cfg.CreateMap<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>();
 
                 //Client profiles
-                cfg.CreateMap<ClientProfile, ClientProfileContract>();
+                cfg.CreateMap<ClientProfile, ClientProfileContract>().ReverseMap();
                 cfg.CreateMap<AddClientProfileRequest, ClientProfileWithTemplate>();
                 cfg.CreateMap<UpdateClientProfileRequest, ClientProfile>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
@@ -78,14 +82,16 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
                 
                 //Products
-                cfg.CreateMap<Product, ProductContract>();
+                cfg.CreateMap<Product, ProductContract>().ReverseMap();
                 cfg.CreateMap<AddProductRequest, Product>();
                 cfg.CreateMap<UpdateProductRequest, Product>();
-                cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>();
+                cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
                 
+                //ProductCategories
+                cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();
 
                 //MarketSettings
-                cfg.CreateMap<MarketSettings, MarketSettingsContract>();
+                cfg.CreateMap<MarketSettings, MarketSettingsContract>().ReverseMap();
                 cfg.CreateMap<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>();
                 cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
@@ -95,12 +101,17 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<AddCurrencyRequest, Currency>();
                 cfg.CreateMap<UpdateCurrencyRequest, Currency>();
                 cfg.CreateMap<CurrenciesErrorCodes, CurrenciesErrorCodesContract>();
+                cfg.CreateMap<Currency, CurrencyContract>().ReverseMap();
 
                 //Tick formula
-                cfg.CreateMap<ITickFormula, TickFormulaContract>();
+                cfg.CreateMap<ITickFormula, TickFormulaContract>().ReverseMap();
+                cfg.CreateMap<TickFormula, TickFormulaContract>().ReverseMap();
                 cfg.CreateMap<AddTickFormulaRequest, ITickFormula>();
                 cfg.CreateMap<UpdateTickFormulaRequest, ITickFormula>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
+
+                //Underlying
+                cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>();
             }).CreateMapper();
         }
 

@@ -59,5 +59,33 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Put("/api/products/frozen-status")]
         Task<ChangeMultipleProductFrozenStatusResponse> ChangeFrozenStatusMultipleAsync(ChangeMultipleProductFrozenStatusRequest request);
+        /// Gets products count for particular request
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Get("/api/products/counter")]
+        Task<GetProductsCountResponse> GetAllCountAsync([Query(CollectionFormat.Multi)] GetProductsRequest request);
+
+        /// <summary>
+        /// Updates a list of products
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Put("/api/products/batch")]
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> UpdateBatchAsync(
+            [Body] UpdateProductBatchRequest request);
+
+        /// <summary>
+        /// Deletes a list of products by their productIds
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [Delete("/api/products/batch")]
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteBatchAsync(
+            [Body] DeleteProductBatchRequest request);
+
+        [Put("/api/products/batch/discontinue")]
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> MarkMultipleAsDiscontinuedAsync(
+            [Body] MarkProductsAsDiscontinuedRequest request);
     }
 }

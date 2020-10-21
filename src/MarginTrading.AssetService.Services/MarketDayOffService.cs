@@ -9,30 +9,29 @@ using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
-using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Internal;
 
 namespace MarginTrading.AssetService.Services
 {
     public class MarketDayOffService : IMarketDayOffService
     {
-        private readonly IScheduleSettingsRepository _scheduleSettingsRepository;
+        private readonly IScheduleSettingsService _scheduleSettingsService;
         private readonly ISystemClock _systemClock;
         private readonly PlatformSettings _platformSettings;
 
         public MarketDayOffService(
-            IScheduleSettingsRepository scheduleSettingsRepository,
+            IScheduleSettingsService scheduleSettingsService,
             ISystemClock systemClock,
             PlatformSettings platformSettings)
         {
-            _scheduleSettingsRepository = scheduleSettingsRepository;
+            _scheduleSettingsService = scheduleSettingsService;
             _systemClock = systemClock;
             _platformSettings = platformSettings;
         }
 
         public async Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds, DateTime? dateTime)
         {
-            var scheduleSettings = (await _scheduleSettingsRepository.GetFilteredAsync())
+            var scheduleSettings = (await _scheduleSettingsService.GetFilteredAsync())
                 .Where(x => !string.IsNullOrWhiteSpace(x.MarketId))
                 .Cast<ScheduleSettings>()
                 .GroupBy(x => x.MarketId)
@@ -63,7 +62,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<TradingDayInfo> GetPlatformInfo(DateTime? dateTime)
         {
-            var rawPlatformSchedule = (await _scheduleSettingsRepository.GetFilteredAsync())
+            var rawPlatformSchedule = (await _scheduleSettingsService.GetFilteredAsync())
                 .Where(x => x.MarketId == _platformSettings.PlatformMarketId)
                 .Cast<ScheduleSettings>()
                 .ToList();

@@ -15,6 +15,7 @@ using Lykke.Messaging;
 using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
+using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
@@ -28,6 +29,13 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
+using MarginTrading.AssetService.Workflow.ClientProfiles;
+using MarginTrading.AssetService.Workflow.ClientProfileSettings;
+using MarginTrading.AssetService.Workflow.Currencies;
+using MarginTrading.AssetService.Workflow.MarketSettings;
+using MarginTrading.AssetService.Workflow.ProductCategories;
+using MarginTrading.AssetService.Workflow.Products;
+using MarginTrading.AssetService.Workflow.TickFormulas;
 
 namespace MarginTrading.AssetService.Modules
 {
@@ -38,13 +46,15 @@ namespace MarginTrading.AssetService.Modules
         private const string DefaultEventPipeline = "events";
         private readonly CqrsSettings _settings;
         private readonly ILog _log;
+        private readonly string _instanceId;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsModule(CqrsSettings settings, ILog log)
+        public CqrsModule(CqrsSettings settings, ILog log, string instanceId)
         {
             _settings = settings;
             _log = log;
+            _instanceId = instanceId;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
         }
@@ -71,7 +81,7 @@ namespace MarginTrading.AssetService.Modules
 
             // Sagas & command handlers
             builder.RegisterAssemblyTypes(GetType().Assembly)
-                .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler"))
+                .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler") || t.Name.EndsWith("Projection"))
                 .AsSelf();
 
             builder.Register(ctx => CreateEngine(ctx, messagingEngine))
@@ -86,7 +96,7 @@ namespace MarginTrading.AssetService.Modules
                 "RabbitMq",
                 SerializationFormat.MessagePack,
                 environment: _settings.EnvironmentName);
-            
+
             var engine = new CqrsEngine(
                 _log,
                 ctx.Resolve<IDependencyResolver>(),
@@ -98,7 +108,7 @@ namespace MarginTrading.AssetService.Modules
                 RegisterContext(),
                 Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
                 Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
-            
+
             engine.StartPublishers();
 
             return engine;
@@ -109,8 +119,9 @@ namespace MarginTrading.AssetService.Modules
             var contextRegistration = Register.BoundedContext(_contextNames.AssetService)
                 .FailedCommandRetryDelay(_defaultRetryDelayMs)
                 .ProcessingOptions(DefaultRoute).MultiThreaded(8).QueueCapacity(1024);
-            RegisterEventPublishing(contextRegistration);
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
+            RegisterEventPublishing(contextRegistration);
+            RegisterAssetServiceProjections(contextRegistration);
             return contextRegistration;
         }
 
@@ -159,6 +170,38 @@ namespace MarginTrading.AssetService.Modules
                     typeof(AssetTypeChangedEvent)
                     )
                 .With(DefaultEventPipeline);
+        }
+
+        private void RegisterAssetServiceProjections(
+            ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            contextRegistration.ListeningEvents(typeof(MarketSettingsChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(MarketSettingsChangedEvent)}{_instanceId}").WithProjection(typeof(MarketSettingsChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ProductCategoryChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(ProductCategoryChangedEvent)}{_instanceId}").WithProjection(typeof(ProductCategoryChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ProductChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(ProductChangedEvent)}{_instanceId}").WithProjection(typeof(ProductChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ClientProfileChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(ClientProfileChangedEvent)}{_instanceId}").WithProjection(typeof(ClientProfileChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(ClientProfileSettingsChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(ClientProfileSettingsChangedEvent)}{_instanceId}").WithProjection(typeof(ClientProfileSettingsChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(TickFormulaChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(TickFormulaChangedEvent)}{_instanceId}").WithProjection(typeof(TickFormulaChangedProjection), _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(CurrencyChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(CurrencyChangedEvent)}{_instanceId}").WithProjection(typeof(CurrencyChangedProjection), _settings.ContextNames.AssetService);
         }
     }
 }

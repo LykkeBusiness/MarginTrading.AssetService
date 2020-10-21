@@ -11,9 +11,14 @@ using Lykke.Common.MsSql;
 using Lykke.Logs.MsSql.Interfaces;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Services;
+using MarginTrading.AssetService.Services.Caches;
+using MarginTrading.AssetService.Services.RabbitMq.Handlers;
 using MarginTrading.AssetService.Settings.Candles;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.SqlRepositories;
@@ -58,6 +63,8 @@ namespace MarginTrading.AssetService.Modules
                 .SingleInstance();  
             
             builder.RegisterInstance(_settings.CurrentValue.DefaultRateSettings).SingleInstance();
+
+            builder.RegisterInstance(_settings.CurrentValue.TradingConditionsDefaults).SingleInstance();
 
             builder.RegisterType<HealthService>().As<IHealthService>().SingleInstance();
 
@@ -131,10 +138,55 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<CurrenciesService>()
                 .AsImplementedInterfaces()
                 .SingleInstance();
+
+            builder.RegisterType<ProductCategoryStringService>()
+                .AsImplementedInterfaces()
+                .SingleInstance();
             
             builder.RegisterAssemblyTypes(typeof(MarginTrading.AssetService.Services.AssemblyDummy).Assembly)
                 .Where(t => t.Name.EndsWith("Validation"))
                 .AsSelf();
+
+            builder.RegisterType<AssetPairService>()
+                .As<IAssetPairService>()
+                .SingleInstance();
+
+            builder.RegisterType<MarketsService>()
+                .As<IMarketsService>()
+                .SingleInstance();
+
+            builder.RegisterType<TradingConditionsService>()
+                .As<ITradingConditionsService>()
+                .SingleInstance();
+
+            builder.RegisterType<TradingInstrumentsService>()
+                .As<ITradingInstrumentsService>()
+                .SingleInstance();
+
+            builder.RegisterType<ScheduleSettingsService>()
+                .As<IScheduleSettingsService>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
+                .SingleInstance();
+
+            builder.RegisterType<UnderlyingsCache>()
+                .As<IUnderlyingsCache>()
+                .SingleInstance();
+
+            builder.RegisterType<LegacyAssetsService>()
+                .As<ILegacyAssetsService>()
+                .SingleInstance();
+
+            builder.RegisterType<LegacyAssetCache>()
+                .As<ILegacyAssetsCache>()
+                .SingleInstance();
+
+            builder.RegisterType<LegacyAssetsCacheUpdater>()
+                .As<ILegacyAssetsCacheUpdater>()
+                .SingleInstance();
+
+            builder.RegisterType<UnderlyingChangedHandler>()
+                .AsSelf()
+                .SingleInstance();
 
             RegisterRepositories(builder);
 
@@ -157,34 +209,9 @@ namespace MarginTrading.AssetService.Modules
                     .As<ILogRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
-                
-                builder.RegisterType<SqlRepos.AssetPairsRepository>()
-                    .As<IAssetPairsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
 
                 builder.RegisterType<SqlRepos.AssetsRepository>()
                     .As<IAssetsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<SqlRepos.MarketRepository>()
-                    .As<IMarketRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<SqlRepos.ScheduleSettingsRepository>()
-                    .As<IScheduleSettingsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<SqlRepos.TradingConditionsRepository>()
-                    .As<ITradingConditionsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<SqlRepos.TradingInstrumentsRepository>()
-                    .As<ITradingInstrumentsRepository>()
                     .WithParameter(connstrParameter)
                     .SingleInstance();
 
@@ -211,9 +238,7 @@ namespace MarginTrading.AssetService.Modules
                     .As<IClientProfilesRepository>()
                     .SingleInstance();
 
-                builder.RegisterType<SqlRepos.AssetTypesRepository>()
-                    .As<IAssetTypesRepository>()
-                    .SingleInstance();
+                builder.RegisterSingletonIfNotRegistered<SqlRepos.AssetTypesRepository, IAssetTypesRepository>();
 
                 builder.RegisterType<SqlRepos.ClientProfileSettingsRepository>()
                     .As<IClientProfileSettingsRepository>()
@@ -224,8 +249,9 @@ namespace MarginTrading.AssetService.Modules
                     .SingleInstance();
 
                 builder.RegisterType<SqlRepos.MarketSettingsRepository>()
-                    .As<IMarketSettingsRepository>();
-                    
+                    .As<IMarketSettingsRepository>()
+                    .SingleInstance();
+
                 builder.RegisterType<SqlRepos.CurrenciesRepository>()
                     .AsImplementedInterfaces()
                     .SingleInstance();
@@ -247,36 +273,6 @@ namespace MarginTrading.AssetService.Modules
                 
                 var connstrParameter = new NamedParameter("connectionStringManager",
                     _settings.Nested(x => x.Db.DataConnString));
-
-                builder.RegisterType<AzureRepos.AssetPairsRepository>()
-                    .As<IAssetPairsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<AzureRepos.AssetsRepository>()
-                    .As<IAssetsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<AzureRepos.MarketRepository>()
-                    .As<IMarketRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<AzureRepos.ScheduleSettingsRepository>()
-                    .As<IScheduleSettingsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<AzureRepos.TradingConditionsRepository>()
-                    .As<ITradingConditionsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
-                builder.RegisterType<AzureRepos.TradingInstrumentsRepository>()
-                    .As<ITradingInstrumentsRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
 
                 builder.RegisterType<AzureRepos.TradingRoutesRepository>()
                     .As<ITradingRoutesRepository>()

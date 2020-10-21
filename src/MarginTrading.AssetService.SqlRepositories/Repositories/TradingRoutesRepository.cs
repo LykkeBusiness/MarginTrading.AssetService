@@ -115,7 +115,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 }
                 catch (Exception ex)
                 {
-                    _log?.WriteWarningAsync(nameof(AssetPairsRepository), nameof(TryInsertAsync),
+                    _log?.WriteWarningAsync(nameof(TradingRoutesRepository), nameof(TryInsertAsync),
                         $"Failed to insert a trading route with Id {tradingRoute.Id}", ex);
                     return false;
                 }

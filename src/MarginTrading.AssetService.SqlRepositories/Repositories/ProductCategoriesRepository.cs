@@ -109,6 +109,22 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task<IReadOnlyList<ProductCategory>> GetByIdsAsync(IEnumerable<string> ids)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.ProductCategories.AsNoTracking();
+
+                if (ids != null && ids.Any())
+                    query = query.Where(x => ids.Contains(x.Id));
+
+                var result = await query
+                    .ToListAsync();
+
+                return result.Select(ToModel).ToList();
+            }
+        }
+
         private ProductCategory ToModel(ProductCategoryEntity entity)
         {
             if (entity == null) return null;

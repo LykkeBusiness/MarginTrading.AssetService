@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.Core.Domain
@@ -38,6 +39,21 @@ namespace MarginTrading.AssetService.Core.Domain
         public override string ToString()
         {
             return $"Id: {Id}, IsTradeEnabled: {IsTradeEnabled}, Rank: {Rank}, MarketId: {MarketId}, Start: {Start}, End: {End}, AssetPairRegex: {AssetPairRegex}, AssetPairs: {string.Join(",", AssetPairs)}, PendingOrdersCutOff: {PendingOrdersCutOff}.";
+        }
+
+        public static ScheduleSettings Create(string id, string marketId, ScheduleConstraint start, ScheduleConstraint end, string assetPairRegex)
+        {
+            return new ScheduleSettings(
+                id: id,
+                rank: 0,
+                assetPairRegex: assetPairRegex,
+                assetPairs: new HashSet<string>(), 
+                marketId: marketId,
+                isTradeEnabled: false,
+                pendingOrdersCutOff: TimeSpan.FromMilliseconds(0),
+                start: start,
+                end: end
+            );
         }
     }
 }

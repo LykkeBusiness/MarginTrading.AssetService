@@ -31,7 +31,8 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.HasOne(x => x.Market)
                 .WithMany()
                 .IsRequired()
-                .HasForeignKey(x => x.MarketId);
+                .HasForeignKey(x => x.MarketId)
+                .OnDelete(DeleteBehavior.Restrict);
             
             builder.HasOne(x => x.AssetType)
                 .WithMany()

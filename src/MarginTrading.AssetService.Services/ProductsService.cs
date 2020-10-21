@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,7 @@ namespace MarginTrading.AssetService.Services
         private readonly ProductAddOrUpdateValidation _addOrUpdateValidation;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
+        private readonly IConvertService _convertService;
         private readonly ILog _log;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
 
@@ -26,11 +28,13 @@ namespace MarginTrading.AssetService.Services
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
             IAuditService auditService,
+            IConvertService convertService,
             ILog log)
         {
             _addOrUpdateValidation = addOrUpdateValidation;
             _repository = repository;
             _auditService = auditService;
+            _convertService = convertService;
             _log = log;
             _entityChangedSender = entityChangedSender;
         }
@@ -260,5 +264,42 @@ namespace MarginTrading.AssetService.Services
 
         public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds) 
             => _repository.GetAllCountAsync(mdsCodes, productIds);
+
+        public async Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode, string username,
+            string correlationId)
+        {
+            var existing = await _repository.GetByUnderlyingMdsCodeAsync(oldMdsCode);
+
+            if (existing.IsSuccess)
+            {
+                // hack: convert service is used to create a deep copy
+                // we need this for audit / entity changed events to preserve existing.Value intact
+                var contract = _convertService.Convert<Product, ProductContract>(existing.Value);
+                var product = _convertService.Convert<ProductContract, Product>(contract);
+                
+                product.UnderlyingMdsCode = newMdsCode;
+                
+                var validationResult =
+                    await _addOrUpdateValidation.ValidateAllAsync(product, username, correlationId, existing.Value);
+                if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
+
+                product = validationResult.Value;
+
+                var result = await _repository.UpdateAsync(product);
+
+                if (result.IsSuccess)
+                {
+                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
+                        product.ToJson(), existing.Value.ToJson());
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                        existing.Value, product,
+                        username, correlationId);
+                }
+
+                return result;
+            }
+
+            return existing.ToResultWithoutValue();
+        }
     }
 }

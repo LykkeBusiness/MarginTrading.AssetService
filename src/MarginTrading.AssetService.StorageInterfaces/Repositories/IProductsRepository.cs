@@ -28,5 +28,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
             int skip = default, int take = 20);
         Task<IReadOnlyList<Product>> GetByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds);
         Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value);
+        Task<Result<Product, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode);
     }
 }

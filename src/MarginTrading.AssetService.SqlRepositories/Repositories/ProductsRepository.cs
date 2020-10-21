@@ -109,6 +109,19 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return new Result<Product, ProductsErrorCodes>(ToModel(entity));
             }
         }
+        
+        public async Task<Result<Product, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var entity = await context.Products.FirstOrDefaultAsync(x => x.UnderlyingMdsCode == mdsCode);
+
+                if (entity == null)
+                    return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+                return new Result<Product, ProductsErrorCodes>(ToModel(entity));
+            }
+        }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
         {

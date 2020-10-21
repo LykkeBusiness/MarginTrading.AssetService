@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +18,6 @@ namespace MarginTrading.AssetService.Services
         private readonly ProductAddOrUpdateValidation _addOrUpdateValidation;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
-        private readonly IConvertService _convertService;
         private readonly ILog _log;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
 
@@ -28,13 +26,11 @@ namespace MarginTrading.AssetService.Services
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
             IAuditService auditService,
-            IConvertService convertService,
             ILog log)
         {
             _addOrUpdateValidation = addOrUpdateValidation;
             _repository = repository;
             _auditService = auditService;
-            _convertService = convertService;
             _log = log;
             _entityChangedSender = entityChangedSender;
         }
@@ -272,10 +268,7 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
-                // hack: convert service is used to create a deep copy
-                // we need this for audit / entity changed events to preserve existing.Value intact
-                var contract = _convertService.Convert<Product, ProductContract>(existing.Value);
-                var product = _convertService.Convert<ProductContract, Product>(contract);
+                var product = existing.Value.ShallowCopy();
                 
                 product.UnderlyingMdsCode = newMdsCode;
                 

@@ -9,6 +9,8 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public string ExchangeName { get; set; }
         public string QueueName { get; set; }
         public string ConnectionString { get; set; }
+        
+        public string DeadLetterExchangeName { get; set; }
 
         public static implicit operator RabbitMqSubscriptionSettings(RabbitSubscriptionSettings subscriptionSettings)
         {
@@ -18,7 +20,8 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
                 IsDurable = subscriptionSettings.IsDurable,
                 ExchangeName = subscriptionSettings.ExchangeName,
                 QueueName = subscriptionSettings.QueueName,
-                ConnectionString = subscriptionSettings.ConnectionString
+                ConnectionString = subscriptionSettings.ConnectionString,
+                DeadLetterExchangeName = subscriptionSettings.DeadLetterExchangeName,
             };
         }
     }

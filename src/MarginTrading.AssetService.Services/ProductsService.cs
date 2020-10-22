@@ -269,14 +269,7 @@ namespace MarginTrading.AssetService.Services
             if (existing.IsSuccess)
             {
                 var product = existing.Value.ShallowCopy();
-                
                 product.UnderlyingMdsCode = newMdsCode;
-                
-                var validationResult =
-                    await _addOrUpdateValidation.ValidateAllAsync(product, username, correlationId, existing.Value);
-                if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
-
-                product = validationResult.Value;
 
                 var result = await _repository.UpdateAsync(product);
 

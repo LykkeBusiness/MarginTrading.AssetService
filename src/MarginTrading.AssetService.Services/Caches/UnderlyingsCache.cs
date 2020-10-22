@@ -86,7 +86,7 @@ namespace MarginTrading.AssetService.Services.Caches
                 if (isInCache)
                     _cache.Remove(oldMdsCode);
 
-                _cache.Add(underlying.MdsCode, underlying);
+                _cache.TryAdd(underlying.MdsCode, underlying);
             }
             finally
             {

@@ -55,8 +55,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                                 _log.WriteWarning(nameof(UnderlyingChangedHandler), nameof(Handle), 
                                     $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: product not found");
                             
-                            _log.WriteError(nameof(UnderlyingChangedHandler), nameof(Handle), 
-                                new Exception($"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}"));
+                            throw new Exception($"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
                         }
                     }
                     else

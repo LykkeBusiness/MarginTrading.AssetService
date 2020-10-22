@@ -260,5 +260,32 @@ namespace MarginTrading.AssetService.Services
 
         public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds) 
             => _repository.GetAllCountAsync(mdsCodes, productIds);
+
+        public async Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode, string username,
+            string correlationId)
+        {
+            var existing = await _repository.GetByUnderlyingMdsCodeAsync(oldMdsCode);
+
+            if (existing.IsSuccess)
+            {
+                var product = existing.Value.ShallowCopy();
+                product.UnderlyingMdsCode = newMdsCode;
+
+                var result = await _repository.UpdateAsync(product);
+
+                if (result.IsSuccess)
+                {
+                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
+                        product.ToJson(), existing.Value.ToJson());
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                        existing.Value, product,
+                        username, correlationId);
+                }
+
+                return result;
+            }
+
+            return existing.ToResultWithoutValue();
+        }
     }
 }

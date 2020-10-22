@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Common.Log;
 using Lykke.Common;
 using Lykke.RabbitMqBroker;
@@ -29,11 +30,15 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
         {
             _subscriber = new RabbitMqSubscriber<UnderlyingChangedEvent>(
                     _settings,
-                    new DefaultErrorHandlingStrategy(_log, _settings))
+                    new ResilientErrorHandlingStrategy(_log, _settings,
+                        retryTimeout: TimeSpan.FromSeconds(10),
+                        retryNum: 10,
+                        next: new DeadQueueErrorHandlingStrategy(_log, _settings)))
                 .SetMessageDeserializer(new MessagePackMessageDeserializer<UnderlyingChangedEvent>())
+                .SetMessageReadStrategy(new MessageReadQueueStrategy())
                 .SetLogger(_log)
-                .Subscribe(ProcessMessageAsync)
                 .CreateDefaultBinding()
+                .Subscribe(ProcessMessageAsync)
                 .Start();
         }
 

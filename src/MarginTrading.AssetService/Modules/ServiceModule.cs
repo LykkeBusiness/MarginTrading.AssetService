@@ -18,6 +18,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Services.Caches;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
+using MarginTrading.AssetService.Services.Validations.Products;
 using MarginTrading.AssetService.Settings.Candles;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.SqlRepositories;
@@ -105,6 +106,7 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<AuditService>().As<IAuditService>().SingleInstance();
             builder.RegisterType<MarketSettingsService>().As<IMarketSettingsService>().SingleInstance();
 
+            builder.RegisterType<ProductAddOrUpdateValidationAndEnrichment>().AsSelf().SingleInstance();
             builder.RegisterType<ProductsService>().AsImplementedInterfaces().SingleInstance();
             
             builder.RegisterType<ProductCategoriesService>().AsImplementedInterfaces().SingleInstance();

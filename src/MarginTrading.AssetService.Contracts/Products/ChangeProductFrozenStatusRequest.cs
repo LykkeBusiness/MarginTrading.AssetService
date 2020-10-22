@@ -5,7 +5,6 @@ namespace MarginTrading.AssetService.Contracts.Products
     public class ChangeProductFrozenStatusRequest : UserRequest
     {
         public bool IsFrozen { get; set; }
-        public bool ForceFreezeIfAlreadyFrozen { get; set; }
         public ProductFreezeInfoContract FreezeInfo { get; set; }
     }
 }

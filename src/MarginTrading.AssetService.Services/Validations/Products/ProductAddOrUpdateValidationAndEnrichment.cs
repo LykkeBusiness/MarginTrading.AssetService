@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Lykke.Snow.Common.Model;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -10,9 +11,9 @@ using MarginTrading.AssetService.StorageInterfaces.Repositories;
 namespace MarginTrading.AssetService.Services.Validations.Products
 {
     [UsedImplicitly]
-    public class ProductAddOrUpdateValidation : ValidationChainEngine<Product, ProductsErrorCodes>
+    public class ProductAddOrUpdateValidationAndEnrichment : ValidationAndEnrichmentChainEngine<Product, ProductsErrorCodes>
     {
-        private readonly IUnderlyingsApi _underlyingsApi;
+        private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesService _currenciesService;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
         private readonly IProductsRepository _productsRepository;
@@ -20,7 +21,8 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAssetTypesRepository _assetTypesRepository;
 
-        public ProductAddOrUpdateValidation(IUnderlyingsApi underlyingsApi,
+        public ProductAddOrUpdateValidationAndEnrichment(
+            IUnderlyingsCache underlyingsCache,
             ICurrenciesService currenciesService,
             IMarketSettingsRepository marketSettingsRepository,
             IProductsRepository productsRepository,
@@ -28,7 +30,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             ITickFormulaRepository tickFormulaRepository,
             IAssetTypesRepository assetTypesRepository)
         {
-            _underlyingsApi = underlyingsApi;
+            _underlyingsCache = underlyingsCache;
             _currenciesService = currenciesService;
             _marketSettingsRepository = marketSettingsRepository;
             _productsRepository = productsRepository;
@@ -49,13 +51,13 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         private async Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,
             string correlationId, Product existing = null)
         {
-            var underlyingResponse = await _underlyingsApi.GetByIdAsync(value.UnderlyingMdsCode);
-            if (underlyingResponse.ErrorCode == UnderlyingsErrorCodesContract.DoesNotExist)
+            var underlying = _underlyingsCache.GetByMdsCode(value.UnderlyingMdsCode);
+            if (underlying == null)
             {
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
             }
 
-            value.TradingCurrency = underlyingResponse.Underlying.TradingCurrency;
+            value.TradingCurrency = underlying.TradingCurrency;
 
             return new Result<Product, ProductsErrorCodes>(value);
         }

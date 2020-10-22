@@ -10,7 +10,7 @@ namespace MarginTrading.AssetService.Services
         where TValue : class
         where TError : struct, Enum;
 
-    public class ValidationChainEngine<TValue, TError>
+    public class ValidationAndEnrichmentChainEngine<TValue, TError>
         where TValue : class
         where TError : struct, Enum
     {

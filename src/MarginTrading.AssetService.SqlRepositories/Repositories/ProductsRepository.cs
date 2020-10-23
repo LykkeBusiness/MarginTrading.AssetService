@@ -10,6 +10,7 @@ using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
@@ -214,7 +215,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
             entity.IsFrozen = isFrozen;
-            entity.FreezeInfo = freezeInfo.ToJsonWithStringEnums();
+            entity.FreezeInfo = JsonConvert.SerializeObject(freezeInfo);
 
             await context.SaveChangesAsync();
 
@@ -380,7 +381,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 TradingCurrencyId = product.TradingCurrency,
                 IsSuspended = product.IsSuspended,
                 IsFrozen = product.IsFrozen,
-                FreezeInfo = product.FreezeInfo.ToJsonWithStringEnums(),
+                FreezeInfo = JsonConvert.SerializeObject(product.FreezeInfo),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
             };

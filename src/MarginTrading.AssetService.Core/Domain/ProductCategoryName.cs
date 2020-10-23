@@ -8,18 +8,13 @@ namespace MarginTrading.AssetService.Core.Domain
         private readonly string _originalName;
         private readonly Dictionary<string, string> _originalNodeNames = new Dictionary<string, string>();
         public string NormalizedName { get; }
-        
+
         public List<ProductCategory> Nodes { get; } = new List<ProductCategory>();
 
-        public ProductCategoryName(string category)
+        public ProductCategoryName(string originalName, string normalizedName)
         {
-            var processedName = category.Trim().Trim('/');
-            _originalName = processedName;
-            
-            NormalizedName = processedName
-                .ToLower()
-                .Replace(' ', '_')
-                .Replace('/', '.');
+            _originalName = originalName;
+            NormalizedName = normalizedName;
 
             Init();
         }
@@ -28,11 +23,10 @@ namespace MarginTrading.AssetService.Core.Domain
         {
             return _originalNodeNames.TryGetValue(normalizedCategoryId, out var result) ? result : null;
         }
-        
+
         private void Init()
         {
             var originalNames = _originalName.Split('/');
-            // assumes that category does not contain dots
             var normalizedNames = NormalizedName.Split('.');
 
             string currentId = null;
@@ -46,12 +40,13 @@ namespace MarginTrading.AssetService.Core.Domain
                     Id = currentId,
                     LocalizationToken = $"categoryName.{currentId}",
                     ParentId = parentId,
+                    IsLeaf = i == normalizedNames.Length - 1,
                 };
-                
+
                 Nodes.Add(productCategory);
                 if (originalNames.Length == normalizedNames.Length)
                 {
-                    _originalNodeNames.Add(currentId, originalNames[i]);    
+                    _originalNodeNames.Add(currentId, originalNames[i]);
                 }
 
                 parentId = currentId;

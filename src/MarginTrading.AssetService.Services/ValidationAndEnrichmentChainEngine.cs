@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml;
 using Lykke.Snow.Common.Model;
 
 namespace MarginTrading.AssetService.Services
 {
-    public delegate Task<Result<TValue, TError>> ValidateAsync<TValue, TError>(TValue value, string userName,
-        string correlationId, TValue existing = null)
+    public delegate Task<Result<TValue, TError>> ValidateAsync<TValue, TError>(TValue value, string userName = null,
+        string correlationId = null, TValue existing = null)
         where TValue : class
         where TError : struct, Enum;
 
@@ -22,8 +23,9 @@ namespace MarginTrading.AssetService.Services
             _rules.Add(validate);
         }
 
-        public async Task<Result<TValue, TError>> ValidateAllAsync(TValue value, string userName,
-            string correlationId,
+        public async Task<Result<TValue, TError>> ValidateAllAsync(TValue value,
+            string userName = null,
+            string correlationId = null,
             TValue existing = null)
         {
             var i = value;

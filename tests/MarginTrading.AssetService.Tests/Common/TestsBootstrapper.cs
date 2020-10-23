@@ -30,9 +30,10 @@ namespace MarginTrading.AssetService.Tests.Common
             System.Environment.SetEnvironmentVariable("SettingsUrl", "appsettings.test.json");
 
             var hostBuilder = new HostBuilder()
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureContainer(registerDependenciesAction)
-                .ConfigureWebHost(webHost =>
+                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
+                
+            hostBuilder = registerDependenciesAction == null ? hostBuilder : hostBuilder.ConfigureContainer(registerDependenciesAction);
+            hostBuilder = hostBuilder.ConfigureWebHost(webHost =>
                 {
                     webHost.UseTestServer();
                     webHost.UseStartup<TestsStartup>();

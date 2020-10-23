@@ -158,8 +158,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     .Include(x => x.ClientProfile)
                     .AnyAsync(x => x.ClientProfile.RegulatoryProfileId == regulatorySettings.RegulatoryProfileId &&
                                    x.AssetType.RegulatoryTypeId == regulatorySettings.RegulatoryTypeId &&
-                                   x.Margin < regulatorySettings.MarginMin ||
-                                   x.IsAvailable && !regulatorySettings.IsAvailable);
+                                   (x.Margin < regulatorySettings.MarginMin ||
+                                   x.IsAvailable && !regulatorySettings.IsAvailable));
 
                 return result;
             }

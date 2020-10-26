@@ -172,7 +172,8 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<UnderlyingsCache>()
                 .As<IUnderlyingsCache>()
-                .SingleInstance();
+                .SingleInstance()
+                .IfNotRegistered(typeof(IUnderlyingsCache));
 
             builder.RegisterType<LegacyAssetsService>()
                 .As<ILegacyAssetsService>()

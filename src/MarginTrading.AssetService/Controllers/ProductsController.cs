@@ -158,7 +158,7 @@ namespace MarginTrading.AssetService.Controllers
                 }; 
             }
             
-            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.FreezeInfo?.Reason == ProductFreezeReasonContract.Manual, freezeInfo, request.UserName, correlationId);
+            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.IsForceFreeze(), freezeInfo, request.UserName, correlationId);
 
             var response = new ChangeProductFrozenStatusResponse();
 
@@ -203,7 +203,7 @@ namespace MarginTrading.AssetService.Controllers
             {
                 var result = await _productsService.ChangeFrozenStatus(requestProductId,
                     request.FreezeParameters.IsFrozen, 
-                    request.FreezeParameters.ForceFreezeIfAlreadyFrozen, 
+                    request.FreezeParameters.IsForceFreeze(), 
                     freezeInfo,
                     request.FreezeParameters.UserName, 
                     correlationId);

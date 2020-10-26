@@ -7,7 +7,7 @@ using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.ProductCategories;
-using MarginTrading.AssetService.Contracts.TickFormula;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using MarginTrading.AssetService.Tests.Common;
 using MarginTrading.AssetService.Tests.Extensions;
@@ -18,7 +18,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 {
     public class ProductCategoriesFeature
     {
-        private readonly Mock<IUnderlyingsApi> _underlyingsApiMock = new Mock<IUnderlyingsApi>();
+        private readonly Mock<IUnderlyingsCache> _underlyingsCacheMock = new Mock<IUnderlyingsCache>();
         private readonly Mock<IAssetTypesRepository> _assetTypesRepositoryMock = new Mock<IAssetTypesRepository>();
 
         [Fact]
@@ -58,15 +58,11 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         [Fact]
         public async Task ProductCategories_CannotDeleteCategoryWithAttachedProducts_Workflow()
         {
-            _underlyingsApiMock.Setup(x => x.GetByIdAsync(It.IsAny<string>()))
-                .ReturnsAsync(new GetUnderlyingByIdResponse()
+            _underlyingsCacheMock.Setup(x => x.GetByMdsCode(It.IsAny<string>()))
+                .Returns(new UnderlyingsCacheModel()
                 {
-                    ErrorCode = UnderlyingsErrorCodesContract.None,
-                    Underlying = new UnderlyingContract()
-                    {
-                        MdsCode = "mds-code",
-                        TradingCurrency = "EUR",
-                    }
+                    MdsCode = "mds-code",
+                    TradingCurrency = "EUR",
                 });
 
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))
@@ -74,7 +70,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 
             using var client = await TestBootstrapper.CreateTestClientWithInMemoryDb(builder =>
             {
-                builder.RegisterInstance(_underlyingsApiMock.Object).As<IUnderlyingsApi>().SingleInstance();
+                builder.RegisterInstance(_underlyingsCacheMock.Object).As<IUnderlyingsCache>().SingleInstance();
                 builder.RegisterInstance(_assetTypesRepositoryMock.Object).As<IAssetTypesRepository>().SingleInstance();
             });
 
@@ -153,15 +149,11 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         [Fact]
         public async Task ProductCategories_ParentHasAttachedProducts_Workflow()
         {
-            _underlyingsApiMock.Setup(x => x.GetByIdAsync(It.IsAny<string>()))
-                .ReturnsAsync(new GetUnderlyingByIdResponse()
+            _underlyingsCacheMock.Setup(x => x.GetByMdsCode(It.IsAny<string>()))
+                .Returns(new UnderlyingsCacheModel()
                 {
-                    ErrorCode = UnderlyingsErrorCodesContract.None,
-                    Underlying = new UnderlyingContract()
-                    {
-                        MdsCode = "mds-code",
-                        TradingCurrency = "EUR",
-                    }
+                    MdsCode = "mds-code",
+                    TradingCurrency = "EUR",
                 });
 
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))
@@ -169,7 +161,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 
             using var client = await TestBootstrapper.CreateTestClientWithInMemoryDb(builder =>
             {
-                builder.RegisterInstance(_underlyingsApiMock.Object).As<IUnderlyingsApi>().SingleInstance();
+                builder.RegisterInstance(_underlyingsCacheMock.Object).As<IUnderlyingsCache>().SingleInstance();
                 builder.RegisterInstance(_assetTypesRepositoryMock.Object).As<IAssetTypesRepository>().SingleInstance();
             });
 

@@ -51,11 +51,15 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                             e.CorrelationId);
                         if (productUpdateResult.IsFailed)
                         {
-                            if(productUpdateResult.Error == ProductsErrorCodes.DoesNotExist)
-                                _log.WriteWarning(nameof(UnderlyingChangedHandler), nameof(Handle), 
+                            if (productUpdateResult.Error == ProductsErrorCodes.DoesNotExist)
+                            {
+                                _log.WriteInfo(nameof(UnderlyingChangedHandler), nameof(Handle), 
                                     $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: product not found");
-                            
-                            throw new Exception($"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
+                            }
+                            else
+                            {
+                                throw new Exception($"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
+                            }
                         }
                     }
                     else

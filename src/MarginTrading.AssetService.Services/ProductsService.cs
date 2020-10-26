@@ -15,20 +15,20 @@ namespace MarginTrading.AssetService.Services
 {
     public class ProductsService : IProductsService
     {
-        private readonly ProductAddOrUpdateValidation _addOrUpdateValidation;
+        private readonly ProductAddOrUpdateValidationAndEnrichment _addOrUpdateValidationAndEnrichment;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
         private readonly ILog _log;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ProductsService(
-            ProductAddOrUpdateValidation addOrUpdateValidation,
+            ProductAddOrUpdateValidationAndEnrichment addOrUpdateValidationAndEnrichment,
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
             IAuditService auditService,
             ILog log)
         {
-            _addOrUpdateValidation = addOrUpdateValidation;
+            _addOrUpdateValidationAndEnrichment = addOrUpdateValidationAndEnrichment;
             _repository = repository;
             _auditService = auditService;
             _log = log;
@@ -39,7 +39,7 @@ namespace MarginTrading.AssetService.Services
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
             string correlationId)
         {
-            var validationResult = await _addOrUpdateValidation.ValidateAllAsync(product, username, correlationId);
+            var validationResult = await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId);
             if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
 
             product = validationResult.Value;
@@ -66,7 +66,7 @@ namespace MarginTrading.AssetService.Services
             if (existing.IsSuccess)
             {
                 var validationResult =
-                    await _addOrUpdateValidation.ValidateAllAsync(product, username, correlationId, existing.Value);
+                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId, existing.Value);
                 if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
 
                 product = validationResult.Value;
@@ -165,7 +165,7 @@ namespace MarginTrading.AssetService.Services
             {
                 var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
                 var validationResult =
-                    await _addOrUpdateValidation.ValidateAllAsync(product, username, correlationId, existingProduct);
+                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId, existingProduct);
 
                 if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
             }

@@ -4,7 +4,7 @@ using MarginTrading.AssetService.Core.Domain;
 
 namespace MarginTrading.AssetService.Services.Validations.Products
 {
-    public class ProductCategoryStringValidation : ValidationChainEngine<string, ProductCategoriesErrorCodes>
+    public class ProductCategoryStringValidation : ValidationAndEnrichmentChainEngine<string, ProductCategoriesErrorCodes>
     {
         public ProductCategoryStringValidation()
         {

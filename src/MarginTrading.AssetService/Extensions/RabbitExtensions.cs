@@ -10,5 +10,12 @@ namespace MarginTrading.AssetService.Extensions
 
             return settings;
         }
+        
+        public static RabbitSubscriptionSettings AppendToDeadLetterExchangeName(this RabbitSubscriptionSettings settings, string value)
+        {
+            settings.DeadLetterExchangeName = $"{settings.DeadLetterExchangeName}-{value}";
+
+            return settings;
+        }
     }
 }

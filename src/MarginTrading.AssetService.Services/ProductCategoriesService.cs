@@ -140,6 +140,7 @@ namespace MarginTrading.AssetService.Services
             if (categoryNameValidations.Any(kvp => kvp.Value.IsFailed))
             {
                 return categoryNameValidations
+                    .Where(kvp => kvp.Value.IsFailed)
                     .Select((kvp) => $"Category \"{kvp.Key}\" is not a valid category")
                     .ToList();
             }

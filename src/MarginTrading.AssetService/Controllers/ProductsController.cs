@@ -158,7 +158,7 @@ namespace MarginTrading.AssetService.Controllers
                 }; 
             }
             
-            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.FreezeInfo?.Reason == ProductFreezeReasonContract.Manual, freezeInfo, request.UserName, correlationId);
+            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.IsForceFreeze(), freezeInfo, request.UserName, correlationId);
 
             var response = new ChangeProductFrozenStatusResponse();
 
@@ -171,6 +171,57 @@ namespace MarginTrading.AssetService.Controllers
             else
             {
                 response.Product = _convertService.Convert<Product, ProductContract>(result.Value);
+            }
+
+            return response;
+        }
+
+        [HttpPut("frozen-status")]
+        [ProducesResponseType(typeof(ChangeMultipleProductFrozenStatusResponse), (int) HttpStatusCode.OK)]
+        public async Task<ChangeMultipleProductFrozenStatusResponse> ChangeFrozenStatusMultipleAsync(
+            ChangeMultipleProductFrozenStatusRequest request)
+        {
+            var freezeInfo =
+                _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeParameters
+                    .FreezeInfo);
+
+            var correlationId = this.TryGetCorrelationId();
+
+            if (!request.FreezeParameters.IsFrozen && request.FreezeParameters.FreezeInfo != null)
+            {
+                return new ChangeMultipleProductFrozenStatusResponse
+                {
+                    ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct,
+                    Results = new Dictionary<string, ChangeProductFrozenStatusResponse>()
+                };
+            }
+
+            var response = new ChangeMultipleProductFrozenStatusResponse
+                {Results = new Dictionary<string, ChangeProductFrozenStatusResponse>()};
+
+            foreach (var requestProductId in request.ProductIds)
+            {
+                var result = await _productsService.ChangeFrozenStatus(requestProductId,
+                    request.FreezeParameters.IsFrozen, 
+                    request.FreezeParameters.IsForceFreeze(), 
+                    freezeInfo,
+                    request.FreezeParameters.UserName, 
+                    correlationId);
+
+                var singleProductResponse = new ChangeProductFrozenStatusResponse();
+
+                if (result.IsFailed)
+                {
+                    singleProductResponse.ErrorCode =
+                        _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                            result.Error.GetValueOrDefault());
+                }
+                else
+                {
+                    singleProductResponse.Product = _convertService.Convert<Product, ProductContract>(result.Value);
+                }
+
+                response.Results.Add(requestProductId, singleProductResponse);
             }
 
             return response;
@@ -251,57 +302,6 @@ namespace MarginTrading.AssetService.Controllers
                 response.ErrorCode =
                     _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
                         result.Error.GetValueOrDefault());
-            }
-
-            return response;
-        }
-        
-        [HttpPut("frozen-status")]
-        [ProducesResponseType(typeof(ChangeMultipleProductFrozenStatusResponse), (int) HttpStatusCode.OK)]
-        public async Task<ChangeMultipleProductFrozenStatusResponse> ChangeFrozenStatusMultipleAsync(
-            ChangeMultipleProductFrozenStatusRequest request)
-        {
-            var freezeInfo =
-                _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeParameters
-                    .FreezeInfo);
-
-            var correlationId = this.TryGetCorrelationId();
-
-            if (!request.FreezeParameters.IsFrozen && request.FreezeParameters.FreezeInfo != null)
-            {
-                return new ChangeMultipleProductFrozenStatusResponse
-                {
-                    ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct,
-                    Results = new Dictionary<string, ChangeProductFrozenStatusResponse>()
-                };
-            }
-
-            var response = new ChangeMultipleProductFrozenStatusResponse
-                {Results = new Dictionary<string, ChangeProductFrozenStatusResponse>()};
-
-            foreach (var requestProductId in request.ProductIds)
-            {
-                var result = await _productsService.ChangeFrozenStatus(requestProductId,
-                    request.FreezeParameters.IsFrozen, 
-                    request.FreezeParameters.ForceFreezeIfAlreadyFrozen, 
-                    freezeInfo,
-                    request.FreezeParameters.UserName, 
-                    correlationId);
-
-                var singleProductResponse = new ChangeProductFrozenStatusResponse();
-
-                if (result.IsFailed)
-                {
-                    singleProductResponse.ErrorCode =
-                        _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
-                            result.Error.GetValueOrDefault());
-                }
-                else
-                {
-                    singleProductResponse.Product = _convertService.Convert<Product, ProductContract>(result.Value);
-                }
-
-                response.Results.Add(requestProductId, singleProductResponse);
             }
 
             return response;

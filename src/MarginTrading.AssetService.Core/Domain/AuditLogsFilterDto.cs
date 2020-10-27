@@ -11,7 +11,7 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public AuditEventType? ActionType { get; set; }
 
-        public AuditDataType? DataType { get; set; }
+        public AuditDataType[] DataTypes { get; set; }
 
         public string ReferenceId { get; set; }
 

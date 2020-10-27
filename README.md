@@ -57,7 +57,33 @@ Settings schema is:
 
 ```json
 {
-  "MarginTradingSettingsService": {
+  "MarginTradingAssetService": {
+    "MdmService": {
+      "ApiKey": "secret key",
+      "ServiceUrl": "http://mdm.mt.svc.cluster.local"
+    },
+    "BrokerId": "Consors",
+    "InstanceId": "mtasset-1",
+    "LegacyAssetUpdatedRabbitPublisherSettings": {
+      "ConnectionString": "amqp://user:password@rabbit-mq-url:5672",
+      "ExchangeName": "lykke.donut.assetupdates"
+    },
+    "UnderlyingChangedRabbitSubscriptionSettings": {
+      "ConnectionString": "amqp://user:password@global-rabbit-mq-url:5672",
+      "ExchangeName": "dev.MdmService.events.exchange",
+      "RoutingKey": "UnderlyingChangedEvent",
+      "QueueName": "lykke.assetservice.underlyingchanged",
+      "IsDurable": false,
+      "DeadLetterExchangeName": "dev.MdmService.events.exchange.dlx"
+    },
+    "CandlesSharding": {
+      "Shards": [
+        {
+          "Name": "facebook",
+          "Pattern": "facebook"
+        }
+      ]
+    },
     "Db": {
       "StorageMode": "SqlServer",
       "DataConnString": "data connection string",
@@ -86,7 +112,8 @@ Settings schema is:
     },
     "RequestLoggerSettings": {
       "Enabled": true,
-      "MaxPartSize": 2048
+      "MaxPartSize": 2048,
+      "EnabledForGet": false
     },
     "Cqrs": {
       "ConnectionString": "amqp://login:pwd@rabbit-mt.mt.svc.cluster.local:5672",
@@ -96,7 +123,31 @@ Settings schema is:
     "ChaosKitty": {
       "StateOfChaos": 0
     },
-    "UseSerilog": false
-  }
+    "UseSerilog": false,
+    "DefaultRateSettings": {
+      "DefaultOrderExecutionSettings": {
+        "CommissionCap": 69,
+        "CommissionFloor": 9.95,
+        "CommissionRate": 0.001,
+        "CommissionAsset": "EUR",
+        "LegalEntity": "Default"
+      },
+      "DefaultOvernightSwapSettings": {
+        "RepoSurchargePercent": 0,
+        "FixRate": 0.035,
+        "VariableRateBase": "",
+        "VariableRateQuote": ""
+      },
+      "DefaultOnBehalfSettings": {
+        "Commission": 14.95,
+        "CommissionAsset": "EUR",
+        "LegalEntity": "Default"
+      }
+    }
+  },
+  "MarginTradingAssetServiceClient": {
+  "ServiceUrl": "http://mt-asset-service.mt.svc.cluster.local",
+  "ApiKey": "secret key"
+   }
 }
 ```

@@ -381,9 +381,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 TradingCurrencyId = product.TradingCurrency,
                 IsSuspended = product.IsSuspended,
                 IsFrozen = product.IsFrozen,
-                FreezeInfo = JsonConvert.SerializeObject(product.FreezeInfo),
+                FreezeInfo = product.FreezeInfo.ToJson(),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
+                StartDate = product.StartDate,
             };
 
             return result;
@@ -426,6 +427,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 FreezeInfo = product.FreezeInfo?.DeserializeJson<ProductFreezeInfo>(),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
+                StartDate = product.StartDate,
             };
 
             return result;

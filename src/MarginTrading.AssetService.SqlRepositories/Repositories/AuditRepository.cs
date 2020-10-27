@@ -46,8 +46,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (!string.IsNullOrEmpty(filter.ReferenceId))
                     query = query.Where(x => x.DataReference.ToLower().Contains(filter.ReferenceId.ToLower()));
 
-                if (filter.DataType.HasValue)
-                    query = query.Where(x => x.DataType == filter.DataType.Value);
+                if (filter.DataTypes != null && filter.DataTypes.Any())
+                    query = query.Where(x => filter.DataTypes.Contains(x.DataType));
 
                 if (filter.ActionType.HasValue)
                     query = query.Where(x => x.Type == filter.ActionType.Value);

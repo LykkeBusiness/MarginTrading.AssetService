@@ -1,3 +1,5 @@
+using System;
+
 namespace MarginTrading.AssetService.SqlRepositories.Entities
 {
     public class ProductEntity
@@ -68,6 +70,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public string TradingCurrencyId { get; set;}
         
         public CurrencyEntity TradingCurrency { get; set; }
+        
+        public DateTime StartDate { get; set; }
         
         public bool IsSuspended { get; set; }
         

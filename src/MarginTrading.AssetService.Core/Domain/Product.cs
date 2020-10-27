@@ -1,3 +1,5 @@
+using System;
+
 namespace MarginTrading.AssetService.Core.Domain
 {
     public class Product
@@ -59,6 +61,8 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal OvernightMarginMultiplier { get; set; }
         
         public string TradingCurrency { get; set;}
+        
+        public DateTime StartDate { get; set; }
         
         public bool IsSuspended { get; set; }
         

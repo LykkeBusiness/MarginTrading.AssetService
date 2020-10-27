@@ -58,6 +58,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             }
 
             value.TradingCurrency = underlying.TradingCurrency;
+            value.StartDate = underlying.StartDate;
 
             return new Result<Product, ProductsErrorCodes>(value);
         }

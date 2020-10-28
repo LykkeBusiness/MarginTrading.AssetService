@@ -55,6 +55,7 @@ namespace MarginTrading.AssetService.Services
             var currencies = await _currenciesRepository.GetAllAsync();
 
             var assetPairs = products
+                .Where(x => x.IsStarted)
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
 
             assetPairs.AddRange(currencies.Value

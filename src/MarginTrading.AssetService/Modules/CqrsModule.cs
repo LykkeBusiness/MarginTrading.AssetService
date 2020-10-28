@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using Autofac;
+using BookKeeper.Client.Workflow.Events;
 using Common.Log;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
@@ -122,7 +123,18 @@ namespace MarginTrading.AssetService.Modules
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
             RegisterEventPublishing(contextRegistration);
             RegisterAssetServiceProjections(contextRegistration);
+            RegisterEodProcessFinishedProjection(contextRegistration);
+            
             return contextRegistration;
+        }
+
+        private void RegisterEodProcessFinishedProjection(ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            contextRegistration.ListeningEvents(typeof(EodProcessFinishedEvent))
+                .From(_settings.ContextNames.BookKeeper)
+                // single queue, first instance that grabs the event will process it and update the db
+                .On(nameof(EodProcessFinishedEvent))
+                .WithProjection(typeof(EodProcessFinishedProjection), _settings.ContextNames.BookKeeper);
         }
 
         private PublishingCommandsDescriptor<IDefaultRoutingRegistration> RegisterDefaultRouting()

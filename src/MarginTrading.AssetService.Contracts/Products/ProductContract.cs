@@ -109,5 +109,8 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(32)]
         public DateTime StartDate { get; set; }
+
+        [MessagePack.Key(33)]
+        public bool IsStarted { get; set; }
     }
 }

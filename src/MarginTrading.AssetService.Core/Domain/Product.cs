@@ -72,6 +72,8 @@ namespace MarginTrading.AssetService.Core.Domain
         
         public bool IsDiscontinued { get; set; }
         
+        public bool IsStarted { get; set; }
+        
         public byte[] Timestamp { get; set; }
 
         public Product ShallowCopy()

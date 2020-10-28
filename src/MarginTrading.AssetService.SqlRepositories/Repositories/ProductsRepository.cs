@@ -78,7 +78,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = new ProductEntity() { ProductId = productId, Timestamp = timestamp };
+                var entity = new ProductEntity() {ProductId = productId, Timestamp = timestamp};
 
                 context.Attach(entity);
                 context.Products.Remove(entity);
@@ -110,7 +110,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return new Result<Product, ProductsErrorCodes>(ToModel(entity));
             }
         }
-        
+
         public async Task<Result<Product, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode)
         {
             using (var context = _contextFactory.CreateDataContext())
@@ -124,7 +124,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
+        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
+            bool? isStarted = null)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -136,6 +137,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (productIds != null && productIds.Any())
                     query = query.Where(x => productIds.Contains(x.ProductId));
 
+                if (isStarted.HasValue)
+                    query = query.Where(x => x.IsStarted == isStarted.Value);
+
                 var entities = await query
                     .OrderBy(u => u.Name)
                     .ToListAsync();
@@ -144,7 +148,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds)
+        public async Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes,
+            string[] productIds)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -157,13 +162,14 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     query = query.Where(x => productIds.Contains(x.ProductId));
 
                 var counter = await query.CountAsync();
-                
-                return new Result<ProductsCounter, ProductsErrorCodes>(new ProductsCounter(counter, mdsCodes, productIds));
+
+                return new Result<ProductsCounter, ProductsErrorCodes>(new ProductsCounter(counter, mdsCodes,
+                    productIds));
             }
         }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
-            string[] productIds, int skip = default, int take = 20)
+            string[] productIds, bool? isStarted = null, int skip = default, int take = 20)
         {
             skip = Math.Max(0, skip);
             take = take < 0 ? 20 : Math.Min(take, 100);
@@ -182,6 +188,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                 if (productIds != null && productIds.Any())
                     query = query.Where(x => productIds.Contains(x.ProductId));
+
+                if (isStarted.HasValue)
+                    query = query.Where(x => x.IsStarted == isStarted.Value);
+
 
                 var entities = await query
                     .OrderBy(u => u.Name)
@@ -268,7 +278,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Dictionary<string,string>> GetProductAssetTypeMapAsync(IEnumerable<string> productIds = null)
+        public async Task<Dictionary<string, string>> GetProductAssetTypeMapAsync(IEnumerable<string> productIds = null)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -298,7 +308,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds, int skip = default, int take = 20)
+        public async Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds,
+            int skip = default, int take = 20)
         {
             skip = Math.Max(0, skip);
             take = take < 0 ? 20 : Math.Min(take, 100);
@@ -336,7 +347,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 var product = await context.Products.FindAsync(id);
 
-                if(product == null)
+                if (product == null)
                     return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
                 product.IsSuspended = value;
@@ -385,6 +396,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
                 StartDate = product.StartDate,
+                IsStarted = product.IsStarted,
             };
 
             return result;
@@ -428,6 +440,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
                 StartDate = product.StartDate,
+                IsStarted = product.IsStarted,
             };
 
             return result;

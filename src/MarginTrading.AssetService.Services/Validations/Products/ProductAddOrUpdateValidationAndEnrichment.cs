@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Model;
@@ -11,7 +12,8 @@ using MarginTrading.AssetService.StorageInterfaces.Repositories;
 namespace MarginTrading.AssetService.Services.Validations.Products
 {
     [UsedImplicitly]
-    public class ProductAddOrUpdateValidationAndEnrichment : ValidationAndEnrichmentChainEngine<Product, ProductsErrorCodes>
+    public class
+        ProductAddOrUpdateValidationAndEnrichment : ValidationAndEnrichmentChainEngine<Product, ProductsErrorCodes>
     {
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesService _currenciesService;
@@ -59,6 +61,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
 
             value.TradingCurrency = underlying.TradingCurrency;
             value.StartDate = underlying.StartDate;
+            value.IsStarted = underlying.StartDate < DateTime.UtcNow;
 
             return new Result<Product, ProductsErrorCodes>(value);
         }

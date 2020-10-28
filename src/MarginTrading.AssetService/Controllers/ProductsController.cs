@@ -120,8 +120,8 @@ namespace MarginTrading.AssetService.Controllers
         {
             // if take == 0 return all rows
             var result = take == default
-                ? await _productsService.GetAllAsync(request?.MdsCodes, request?.ProductIds)
-                : await _productsService.GetByPageAsync(request?.MdsCodes, request?.ProductIds, skip, take);
+                ? await _productsService.GetAllAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted)
+                : await _productsService.GetByPageAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted,skip, take);
 
             var response = new GetProductsResponse
             {

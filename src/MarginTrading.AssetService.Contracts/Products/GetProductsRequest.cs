@@ -12,5 +12,7 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [Query(CollectionFormat.Multi)]
         public string[] ProductIds { get; set; }
+        
+        public bool? IsStarted { get; set; }
     }
 }

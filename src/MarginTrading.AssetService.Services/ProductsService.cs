@@ -98,6 +98,9 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
+                // TODO: replace with IsStarted
+                if(existing.Value.StartDate < DateTime.UtcNow) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+                
                 var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
 
                 if (result.IsSuccess)

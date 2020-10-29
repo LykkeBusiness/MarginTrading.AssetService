@@ -55,6 +55,9 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
                 return;
+            
+            if(!product.IsStarted)
+                return;
 
             var assets = await _legacyAssetsService.GetLegacyAssets(new List<string> { product.ProductId });
             string oldMdsCodeIfUpdated = null;

@@ -14,15 +14,18 @@ namespace MarginTrading.AssetService.Workflow.Products
         private readonly IProductsService _productsService;
         private readonly ILog _log;
 
-        public EodProcessFinishedProjection(IProductsService productsService, ILog log)
+        public EodProcessFinishedProjection(
+            // IProductsService productsService, 
+            ILog log)
         {
-            _productsService = productsService;
+            // _productsService = productsService;
             _log = log;
         }
 
         [UsedImplicitly]
         public async Task Handle(EodProcessFinishedEvent e)
         {
+            return;
             var productsResult = await _productsService.GetAllAsync(null, null, isStarted: false);
 
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())

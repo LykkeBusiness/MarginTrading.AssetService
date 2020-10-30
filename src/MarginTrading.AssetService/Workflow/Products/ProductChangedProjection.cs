@@ -27,9 +27,11 @@ namespace MarginTrading.AssetService.Workflow.Products
             {
                 case ChangeType.Creation:
                 case ChangeType.Edition:
+                    if (!e.NewValue.IsStarted) return;
                     await _legacyAssetsCacheUpdater.HandleProductUpserted(_convertService.Convert<ProductContract, Product>(e.NewValue), e.Timestamp);
                     break;
                 case ChangeType.Deletion:
+                    if (!e.OldValue.IsStarted) return;
                     await _legacyAssetsCacheUpdater.HandleProductRemoved(e.OldValue.ProductId, e.Timestamp);
                     break;
                 default:

@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Workflow.Products
 
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())
             {
-                var endOfNextDay = DateTime.UtcNow.Date.AddDays(2);
+                var endOfNextDay = e.TradingDay.Date.AddDays(2);
                 var productsToStart = productsResult.Value
                     .Where(x => x.StartDate < endOfNextDay)
                     .ToList();

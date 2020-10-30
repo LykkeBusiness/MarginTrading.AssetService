@@ -300,7 +300,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 var query = context.Products.AsNoTracking();
 
                 if (productIds != null && productIds.Any())
-                    query = query.Where(x => productIds.Contains(x.ProductId));
+                    query = query.Where(x => productIds.Contains(x.ProductId) && x.IsStarted);
 
                 var result = await query.ToListAsync();
 

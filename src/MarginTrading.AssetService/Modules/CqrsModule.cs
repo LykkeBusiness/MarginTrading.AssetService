@@ -64,6 +64,8 @@ namespace MarginTrading.AssetService.Modules
         {
             builder.Register(context => new AutofacDependencyResolver(context)).As<IDependencyResolver>()
                 .SingleInstance();
+            
+            builder.RegisterInstance(_contextNames).AsSelf().SingleInstance();
 
             var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory
             {
@@ -82,7 +84,8 @@ namespace MarginTrading.AssetService.Modules
 
             // Sagas & command handlers
             builder.RegisterAssemblyTypes(GetType().Assembly)
-                .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler") || t.Name.EndsWith("Projection"))
+                .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler") ||
+                            t.Name.EndsWith("Projection"))
                 .AsSelf();
 
             builder.Register(ctx => CreateEngine(ctx, messagingEngine))
@@ -106,6 +109,7 @@ namespace MarginTrading.AssetService.Modules
                 true,
                 Register.DefaultEndpointResolver(rabbitMqConventionEndpointResolver),
                 RegisterDefaultRouting(),
+                RegisterStartProductsSaga(),
                 RegisterContext(),
                 Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
                 Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
@@ -123,30 +127,46 @@ namespace MarginTrading.AssetService.Modules
             RegisterAssetPairFlagsCommandHandler(contextRegistration);
             RegisterEventPublishing(contextRegistration);
             RegisterAssetServiceProjections(contextRegistration);
-            RegisterEodProcessFinishedProjection(contextRegistration);
-            
-            return contextRegistration;
-        }
+            RegisterStartProductsHandler(contextRegistration);
 
-        private void RegisterEodProcessFinishedProjection(ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
-        {
-            contextRegistration.ListeningEvents(typeof(EodProcessFinishedEvent))
-                .From(_settings.ContextNames.BookKeeper)
-                // single queue, first instance that grabs the event will process it and update the db
-                .On(nameof(EodProcessFinishedEvent))
-                .WithProjection(typeof(EodProcessFinishedProjection), _settings.ContextNames.BookKeeper);
+            return contextRegistration;
         }
 
         private PublishingCommandsDescriptor<IDefaultRoutingRegistration> RegisterDefaultRouting()
         {
             return Register.DefaultRouting
                 .PublishingCommands(
-                    
                 )
                 .To(_contextNames.AssetService)
                 .With(DefaultPipeline);
         }
-        
+
+        private IRegistration RegisterStartProductsSaga()
+        {
+            var sagaRegistration = RegisterSaga<StartProductsSaga>();
+
+            sagaRegistration
+                .ListeningEvents(typeof(EodProcessFinishedEvent))
+                .From(_settings.ContextNames.BookKeeper)
+                .On(nameof(EodProcessFinishedEvent))
+                .PublishingCommands(typeof(StartProductCommand))
+                .To(_contextNames.AssetService)
+                .With(DefaultPipeline);
+
+            return sagaRegistration;
+        }
+
+        private static void RegisterStartProductsHandler(
+            ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
+        {
+            contextRegistration
+                .ListeningCommands(typeof(StartProductCommand))
+                .On(DefaultRoute)
+                .WithCommandsHandler<StartProductsCommandsHandler>()
+                .PublishingEvents(typeof(ProductChangedEvent))
+                .With(DefaultEventPipeline);
+        }
+
         private static void RegisterAssetPairFlagsCommandHandler(
             ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
         {
@@ -154,12 +174,12 @@ namespace MarginTrading.AssetService.Modules
                 .ListeningCommands(
                     typeof(SuspendAssetPairCommand),
                     typeof(UnsuspendAssetPairCommand)
-                    )
+                )
                 .On(DefaultRoute)
                 .WithCommandsHandler<AssetPairFlagsCommandsHandler>()
                 .PublishingEvents(
                     typeof(AssetPairChangedEvent)
-                    )
+                )
                 .With(DefaultPipeline);
         }
 
@@ -171,8 +191,7 @@ namespace MarginTrading.AssetService.Modules
         private static void RegisterEventPublishing(
             ProcessingOptionsDescriptor<IBoundedContextRegistration> contextRegistration)
         {
-            contextRegistration.
-                PublishingEvents(typeof(MarketSettingsChangedEvent),
+            contextRegistration.PublishingEvents(typeof(MarketSettingsChangedEvent),
                     typeof(ProductCategoryChangedEvent),
                     typeof(CurrencyChangedEvent),
                     typeof(ProductChangedEvent),
@@ -180,7 +199,7 @@ namespace MarginTrading.AssetService.Modules
                     typeof(ClientProfileSettingsChangedEvent),
                     typeof(TickFormulaChangedEvent),
                     typeof(AssetTypeChangedEvent)
-                    )
+                )
                 .With(DefaultEventPipeline);
         }
 
@@ -189,31 +208,38 @@ namespace MarginTrading.AssetService.Modules
         {
             contextRegistration.ListeningEvents(typeof(MarketSettingsChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(MarketSettingsChangedEvent)}{_instanceId}").WithProjection(typeof(MarketSettingsChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(MarketSettingsChangedEvent)}{_instanceId}")
+                .WithProjection(typeof(MarketSettingsChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ProductCategoryChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(ProductCategoryChangedEvent)}{_instanceId}").WithProjection(typeof(ProductCategoryChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ProductCategoryChangedEvent)}{_instanceId}")
+                .WithProjection(typeof(ProductCategoryChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ProductChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(ProductChangedEvent)}{_instanceId}").WithProjection(typeof(ProductChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ProductChangedEvent)}{_instanceId}").WithProjection(typeof(ProductChangedProjection),
+                    _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ClientProfileChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(ClientProfileChangedEvent)}{_instanceId}").WithProjection(typeof(ClientProfileChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ClientProfileChangedEvent)}{_instanceId}")
+                .WithProjection(typeof(ClientProfileChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(ClientProfileSettingsChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(ClientProfileSettingsChangedEvent)}{_instanceId}").WithProjection(typeof(ClientProfileSettingsChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(ClientProfileSettingsChangedEvent)}{_instanceId}")
+                .WithProjection(typeof(ClientProfileSettingsChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(TickFormulaChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(TickFormulaChangedEvent)}{_instanceId}").WithProjection(typeof(TickFormulaChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(TickFormulaChangedEvent)}{_instanceId}")
+                .WithProjection(typeof(TickFormulaChangedProjection), _settings.ContextNames.AssetService);
 
             contextRegistration.ListeningEvents(typeof(CurrencyChangedEvent))
                 .From(_settings.ContextNames.AssetService)
-                .On($"{nameof(CurrencyChangedEvent)}{_instanceId}").WithProjection(typeof(CurrencyChangedProjection), _settings.ContextNames.AssetService);
+                .On($"{nameof(CurrencyChangedEvent)}{_instanceId}").WithProjection(typeof(CurrencyChangedProjection),
+                    _settings.ContextNames.AssetService);
         }
     }
 }

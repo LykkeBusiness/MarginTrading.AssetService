@@ -201,6 +201,9 @@ namespace MarginTrading.AssetService.Services
             string correlationId)
         {
             var existing = await _repository.GetAllAsync(null, productIds.ToArray());
+            
+            if(existing.Value.Any(x => x.IsStarted)) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+            
             var withTimestamps = productIds.ToDictionary(productId => productId,
                 productId => existing.Value.FirstOrDefault(p => p.ProductId == productId)?.Timestamp);
 

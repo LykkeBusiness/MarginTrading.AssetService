@@ -395,7 +395,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 FreezeInfo = product.FreezeInfo.ToJson(),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
-                StartDate = product.StartDate,
+                StartDate = product.StartDate.Value,
                 IsStarted = product.IsStarted,
             };
 

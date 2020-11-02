@@ -316,7 +316,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             using (var context = _contextFactory.CreateDataContext())
             {
-                var query = context.Products.Where(p => assetTypeIds.Contains(p.AssetTypeId));
+                var query = context.Products.Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted);
 
                 var total = await query.CountAsync();
                 var products = await query
@@ -334,7 +334,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var products = await context.Products
-                    .Where(p => assetTypeIds.Contains(p.AssetTypeId))
+                    .Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted)
                     .ToListAsync();
 
                 return products.Select(ToModel).ToList();

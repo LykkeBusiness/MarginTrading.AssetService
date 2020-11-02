@@ -62,7 +62,7 @@ namespace MarginTrading.AssetService.Core.Domain
         
         public string TradingCurrency { get; set;}
         
-        public DateTime StartDate { get; set; }
+        public DateTime? StartDate { get; set; }
         
         public bool IsSuspended { get; set; }
         

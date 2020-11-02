@@ -16,5 +16,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CanOnlySetFreezeInfoForFrozenProduct,
         CannotFreezeDiscontinuedProduct,
         CannotDeleteStartedProduct,
+        CannotChangeStartDateFromPastToFuture,
     }
 }

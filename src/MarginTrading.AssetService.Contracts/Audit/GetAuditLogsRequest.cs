@@ -1,4 +1,5 @@
 ﻿using System;
+using Refit;
 
 namespace MarginTrading.AssetService.Contracts.Audit
 {
@@ -10,7 +11,8 @@ namespace MarginTrading.AssetService.Contracts.Audit
 
         public AuditEventType? ActionType { get; set; }
 
-        public AuditDataType? DataType { get; set; }
+        [Query(CollectionFormat.Multi)]
+        public AuditDataType[] DataTypes { get; set; }
 
         public string ReferenceId { get; set; }
 

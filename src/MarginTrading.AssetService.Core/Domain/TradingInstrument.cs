@@ -84,7 +84,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 commissionRate:TradingInstrumentsConstants.CommissionRate,
                 commissionMin:TradingInstrumentsConstants.CommissionMin,
                 commissionMax:TradingInstrumentsConstants.CommissionMax,
-                commissionCurrency:TradingInstrumentsConstants.CommissionCurrency,
+                commissionCurrency:string.Empty,
                 hedgeCost:hedgeCost,
                 spread:spread
             );

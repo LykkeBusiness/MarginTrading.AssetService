@@ -178,15 +178,5 @@ namespace MarginTrading.AssetService.Services
         }
 
         #endregion Overnight Swaps
-
-        #region On Behalf
-
-        public async Task<OnBehalfRate> GetOnBehalfRateAsync()
-        {
-            //Changes will be made in ComissionsService, this is just a mock
-            return OnBehalfRate.FromDefault(_defaultRateSettings.DefaultOnBehalfSettings);
-        }
-
-        #endregion On Behalf
     }
 }

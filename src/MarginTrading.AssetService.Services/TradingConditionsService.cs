@@ -12,15 +12,18 @@ namespace MarginTrading.AssetService.Services
     public class TradingConditionsService : ITradingConditionsService
     {
         private readonly IClientProfilesRepository _clientProfilesRepository;
+        private readonly ISettlementCurrencyService _settlementCurrencyService;
         private readonly DefaultTradingConditionsSettings _defaultTradingConditionsSettings;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
 
         public TradingConditionsService(
             IClientProfilesRepository clientProfilesRepository,
+            ISettlementCurrencyService settlementCurrencyService,
             DefaultTradingConditionsSettings defaultTradingConditionsSettings,
             DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _clientProfilesRepository = clientProfilesRepository;
+            _settlementCurrencyService = settlementCurrencyService;
             _defaultTradingConditionsSettings = defaultTradingConditionsSettings;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
         }
@@ -28,8 +31,9 @@ namespace MarginTrading.AssetService.Services
         public async Task<IReadOnlyList<ITradingCondition>> GetAsync()
         {
             var profiles = await _clientProfilesRepository.GetAllAsync();
+            var settlementCurrency = await _settlementCurrencyService.GetSettlementCurrencyAsync();
 
-            return profiles.Select(MapTradingCondition).ToList();
+            return profiles.Select(x => MapTradingCondition(x, settlementCurrency)).ToList();
         }
 
         public async Task<ITradingCondition> GetAsync(string tradingConditionId)
@@ -39,20 +43,24 @@ namespace MarginTrading.AssetService.Services
             if (clientProfile == null)
                 return null;
 
-            return MapTradingCondition(clientProfile);
+            var settlementCurrency = await _settlementCurrencyService.GetSettlementCurrencyAsync();
+
+            return MapTradingCondition(clientProfile, settlementCurrency);
         }
 
         public async Task<IReadOnlyList<ITradingCondition>> GetByDefaultFilterAsync(bool isDefault)
         {
             var profiles = await _clientProfilesRepository.GetByDefaultFilterAsync(isDefault);
+            var settlementCurrency = await _settlementCurrencyService.GetSettlementCurrencyAsync();
 
-            return profiles.Select(MapTradingCondition).ToList();
+            return profiles.Select(x => MapTradingCondition(x, settlementCurrency)).ToList();
         }
-        private ITradingCondition MapTradingCondition(ClientProfile clientProfile)
+        private ITradingCondition MapTradingCondition(ClientProfile clientProfile, string settlementCurrency)
         {
             return TradingCondition.CreateFromClientProfile(clientProfile,
                 _defaultLegalEntitySettings.DefaultLegalEntity, _defaultTradingConditionsSettings.MarginCall1,
-                _defaultTradingConditionsSettings.MarginCall2, _defaultTradingConditionsSettings.StopOut);
+                _defaultTradingConditionsSettings.MarginCall2, _defaultTradingConditionsSettings.StopOut,
+                settlementCurrency);
         }
     }
 }

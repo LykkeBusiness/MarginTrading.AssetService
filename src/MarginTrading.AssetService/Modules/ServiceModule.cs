@@ -129,10 +129,6 @@ namespace MarginTrading.AssetService.Modules
             
             builder.RegisterChaosKitty(_settings.CurrentValue.ChaosKitty);
 
-            builder.RegisterType<RatesStorage>()
-                .As<IRatesStorage>()
-                .SingleInstance();
-
             builder.RegisterType<RateSettingsService>()
                 .As<IRateSettingsService>()
                 .SingleInstance();
@@ -189,6 +185,11 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<UnderlyingChangedHandler>()
                 .AsSelf()
+                .SingleInstance();
+
+            builder.RegisterType<SettlementCurrencyService>()
+                .As<ISettlementCurrencyService>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
                 .SingleInstance();
 
             RegisterRepositories(builder);

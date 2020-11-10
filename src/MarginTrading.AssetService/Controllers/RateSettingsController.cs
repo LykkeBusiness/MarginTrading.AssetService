@@ -102,14 +102,5 @@ namespace MarginTrading.AssetService.Controllers
                 .Select(_convertService.Convert<OvernightSwapRate, OvernightSwapRateContract>)
                 .ToList();
         }
-
-        [ProducesResponseType(typeof(OnBehalfRateContract), 200)]
-        [ProducesResponseType(400)]
-        [HttpGet("get-on-behalf")]
-        public async Task<OnBehalfRateContract> GetOnBehalfRateAsync()
-        {
-            var item = await _rateSettingsService.GetOnBehalfRateAsync();
-            return item == null ? null : _convertService.Convert<OnBehalfRate, OnBehalfRateContract>(item);
-        }
     }
 }

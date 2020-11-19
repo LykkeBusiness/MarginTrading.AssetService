@@ -37,41 +37,73 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             switch (e.ChangeType)
             {
                 case ChangeType.Creation:
-                    _underlyingsCache.AddOrUpdateByMdsCode(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
+                    _underlyingsCache.AddOrUpdateByMdsCode(
+                        _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue));
                     break;
                 case ChangeType.Edition:
 
                     var model = _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.NewValue);
-                    if (e.OldValue.MdsCode != e.NewValue.MdsCode)
-                    {
-                        _underlyingsCache.AddOrUpdateByChangedMdsCode(e.OldValue.MdsCode, model);
-                        var productUpdateResult = await _productsService.ChangeUnderlyingMdsCodeAsync(e.OldValue.MdsCode, 
-                            e.NewValue.MdsCode,
-                            e.Username,
-                            e.CorrelationId);
-                        if (productUpdateResult.IsFailed)
-                        {
-                            if (productUpdateResult.Error == ProductsErrorCodes.DoesNotExist)
-                            {
-                                _log.WriteInfo(nameof(UnderlyingChangedHandler), nameof(Handle), 
-                                    $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: product not found");
-                            }
-                            else
-                            {
-                                throw new Exception($"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
-                            }
-                        }
-                    }
-                    else
-                        _underlyingsCache.AddOrUpdateByMdsCode(model);
 
-                    _legacyAssetsCacheUpdater.HandleUnderlyingUpdated(e.OldValue.MdsCode, model, e.Timestamp);
+                    await UpdateUnderlyingsCache(e, model);
+                    await HandleMdsCodeChanged(e);
+                    await HandleStartDateChanged(e);
+
+                    await _legacyAssetsCacheUpdater.HandleUnderlyingUpdated(e.OldValue.MdsCode, model, e.Timestamp);
                     break;
                 case ChangeType.Deletion:
-                    _underlyingsCache.Remove(_convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.OldValue));
+                    _underlyingsCache.Remove(
+                        _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(e.OldValue));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
+            }
+        }
+
+        private async Task UpdateUnderlyingsCache(UnderlyingChangedEvent e, UnderlyingsCacheModel model)
+        {
+            if (e.OldValue.MdsCode != e.NewValue.MdsCode)
+            {
+                _underlyingsCache.AddOrUpdateByChangedMdsCode(e.OldValue.MdsCode, model);
+            }
+            else
+            {
+                _underlyingsCache.AddOrUpdateByMdsCode(model);
+            }
+        }
+
+        private async Task HandleMdsCodeChanged(UnderlyingChangedEvent e)
+        {
+            if (e.OldValue.MdsCode != e.NewValue.MdsCode)
+            {
+                var productUpdateResult = await _productsService.ChangeUnderlyingMdsCodeAsync(e.OldValue.MdsCode,
+                    e.NewValue.MdsCode,
+                    e.Username,
+                    e.CorrelationId);
+                if (productUpdateResult.IsFailed)
+                {
+                    if (productUpdateResult.Error == ProductsErrorCodes.DoesNotExist)
+                    {
+                        _log.WriteInfo(nameof(UnderlyingChangedHandler), nameof(Handle),
+                            $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: product not found");
+                    }
+                    else
+                    {
+                        throw new Exception(
+                            $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
+                    }
+                }
+            }
+        }
+
+        private async Task HandleStartDateChanged(UnderlyingChangedEvent e)
+        {
+            if (e.OldValue.StartDate != e.NewValue.StartDate)
+            {
+                var result = await _productsService.UpdateStartDate(e.NewValue.MdsCode, e.NewValue.StartDate,
+                    e.Username, e.CorrelationId);
+                if (result.IsFailed)
+                    _log.WriteInfo(nameof(UnderlyingChangedHandler), nameof(Handle),
+                        $"Cannot update StartDate for product with underlying mds code {e.NewValue.MdsCode}, error was {result.Error}");
             }
         }
     }

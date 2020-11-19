@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -39,7 +40,8 @@ namespace MarginTrading.AssetService.Services
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
             string correlationId)
         {
-            var validationResult = await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId);
+            var validationResult =
+                await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId);
             if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
 
             product = validationResult.Value;
@@ -66,7 +68,8 @@ namespace MarginTrading.AssetService.Services
             if (existing.IsSuccess)
             {
                 var validationResult =
-                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId, existing.Value);
+                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId,
+                        existing.Value);
                 if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
 
                 product = validationResult.Value;
@@ -95,6 +98,9 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
+                // TODO: replace with IsStarted
+                if(existing.Value.StartDate < DateTime.UtcNow) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+                
                 var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
 
                 if (result.IsSuccess)
@@ -165,7 +171,8 @@ namespace MarginTrading.AssetService.Services
             {
                 var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
                 var validationResult =
-                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId, existingProduct);
+                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId,
+                        existingProduct);
 
                 if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
             }
@@ -213,11 +220,13 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username, string correlationId)
+        public async Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username,
+            string correlationId)
         {
             if (!productIds.Any())
             {
-                _log.WriteWarning(nameof(ProductsService), nameof(DiscontinueBatchAsync),"Received empty list of product ids to discontinue");
+                _log.WriteWarning(nameof(ProductsService), nameof(DiscontinueBatchAsync),
+                    "Received empty list of product ids to discontinue");
                 return new Result<ProductsErrorCodes>();
             }
 
@@ -258,10 +267,12 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds) 
+        public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes,
+            string[] productIds)
             => _repository.GetAllCountAsync(mdsCodes, productIds);
 
-        public async Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode, string username,
+        public async Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode,
+            string username,
             string correlationId)
         {
             var existing = await _repository.GetByUnderlyingMdsCodeAsync(oldMdsCode);
@@ -283,6 +294,30 @@ namespace MarginTrading.AssetService.Services
                 }
 
                 return result;
+            }
+
+            return existing.ToResultWithoutValue();
+        }
+
+        public async Task<Result<ProductsErrorCodes>> UpdateStartDate(string mdsCode, DateTime startDate,
+            string username, string correlationId)
+        {
+            var existing = await _repository.GetByUnderlyingMdsCodeAsync(mdsCode);
+            if (existing.IsSuccess)
+            {
+                var product = existing.Value.ShallowCopy();
+                product.StartDate = startDate;
+
+                var result = await _repository.UpdateAsync(product);
+
+                if (result.IsSuccess)
+                {
+                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
+                        product.ToJson(), existing.Value.ToJson());
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                        existing.Value, product,
+                        username, correlationId);
+                }
             }
 
             return existing.ToResultWithoutValue();

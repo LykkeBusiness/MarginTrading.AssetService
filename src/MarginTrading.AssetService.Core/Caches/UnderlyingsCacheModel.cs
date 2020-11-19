@@ -24,5 +24,7 @@ namespace MarginTrading.AssetService.Core.Caches
         public string BaseCurrency { get; set; }
         public string IndexName { get; set; }
         public string EmirType { get; set; }
+        
+        public DateTime StartDate { get; set; }
     }
 }

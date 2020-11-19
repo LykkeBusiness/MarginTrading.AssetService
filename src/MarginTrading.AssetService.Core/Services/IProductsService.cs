@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Lykke.Snow.Common.Model;
@@ -24,6 +25,9 @@ namespace MarginTrading.AssetService.Core.Services
             string correlationId);
 
         Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode, string username,
+            string correlationId);
+
+        Task<Result<ProductsErrorCodes>> UpdateStartDate(string mdsCode, DateTime startDate, string username,
             string correlationId);
     }
 }

@@ -26,7 +26,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var products = await context.Products.Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy)).ToListAsync();
+                var products = await context.Products.Where(x => x.IsStarted).Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy)).ToListAsync();
                 var currencies = await context.Currencies.Select(x => new Asset(x.Id, x.Id, AssetConstants.Accuracy)).ToListAsync();
 
                 return products.Union(currencies).ToList();
@@ -44,6 +44,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 var query = @$"SELECT ProductId as Id, Name as Name
                                     FROM [Products]
+                                    WHERE IsStarted = '1'
                                     Union
                                     SELECT Id as Id, Id as Name
                                     FROM [Currencies]

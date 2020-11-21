@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using MarginTrading.AssetService.Contracts.Core;
 
@@ -97,5 +98,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         [Required]
         [Range(double.Epsilon, double.PositiveInfinity)]
         public decimal OvernightMarginMultiplier { get; set; }
+        
+        public DateTime? StartDate { get; set; }
     }
 }

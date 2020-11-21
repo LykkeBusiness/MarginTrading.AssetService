@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Model;
@@ -11,7 +12,8 @@ using MarginTrading.AssetService.StorageInterfaces.Repositories;
 namespace MarginTrading.AssetService.Services.Validations.Products
 {
     [UsedImplicitly]
-    public class ProductAddOrUpdateValidationAndEnrichment : ValidationAndEnrichmentChainEngine<Product, ProductsErrorCodes>
+    public class
+        ProductAddOrUpdateValidationAndEnrichment : ValidationAndEnrichmentChainEngine<Product, ProductsErrorCodes>
     {
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesService _currenciesService;
@@ -58,7 +60,13 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             }
 
             value.TradingCurrency = underlying.TradingCurrency;
-            value.StartDate = underlying.StartDate;
+            // we use StartDate from the request, if possible, and fallback to the underlying's StartDate otherwise
+            var startDate = value.StartDate ?? underlying.StartDate;
+            if(existing != null && existing.IsStarted && startDate > DateTime.UtcNow) 
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotChangeStartDateFromPastToFuture);
+                
+            value.StartDate = startDate;
+            value.IsStarted = startDate < DateTime.UtcNow;
 
             return new Result<Product, ProductsErrorCodes>(value);
         }

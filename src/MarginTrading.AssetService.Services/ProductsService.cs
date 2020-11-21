@@ -98,8 +98,7 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
-                // TODO: replace with IsStarted
-                if(existing.Value.StartDate < DateTime.UtcNow) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+                if(existing.Value.IsStarted) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
                 
                 var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
 
@@ -156,12 +155,14 @@ namespace MarginTrading.AssetService.Services
         public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
             => _repository.GetByIdAsync(productId);
 
-        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds)
-            => _repository.GetAllAsync(mdsCodes, productIds);
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
+            bool? isStarted)
+            => _repository.GetAllAsync(mdsCodes, productIds, isStarted);
 
         public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
+            bool? isStarted,
             int skip = default, int take = 20)
-            => _repository.GetByPageAsync(mdsCodes, productIds, skip, take);
+            => _repository.GetByPageAsync(mdsCodes, productIds, isStarted, skip, take);
 
         public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username,
             string correlationId)
@@ -200,6 +201,9 @@ namespace MarginTrading.AssetService.Services
             string correlationId)
         {
             var existing = await _repository.GetAllAsync(null, productIds.ToArray());
+            
+            if(existing.Value.Any(x => x.IsStarted)) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+            
             var withTimestamps = productIds.ToDictionary(productId => productId,
                 productId => existing.Value.FirstOrDefault(p => p.ProductId == productId)?.Timestamp);
 
@@ -307,6 +311,7 @@ namespace MarginTrading.AssetService.Services
             {
                 var product = existing.Value.ShallowCopy();
                 product.StartDate = startDate;
+                product.IsStarted = startDate < DateTime.UtcNow; 
 
                 var result = await _repository.UpdateAsync(product);
 

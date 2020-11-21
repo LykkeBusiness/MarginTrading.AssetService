@@ -81,6 +81,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         
         public bool IsDiscontinued { get; set; }
         
+        public bool IsStarted { get; set; }
+        
         public byte[] Timestamp { get; set; }
     }
 }

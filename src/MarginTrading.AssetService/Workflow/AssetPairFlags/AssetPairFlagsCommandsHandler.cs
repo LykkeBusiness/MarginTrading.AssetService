@@ -7,26 +7,33 @@ using JetBrains.Annotations;
 using Lykke.Common.Chaos;
 using Lykke.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
+using MarginTrading.AssetService.Contracts.Enums;
+using MarginTrading.AssetService.Contracts.Products;
+using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Microsoft.AspNetCore.Razor.Language.Extensions;
+using MarginTrading.AssetService.Core.Settings;
 
 namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 {
     public class AssetPairFlagsCommandsHandler
     {
+        private string username = "system";
+
         private readonly TimeSpan _delay = TimeSpan.FromSeconds(15);
-        private readonly IAssetPairService _assetPairService;
+        private readonly IProductsDiscontinueService _productsDiscontinueService;
+        private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         private readonly IConvertService _convertService;
         private readonly IChaosKitty _chaosKitty;
-        
+
         public AssetPairFlagsCommandsHandler(
-            IAssetPairService assetPairService,
+            IProductsDiscontinueService productsDiscontinueService,
+            DefaultLegalEntitySettings defaultLegalEntitySettings,
             IConvertService convertService,
             IChaosKitty chaosKitty)
         {
-            _assetPairService = assetPairService;
+            _productsDiscontinueService = productsDiscontinueService;
+            _defaultLegalEntitySettings = defaultLegalEntitySettings;
             _convertService = convertService;
             _chaosKitty = chaosKitty;
         }
@@ -39,18 +46,29 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             IEventPublisher publisher)
         {
             //idempotency handling not required
-            var assetPair = await _assetPairService.ChangeSuspendStatusAsync(command.AssetPairId, true);
+            var updateResult = await _productsDiscontinueService.ChangeSuspendStatusAsync(command.AssetPairId,
+                true,
+                username,
+                command.OperationId);
 
-            if (assetPair == null)
+            if (!updateResult.IsSuccess)
                 return CommandHandlingResult.Fail(_delay);
 
             _chaosKitty.Meow(command.OperationId);
+
+            var assetPair =
+                AssetPair.CreateFromProduct(updateResult.NewValue, _defaultLegalEntitySettings.DefaultLegalEntity);
 
             publisher.PublishEvent(new AssetPairChangedEvent
             {
                 OperationId = command.OperationId,
                 AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
             });
+
+            publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
+                updateResult.NewValue,
+                username,
+                command.OperationId));
 
             return CommandHandlingResult.Ok();
         }
@@ -63,12 +81,18 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             IEventPublisher publisher)
         {
             //idempotency handling not required
-            var assetPair = await _assetPairService.ChangeSuspendStatusAsync(command.AssetPairId, false);
+            var updateResult = await _productsDiscontinueService.ChangeSuspendStatusAsync(command.AssetPairId,
+                false,
+                username,
+                command.OperationId);
+
+            if (!updateResult.IsSuccess)
+                return CommandHandlingResult.Fail(_delay);
 
             _chaosKitty.Meow(command.OperationId);
 
-            if(assetPair == null)
-                return CommandHandlingResult.Fail(_delay);
+            var assetPair =
+                AssetPair.CreateFromProduct(updateResult.NewValue, _defaultLegalEntitySettings.DefaultLegalEntity);
 
             publisher.PublishEvent(new AssetPairChangedEvent
             {
@@ -76,7 +100,27 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
                 AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
             });
 
+            publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
+                updateResult.NewValue,
+                username,
+                command.OperationId));
+
             return CommandHandlingResult.Ok();
+        }
+
+        private ProductChangedEvent CreateProductChangedEvent(Product oldValue, Product newValue, string username,
+            string correlationId)
+        {
+            return new ProductChangedEvent()
+            {
+                Username = username,
+                ChangeType = ChangeType.Edition,
+                CorrelationId = correlationId,
+                EventId = Guid.NewGuid().ToString(),
+                Timestamp = DateTime.UtcNow,
+                OldValue = _convertService.Convert<Product, ProductContract>(oldValue),
+                NewValue = _convertService.Convert<Product, ProductContract>(newValue),
+            };
         }
     }
 }

@@ -109,6 +109,7 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<ProductAddOrUpdateValidationAndEnrichment>().AsSelf().SingleInstance();
             builder.RegisterType<ProductsService>().AsImplementedInterfaces().SingleInstance();
+            builder.RegisterType<ProductsDiscontinueService>().AsImplementedInterfaces().SingleInstance();
             
             builder.RegisterType<ProductCategoriesService>().AsImplementedInterfaces().SingleInstance();
 

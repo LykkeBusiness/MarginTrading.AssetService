@@ -103,7 +103,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromTradingCurrency(this Asset asset, Currency tradingCurrency)
         {
-            asset.Underlying.VariableInterestRate2 = tradingCurrency.InterestRateMdsCode;
+            asset.Underlying.VariableInterestRate1 = tradingCurrency.InterestRateMdsCode;
             asset.Underlying.InterestRates.Add(new InterestRate
             {
                 MdsCode = tradingCurrency.InterestRateMdsCode,
@@ -114,7 +114,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromBaseCurrency(this Asset asset, Currency baseCurrency)
         {
-            asset.Underlying.VariableInterestRate1 = baseCurrency?.InterestRateMdsCode;
+            asset.Underlying.VariableInterestRate2 = baseCurrency?.InterestRateMdsCode;
         }
 
         public static void SetAssetFieldsFromCategory(this Asset asset, ProductCategory category)

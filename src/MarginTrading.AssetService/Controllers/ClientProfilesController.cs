@@ -179,6 +179,10 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
             }
+            catch (ClientProfileNonDefaultUpdateForbiddenException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.NonDefaultUpdateForbidden;
+            }
 
             return response;
         }

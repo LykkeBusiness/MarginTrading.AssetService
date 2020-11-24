@@ -28,6 +28,8 @@ namespace MarginTrading.AssetService.Services
         private readonly ICqrsEntityChangedSender _entityChangedSender;
         private readonly string _brokerId;
 
+        private const string ClientProfileDefaultId = "Default";
+
         public ClientProfilesService(
             IClientProfilesRepository clientProfilesRepository,
             IAssetTypesRepository assetTypesRepository,
@@ -148,6 +150,9 @@ namespace MarginTrading.AssetService.Services
 
                 ValidateRegulatoryConstraint(regulatorySettings, setting);
             }
+
+            if (model.IsDefault && model.Id != ClientProfileDefaultId)
+                throw new ClientProfileNonDefaultUpdateForbiddenException();
 
             await _clientProfilesRepository.UpdateAsync(model);
 

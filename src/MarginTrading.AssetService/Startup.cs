@@ -3,15 +3,14 @@
 
 using System;
 using System.IO;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
-using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
+using Lykke.HttpClientGenerator.Exceptions;
 using Lykke.Logs;
 using Lykke.Logs.MsSql;
 using Lykke.Logs.MsSql.Repositories;
@@ -141,6 +140,8 @@ namespace MarginTrading.AssetService
 #else
                 app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
+
+                app.UseMiddleware<RefitExceptionHandlerMiddleware>(new RefitExceptionHandlingOptions {ReThrow = true});
 
                 app.UseRouting();
                 app.UseAuthentication();

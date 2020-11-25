@@ -142,7 +142,7 @@ namespace MarginTrading.AssetService
                 app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
 
-                app.UseMiddleware<RefitExceptionHandlerMiddleware>(new RefitExceptionHandlingOptions {ReThrow = true});
+                app.UseMiddleware<RefitExceptionHandlerMiddleware>();
 
                 app.UseRouting();
                 app.UseAuthentication();

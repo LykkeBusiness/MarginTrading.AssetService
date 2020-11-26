@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
@@ -141,12 +140,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var result = await context.ClientProfiles
-                    .Select(r => new ClientProfile
-                    {
-                        Id = r.Id,
-                        IsDefault = r.IsDefault,
-                        RegulatoryProfileId = r.RegulatoryProfileId,
-                    })
+                    .Select(r => new ClientProfile(r.Id, r.RegulatoryProfileId, r.IsDefault))
                     .ToListAsync();
 
                 return result;
@@ -162,12 +156,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (entity == null)
                     return null;
 
-                return new ClientProfile
-                {
-                    Id = entity.Id,
-                    IsDefault = entity.IsDefault,
-                    RegulatoryProfileId = entity.RegulatoryProfileId,
-                };
+                return new ClientProfile(entity.Id, entity.RegulatoryProfileId, entity.IsDefault);
             }
         }
 
@@ -180,12 +169,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 if (entity == null)
                     return null;
 
-                return new ClientProfile
-                {
-                    Id = entity.Id,
-                    IsDefault = entity.IsDefault,
-                    RegulatoryProfileId = entity.RegulatoryProfileId,
-                };
+                return new ClientProfile(entity.Id, entity.RegulatoryProfileId, entity.IsDefault);
             }
         }
 
@@ -195,12 +179,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 var result = await context.ClientProfiles
                     .Where(x => x.IsDefault == isDefault)
-                    .Select(r => new ClientProfile
-                    {
-                        Id = r.Id,
-                        IsDefault = r.IsDefault,
-                        RegulatoryProfileId = r.RegulatoryProfileId,
-                    })
+                    .Select(r => new ClientProfile(r.Id, r.RegulatoryProfileId, r.IsDefault))
                     .ToListAsync();
 
                 return result;

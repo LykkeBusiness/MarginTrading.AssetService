@@ -102,8 +102,12 @@ namespace MarginTrading.AssetService.Controllers
 
             try
             {
-                var model = _convertService.Convert<AddClientProfileRequest, ClientProfileWithTemplate>(request);
-                await _regulatoryProfilesService.InsertAsync(model, request.Username, correlationId);
+                var clientProfile = new ClientProfileWithTemplate(
+                    request.Id, 
+                    request.RegulatoryProfileId,
+                    request.ClientProfileTemplateId, 
+                    request.IsDefault);
+                await _regulatoryProfilesService.InsertAsync(clientProfile, request.Username, correlationId);
             }
             catch (ClientProfileDoesNotExistException)
             {
@@ -129,6 +133,10 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
             }
+            catch (ClientProfileNonDefaultUpdateForbiddenException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.NonDefaultUpdateForbidden;
+            }
 
             return response;
         }
@@ -148,12 +156,10 @@ namespace MarginTrading.AssetService.Controllers
 
             var correlationId = this.TryGetCorrelationId();
 
-            var model = _convertService.Convert<UpdateClientProfileRequest, ClientProfile>(request);;
-            model.Id = id;
-
             try
             {
-                await _regulatoryProfilesService.UpdateAsync(model, request.Username, correlationId);
+                var clientProfile = new ClientProfile(id, request.RegulatoryProfileId, request.IsDefault);
+                await _regulatoryProfilesService.UpdateAsync(clientProfile, request.Username, correlationId);
             }
             catch (AlreadyExistsException)
             {

@@ -67,9 +67,6 @@ namespace MarginTrading.AssetService.Services
 
                 //Client profiles
                 cfg.CreateMap<ClientProfile, ClientProfileContract>().ReverseMap();
-                cfg.CreateMap<AddClientProfileRequest, ClientProfileWithTemplate>();
-                cfg.CreateMap<UpdateClientProfileRequest, ClientProfile>()
-                    .ForMember(x => x.Id, opt => opt.Ignore());
                 
                 //Asset types
                 cfg.CreateMap<AssetType, AssetTypeContract>();

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
@@ -8,7 +7,8 @@ using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
-using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Tests.Common;
 using MarginTrading.AssetService.Tests.Extensions;
 using Moq;
@@ -99,7 +99,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 
             await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, AssetTypeId);
 
-            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, true);
+            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, false);
 
             var updateClientProfileSettingsRequest = new UpdateClientProfileSettingsRequest
             {
@@ -113,7 +113,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 
             await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, SecondAssetTypeId, AssetTypeId);
 
-            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, SecondClientProfileId, true, ClientProfileId);
+            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, SecondClientProfileId, false, ClientProfileId);
 
             //Get all client profile settings for this regulation
             var getClientProfileSettingsRequest = await client.GetAsync($"/api/client-profile-settings");
@@ -132,6 +132,13 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             Assert.True(containsSettingsCreatedFromProfileTemplate);
             Assert.True(containsSettingsCreatedFromTypeTemplate);
             Assert.Equal(4, clientProfileSettings.Count);
+        }
+
+        [Fact]
+        public void NonDefaultProfileIdCannotBeSetAsDefault()
+        {
+            Assert.Throws<ClientProfileNonDefaultUpdateForbiddenException>(() =>
+                new ClientProfile(ClientProfileId, RegulatoryTypeId, true));
         }
     }
 }

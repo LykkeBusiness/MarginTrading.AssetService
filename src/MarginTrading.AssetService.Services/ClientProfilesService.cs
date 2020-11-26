@@ -106,7 +106,7 @@ namespace MarginTrading.AssetService.Services
                     });
                 }
             }
-
+            
             await _clientProfilesRepository.InsertAsync(model, clientProfileSettings);
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,

@@ -3,12 +3,12 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
-    <Version>2.3.0</Version>
+    <Version>2.3.1</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="7.0.0" />
-    <PackageReference Include="Cronut.Dto" Version="3.3.1" />
+    <PackageReference Include="Cronut.Dto" Version="3.6.0" />
     <PackageReference Include="JsonDiffPatch.Net" Version="2.2.0" />
     <PackageReference Include="Lykke.Cqrs" Version="9.0.1" />
     <PackageReference Include="Lykke.Common" Version="7.5.0" />

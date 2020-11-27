@@ -81,7 +81,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.MarketDetails.MarketHours.Close = closeUtcWithoutDays;
             asset.Underlying.MarketDetails.Name = marketSettings.Name;
             asset.Underlying.MarketDetails.MarketId = marketSettings.Id;
-            asset.Underlying.MarketName = marketSettings.Name;
             asset.DividendsFactor.Percent = marketSettings.DividendsLong;
             asset.DividendsFactor.ShortPercent = marketSettings.DividendsShort;
             asset.DividendsFactor.Us871Percent = marketSettings.Dividends871M;
@@ -130,6 +129,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
             asset.Underlying.MarginRate = clientProfileSettings.Margin / 100;
             asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
+            asset.IsAvailable = clientProfileSettings.IsAvailable;
         }
     }
 }

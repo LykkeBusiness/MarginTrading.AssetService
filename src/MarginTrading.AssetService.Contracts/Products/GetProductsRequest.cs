@@ -1,18 +1,21 @@
 ﻿// Copyright (c) 2020 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using Refit;
+using System;
+using System.Linq;
 
 namespace MarginTrading.AssetService.Contracts.Products
 {
     public class GetProductsRequest
     {
-        [Query(CollectionFormat.Multi)]
-        public string[] MdsCodes { get; set; }
+        public string[] MdsCodes { get; set; } = Array.Empty<string>();
 
-        [Query(CollectionFormat.Multi)]
-        public string[] ProductIds { get; set; }
+        public string[] ProductIds { get; set; } = Array.Empty<string>();
         
         public bool? IsStarted { get; set; }
+
+        public int Skip { get; set; }
+
+        public int Take { get; set; }
     }
 }

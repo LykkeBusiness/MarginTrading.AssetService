@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -114,14 +115,45 @@ namespace MarginTrading.AssetService.Controllers
             return response;
         }
 
+        //should be removed
+        public class ObsoleteGetProductsRequest
+        {
+            [Refit.Query(Refit.CollectionFormat.Multi)]
+            public string[] MdsCodes { get; set; }
+
+            [Refit.Query(Refit.CollectionFormat.Multi)]
+            public string[] ProductIds { get; set; }
+
+            public bool? IsStarted { get; set; }
+        }
+
+        [Obsolete("Please use method with POST verb. Should be removed after all dep-s updated")]
         [HttpGet]
         [ProducesResponseType(typeof(GetProductsResponse), (int) HttpStatusCode.OK)]
-        public async Task<GetProductsResponse> GetAllAsync([FromQuery] GetProductsRequest request, int skip = default, int take = 20)
+        public async Task<GetProductsResponse> ObsoleteGetAllAsync([FromQuery] ObsoleteGetProductsRequest request, int skip = default, int take = 20)
         {
             // if take == 0 return all rows
             var result = take == default
                 ? await _productsService.GetAllAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted)
                 : await _productsService.GetByPageAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted,skip, take);
+
+            var response = new GetProductsResponse
+            {
+                Products = result.Value
+                    .Select(p => _convertService.Convert<Product, ProductContract>(p))
+                    .ToList()
+            };
+
+            return response;
+        }
+
+        [HttpPost("list")]
+        [ProducesResponseType(typeof(GetProductsResponse), (int) HttpStatusCode.OK)]
+        public async Task<GetProductsResponse> GetAllAsync([FromBody]GetProductsRequest request)
+        {
+            var result = request.Take == default
+                ? await _productsService.GetAllAsync(request.MdsCodes, request.ProductIds, request.IsStarted)
+                : await _productsService.GetByPageAsync(request.MdsCodes, request.ProductIds, request.IsStarted, request.Skip, request.Take);
 
             var response = new GetProductsResponse
             {

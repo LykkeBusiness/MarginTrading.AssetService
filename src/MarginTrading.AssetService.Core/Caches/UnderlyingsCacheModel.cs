@@ -16,7 +16,6 @@ namespace MarginTrading.AssetService.Core.Caches
         public DateTime? MaturityDate { get; set; }
         public string Name { get; set; }
         public decimal RepoSurchargePercent { get; set; }
-        public string RicCode { get; set; }
         public decimal Spread { get; set; }
         public string TradingCurrency { get; set; }
         public string CommodityBase { get; set; }

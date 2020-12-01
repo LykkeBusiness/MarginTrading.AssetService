@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
-using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Extensions;
+using MarginTrading.AssetService.Mappers;
 using MarginTrading.AssetService.Middleware;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -92,11 +93,11 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("legacy")]
-        public async Task<List<Asset>> GetLegacyAssets()
+        public Task<List<LegacyAssetContract>> GetLegacyAssets()
         {
             var result = _legacyAssetsCache.GetAll();
 
-            return result;
+            return Task.FromResult(result.ToContract().ToList());
         }
 
         /// <summary>
@@ -104,14 +105,14 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("legacy/{assetId}")]
-        public async Task<Asset> GetLegacyAssetById(string assetId)
+        public Task<LegacyAssetContract> GetLegacyAssetById(string assetId)
         {
             if (string.IsNullOrEmpty(assetId))
                 return null;
 
             var result = _legacyAssetsCache.GetById(assetId);
 
-            return result;
+            return Task.FromResult(result.ToContract());
         }
     }
 }

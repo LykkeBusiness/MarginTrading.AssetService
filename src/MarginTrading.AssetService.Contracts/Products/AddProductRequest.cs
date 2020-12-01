@@ -9,6 +9,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         // primary id
         [Required]
         [MaxLength(100)]
+        [RegularExpression("^[A-Za-z][A-Za-z0-9_]*$", ErrorMessage = "ProductId must contain only alphanumeric values and underscores and must start with a letter.")]
         public string ProductId { get; set; }
         
         [Required]

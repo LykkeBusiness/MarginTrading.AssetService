@@ -353,7 +353,26 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 product.IsSuspended = value;
                 context.Products.Update(product);
 
-                await context.SaveChangesAsync();
+                var saved = false;
+                while (!saved)
+                {
+                    try
+                    {
+                        await context.SaveChangesAsync();
+                        saved = true;
+                    }
+                    catch (DbUpdateConcurrencyException ex)
+                    {
+                        foreach (var entry in ex.Entries)
+                        {
+                            var databaseValues = await entry.GetDatabaseValuesAsync();
+
+                            // Refresh original values to bypass next concurrency check
+                            entry.OriginalValues.SetValues(databaseValues);
+                        }
+                    }
+                }
+
                 return new Result<Product, ProductsErrorCodes>(ToModel(product));
             }
         }

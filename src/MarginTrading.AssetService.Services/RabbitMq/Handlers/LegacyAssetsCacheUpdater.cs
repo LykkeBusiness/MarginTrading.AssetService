@@ -91,7 +91,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
         public async Task HandleMarketSettingsUpdated(MarketSettings marketSettings, DateTime timestamp)
         {
-            Func<Asset, bool> filter = x => x.Underlying.MarketName == marketSettings.Id;
+            Func<Asset, bool> filter = x => x.Underlying.MarketDetails.MarketId == marketSettings.Id;
             await Handle(marketSettings, filter, CronutAssetExtensions.SetAssetFieldsFromMarketSettings, timestamp);
         }
 

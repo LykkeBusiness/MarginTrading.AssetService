@@ -9,6 +9,5 @@
         public static decimal CommissionRate = 0M;
         public static decimal CommissionMin = 0M;
         public static decimal CommissionMax = 0M;
-        public static string CommissionCurrency = "EUR";
     }
 }

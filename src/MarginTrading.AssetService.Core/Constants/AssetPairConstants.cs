@@ -9,7 +9,6 @@ namespace MarginTrading.AssetService.Core.Constants
         public const MatchingEngineMode MatchingEngineMode = (MatchingEngineMode)2;
         public const decimal StpMultiplierMarkupBid = 1;
         public const decimal StpMultiplierMarkupAsk = 1;
-        public const string BaseCurrencyId = "EUR";
         public const string FxMarketId = "FxMarket";
     }
 }

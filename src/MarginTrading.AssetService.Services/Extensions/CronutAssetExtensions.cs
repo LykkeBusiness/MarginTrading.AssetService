@@ -41,6 +41,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.AssetType = product.AssetType;
             asset.Underlying.Keywords = product.Keywords;
             asset.LiquidationThresholdQuantity = 0;
+            asset.Underlying.RicCode = product.PublicationRic;
         }
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)
@@ -54,7 +55,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.MdsCode = underlying.MdsCode;
             asset.Underlying.Name = underlying.Name;
             asset.Underlying.RepoSurchargePercent = underlying.RepoSurchargePercent;
-            asset.Underlying.RicCode = underlying.RicCode;
             asset.Underlying.Spread = underlying.Spread;
             asset.Underlying.TradingCurrency = underlying.TradingCurrency;
             asset.Underlying.CommodityBase = underlying.CommodityBase;
@@ -81,7 +81,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.MarketDetails.MarketHours.Close = closeUtcWithoutDays;
             asset.Underlying.MarketDetails.Name = marketSettings.Name;
             asset.Underlying.MarketDetails.MarketId = marketSettings.Id;
-            asset.Underlying.MarketName = marketSettings.Name;
             asset.DividendsFactor.Percent = marketSettings.DividendsLong;
             asset.DividendsFactor.ShortPercent = marketSettings.DividendsShort;
             asset.DividendsFactor.Us871Percent = marketSettings.Dividends871M;
@@ -124,13 +123,13 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
         {
-            asset.Underlying.ExecutionFeeParameter.Currency = "EUR";
             asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
             asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
             asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;
             asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
             asset.Underlying.MarginRate = clientProfileSettings.Margin / 100;
             asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
+            asset.IsAvailable = clientProfileSettings.IsAvailable;
         }
     }
 }

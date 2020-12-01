@@ -83,14 +83,14 @@ namespace MarginTrading.AssetService.Core.Domain
             );
         }
 
-        public static IAssetPair CreateFromCurrency(Currency currency, string legalEntity)
+        public static IAssetPair CreateFromCurrency(Currency currency, string legalEntity, string baseCurrencyId)
         {
-            var id = $"{AssetPairConstants.BaseCurrencyId}{currency.Id}";
+            var id = $"{baseCurrencyId}{currency.Id}";
 
             return new AssetPair(
                 id: id,
                 name: id,
-                baseAssetId: AssetPairConstants.BaseCurrencyId,
+                baseAssetId: baseCurrencyId,
                 quoteAssetId: currency.Id,
                 accuracy: AssetPairConstants.Accuracy,
                 marketId: AssetPairConstants.FxMarketId,

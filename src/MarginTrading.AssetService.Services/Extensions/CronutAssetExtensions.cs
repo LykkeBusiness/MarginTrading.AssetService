@@ -41,6 +41,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.AssetType = product.AssetType;
             asset.Underlying.Keywords = product.Keywords;
             asset.LiquidationThresholdQuantity = 0;
+            asset.Underlying.RicCode = product.PublicationRic;
         }
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)
@@ -54,7 +55,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.MdsCode = underlying.MdsCode;
             asset.Underlying.Name = underlying.Name;
             asset.Underlying.RepoSurchargePercent = underlying.RepoSurchargePercent;
-            asset.Underlying.RicCode = underlying.RicCode;
             asset.Underlying.Spread = underlying.Spread;
             asset.Underlying.TradingCurrency = underlying.TradingCurrency;
             asset.Underlying.CommodityBase = underlying.CommodityBase;

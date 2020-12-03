@@ -28,10 +28,10 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 entity.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(ExpirationInSeconds);
 
-                var locales = (await _underlyingCategoriesApi.GetAllAsync()).UnderlyingCategories
+                var categories = (await _underlyingCategoriesApi.GetAllAsync()).UnderlyingCategories
                     .Select(x => UnderlyingCategoryCacheModel.Create(x.Id, x.FinancingFeesFormula));
 
-                return locales.ToList();
+                return categories.ToList();
             });
         }
     }

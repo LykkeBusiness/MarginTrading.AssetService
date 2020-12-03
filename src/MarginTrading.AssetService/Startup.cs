@@ -75,7 +75,7 @@ namespace MarginTrading.AssetService
                     });
 
                 _mtSettingsManager = Configuration.LoadSettings<AppSettings>();
-
+                services.AddMemoryCache(options => options.ExpirationScanFrequency = TimeSpan.FromMinutes(1));
                 services.AddApiKeyAuth(_mtSettingsManager.CurrentValue.MarginTradingAssetServiceClient);
 
                 services.AddSwaggerGen(options =>

@@ -19,7 +19,11 @@ namespace MarginTrading.AssetService.Tests.Common
 {
     public class TestRecordsCreator
     {
-        public static async Task CreateAssetTypeAsync(HttpClient client, string regulatoryTypeId, string id,
+        public static async Task CreateAssetTypeAsync(
+            HttpClient client,
+            string regulatoryTypeId,
+            string id,
+            string underlyingCategoryId,
             string assetTypeTemplateId = null)
         {
             var request = new AddAssetTypeRequest
@@ -28,6 +32,7 @@ namespace MarginTrading.AssetService.Tests.Common
                 Username = "asdasd",
                 AssetTypeTemplateId = assetTypeTemplateId,
                 Id = id,
+                UnderlyingCategoryId = underlyingCategoryId,
             };
 
             await client.PostAsync($"/api/asset-types", request.ToJsonStringContent());
@@ -104,17 +109,6 @@ namespace MarginTrading.AssetService.Tests.Common
             };
 
             await client.PostAsync("/api/tick-formulas", request.ToJsonStringContent());
-        }
-
-        public static async Task CreateAssetType(HttpClient client, string id)
-        {
-            var request = new AddAssetTypeRequest()
-            {
-                Id = id,
-                Username = "username",
-            };
-
-            await client.PostAsync("api/asset-types", request.ToJsonStringContent());
         }
 
         public static async Task<ErrorCodeResponse<ProductsErrorCodesContract>> CreateProductAsync(HttpClient client,

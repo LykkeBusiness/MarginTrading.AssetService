@@ -11,6 +11,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.HasKey(x => x.Id);
 
             builder.Property(x => x.RegulatoryTypeId).IsRequired();
+            builder.Property(x => x.UnderlyingCategoryId).IsRequired();
         }
     }
 }

@@ -192,6 +192,10 @@ namespace MarginTrading.AssetService.Modules
                 .AsSelf()
                 .SingleInstance();
 
+            builder.RegisterType<UnderlyingCategoriesCache>()
+                .As<IUnderlyingCategoriesCache>()
+                .SingleInstance();
+
             RegisterRepositories(builder);
 
             builder.Populate(_services);

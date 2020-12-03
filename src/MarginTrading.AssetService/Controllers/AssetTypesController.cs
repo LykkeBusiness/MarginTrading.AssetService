@@ -130,6 +130,10 @@ namespace MarginTrading.AssetService.Controllers
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
             }
+            catch (UnderlyingCategoryDoesNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.UnderlyingCategoryDoesNotExist;
+            }
 
             return response;
         }
@@ -179,6 +183,10 @@ namespace MarginTrading.AssetService.Controllers
             catch (RegulationConstraintViolationException)
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.RegulationConstraintViolation;
+            }
+            catch (UnderlyingCategoryDoesNotExistException)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.UnderlyingCategoryDoesNotExist;
             }
 
             return response;

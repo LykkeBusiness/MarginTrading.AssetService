@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
-using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.SqlRepositories.Entities;
@@ -28,17 +26,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 Id = model.Id,
                 RegulatoryTypeId = model.RegulatoryTypeId,
+                UnderlyingCategoryId = model.UnderlyingCategoryId,
             };
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
-
 
             using (var context = _contextFactory.CreateDataContext())
             {
                 context.AssetTypes.Add(entity);
 
                 context.ClientProfileSettings.AddRange(clientProfileSettingsEntities);
-
 
                 try
                 {
@@ -67,6 +64,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     throw new AssetTypeDoesNotExistException();
 
                 existingEntity.RegulatoryTypeId = model.RegulatoryTypeId;
+                existingEntity.UnderlyingCategoryId = model.UnderlyingCategoryId;
 
                 try
                 {
@@ -112,7 +110,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     .Select(r => new AssetType
                     {
                         Id = r.Id,
-                        RegulatoryTypeId = r.RegulatoryTypeId
+                        RegulatoryTypeId = r.RegulatoryTypeId,
+                        UnderlyingCategoryId = r.UnderlyingCategoryId,
                     })
                     .ToListAsync();
 
@@ -145,6 +144,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     Id = entity.Id,
                     RegulatoryTypeId = entity.RegulatoryTypeId,
+                    UnderlyingCategoryId = entity.UnderlyingCategoryId,
                 };
             }
         }

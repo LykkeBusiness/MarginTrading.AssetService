@@ -128,6 +128,12 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             await Handle(underlying, filter, CronutAssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
         }
 
+        public async Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp)
+        {
+            Func<Asset, bool> filter = x => x.Underlying.AssetType == assetType.Id;
+            await Handle(assetType, filter, CronutAssetExtensions.SetAssetFieldsFromAssetType, timestamp);
+        }
+
         public async Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp)
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)

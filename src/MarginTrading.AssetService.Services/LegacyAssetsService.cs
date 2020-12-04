@@ -23,6 +23,7 @@ namespace MarginTrading.AssetService.Services
         private readonly IMarketSettingsRepository _marketSettingsRepository;
         private readonly IProductCategoriesRepository _productCategoriesRepository;
         private readonly IUnderlyingsCache _underlyingsCache;
+        private readonly IAssetTypesRepository _assetTypesRepository;
         private readonly ILog _log;
 
         public LegacyAssetsService(
@@ -34,6 +35,7 @@ namespace MarginTrading.AssetService.Services
             IMarketSettingsRepository marketSettingsRepository,
             IProductCategoriesRepository productCategoriesRepository,
             IUnderlyingsCache underlyingsCache,
+            IAssetTypesRepository assetTypesRepository,
             ILog log)
         {
             _productsRepository = productsRepository;
@@ -44,6 +46,7 @@ namespace MarginTrading.AssetService.Services
             _marketSettingsRepository = marketSettingsRepository;
             _productCategoriesRepository = productCategoriesRepository;
             _underlyingsCache = underlyingsCache;
+            _assetTypesRepository = assetTypesRepository;
             _log = log;
         }
 
@@ -91,6 +94,9 @@ namespace MarginTrading.AssetService.Services
             var productTickFormulas =
                 (await _tickFormulaRepository.GetByIdsAsync(productTickFormulaMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
+            var assetTypes = (await _assetTypesRepository.GetAllAsync()).ToDictionary(x => x.Id, v=> v);
+
+
             var result = new List<Asset>();
             foreach (var product in products.Values)
             {
@@ -117,6 +123,7 @@ namespace MarginTrading.AssetService.Services
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);
                 asset.SetAssetFieldsFromTickFormula(productTickFormulas[productTickFormulaMap[id]]);
+                asset.SetAssetFieldsFromAssetType(assetTypes[productAssetTypeIdMap[id]]);
 
                 result.Add(asset);
             }

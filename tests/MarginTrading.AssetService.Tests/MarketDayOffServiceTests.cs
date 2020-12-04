@@ -4,6 +4,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Lykke.Snow.Mdm.Contracts.Api;
+using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -57,16 +60,31 @@ namespace MarginTrading.AssetService.Tests
         private static async Task TestMarket(string marketId, bool isTradingEnabled, string lastTradingDay,
             string nextTradingDay, List<IScheduleSettings> repoData)
         {
+            var brokerId = Guid.NewGuid().ToString();
             var scheduleServiceMock = new Mock<IScheduleSettingsService>();
             scheduleServiceMock.Setup(r => r.GetFilteredAsync(null)).ReturnsAsync(repoData);
 
             var systemClockMock = new Mock<ISystemClock>();
             systemClockMock.SetupGet(c => c.UtcNow).Returns(new DateTimeOffset(2019, 10, 11, 11, 0, 0, TimeSpan.Zero));
 
-            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings());
+            var brokerSettingsMock = new Mock<IBrokerSettingsApi>();
+            brokerSettingsMock
+                .Setup(s => s.GetByIdAsync(It.Is<string>(f => f == brokerId)))
+                .ReturnsAsync(
+                    new GetBrokerSettingsByIdResponse
+                    {
+                        ErrorCode = BrokerSettingsErrorCodesContract.None,
+                        BrokerSettings = new BrokerSettingsContract
+                        {
+                            Holidays = new List<DateTime>()
+                        }
+                    });
+            
+            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings(), brokerId, brokerSettingsMock.Object);
 
             var info = (await service.GetMarketsInfo(new[] {marketId}, null))[marketId];
-
+            
+            brokerSettingsMock.Verify();
             Assert.Equal(isTradingEnabled, info.IsTradingEnabled);
             Assert.Equal(DateTime.Parse(lastTradingDay), info.LastTradingDay);
             Assert.Equal(DateTime.Parse(nextTradingDay), info.NextTradingDayStart.Date);

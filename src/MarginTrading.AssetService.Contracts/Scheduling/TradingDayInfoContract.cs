@@ -18,7 +18,9 @@ namespace MarginTrading.AssetService.Contracts.Scheduling
         /// <summary>
         /// Is trading enabled currently
         /// </summary>
-        public bool IsTradingEnabled { get; set; }
+        public bool IsTradingEnabled { get; set; }        
+        
+        public bool IsBusinessDay { get; set; }
         
         /// <summary>
         ///  Timestamp when next trading day with start

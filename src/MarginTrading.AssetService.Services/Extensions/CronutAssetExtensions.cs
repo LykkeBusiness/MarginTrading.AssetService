@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using Cronut.Dto.Assets;
 using Lykke.Snow.Common.Extensions;
+using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using TimeZoneConverter;
@@ -81,15 +82,24 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.MarketDetails.MarketHours.Close = closeUtcWithoutDays;
             asset.Underlying.MarketDetails.Name = marketSettings.Name;
             asset.Underlying.MarketDetails.MarketId = marketSettings.Id;
-            asset.DividendsFactor.Percent = marketSettings.DividendsLong;
-            asset.DividendsFactor.ShortPercent = marketSettings.DividendsShort;
-            asset.DividendsFactor.Us871Percent = marketSettings.Dividends871M;
-            asset.Underlying.MarketDetails.DividendsFactor.Percent = marketSettings.DividendsLong;
-            asset.Underlying.MarketDetails.DividendsFactor.ShortPercent = marketSettings.DividendsShort;
-            asset.Underlying.MarketDetails.DividendsFactor.Us871Percent = marketSettings.Dividends871M;
-            asset.Underlying.DividendsFactor.Percent = marketSettings.DividendsLong;
-            asset.Underlying.DividendsFactor.ShortPercent = marketSettings.DividendsShort;
-            asset.Underlying.DividendsFactor.Us871Percent = marketSettings.Dividends871M;
+        }
+
+        public static void SetDividendFactorFields(this Asset asset, MarketSettings marketSettings,
+            BrokerSettingsContract brokerSettings, Product product)
+        {
+            var dividendShort = product.DividendsShort ?? marketSettings.DividendsShort ?? brokerSettings.DividendsShortPercent;
+            var dividendLong = product.DividendsLong ?? marketSettings.DividendsLong ?? brokerSettings.DividendsLongPercent;
+            var dividend871M = product.Dividends871M ?? marketSettings.Dividends871M ?? brokerSettings.Dividends871MPercent;
+            
+            asset.DividendsFactor.Percent = dividendLong;
+            asset.DividendsFactor.ShortPercent = dividendShort;
+            asset.DividendsFactor.Us871Percent = dividend871M;
+            asset.Underlying.MarketDetails.DividendsFactor.Percent = dividendLong;
+            asset.Underlying.MarketDetails.DividendsFactor.ShortPercent = dividendShort;
+            asset.Underlying.MarketDetails.DividendsFactor.Us871Percent = dividend871M;
+            asset.Underlying.DividendsFactor.Percent = dividendLong;
+            asset.Underlying.DividendsFactor.ShortPercent = dividendShort;
+            asset.Underlying.DividendsFactor.Us871Percent = dividend871M;
         }
 
         public static void SetAssetFieldsFromTickFormula(this Asset asset, ITickFormula tickFormula)

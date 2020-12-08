@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Cronut.Dto.Assets;
+using Lykke.Snow.Mdm.Contracts.Api;
+using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
@@ -25,6 +27,8 @@ namespace MarginTrading.AssetService.Services
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly IAssetTypesRepository _assetTypesRepository;
         private readonly ILog _log;
+        private readonly IBrokerSettingsApi _brokerSettingsApi;
+        private readonly string _brokerId;
 
         public LegacyAssetsService(
             IProductsRepository productsRepository,
@@ -36,7 +40,9 @@ namespace MarginTrading.AssetService.Services
             IProductCategoriesRepository productCategoriesRepository,
             IUnderlyingsCache underlyingsCache,
             IAssetTypesRepository assetTypesRepository,
-            ILog log)
+            ILog log, 
+            IBrokerSettingsApi brokerSettingsApi,
+            string brokerId)
         {
             _productsRepository = productsRepository;
             _clientProfileSettingsRepository = clientProfileSettingsRepository;
@@ -48,6 +54,8 @@ namespace MarginTrading.AssetService.Services
             _underlyingsCache = underlyingsCache;
             _assetTypesRepository = assetTypesRepository;
             _log = log;
+            _brokerSettingsApi = brokerSettingsApi;
+            _brokerId = brokerId;
         }
 
         public async Task<List<Asset>> GetLegacyAssets(IEnumerable<string> productIds = null)
@@ -60,6 +68,13 @@ namespace MarginTrading.AssetService.Services
             var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
             if (defaultProfile == null)
                 throw new InvalidOperationException("There is not default client profile in the system");
+
+            var brokerSettingsResponse =  await _brokerSettingsApi.GetByIdAsync(_brokerId);
+            if (brokerSettingsResponse.ErrorCode != BrokerSettingsErrorCodesContract.None)
+            {
+                throw new InvalidOperationException($"Unexpected error code {brokerSettingsResponse.ErrorCode}, " +
+                                                    $"while retrieving settings for broker id {_brokerId}");
+            }
 
             var productTradingCurrencyMap = products.ToDictionary(x => x.Key, v => v.Value.TradingCurrency);
             var productMarketSettingsMap = products.ToDictionary(x => x.Key, v => v.Value.Market);
@@ -124,6 +139,9 @@ namespace MarginTrading.AssetService.Services
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);
                 asset.SetAssetFieldsFromTickFormula(productTickFormulas[productTickFormulaMap[id]]);
                 asset.SetAssetFieldsFromAssetType(assetTypes[productAssetTypeIdMap[id]]);
+                asset.SetDividendFactorFields(productMarketSettings[productMarketSettingsMap[id]],
+                    brokerSettingsResponse.BrokerSettings,
+                    product);
 
                 result.Add(asset);
             }

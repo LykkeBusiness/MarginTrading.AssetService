@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel.DataAnnotations;
 using MessagePack;
 
@@ -105,5 +106,11 @@ namespace MarginTrading.AssetService.Contracts.Products
         
         [MessagePack.Key(31)]
         public bool IsDiscontinued { get; set; }
+
+        [MessagePack.Key(32)]
+        public DateTime StartDate { get; set; }
+
+        [MessagePack.Key(33)]
+        public bool IsStarted { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+using System;
+
 namespace MarginTrading.AssetService.SqlRepositories.Entities
 {
     public class ProductEntity
@@ -69,6 +71,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         
         public CurrencyEntity TradingCurrency { get; set; }
         
+        public DateTime StartDate { get; set; }
+        
         public bool IsSuspended { get; set; }
         
         public bool IsFrozen { get; set; }
@@ -76,6 +80,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public string FreezeInfo { get; set; }
         
         public bool IsDiscontinued { get; set; }
+        
+        public bool IsStarted { get; set; }
         
         public byte[] Timestamp { get; set; }
     }

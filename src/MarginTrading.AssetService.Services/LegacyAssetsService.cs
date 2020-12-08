@@ -50,7 +50,9 @@ namespace MarginTrading.AssetService.Services
         public async Task<List<Asset>> GetLegacyAssets(IEnumerable<string> productIds = null)
         {
             var products =
-                (await _productsRepository.GetByProductsIdsAsync(productIds)).ToDictionary(x => x.ProductId, v => v);
+                (await _productsRepository.GetByProductsIdsAsync(productIds))
+                .Where(x => x.IsStarted)
+                .ToDictionary(x => x.ProductId, v => v);
 
             var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
             if (defaultProfile == null)

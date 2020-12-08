@@ -20,5 +20,6 @@
         InvalidExecutionFeesFloor,
         RegulationConstraintViolation,
         CannotDeleteAssetTypeAssignedToAnyProduct,
+        NonDefaultUpdateForbidden
     }
 }

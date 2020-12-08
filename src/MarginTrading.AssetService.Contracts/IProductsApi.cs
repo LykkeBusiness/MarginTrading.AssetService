@@ -40,9 +40,8 @@ namespace MarginTrading.AssetService.Contracts
         /// <summary>
         /// Gets all Products with pagination
         /// </summary>
-        [Get("/api/products")]
-        Task<GetProductsResponse> GetAllAsync([Query(CollectionFormat.Multi)] GetProductsRequest request, [Query] int skip = default,
-            [Query] int take = 20);
+        [Post("/api/products/list")]
+        Task<GetProductsResponse> GetAllAsync([Body] GetProductsRequest request);
         
         /// <summary>
         /// Update product freeze status

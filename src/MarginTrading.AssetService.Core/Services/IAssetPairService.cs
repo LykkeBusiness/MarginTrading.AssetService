@@ -10,6 +10,5 @@ namespace MarginTrading.AssetService.Core.Services
         Task<IAssetPair> GetByIdAsync(string assetPairId);
         Task<IReadOnlyList<IAssetPair>> GetByIdsAsync(IEnumerable<string> assetPairIds);
         Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync();
-        Task<IAssetPair> ChangeSuspendStatusAsync(string assetPairId, bool status);
     }
 }

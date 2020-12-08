@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
+using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -56,6 +57,7 @@ namespace MarginTrading.AssetService.Services
             var currencies = await _currenciesRepository.GetAllAsync();
 
             var assetPairs = products
+                .Where(x => x.IsStarted)
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
 
             assetPairs.AddRange(currencies.Value
@@ -64,21 +66,6 @@ namespace MarginTrading.AssetService.Services
                     AssetPair.CreateFromCurrency(x, _defaultLegalEntitySettings.DefaultLegalEntity, settlementCurrency)));
 
             return assetPairs;
-        }
-
-        public async Task<IAssetPair> ChangeSuspendStatusAsync(string assetPairId, bool status)
-        {
-            var result = await _productsRepository.ChangeSuspendFlagAsync(assetPairId, status);
-
-            if (result.IsFailed)
-            {
-                _log.WriteError(nameof(AssetPairService), nameof(ChangeSuspendStatusAsync),
-                    new Exception(
-                        $"Could not change product suspended flag because product with id :{assetPairId} does not exist"));
-                return null;
-            }
-
-            return AssetPair.CreateFromProduct(result.Value, _defaultLegalEntitySettings.DefaultLegalEntity);
         }
     }
 }

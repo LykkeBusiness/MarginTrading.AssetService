@@ -30,6 +30,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.Workflow.AssetPairFlags;
+using MarginTrading.AssetService.Workflow.AssetTypes;
 using MarginTrading.AssetService.Workflow.ClientProfiles;
 using MarginTrading.AssetService.Workflow.ClientProfileSettings;
 using MarginTrading.AssetService.Workflow.Currencies;
@@ -239,6 +240,11 @@ namespace MarginTrading.AssetService.Modules
             contextRegistration.ListeningEvents(typeof(CurrencyChangedEvent))
                 .From(_settings.ContextNames.AssetService)
                 .On($"{nameof(CurrencyChangedEvent)}{_instanceId}").WithProjection(typeof(CurrencyChangedProjection),
+                    _settings.ContextNames.AssetService);
+
+            contextRegistration.ListeningEvents(typeof(AssetTypeChangedEvent))
+                .From(_settings.ContextNames.AssetService)
+                .On($"{nameof(AssetTypeChangedEvent)}{_instanceId}").WithProjection(typeof(AssetTypeChangedProjection),
                     _settings.ContextNames.AssetService);
         }
     }

@@ -20,6 +20,7 @@
         InvalidExecutionFeesFloor,
         RegulationConstraintViolation,
         CannotDeleteAssetTypeAssignedToAnyProduct,
-        NonDefaultUpdateForbidden
+        NonDefaultUpdateForbidden,
+        UnderlyingCategoryDoesNotExist,
     }
 }

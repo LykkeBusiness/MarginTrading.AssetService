@@ -18,5 +18,11 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// </summary>
         [Required]
         public string Username { get; set; }
+
+        /// <summary>
+        /// Id of the underlying category for the asset type
+        /// </summary>
+        [Required]
+        public string UnderlyingCategoryId { get; set; }
     }
 }

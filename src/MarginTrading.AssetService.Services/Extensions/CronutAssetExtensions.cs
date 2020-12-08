@@ -131,5 +131,10 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
             asset.IsAvailable = clientProfileSettings.IsAvailable;
         }
+
+        public static void SetAssetFieldsFromAssetType(this Asset asset, AssetType assetType)
+        {
+            asset.Underlying.UnderlyingCategoryId = assetType.UnderlyingCategoryId;
+        }
     }
 }

@@ -7,6 +7,7 @@ using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Tests.Common;
@@ -23,14 +24,17 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         private readonly Mock<IRegulatoryTypesApi> _regulatoryTypesApiMock = new Mock<IRegulatoryTypesApi>();
         private readonly Mock<IRegulatorySettingsApi> _regulatorySettingsApiMock = new Mock<IRegulatorySettingsApi>();
         private readonly Mock<IRegulatoryProfilesApi> _regulatoryProfilesApiMock = new Mock<IRegulatoryProfilesApi>();
+        private readonly Mock<IUnderlyingCategoriesCache> _underlyingCategoriesCacheMock = new Mock<IUnderlyingCategoriesCache>();
+        private readonly Mock<IUnderlyingCategoriesApi> _underlyingCategoriesApiMock = new Mock<IUnderlyingCategoriesApi>();
 
         private const string RegulationId = "03041938-177b-4178-928d-3d3696cfae15";
         private const string RegulatoryTypeId = "03041938-177b-4178-928d-3d3696cfae22";
         private const string RegulatoryProfileId = "12341938-177b-4178-928d-3d3696cfae22";
         private const string AssetTypeId = "asset-1";
-        private const string ClientProfileId = "client-1";
+        private const string ClientProfileId = "Default";
         private const string SecondAssetTypeId = "asset-2";
         private const string SecondClientProfileId = "client-2";
+        private const string UnderlyingCategoryId = "UnderlyingCategoryId";
         private const decimal MarginRate = 60M;
         private const decimal MarginMinPercent = 50;
 
@@ -88,6 +92,27 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                     }
                 });
 
+            _underlyingCategoriesCacheMock.Setup(x => x.Get()).ReturnsAsync(new List<UnderlyingCategoryCacheModel>
+            {
+                new UnderlyingCategoryCacheModel
+                {
+                    Id = UnderlyingCategoryId,
+                    FinancingFeesFormula = ""
+                }
+            });
+
+            _underlyingCategoriesApiMock.Setup(x => x.GetAllAsync()).ReturnsAsync(new GetUnderlyingCategoriesResponse
+            {
+                UnderlyingCategories = new List<UnderlyingCategoryContract>
+                {
+                    new UnderlyingCategoryContract
+                    {
+                        Id = UnderlyingCategoryId,
+                        FinancingFeesFormula = ""
+                    }
+                }
+            });
+
             var client = await TestBootstrapper.CreateTestClientWithInMemoryDb(builder =>
             {
                 builder.RegisterInstance(_brokerSettingsApiMock.Object).As<IBrokerSettingsApi>().SingleInstance();
@@ -95,11 +120,13 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 builder.RegisterInstance(_regulatoryTypesApiMock.Object).As<IRegulatoryTypesApi>().SingleInstance();
                 builder.RegisterInstance(_regulatorySettingsApiMock.Object).As<IRegulatorySettingsApi>().SingleInstance();
                 builder.RegisterInstance(_regulatoryProfilesApiMock.Object).As<IRegulatoryProfilesApi>().SingleInstance();
+                builder.RegisterInstance(_underlyingCategoriesApiMock.Object).As<IUnderlyingCategoriesApi>().SingleInstance();
+                builder.RegisterInstance(_underlyingCategoriesCacheMock.Object).As<IUnderlyingCategoriesCache>().SingleInstance();
             });
 
-            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, AssetTypeId);
+            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, true);
 
-            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, false);
+            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, AssetTypeId, UnderlyingCategoryId);
 
             var updateClientProfileSettingsRequest = new UpdateClientProfileSettingsRequest
             {
@@ -111,7 +138,8 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             await client.PutAsync($"/api/client-profile-settings/profile/{ClientProfileId}/type/{AssetTypeId}",
                 updateClientProfileSettingsRequest.ToJsonStringContent());
 
-            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, SecondAssetTypeId, AssetTypeId);
+            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, SecondAssetTypeId,
+                UnderlyingCategoryId, AssetTypeId);
 
             await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, SecondClientProfileId, false, ClientProfileId);
 
@@ -138,7 +166,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         public void NonDefaultProfileIdCannotBeSetAsDefault()
         {
             Assert.Throws<ClientProfileNonDefaultUpdateForbiddenException>(() =>
-                new ClientProfile(ClientProfileId, RegulatoryTypeId, true));
+                new ClientProfile(SecondClientProfileId, RegulatoryTypeId, true));
         }
     }
 }

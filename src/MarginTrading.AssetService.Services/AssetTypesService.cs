@@ -8,6 +8,7 @@ using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -26,6 +27,7 @@ namespace MarginTrading.AssetService.Services
         private readonly IRegulatoryTypesApi _regulatoryTypesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
+        private readonly IUnderlyingCategoriesCache _underlyingCategoriesCache;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -37,6 +39,7 @@ namespace MarginTrading.AssetService.Services
             IRegulatoryTypesApi regulatoryTypesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
             ICqrsEntityChangedSender entityChangedSender,
+            IUnderlyingCategoriesCache underlyingCategoriesCache,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -47,6 +50,7 @@ namespace MarginTrading.AssetService.Services
             _regulatoryTypesApi = regulatoryTypesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
             _entityChangedSender = entityChangedSender;
+            _underlyingCategoriesCache = underlyingCategoriesCache;
             _brokerId = brokerId;
         }
 
@@ -56,6 +60,8 @@ namespace MarginTrading.AssetService.Services
 
             if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
                 throw new BrokerSettingsDoNotExistException();
+
+            await ValidateUnderlyingCategory(model.UnderlyingCategoryId);
 
             var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
 
@@ -128,6 +134,8 @@ namespace MarginTrading.AssetService.Services
 
             if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
                 throw new BrokerSettingsDoNotExistException();
+
+            await ValidateUnderlyingCategory(model.UnderlyingCategoryId);
 
             var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
 
@@ -215,6 +223,15 @@ namespace MarginTrading.AssetService.Services
             if (!regulatorySettings.RegulatorySettings.IsAvailable && setting.IsAvailable ||
                 regulatorySettings.RegulatorySettings.MarginMinPercent > setting.Margin)
                 throw new RegulationConstraintViolationException();
+        }
+
+        private async Task ValidateUnderlyingCategory(string underlyingCategoryId)
+        {
+            var allCategories =
+                await _underlyingCategoriesCache.Get();
+
+            if(!allCategories.Any(x => x.Id == underlyingCategoryId))
+                throw new UnderlyingCategoryDoesNotExistException();
         }
     }
 }

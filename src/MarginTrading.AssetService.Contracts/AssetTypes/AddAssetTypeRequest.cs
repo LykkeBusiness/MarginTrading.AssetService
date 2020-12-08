@@ -30,5 +30,11 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// Id of existing asset type which will be used as template for regulatory settings creation
         /// </summary>
         public string AssetTypeTemplateId { get; set; }
+
+        /// <summary>
+        /// Id of the underlying category for the asset type
+        /// </summary>
+        [Required]
+        public string UnderlyingCategoryId { get; set; }
     }
 }

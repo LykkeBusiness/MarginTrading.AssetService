@@ -25,6 +25,7 @@ namespace MarginTrading.AssetService.Modules
             RegisterClientWithName<IRegulatorySettingsApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
             RegisterClientWithName<IBrokerSettingsApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
             RegisterClientWithName<IUnderlyingsApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
+            RegisterClientWithName<IUnderlyingCategoriesApi>(builder, "Mdm", _appSettings.MarginTradingAssetService.MdmService);
         }
 
         private static void RegisterClientWithName<TApi>(ContainerBuilder builder, string name,

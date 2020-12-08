@@ -193,6 +193,10 @@ namespace MarginTrading.AssetService.Modules
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
                 .SingleInstance();
 
+            builder.RegisterType<UnderlyingCategoriesCache>()
+                .As<IUnderlyingCategoriesCache>()
+                .SingleInstance();
+
             RegisterRepositories(builder);
 
             builder.Populate(_services);

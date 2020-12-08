@@ -27,17 +27,17 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         /// Dividends long
         /// </summary>
         [Key(2)]
-        public decimal DividendsLong { get; set; }
+        public decimal? DividendsLong { get; set; }
         /// <summary>
         /// Dividends short
         /// </summary>
         [Key(3)]
-        public decimal DividendsShort { get; set; }
+        public decimal? DividendsShort { get; set; }
         /// <summary>
         /// Dividends 871M
         /// </summary>
         [Key(4)]
-        public decimal Dividends871M { get; set; }
+        public decimal? Dividends871M { get; set; }
         /// <summary>
         /// When the trading day opens
         /// </summary>

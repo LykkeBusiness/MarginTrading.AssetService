@@ -53,12 +53,5 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>	
         [Post("/api/rates/get-overnight-swap/list")]
         Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync([Body] string[] assetPairIds);
-
-        /// <summary>
-        /// Get on behalf rate
-        /// </summary>
-        [Get("/api/rates/get-on-behalf")]
-        [ItemCanBeNull]
-        Task<OnBehalfRateContract> GetOnBehalfRateAsync();
     }
 }

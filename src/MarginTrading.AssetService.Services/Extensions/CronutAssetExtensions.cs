@@ -123,7 +123,6 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
         {
-            asset.Underlying.ExecutionFeeParameter.Currency = "EUR";
             asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
             asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
             asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;

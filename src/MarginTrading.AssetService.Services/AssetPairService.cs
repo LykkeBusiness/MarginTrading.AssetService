@@ -16,17 +16,20 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly IProductsRepository _productsRepository;
         private readonly ICurrenciesRepository _currenciesRepository;
+        private readonly ISettlementCurrencyService _settlementCurrencyService;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         private readonly ILog _log;
 
         public AssetPairService(
             IProductsRepository productsRepository,
             ICurrenciesRepository currenciesRepository,
+            ISettlementCurrencyService settlementCurrencyService,
             DefaultLegalEntitySettings defaultLegalEntitySettings,
             ILog log)
         {
             _productsRepository = productsRepository;
             _currenciesRepository = currenciesRepository;
+            _settlementCurrencyService = settlementCurrencyService;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
             _log = log;
         }
@@ -49,6 +52,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync()
         {
+            var settlementCurrency = await _settlementCurrencyService.GetSettlementCurrencyAsync();
             var products = await _productsRepository.GetByProductsIdsAsync();
             var currencies = await _currenciesRepository.GetAllAsync();
 
@@ -57,9 +61,9 @@ namespace MarginTrading.AssetService.Services
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
 
             assetPairs.AddRange(currencies.Value
-                .Where(x => !x.Id.Equals(AssetPairConstants.BaseCurrencyId,
+                .Where(x => !x.Id.Equals(settlementCurrency,
                     StringComparison.InvariantCultureIgnoreCase)).Select(x =>
-                    AssetPair.CreateFromCurrency(x, _defaultLegalEntitySettings.DefaultLegalEntity)));
+                    AssetPair.CreateFromCurrency(x, _defaultLegalEntitySettings.DefaultLegalEntity, settlementCurrency)));
 
             return assetPairs;
         }

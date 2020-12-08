@@ -89,6 +89,8 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public decimal? Dividends871M { get; set; }
 
+        public decimal HedgeCost { get; set; }
+
         public Product ShallowCopy()
         {
             return (Product) this.MemberwiseClone();

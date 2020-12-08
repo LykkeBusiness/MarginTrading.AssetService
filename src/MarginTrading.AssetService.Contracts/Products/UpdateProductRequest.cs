@@ -105,6 +105,9 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         public decimal? Dividends871M { get; set; }
 
+        [Required]
+        public decimal HedgeCost { get; set; }
+
         public DateTime? StartDate { get; set; }
     }
 }

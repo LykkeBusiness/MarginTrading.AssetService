@@ -85,9 +85,10 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.Timestamp).IsRowVersion();
 
 
-            builder.Property(p => p.Dividends871M).HasColumnType(DbDecimal);
-            builder.Property(p => p.DividendsLong).HasColumnType(DbDecimal);
-            builder.Property(p => p.DividendsShort).HasColumnType(DbDecimal);
+            builder.Property(p => p.Dividends871M).HasColumnType("decimal(18,13)");
+            builder.Property(p => p.DividendsLong).HasColumnType("decimal(18,13)");
+            builder.Property(p => p.DividendsShort).HasColumnType("decimal(18,13)");
+            builder.Property(p => p.HedgeCost).HasColumnType(DbDecimal).IsRequired();
         }
     }
 }

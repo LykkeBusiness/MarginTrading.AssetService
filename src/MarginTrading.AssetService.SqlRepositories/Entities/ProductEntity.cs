@@ -90,5 +90,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public decimal? DividendsShort { get; set; }
 
         public decimal? Dividends871M { get; set; }
+
+        public decimal HedgeCost { get; set; }
     }
 }

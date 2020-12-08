@@ -39,11 +39,11 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal WithdrawalLimit { get; }
         [Obsolete]
         public string LimitCurrency { get; }
-        [Obsolete]
         public List<string> BaseAssets { get; }
         public bool IsDefault { get; set; }
 
-        public static TradingCondition CreateFromClientProfile(ClientProfile profile, string legalEntity, decimal marginCall1, decimal marginCall2, decimal stopOut)
+        public static TradingCondition CreateFromClientProfile(ClientProfile profile, string legalEntity,
+            decimal marginCall1, decimal marginCall2, decimal stopOut, string settlementCurrency)
         {
             return new TradingCondition(
                 id: profile.Id,
@@ -54,8 +54,8 @@ namespace MarginTrading.AssetService.Core.Domain
                 stopOut: stopOut,
                 depositLimit: TradingConditionConstants.DepositLimit,
                 withdrawalLimit: TradingConditionConstants.WithdrawalLimit,
-                limitCurrency: TradingConditionConstants.LimitCurrency,
-                baseAssets: TradingConditionConstants.BaseAssets,
+                limitCurrency: settlementCurrency,
+                baseAssets: new List<string> { settlementCurrency },
                 isDefault: profile.IsDefault
                 );
         }

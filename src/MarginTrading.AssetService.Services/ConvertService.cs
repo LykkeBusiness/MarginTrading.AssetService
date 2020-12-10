@@ -80,7 +80,10 @@ namespace MarginTrading.AssetService.Services
                 
                 //Products
                 cfg.CreateMap<Product, ProductContract>().ReverseMap();
-                cfg.CreateMap<AddProductRequest, Product>();
+                cfg.CreateMap<AddProductRequest, Product>()
+                    //For new products, the default value for the IsSuspended flag should be true.
+                    //see https://lykke-snow.atlassian.net/browse/LT-2875
+                    .ForMember(p=> p.IsSuspended, o=>o.UseValue(true)); 
                 cfg.CreateMap<UpdateProductRequest, Product>();
                 cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
                 

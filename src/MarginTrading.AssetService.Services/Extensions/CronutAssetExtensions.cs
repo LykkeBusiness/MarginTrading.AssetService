@@ -43,6 +43,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.Keywords = product.Keywords;
             asset.LiquidationThresholdQuantity = 0;
             asset.Underlying.RicCode = product.PublicationRic;
+            asset.Underlying.HedgeCost = product.HedgeCost;
         }
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)
@@ -51,7 +52,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.AlmParam = underlying.AlmParam;
             asset.Underlying.CfiCode = underlying.CfiCode;
             asset.Underlying.Eligible871m = underlying.Eligible871M;
-            asset.Underlying.HedgeCost = underlying.HedgeCost;
             asset.Underlying.Isin = underlying.Isin;
             asset.Underlying.MdsCode = underlying.MdsCode;
             asset.Underlying.Name = underlying.Name;

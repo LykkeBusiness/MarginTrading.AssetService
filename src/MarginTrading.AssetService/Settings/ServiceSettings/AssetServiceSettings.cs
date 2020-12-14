@@ -49,5 +49,6 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public string InstanceId { get; set; }
         public RabbitPublisherSettings LegacyAssetUpdatedRabbitPublisherSettings { get; set; }
         public RabbitSubscriptionSettings UnderlyingChangedRabbitSubscriptionSettings { get; set; }
+        public RabbitSubscriptionSettings BrokerSettingsChangedSubscriptionSettings { get; set; }
     }
 }

@@ -26,5 +26,7 @@ namespace MarginTrading.AssetService.Core.Handlers
         Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp);
 
         Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp);
+
+        Task UpdateAll(DateTime timestamp);
     }
 }

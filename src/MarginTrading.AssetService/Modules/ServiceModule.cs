@@ -187,6 +187,10 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<UnderlyingChangedHandler>()
                 .AsSelf()
+                .SingleInstance();      
+            
+            builder.RegisterType<BrokerSettingsChangedHandler>()
+                .AsSelf()
                 .SingleInstance();
 
             builder.RegisterType<SettlementCurrencyService>()

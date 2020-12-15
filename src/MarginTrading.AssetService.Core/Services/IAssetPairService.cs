@@ -8,7 +8,7 @@ namespace MarginTrading.AssetService.Core.Services
     public interface IAssetPairService
     {
         Task<IAssetPair> GetByIdAsync(string assetPairId);
-        Task<IReadOnlyList<IAssetPair>> GetByIdsAsync(IEnumerable<string> assetPairIds);
-        Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync();
+        Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync(IEnumerable<string> assetPairIds = null,
+            bool onlyStarted = true);
     }
 }

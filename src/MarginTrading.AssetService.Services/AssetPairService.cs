@@ -34,15 +34,6 @@ namespace MarginTrading.AssetService.Services
             _log = log;
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetByIdsAsync(IEnumerable<string> assetPairIds)
-        {
-            var products = await _productsRepository.GetByProductsIdsAsync(assetPairIds);
-            var result = products
-                .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
-
-            return result;
-        }
-
         public async Task<IAssetPair> GetByIdAsync(string assetPairId)
         {
             var result = await _productsRepository.GetByIdAsync(assetPairId);
@@ -50,14 +41,15 @@ namespace MarginTrading.AssetService.Services
             return result.IsSuccess ? AssetPair.CreateFromProduct(result.Value, _defaultLegalEntitySettings.DefaultLegalEntity) : null;
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync()
+        public async Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync(IEnumerable<string> 
+        assetPairIds = null, bool onlyStarted = true)
         {
             var settlementCurrency = await _settlementCurrencyService.GetSettlementCurrencyAsync();
-            var products = await _productsRepository.GetByProductsIdsAsync();
+            var products = await _productsRepository.GetByProductsIdsAsync(assetPairIds);
             var currencies = await _currenciesRepository.GetAllAsync();
 
             var assetPairs = products
-                .Where(x => x.IsStarted)
+                .Where(x => !onlyStarted || x.IsStarted)
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
 
             assetPairs.AddRange(currencies.Value

@@ -117,7 +117,7 @@ namespace MarginTrading.AssetService.Controllers
         /// Performs search and returns list of asset ids
         /// </summary>
         [HttpPost("/api/assets/legacy/search")]
-        public Task<IEnumerable<Asset>> Search([FromBody]SearchAssetsRequest request)
+        public Task<IEnumerable<Asset>> SearchLegacyAssets([FromBody]SearchLegacyAssetsRequest request)
         {
             return Task.FromResult(_legacyAssetsCache.Search(request));
         }

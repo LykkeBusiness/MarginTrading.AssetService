@@ -49,6 +49,6 @@ namespace MarginTrading.AssetService.Contracts
         Task<Cronut.Dto.Assets.Asset> GetLegacyAssetById(string assetId);        
         
         [Post("/api/assets/legacy/search")]
-        Task<IEnumerable<Cronut.Dto.Assets.Asset>> Search(SearchAssetsRequest request);
+        Task<IEnumerable<Cronut.Dto.Assets.Asset>> SearchLegacyAssets(SearchLegacyAssetsRequest request);
     }
 }

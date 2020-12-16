@@ -8,7 +8,7 @@ namespace MarginTrading.AssetService.Extensions
 {
     public static class SearchAssetExtensions
     {
-        public static IEnumerable<Asset> Search(this ILegacyAssetsCache cache, SearchAssetsRequest request)
+        public static IEnumerable<Asset> Search(this ILegacyAssetsCache cache, SearchLegacyAssetsRequest request)
         {
             return cache.GetByFilter(x =>
             {

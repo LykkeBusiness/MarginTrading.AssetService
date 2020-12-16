@@ -2,7 +2,7 @@
 
 namespace MarginTrading.AssetService.Contracts.Asset
 {
-    public class SearchAssetsRequest
+    public class SearchLegacyAssetsRequest
     {
         /// <summary>
         /// Expiry date of the product from, if product has a end date or a maturity date.

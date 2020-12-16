@@ -25,11 +25,6 @@ namespace MarginTrading.AssetService.Contracts.Asset
         public string UnderlyingType { get; set; }
 
         /// <summary>
-        /// Price
-        /// </summary>
-        public string Price { get; set; }
-
-        /// <summary>
         /// MDS code
         /// </summary>
         public string MdsCode { get; set; }

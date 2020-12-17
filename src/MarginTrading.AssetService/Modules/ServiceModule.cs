@@ -91,7 +91,9 @@ namespace MarginTrading.AssetService.Modules
             
             builder.RegisterType<MaintenanceModeService>().As<IMaintenanceModeService>().SingleInstance();
 
-            builder.RegisterType<MarketDayOffService>().As<IMarketDayOffService>().SingleInstance();
+            builder.RegisterType<MarketDayOffService>().As<IMarketDayOffService>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
+                .SingleInstance();
 
             builder.RegisterType<ClientProfilesService>()
                 .As<IClientProfilesService>()

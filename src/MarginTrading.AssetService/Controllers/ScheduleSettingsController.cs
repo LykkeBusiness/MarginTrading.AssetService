@@ -140,7 +140,8 @@ namespace MarginTrading.AssetService.Controllers
             {
                 IsTradingEnabled = v.Value.IsTradingEnabled,
                 LastTradingDay = v.Value.LastTradingDay,
-                NextTradingDayStart = v.Value.NextTradingDayStart
+                NextTradingDayStart = v.Value.NextTradingDayStart,
+                IsBusinessDay = v.Value.IsBusinessDay
             });
         }
 
@@ -159,7 +160,8 @@ namespace MarginTrading.AssetService.Controllers
             {
                 LastTradingDay = info.LastTradingDay,
                 IsTradingEnabled = info.IsTradingEnabled,
-                NextTradingDayStart = info.NextTradingDayStart
+                NextTradingDayStart = info.NextTradingDayStart,
+                IsBusinessDay = info.IsBusinessDay
             };
         }
     }

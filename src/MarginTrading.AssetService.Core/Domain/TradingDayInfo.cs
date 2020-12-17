@@ -21,5 +21,7 @@ namespace MarginTrading.AssetService.Core.Domain
         ///  Timestamp when next trading day with start
         /// </summary>
         public DateTime NextTradingDayStart { get; set; }
+
+        public bool IsBusinessDay { get; set; }
     }
 }

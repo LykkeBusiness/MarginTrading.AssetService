@@ -71,7 +71,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<List<CompiledScheduleContract>> StateList([FromBody] string[] assetPairIds)
         {
             var allSettings = await _scheduleSettingsService.GetFilteredAsync();
-            var assetPairs = await _assetPairsService.GetByIdsAsync(assetPairIds);
+            var assetPairs = await _assetPairsService.GetAllIncludingFxParisWithFilterAsync(assetPairIds);
 
             //extract the list of assetPairs with same settings based on regex, market or list
             var result = assetPairs.Select(assetPair => new CompiledScheduleContract

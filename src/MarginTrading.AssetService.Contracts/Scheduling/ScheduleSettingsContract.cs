@@ -17,6 +17,7 @@ namespace MarginTrading.AssetService.Contracts.Scheduling
         public string AssetPairRegex { get; set; }
         public HashSet<string> AssetPairs { get; set; } = new HashSet<string>();
         public string MarketId { get; set; }
+        public string MarketName { get; set; }
 
         public bool? IsTradeEnabled { get; set; } = false;
         public TimeSpan? PendingOrdersCutOff { get; set; }

@@ -98,7 +98,16 @@ namespace MarginTrading.AssetService.Contracts.Products
         [Required]
         [Range(double.Epsilon, double.PositiveInfinity)]
         public decimal OvernightMarginMultiplier { get; set; }
-        
+
+        public decimal? DividendsLong { get; set; }
+
+        public decimal? DividendsShort { get; set; }
+
+        public decimal? Dividends871M { get; set; }
+
+        [Required]
+        public decimal HedgeCost { get; set; }
+
         public DateTime? StartDate { get; set; }
     }
 }

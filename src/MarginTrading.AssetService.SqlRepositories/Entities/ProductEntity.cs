@@ -84,5 +84,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public bool IsStarted { get; set; }
         
         public byte[] Timestamp { get; set; }
+
+        public decimal? DividendsLong { get; set; }
+
+        public decimal? DividendsShort { get; set; }
+
+        public decimal? Dividends871M { get; set; }
+
+        public decimal HedgeCost { get; set; }
     }
 }

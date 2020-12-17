@@ -92,7 +92,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleMarketSettingsUpdated(MarketSettings marketSettings, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.MarketDetails.MarketId == marketSettings.Id;
-            await Handle(marketSettings, filter, CronutAssetExtensions.SetAssetFieldsFromMarketSettings, timestamp);
+            await Handle(filter, timestamp);
         }
 
         public async Task HandleTickFormulaUpdated(TickFormula tickFormula, DateTime timestamp)
@@ -134,6 +134,11 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             await Handle(assetType, filter, CronutAssetExtensions.SetAssetFieldsFromAssetType, timestamp);
         }
 
+        public Task UpdateAll(DateTime timestamp)
+        {
+            return Handle(x => true, timestamp);
+        }
+
         public async Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp)
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
@@ -157,6 +162,27 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             }
         }
 
+        private async Task Handle(Func<Asset, bool> getAffectedFilter,  DateTime timestamp)
+        {
+            if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+                return;
+
+            await _semaphore.WaitAsync();
+            try
+            {
+                var affectedAssets = _legacyAssetsCache.GetByFilter(getAffectedFilter);
+                var updatedAssets = await _legacyAssetsService.GetLegacyAssets(affectedAssets.Select(x => x.AssetId));
+
+                _legacyAssetsCache.AddOrUpdateMultiple(updatedAssets);
+
+                await PublishAssetUpsertedEvents(updatedAssets);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }      
+        
         private async Task Handle<T>(T changedEntity, Func<Asset, bool> getAffectedFilter, Action<Asset, T> dataModifier, DateTime timestamp)
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)

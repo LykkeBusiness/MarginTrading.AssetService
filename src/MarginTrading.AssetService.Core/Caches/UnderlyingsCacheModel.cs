@@ -9,7 +9,6 @@ namespace MarginTrading.AssetService.Core.Caches
         public string CfiCode { get; set; }
         public bool Eligible871M { get; set; }
         public DateTime? ExpiryDate { get; set; }
-        public decimal HedgeCost { get; set; }
         public string Isin { get; set; }
         public DateTime? LastTradingDate { get; set; }
         public string MarketArea { get; set; }

@@ -416,6 +416,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Timestamp = product.Timestamp,
                 StartDate = product.StartDate.Value,
                 IsStarted = product.IsStarted,
+                Dividends871M = product.Dividends871M,
+                DividendsLong = product.DividendsLong,
+                DividendsShort = product.DividendsShort,
+                HedgeCost = product.HedgeCost
             };
 
             return result;
@@ -460,6 +464,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Timestamp = product.Timestamp,
                 StartDate = product.StartDate,
                 IsStarted = product.IsStarted,
+                Dividends871M = product.Dividends871M,
+                DividendsLong = product.DividendsLong,
+                DividendsShort = product.DividendsShort,
+                HedgeCost = product.HedgeCost
             };
 
             return result;

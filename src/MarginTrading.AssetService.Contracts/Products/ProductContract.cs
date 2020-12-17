@@ -112,5 +112,17 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(33)]
         public bool IsStarted { get; set; }
+
+        [MessagePack.Key(34)]
+        public decimal? DividendsLong { get; set; }
+
+        [MessagePack.Key(35)]
+        public decimal? DividendsShort { get; set; }
+
+        [MessagePack.Key(36)]
+        public decimal? Dividends871M { get; set; }
+
+        [MessagePack.Key(37)]
+        public decimal HedgeCost { get; set; }
     }
 }

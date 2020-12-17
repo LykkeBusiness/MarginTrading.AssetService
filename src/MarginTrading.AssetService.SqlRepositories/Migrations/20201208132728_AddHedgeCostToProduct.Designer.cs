@@ -4,14 +4,16 @@ using MarginTrading.AssetService.SqlRepositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MarginTrading.AssetService.SqlRepositories.Migrations
 {
     [DbContext(typeof(AssetDbContext))]
-    partial class AssetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20201208132728_AddHedgeCostToProduct")]
+    partial class AddHedgeCostToProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -164,13 +166,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<TimeSpan>("Close")
                         .HasColumnType("time");
 
-                    b.Property<decimal?>("Dividends871M")
+                    b.Property<decimal>("Dividends871M")
                         .HasColumnType("decimal(18,13)");
 
-                    b.Property<decimal?>("DividendsLong")
+                    b.Property<decimal>("DividendsLong")
                         .HasColumnType("decimal(18,13)");
 
-                    b.Property<decimal?>("DividendsShort")
+                    b.Property<decimal>("DividendsShort")
                         .HasColumnType("decimal(18,13)");
 
                     b.Property<string>("Name")

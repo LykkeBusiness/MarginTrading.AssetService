@@ -107,7 +107,7 @@ namespace MarginTrading.AssetService.Services
                     product,
                     defaultProfile.Id,
                     profileSettingsForProduct.Margin,
-                    underlying?.HedgeCost ?? _defaultTradingInstrumentSettings.HedgeCost,
+                    product.HedgeCost,
                     underlying?.Spread ?? _defaultTradingInstrumentSettings.Spread);
 
                 result.Add(tradingInstrument);

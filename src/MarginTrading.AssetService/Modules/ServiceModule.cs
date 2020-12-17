@@ -176,6 +176,7 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<LegacyAssetsService>()
                 .As<ILegacyAssetsService>()
+                .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
                 .SingleInstance();
 
             builder.RegisterType<LegacyAssetCache>()
@@ -187,6 +188,10 @@ namespace MarginTrading.AssetService.Modules
                 .SingleInstance();
 
             builder.RegisterType<UnderlyingChangedHandler>()
+                .AsSelf()
+                .SingleInstance();      
+            
+            builder.RegisterType<BrokerSettingsChangedHandler>()
                 .AsSelf()
                 .SingleInstance();
 

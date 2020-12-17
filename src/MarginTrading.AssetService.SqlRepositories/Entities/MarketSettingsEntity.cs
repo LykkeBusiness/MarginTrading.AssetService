@@ -16,11 +16,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 
         public string NormalizedName { get; set; }
 
-        public decimal DividendsLong { get; set; }
+        public decimal? DividendsLong { get; set; }
 
-        public decimal DividendsShort { get; set; }
+        public decimal? DividendsShort { get; set; }
 
-        public decimal Dividends871M { get; set; }
+        public decimal? Dividends871M { get; set; }
 
         public TimeSpan Open { get; set; }
 

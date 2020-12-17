@@ -29,9 +29,9 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.Timezone).IsRequired();
             builder.Property(x => x.Open).IsRequired();
             builder.Property(x => x.Close).IsRequired();
-            builder.Property(x => x.Dividends871M).IsRequired();
-            builder.Property(x => x.DividendsLong).IsRequired();
-            builder.Property(x => x.DividendsShort).IsRequired();
+            builder.Property(x => x.Dividends871M);
+            builder.Property(x => x.DividendsLong);
+            builder.Property(x => x.DividendsShort);
 
             builder.Property(p => p.Dividends871M)
                 .HasColumnType("decimal(18,13)");

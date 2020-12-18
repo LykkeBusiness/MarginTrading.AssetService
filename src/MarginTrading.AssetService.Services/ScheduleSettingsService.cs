@@ -53,7 +53,7 @@ namespace MarginTrading.AssetService.Services
                 if (marketSettingsById == null)
                     return new List<IScheduleSettings>();
 
-                return MapMarketScheduleSettings(marketSettingsById.Id, marketSettingsById.Open,
+                return MapMarketScheduleSettings(marketSettingsById.Id,  marketSettingsById.Name, marketSettingsById.Open,
                     marketSettingsById.Close, marketSettingsById.Timezone, marketSettingsById.Holidays);
             }
 
@@ -62,7 +62,7 @@ namespace MarginTrading.AssetService.Services
             var allMarketSettings = await _marketSettingsRepository.GetAllMarketSettingsAsync();
 
             var result = allMarketSettings
-                .SelectMany(x => MapMarketScheduleSettings(x.Id, x.Open, x.Close, x.Timezone, x.Holidays)).ToList();
+                .SelectMany(x => MapMarketScheduleSettings(x.Id, x.Name, x.Open, x.Close, x.Timezone, x.Holidays)).ToList();
             result.AddRange(platformSettings);
 
             return result;
@@ -82,27 +82,28 @@ namespace MarginTrading.AssetService.Services
             return result.BrokerSettings;
         }
 
-        private List<ScheduleSettings> MapMarketScheduleSettings(string marketId, TimeSpan open, TimeSpan close, string timezone, IEnumerable<DateTime> holidays)
+        private List<ScheduleSettings> MapMarketScheduleSettings(string marketId, string marketName, TimeSpan open, TimeSpan close, string timezone, IEnumerable<DateTime> holidays)
         {
-            var result = MapHolidays(marketId, holidays, null);
-            result.Add(MapWeekendHolidays(marketId, null));
-            result.Add(MapClosedHours(marketId, open, close, timezone, null));
+            var result = MapHolidays(marketId, marketName, holidays, null);
+            result.Add(MapWeekendHolidays(marketId, marketName, null));
+            result.Add(MapClosedHours(marketId, marketName, open, close, timezone, null));
 
             return result;
         }
 
-        private List<ScheduleSettings> MapPlatformScheduleSettings(TimeSpan open, TimeSpan close, string timezone, IEnumerable<DateTime> holidays)
+        private List<ScheduleSettings> MapPlatformScheduleSettings( TimeSpan open, TimeSpan close, string timezone, IEnumerable<DateTime> holidays)
         {
             var assetPairRegex = ".*";
             var platformId = _platformSettings.PlatformMarketId;
-            var result = MapHolidays(platformId, holidays, assetPairRegex);
-            result.Add(MapWeekendHolidays(platformId, assetPairRegex));
-            result.Add(MapClosedHours(platformId, open, close, timezone, assetPairRegex));
+            var marketName = platformId;
+            var result = MapHolidays(platformId, marketName, holidays, assetPairRegex);
+            result.Add(MapWeekendHolidays(platformId, marketName, assetPairRegex));
+            result.Add(MapClosedHours(platformId, marketName, open, close, timezone, assetPairRegex));
 
             return result;
         }
 
-        private ScheduleSettings MapWeekendHolidays(string marketId, string assetPairRegex)
+        private ScheduleSettings MapWeekendHolidays(string marketId, string marketName, string assetPairRegex)
         {
             var start = new ScheduleConstraint
             {
@@ -113,12 +114,12 @@ namespace MarginTrading.AssetService.Services
                 DayOfWeek = DayOfWeek.Monday
             };
             var id = $"{marketId}_weekend";
-            var settings = ScheduleSettings.Create(id, marketId, start, end, assetPairRegex);
+            var settings = ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex);
 
             return settings;
         }
 
-        private List<ScheduleSettings> MapHolidays(string marketId, IEnumerable<DateTime> holidays, string assetPairRegex)
+        private List<ScheduleSettings> MapHolidays(string marketId, string marketName, IEnumerable<DateTime> holidays, string assetPairRegex)
         {
             var result = new List<ScheduleSettings>();
 
@@ -133,13 +134,13 @@ namespace MarginTrading.AssetService.Services
                     Date = holiday.Date.AddDays(1)
                 };
                 var id = $"{marketId}_holiday_{holiday.Date}";
-                result.Add(ScheduleSettings.Create(id, marketId, start, end, assetPairRegex));
+                result.Add(ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex));
             }
 
             return result;
         }
 
-        private ScheduleSettings MapClosedHours(string marketId, TimeSpan open, TimeSpan close, string timezone, string assetPairRegex)
+        private ScheduleSettings MapClosedHours(string marketId, string marketName, TimeSpan open, TimeSpan close, string timezone, string assetPairRegex)
         {
             var timezoneInfo = TZConvert.GetTimeZoneInfo(timezone);
             var openUtc = open.ShiftToUtc(timezoneInfo);
@@ -157,7 +158,7 @@ namespace MarginTrading.AssetService.Services
                 Time = openUtcWithoutDays
             };
             var id = $"{marketId}_working_hours_open{openUtcWithoutDays}_close{closeUtcWithoutDays}";
-            var settings = ScheduleSettings.Create(id, marketId, start, end, assetPairRegex);
+            var settings = ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex);
 
             return settings;
         }

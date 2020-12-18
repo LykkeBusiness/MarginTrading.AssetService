@@ -14,6 +14,7 @@ namespace MarginTrading.AssetService.Core.Interfaces
         string AssetPairRegex { get; }
         HashSet<string> AssetPairs { get; }
         string MarketId { get; }
+        string MarketName { get; }
 
         bool? IsTradeEnabled { get; }
         TimeSpan? PendingOrdersCutOff { get; }

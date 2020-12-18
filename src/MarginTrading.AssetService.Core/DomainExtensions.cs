@@ -12,6 +12,7 @@ namespace MarginTrading.AssetService.Core
         public static List<ScheduleSettings> WithRank(this IEnumerable<ScheduleSettings> scheduleSettings, int rank)
             => scheduleSettings.Select(scheduleSetting => new ScheduleSettings(
                 scheduleSetting.Id,
+                scheduleSetting.MarketName,
                 rank,
                 scheduleSetting.AssetPairRegex,
                 scheduleSetting.AssetPairs,

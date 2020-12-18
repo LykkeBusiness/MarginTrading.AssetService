@@ -390,7 +390,7 @@ namespace MarginTrading.AssetService.Tests
         private void AddSettings(List<IScheduleSettings> data, string marketId, ScheduleConstraint start, 
         ScheduleConstraint end, int rank = 0, bool enabled = false)
         {
-            var settings = new ScheduleSettings(Guid.NewGuid().ToString(), rank, "*", new HashSet<string>(0), marketId, enabled,
+            var settings = new ScheduleSettings(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), rank, "*", new HashSet<string>(0), marketId, enabled,
                 TimeSpan.Zero, start, end);
             
             data.Add(settings);

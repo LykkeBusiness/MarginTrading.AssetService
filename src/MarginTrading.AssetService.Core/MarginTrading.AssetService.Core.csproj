@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Core</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Core</RootNamespace>
-    <Version>2.3.3</Version>
+    <Version>2.3.4</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>

@@ -47,22 +47,22 @@ namespace MarginTrading.AssetService.Services
                 //We need only platform settings
                 if (marketId == _platformSettings.PlatformMarketId)
                     return MapPlatformScheduleSettings(brokerSettings.Open, brokerSettings.Close, brokerSettings.Timezone,
-                        brokerSettings.Holidays);
+                        brokerSettings.Holidays, brokerSettings.Weekends);
 
                 var marketSettingsById = await _marketSettingsRepository.GetByIdAsync(marketId);
                 if (marketSettingsById == null)
                     return new List<IScheduleSettings>();
 
                 return MapMarketScheduleSettings(marketSettingsById.Id,  marketSettingsById.Name, marketSettingsById.Open,
-                    marketSettingsById.Close, marketSettingsById.Timezone, marketSettingsById.Holidays);
+                    marketSettingsById.Close, marketSettingsById.Timezone, marketSettingsById.Holidays, brokerSettings.Weekends);
             }
 
             var platformSettings = MapPlatformScheduleSettings(brokerSettings.Open, brokerSettings.Close, brokerSettings.Timezone,
-                brokerSettings.Holidays);
+                brokerSettings.Holidays, brokerSettings.Weekends);
             var allMarketSettings = await _marketSettingsRepository.GetAllMarketSettingsAsync();
 
             var result = allMarketSettings
-                .SelectMany(x => MapMarketScheduleSettings(x.Id, x.Name, x.Open, x.Close, x.Timezone, x.Holidays)).ToList();
+                .SelectMany(x => MapMarketScheduleSettings(x.Id, x.Name, x.Open, x.Close, x.Timezone, x.Holidays, brokerSettings.Weekends)).ToList();
             result.AddRange(platformSettings);
 
             return result;
@@ -82,41 +82,51 @@ namespace MarginTrading.AssetService.Services
             return result.BrokerSettings;
         }
 
-        private List<ScheduleSettings> MapMarketScheduleSettings(string marketId, string marketName, TimeSpan open, TimeSpan close, string timezone, IEnumerable<DateTime> holidays)
+        private List<ScheduleSettings> MapMarketScheduleSettings(string marketId, string marketName, TimeSpan open,
+            TimeSpan close, string timezone, IEnumerable<DateTime> holidays, List<DayOfWeek> brokerSettingsWeekends)
         {
             var result = MapHolidays(marketId, marketName, holidays, null);
-            result.Add(MapWeekendHolidays(marketId, marketName, null));
+            result.AddRange(MapWeekendHolidays(marketId, marketName, null, brokerSettingsWeekends));
             result.Add(MapClosedHours(marketId, marketName, open, close, timezone, null));
 
             return result;
         }
 
-        private List<ScheduleSettings> MapPlatformScheduleSettings( TimeSpan open, TimeSpan close, string timezone, IEnumerable<DateTime> holidays)
+        private List<ScheduleSettings> MapPlatformScheduleSettings(TimeSpan open, TimeSpan close, string timezone,
+            IEnumerable<DateTime> holidays, List<DayOfWeek> brokerSettingsWeekends)
         {
             var assetPairRegex = ".*";
             var platformId = _platformSettings.PlatformMarketId;
             var marketName = platformId;
             var result = MapHolidays(platformId, marketName, holidays, assetPairRegex);
-            result.Add(MapWeekendHolidays(platformId, marketName, assetPairRegex));
+            result.AddRange(MapWeekendHolidays(platformId, marketName, assetPairRegex, brokerSettingsWeekends));
             result.Add(MapClosedHours(platformId, marketName, open, close, timezone, assetPairRegex));
 
             return result;
         }
 
-        private ScheduleSettings MapWeekendHolidays(string marketId, string marketName, string assetPairRegex)
+        private List<ScheduleSettings> MapWeekendHolidays(string marketId, string marketName, string assetPairRegex,
+            List<DayOfWeek> brokerSettingsWeekends)
         {
-            var start = new ScheduleConstraint
+            var result = new List<ScheduleSettings>();
+            
+            foreach (var weekend in brokerSettingsWeekends)
             {
-                DayOfWeek = DayOfWeek.Saturday
-            };
-            var end = new ScheduleConstraint
-            {
-                DayOfWeek = DayOfWeek.Monday
-            };
-            var id = $"{marketId}_weekend";
-            var settings = ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex);
+                var start = new ScheduleConstraint
+                {
+                    DayOfWeek = weekend
+                };
+                var end = new ScheduleConstraint
+                {
+                    DayOfWeek = weekend == DayOfWeek.Saturday ? DayOfWeek.Sunday : weekend + 1
+                };
+                var id = $"{marketId}_{weekend.ToString()}";
+                var settings = ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex);
 
-            return settings;
+                result.Add(settings);
+            }
+            
+            return result;
         }
 
         private List<ScheduleSettings> MapHolidays(string marketId, string marketName, IEnumerable<DateTime> holidays, string assetPairRegex)

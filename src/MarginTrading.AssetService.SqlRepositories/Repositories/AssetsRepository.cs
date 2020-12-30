@@ -24,12 +24,26 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         public async Task<IReadOnlyList<IAsset>> GetAsync()
         {
+            var result = new Dictionary<string, IAsset>();
             using (var context = _contextFactory.CreateDataContext())
             {
                 var products = await context.Products.Where(x => x.IsStarted).Select(x => new Asset(x.ProductId, x.Name, AssetConstants.Accuracy)).ToListAsync();
                 var currencies = await context.Currencies.Select(x => new Asset(x.Id, x.Id, AssetConstants.Accuracy)).ToListAsync();
 
-                return products.Union(currencies).ToList();
+                foreach (var product in products)
+                {
+                    result.Add(product.Id, product);
+                }
+
+                foreach (var currency in currencies)
+                {
+                    if (!result.ContainsKey(currency.Id))
+                    {
+                        result.Add(currency.Id, currency);
+                    }
+                }
+
+                return result.Values.ToList();
             }
         }
 

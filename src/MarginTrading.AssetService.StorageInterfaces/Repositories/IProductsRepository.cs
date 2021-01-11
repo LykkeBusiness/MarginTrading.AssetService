@@ -16,7 +16,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds);
         Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
             bool? isStarted = null, int skip = default, int take = 20);
-        Task<bool> UnderlyingHasOnlyOneProduct(string mdsCode, string productId);
         Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId,
             bool isFrozen,
             byte[] valueTimestamp,

@@ -13,9 +13,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
         public void Configure(EntityTypeBuilder<ProductEntity> builder)
         {
             builder.HasKey(x => x.ProductId);
-
-            builder.HasIndex(x => x.Name).IsUnique();
-
+            
             builder.HasOne(x => x.TradingCurrency)
                 .WithMany()
                 .HasForeignKey(x => x.TradingCurrencyId)

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2020 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using MarginTrading.AssetService.Core.Domain;
@@ -22,13 +21,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 
         public decimal? Dividends871M { get; set; }
 
-        public TimeSpan Open { get; set; }
-
-        public TimeSpan Close { get; set; }
-
-        public string Timezone { get; set; }
-
         public virtual List<HolidayEntity> Holidays { get; set; }
+        
+        public MarketScheduleEntity MarketSchedule { get; set; }
 
         public static MarketSettingsEntity Create(MarketSettings model)
         {
@@ -39,15 +34,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
                 DividendsLong = model.DividendsLong,
                 DividendsShort = model.DividendsShort,
                 Dividends871M = model.Dividends871M,
-                Close = model.Close,
-                Open = model.Open,
-                Timezone = model.Timezone,
                 NormalizedName = model.Name.ToLower(),
                 Holidays = model.Holidays.Distinct().Select(date => new HolidayEntity
                 {
                     Date = date.Date,
                     MarketSettingsId = model.Id
                 }).ToList(),
+                MarketSchedule = new MarketScheduleEntity {Schedule = model.MarketSchedule}
             };
         }
 
@@ -57,15 +50,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
             DividendsLong = model.DividendsLong;
             DividendsShort = model.DividendsShort;
             Dividends871M = model.Dividends871M;
-            Close = model.Close;
-            Open = model.Open;
-            Timezone = model.Timezone;
             NormalizedName = model.Name.ToLower();
             Holidays = model.Holidays.Distinct().Select(date => new HolidayEntity
             {
                 Date = date.Date,
                 MarketSettingsId = model.Id
             }).ToList();
+            MarketSchedule = new MarketScheduleEntity {Schedule = model.MarketSchedule};
         }
     }
 }

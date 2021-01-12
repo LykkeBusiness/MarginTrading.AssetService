@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using Cronut.Dto.Assets;
-using Lykke.Snow.Common.Extensions;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
-using TimeZoneConverter;
 using Asset = Cronut.Dto.Assets.Asset;
 
 namespace MarginTrading.AssetService.Services.Extensions
@@ -70,16 +66,10 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromMarketSettings(this Asset asset, MarketSettings marketSettings)
         {
-            var timezoneInfo = TZConvert.GetTimeZoneInfo(marketSettings.Timezone);
-            var openUtc = marketSettings.Open.ShiftToUtc(timezoneInfo);
-            var closeUtc = marketSettings.Close.ShiftToUtc(timezoneInfo);
-            //Maybe we can have more than a day after we apply timezone, so we need to remove day portion
-            var openUtcWithoutDays = new TimeSpan(openUtc.Hours, openUtc.Minutes, openUtc.Seconds);
-            var closeUtcWithoutDays = new TimeSpan(closeUtc.Hours, closeUtc.Minutes, closeUtc.Seconds);
-
+            var marketScheduleUtcRespectful = marketSettings.MarketSchedule.ShiftToUtc();
             asset.Underlying.MarketDetails.Calendar.Holidays = marketSettings.Holidays;
-            asset.Underlying.MarketDetails.MarketHours.Open = openUtcWithoutDays;
-            asset.Underlying.MarketDetails.MarketHours.Close = closeUtcWithoutDays;
+            asset.Underlying.MarketDetails.MarketHours.Open = marketScheduleUtcRespectful.Open;
+            asset.Underlying.MarketDetails.MarketHours.Close = marketScheduleUtcRespectful.Close;
             asset.Underlying.MarketDetails.Name = marketSettings.Name;
             asset.Underlying.MarketDetails.MarketId = marketSettings.Id;
         }

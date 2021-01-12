@@ -22,4 +22,9 @@
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
     <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Migrations\Scripts\**\*.sql" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  
 </Project>

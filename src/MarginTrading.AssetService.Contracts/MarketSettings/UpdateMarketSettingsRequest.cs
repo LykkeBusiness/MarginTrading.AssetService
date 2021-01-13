@@ -33,12 +33,12 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         /// <summary>
         /// When the trading day opens
         /// </summary>
-        public TimeSpan? Open { get; set; }
+        public TimeSpan[] Open { get; set; }
 
         /// <summary>
         /// When the trading day closes
         /// </summary>
-        public TimeSpan? Close { get; set; }
+        public TimeSpan[] Close { get; set; }
 
         /// <summary>
         /// Timezone
@@ -55,5 +55,10 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         /// </summary>
         [Required]
         public string Username { get; set; }
+        
+        /// <summary>
+        /// List of half working days
+        /// </summary>
+        public List<string> HalfWorkingDays { get; set; }
     }
 }

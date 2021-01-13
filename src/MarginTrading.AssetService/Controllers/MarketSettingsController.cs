@@ -92,9 +92,7 @@ namespace MarginTrading.AssetService.Controllers
 
             if (result.IsFailed)
             {
-                response.ErrorCode =
-                    _convertService.Convert<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>(result.Error
-                        .Value);
+                response.ErrorCode = _convertService.Convert<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>(result.Error.Value);
             }
 
             return response;
@@ -121,9 +119,7 @@ namespace MarginTrading.AssetService.Controllers
 
             if (result.IsFailed)
             {
-                response.ErrorCode =
-                    _convertService.Convert<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>(result.Error
-                        .Value);
+                response.ErrorCode = _convertService.Convert<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>(result.Error.Value);
             }
 
             return response;
@@ -146,9 +142,7 @@ namespace MarginTrading.AssetService.Controllers
 
             if (result.IsFailed)
             {
-                response.ErrorCode =
-                    _convertService.Convert<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>(result.Error
-                        .Value);
+                response.ErrorCode = _convertService.Convert<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>(result.Error.Value);
             }
 
             return response;

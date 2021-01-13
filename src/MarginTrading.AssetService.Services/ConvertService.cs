@@ -91,7 +91,12 @@ namespace MarginTrading.AssetService.Services
                 cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();
 
                 //MarketSettings
-                cfg.CreateMap<MarketSettings, MarketSettingsContract>().ReverseMap();
+                cfg.CreateMap<MarketSchedule, MarketScheduleContract>();
+                cfg.CreateMap<MarketSettings, MarketSettingsContract>()
+                    .ForMember(dest => dest.Open, opt => opt.MapFrom(x => x.MarketSchedule.Open))
+                    .ForMember(dest => dest.Close, opt => opt.MapFrom(x => x.MarketSchedule.Close))
+                    .ForMember(dest => dest.Timezone, opt => opt.MapFrom(x => x.MarketSchedule.TimeZoneId));
+
                 cfg.CreateMap<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>();
                 cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()
                     .ForMember(x => x.Id, opt => opt.Ignore());

@@ -42,12 +42,12 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         /// When the trading day opens
         /// </summary>
         [Key(5)]
-        public TimeSpan Open { get; set; }
+        public TimeSpan[] Open { get; set; }
         /// <summary>
         /// When the trading day closes
         /// </summary>
         [Key(6)]
-        public TimeSpan Close { get; set; }
+        public TimeSpan[] Close { get; set; }
         /// <summary>
         /// Timezone
         /// </summary>
@@ -58,5 +58,10 @@ namespace MarginTrading.AssetService.Contracts.MarketSettings
         /// </summary>
         [Key(8)]
         public List<DateTime> Holidays { get; set; }
+        /// <summary>
+        /// Market schedule settings
+        /// </summary>
+        [Key(9)]
+        public MarketScheduleContract MarketSchedule { get; set; }
     }
 }

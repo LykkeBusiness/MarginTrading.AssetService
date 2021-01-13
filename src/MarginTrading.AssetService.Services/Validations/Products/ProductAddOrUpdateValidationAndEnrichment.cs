@@ -60,8 +60,19 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             }
 
             value.TradingCurrency = underlying.TradingCurrency;
-            // we use StartDate from the request, if possible, and fallback to the underlying's StartDate otherwise
-            var startDate = value.StartDate ?? underlying.StartDate;
+
+            DateTime? startDate;
+            if (existing == null)
+            {
+                // we use StartDate from the request, if possible, and fallback to the underlying's StartDate otherwise
+                startDate = value.StartDate ?? underlying.StartDate;    
+            }
+            else
+            {
+                // for existing products we should not update StartDate from underlying 
+                startDate = value.StartDate ?? existing.StartDate; 
+            }
+            
             if(existing != null && existing.IsStarted && startDate > DateTime.UtcNow) 
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotChangeStartDateFromPastToFuture);
                 

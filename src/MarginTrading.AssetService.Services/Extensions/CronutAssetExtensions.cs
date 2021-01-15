@@ -124,7 +124,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             IList<string> assetTypesWithZeroInterestRate,
             Action<string> assignInterestRate)
         {
-            if (assetTypesWithZeroInterestRate.Contains(asset.Underlying.AssetType))
+            if (assetTypesWithZeroInterestRate.Contains(asset.Underlying.AssetType) || currency == null)
             {
                 assignInterestRate(string.Empty);
                 return;

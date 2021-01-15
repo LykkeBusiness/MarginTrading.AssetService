@@ -111,10 +111,11 @@ namespace MarginTrading.AssetService.Services
                     _log.WriteWarning(nameof(LegacyAssetsService), nameof(GetLegacyAssets),
                         $"Missing underlying in cache for product with mdsCode:{product.UnderlyingMdsCode}");
 
+                asset.SetAssetFieldsFromProduct(product);
+                
                 if(baseCurrency != null)
                     asset.SetAssetFieldsFromBaseCurrency(baseCurrency, _assetTypesWithZeroInterestRate);
-
-                asset.SetAssetFieldsFromProduct(product);
+                
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
                 asset.SetAssetFieldsFromClientProfileSettings(clientProfileSettings[productAssetTypeIdMap[id]]);
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);

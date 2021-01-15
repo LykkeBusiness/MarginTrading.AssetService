@@ -116,7 +116,7 @@ namespace MarginTrading.AssetService.Services.Extensions
         {
             asset.SetAssetFieldsFromCurrency(tradingCurrency, 
                 assetTypesWithZeroInterestRate,
-                x => asset.Underlying.VariableInterestRate2 = x);
+                x => asset.Underlying.VariableInterestRate1 = x);
         }
 
         public static void SetAssetFieldsFromBaseCurrency(this Asset asset, 
@@ -125,7 +125,7 @@ namespace MarginTrading.AssetService.Services.Extensions
         {
             asset.SetAssetFieldsFromCurrency(baseCurrency,
                 assetTypesWithZeroInterestRate,
-                x => asset.Underlying.VariableInterestRate1 = x);
+                x => asset.Underlying.VariableInterestRate2 = x);
         }
 
         private static void SetAssetFieldsFromCurrency(this Asset asset,

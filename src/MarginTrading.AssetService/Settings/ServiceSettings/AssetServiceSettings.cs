@@ -1,9 +1,9 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
-using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.SettingsReader.Attributes;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Core.Settings.Rates;
@@ -50,5 +50,7 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public RabbitPublisherSettings LegacyAssetUpdatedRabbitPublisherSettings { get; set; }
         public RabbitSubscriptionSettings UnderlyingChangedRabbitSubscriptionSettings { get; set; }
         public RabbitSubscriptionSettings BrokerSettingsChangedSubscriptionSettings { get; set; }
+        
+        public List<string> AssetTypesWithZeroInterestRates { get; set; } = new List<string>();
     }
 }

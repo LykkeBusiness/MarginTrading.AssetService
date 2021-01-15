@@ -29,6 +29,7 @@ namespace MarginTrading.AssetService.Services
         private readonly ILog _log;
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly string _brokerId;
+        private readonly IList<string> _assetTypesWithZeroInterestRate;
 
         public LegacyAssetsService(
             IProductsRepository productsRepository,
@@ -42,7 +43,8 @@ namespace MarginTrading.AssetService.Services
             IAssetTypesRepository assetTypesRepository,
             ILog log, 
             IBrokerSettingsApi brokerSettingsApi,
-            string brokerId)
+            string brokerId,
+            IList<string> assetTypesWithZeroInterestRate)
         {
             _productsRepository = productsRepository;
             _clientProfileSettingsRepository = clientProfileSettingsRepository;
@@ -54,6 +56,7 @@ namespace MarginTrading.AssetService.Services
             _underlyingsCache = underlyingsCache;
             _assetTypesRepository = assetTypesRepository;
             _log = log;
+            _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
             _brokerSettingsApi = brokerSettingsApi;
             _brokerId = brokerId;
         }
@@ -130,10 +133,10 @@ namespace MarginTrading.AssetService.Services
                         $"Missing underlying in cache for product with mdsCode:{product.UnderlyingMdsCode}");
 
                 if(baseCurrency != null)
-                    asset.SetAssetFieldsFromBaseCurrency(baseCurrency);
+                    asset.SetAssetFieldsFromBaseCurrency(baseCurrency, _assetTypesWithZeroInterestRate);
 
                 asset.SetAssetFieldsFromProduct(product);
-                asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]]);
+                asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
                 asset.SetAssetFieldsFromClientProfileSettings(clientProfileSettings[productAssetTypeIdMap[id]]);
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);

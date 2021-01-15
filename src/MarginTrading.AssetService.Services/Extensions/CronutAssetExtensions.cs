@@ -110,20 +110,42 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.TickFormulaDetails.TickFormulaParameters.Values = tickFormula.PdlTicks;
         }
 
-        public static void SetAssetFieldsFromTradingCurrency(this Asset asset, Currency tradingCurrency)
+        public static void SetAssetFieldsFromTradingCurrency(this Asset asset, 
+            Currency tradingCurrency, 
+            IList<string> assetTypesWithZeroInterestRate)
         {
-            asset.Underlying.VariableInterestRate1 = tradingCurrency.InterestRateMdsCode;
-            asset.Underlying.InterestRates.Add(new InterestRate
-            {
-                MdsCode = tradingCurrency.InterestRateMdsCode,
-                Currency = tradingCurrency.Id,
-                Name = tradingCurrency.InterestRateMdsCode,
-            });
+            asset.SetAssetFieldsFromCurrency(tradingCurrency, 
+                assetTypesWithZeroInterestRate,
+                x => asset.Underlying.VariableInterestRate2 = x);
         }
 
-        public static void SetAssetFieldsFromBaseCurrency(this Asset asset, Currency baseCurrency)
+        public static void SetAssetFieldsFromBaseCurrency(this Asset asset, 
+            Currency baseCurrency, 
+            IList<string> assetTypesWithZeroInterestRate)
         {
-            asset.Underlying.VariableInterestRate2 = baseCurrency?.InterestRateMdsCode;
+            asset.SetAssetFieldsFromCurrency(baseCurrency,
+                assetTypesWithZeroInterestRate,
+                x => asset.Underlying.VariableInterestRate1 = x);
+        }
+
+        private static void SetAssetFieldsFromCurrency(this Asset asset,
+            Currency currency,
+            IList<string> assetTypesWithZeroInterestRate,
+            Action<string> assignInterestRate)
+        {
+            if (assetTypesWithZeroInterestRate.Contains(asset.Underlying.AssetType))
+            {
+                assignInterestRate(string.Empty);
+                return;
+            }
+
+            assignInterestRate(currency.InterestRateMdsCode);
+            asset.Underlying.InterestRates.Add(new InterestRate
+            {
+                MdsCode = currency.InterestRateMdsCode,
+                Currency = currency.Id,
+                Name = currency.InterestRateMdsCode,
+            });
         }
 
         public static void SetAssetFieldsFromCategory(this Asset asset, ProductCategory category)

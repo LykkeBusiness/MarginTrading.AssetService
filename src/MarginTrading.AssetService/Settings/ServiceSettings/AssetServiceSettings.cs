@@ -51,6 +51,7 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public RabbitSubscriptionSettings UnderlyingChangedRabbitSubscriptionSettings { get; set; }
         public RabbitSubscriptionSettings BrokerSettingsChangedSubscriptionSettings { get; set; }
         
+        [Optional]
         public List<string> AssetTypesWithZeroInterestRates { get; set; } = new List<string>();
     }
 }

@@ -6,14 +6,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Common.Exceptions;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using TimeZoneConverter;
+using InconsistentWorkingCalendarException = MarginTrading.AssetService.Core.Exceptions.InconsistentWorkingCalendarException;
+using InvalidOpenAndCloseHoursException = MarginTrading.AssetService.Core.Exceptions.InvalidOpenAndCloseHoursException;
+using OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException = MarginTrading.AssetService.Core.Exceptions.OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -168,7 +171,7 @@ namespace MarginTrading.AssetService.Services
             out MarketSettings marketSettings)
         {
             marketSettings = null;
-            
+
             try
             {
                 marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
@@ -179,7 +182,8 @@ namespace MarginTrading.AssetService.Services
             }
             catch (OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
             {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes
+                    .OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
             }
             catch (InvalidTimeZoneException)
             {
@@ -188,6 +192,10 @@ namespace MarginTrading.AssetService.Services
             catch (InconsistentWorkingCalendarException)
             {
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InconsistentWorkingCalendar);
+            }
+            catch (InvalidWorkingDayStringException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidWorkingDayString);
             }
             
             return new Result<MarketSettingsErrorCodes>();

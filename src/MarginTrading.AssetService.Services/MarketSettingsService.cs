@@ -195,7 +195,7 @@ namespace MarginTrading.AssetService.Services
             }
             catch (InvalidWorkingDayStringException)
             {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidWorkingDayString);
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidHalfWorkingDayString);
             }
             
             return new Result<MarketSettingsErrorCodes>();

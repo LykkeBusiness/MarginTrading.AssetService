@@ -18,6 +18,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotDeleteMarketSettingsAssignedToAnyProduct,
         OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay,
         InconsistentWorkingCalendar,
-        InvalidWorkingDayString,
+        InvalidHalfWorkingDayString,
     }
 }

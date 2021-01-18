@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Lykke.Snow.Common.WorkingDays;
 
 namespace MarginTrading.AssetService.Core.Domain
 {

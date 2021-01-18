@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2020 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using Lykke.Snow.Common.WorkingDays;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;

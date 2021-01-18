@@ -1,4 +1,4 @@
-using MarginTrading.AssetService.Core.Domain;
+using Lykke.Snow.Common.WorkingDays;
 
 namespace MarginTrading.AssetService.SqlRepositories.Entities
 {

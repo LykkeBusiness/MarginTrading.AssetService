@@ -29,6 +29,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UnderlyingCategoryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.ToTable("AssetTypes");
@@ -160,13 +164,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<TimeSpan>("Close")
                         .HasColumnType("time");
 
-                    b.Property<decimal>("Dividends871M")
+                    b.Property<decimal?>("Dividends871M")
                         .HasColumnType("decimal(18,13)");
 
-                    b.Property<decimal>("DividendsLong")
+                    b.Property<decimal?>("DividendsLong")
                         .HasColumnType("decimal(18,13)");
 
-                    b.Property<decimal>("DividendsShort")
+                    b.Property<decimal?>("DividendsShort")
                         .HasColumnType("decimal(18,13)");
 
                     b.Property<string>("Name")
@@ -240,6 +244,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .HasColumnType("int")
                         .HasMaxLength(400);
 
+                    b.Property<decimal?>("Dividends871M")
+                        .HasColumnType("decimal(18,13)");
+
+                    b.Property<decimal?>("DividendsLong")
+                        .HasColumnType("decimal(18,13)");
+
+                    b.Property<decimal?>("DividendsShort")
+                        .HasColumnType("decimal(18,13)");
+
                     b.Property<string>("ForceId")
                         .IsRequired()
                         .HasColumnType("nvarchar(400)")
@@ -248,6 +261,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<string>("FreezeInfo")
                         .HasColumnType("nvarchar(2000)")
                         .HasMaxLength(2000);
+
+                    b.Property<decimal>("HedgeCost")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<bool>("IsDiscontinued")
                         .HasColumnType("bit");
@@ -329,7 +345,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<bool>("ShortPosition")
                         .HasColumnType("bit");
 
-                    b.Property<DateTime>("StartDate")
+                    b.Property<DateTime?>("StartDate")
+                        .IsRequired()
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Tags")

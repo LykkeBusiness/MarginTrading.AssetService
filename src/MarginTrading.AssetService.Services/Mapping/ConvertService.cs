@@ -12,9 +12,9 @@ using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
-using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
+using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Scheduling;
@@ -26,7 +26,7 @@ using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
 using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 
-namespace MarginTrading.AssetService.Services
+namespace MarginTrading.AssetService.Services.Mapping
 {
     [UsedImplicitly]
     public class ConvertService : IConvertService
@@ -97,6 +97,8 @@ namespace MarginTrading.AssetService.Services
                     .ForMember(dest => dest.Open, opt => opt.MapFrom(x => x.MarketSchedule.Open))
                     .ForMember(dest => dest.Close, opt => opt.MapFrom(x => x.MarketSchedule.Close))
                     .ForMember(dest => dest.Timezone, opt => opt.MapFrom(x => x.MarketSchedule.TimeZoneId));
+                cfg.CreateMap<MarketSettingsContract, MarketSettings>()
+                    .ForMember(dest => dest.MarketSchedule, opt => opt.ResolveUsing<MarketScheduleResolver>());
 
                 cfg.CreateMap<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>();
                 cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()

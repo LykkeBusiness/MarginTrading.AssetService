@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
 using Lykke.SettingsReader.ReloadingManager;
-using MarginTrading.AssetService.Services;
+using MarginTrading.AssetService.Services.Mapping;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using SqlRepos = MarginTrading.AssetService.SqlRepositories.Repositories;
 using AzureRepos = MarginTrading.AssetService.AzureRepositories.Repositories;

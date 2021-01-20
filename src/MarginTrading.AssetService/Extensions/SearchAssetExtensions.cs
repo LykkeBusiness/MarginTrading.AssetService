@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using Cronut.Dto.Assets;
 using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Core.Caches;
+using MarginTrading.AssetService.Services.Extensions;
 
 namespace MarginTrading.AssetService.Extensions
 {
@@ -12,7 +14,13 @@ namespace MarginTrading.AssetService.Extensions
         {
             return cache.GetByFilter(x =>
             {
-                var expiryDate = DateTime.TryParse(x.ExpiryDate, out var ed) ? ed : (DateTime?) null;
+                //we have to provide format because expire date is not in default one
+                var expiryDate = DateTime.TryParseExact(x.ExpiryDate, 
+                    CronutAssetExtensions.DateFormat,
+                    DateTimeFormatInfo.InvariantInfo, 
+                    DateTimeStyles.None, 
+                    out var ed) ? ed : (DateTime?) null;
+
                 return (string.IsNullOrWhiteSpace(request.UnderlyingIsIn) ||
                         (x.Underlying?.Isin.Contains(request.UnderlyingIsIn, StringComparison.InvariantCultureIgnoreCase) ?? false))
                        && (string.IsNullOrWhiteSpace(request.UnderlyingType) ||

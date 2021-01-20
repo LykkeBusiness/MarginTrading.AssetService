@@ -17,8 +17,8 @@ namespace MarginTrading.AssetService.Extensions
                         (x.Underlying?.Isin.Contains(request.UnderlyingIsIn, StringComparison.InvariantCultureIgnoreCase) ?? false))
                        && (string.IsNullOrWhiteSpace(request.UnderlyingType) ||
                            (x.Underlying?.AssetType.Contains(request.UnderlyingType, StringComparison.InvariantCultureIgnoreCase) ?? false))
-                       && (expiryDate == null || request.ExpiryDateFrom == null || expiryDate > request.ExpiryDateFrom)
-                       && (expiryDate == null || request.ExpiryDateTo == null || expiryDate < request.ExpiryDateTo)
+                       && (request.ExpiryDateFrom == null || expiryDate > request.ExpiryDateFrom)
+                       && (request.ExpiryDateTo == null || expiryDate < request.ExpiryDateTo)
                        && (string.IsNullOrWhiteSpace(request.MdsCode) || x.UnderlyingMdsCode.Contains(request.MdsCode, StringComparison.InvariantCultureIgnoreCase))
                        && (string.IsNullOrWhiteSpace(request.AssetName) ||
                            x.Name.Contains(request.AssetName, StringComparison.InvariantCultureIgnoreCase));

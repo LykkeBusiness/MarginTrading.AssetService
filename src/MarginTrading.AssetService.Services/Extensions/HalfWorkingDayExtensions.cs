@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Services.Extensions
         {
             if (day.Duration == WorkingDayDuration.PartialDayBeforeMilestone)
             {
-                return new ScheduleConstraint {Date = day.Timestamp.Date, Time = TimeSpan.Zero};
+                return new ScheduleConstraint {Date = day.Timestamp.Date.AddDays(1), Time = TimeSpan.Zero};
             }
 
             if (day.Duration == WorkingDayDuration.PartialDayAfterMilestone)

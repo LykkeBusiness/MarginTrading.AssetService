@@ -86,7 +86,7 @@ namespace MarginTrading.AssetService.Tests
             Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(20) && x.End.Time == TimeSpan.FromHours(12));
             Assert.Single(result, x =>
                 x.Start.Time == TimeSpan.FromHours(14) && x.Start.Date == DateTime.Parse("2022-12-31") &&
-                x.End.Time == TimeSpan.Zero && x.End.Date == DateTime.Parse("2022-12-31"));
+                x.End.Time == TimeSpan.Zero && x.End.Date == DateTime.Parse("2023-01-01"));
         }
 
         private void ConfigureBrokerSettingsApi()

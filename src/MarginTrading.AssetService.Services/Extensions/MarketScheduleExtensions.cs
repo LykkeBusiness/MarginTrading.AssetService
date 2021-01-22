@@ -7,7 +7,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 {
     public static class MarketScheduleExtensions
     {
-        public static IReadOnlyList<ScheduleSettings> GetOpenCloseHoursScheduleSettings(
+        public static IReadOnlyList<ScheduleSettings> GetMarketHoursScheduleSettings(
             this MarketSchedule marketSchedule,
             string marketId,
             string marketName,
@@ -16,21 +16,30 @@ namespace MarginTrading.AssetService.Services.Extensions
             var result = new List<ScheduleSettings>();
 
             var daySessionsCount = marketSchedule.Open.Length;
-
+            
             for (int i = 0; i < daySessionsCount; i++)
             {
-                var ss = GetIntraDaySessionScheduleSettings(marketId, 
-                    marketName, 
-                    assetRegex, 
-                    marketSchedule.Open[i],
-                    marketSchedule.Close[i]);
+                var isLastTradingSession = i == daySessionsCount - 1;
+                var sessionClose = marketSchedule.Close[i];
+                var nextSessionOpen = isLastTradingSession 
+                    ? marketSchedule.Open[0] 
+                    : marketSchedule.Open[i + 1];
+
+                var ss = ScheduleSettings.Create(
+                    $"{marketId}_none_working_hours_open{sessionClose}_close{nextSessionOpen}",
+                    marketId,
+                    marketName,
+                    new ScheduleConstraint {Time = sessionClose},
+                    new ScheduleConstraint {Time = nextSessionOpen},
+                    assetRegex);
+                
                 result.Add(ss);
             }
 
             return result;
         }
 
-        public static ScheduleSettings GetIntraDaySessionScheduleSettings(string marketId,
+        public static ScheduleSettings GetSingleSessionScheduleSettings(string marketId,
             string marketName,
             string assetRegex,
             TimeSpan open,

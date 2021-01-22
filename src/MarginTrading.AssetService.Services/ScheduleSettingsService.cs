@@ -89,7 +89,7 @@ namespace MarginTrading.AssetService.Services
             
             var marketScheduleUtcRespectful = marketSettings.MarketSchedule.ShiftToUtc();
             result.AddRange(
-                marketScheduleUtcRespectful.GetOpenCloseHoursScheduleSettings(marketSettings.Id,
+                marketScheduleUtcRespectful.GetMarketHoursScheduleSettings(marketSettings.Id,
                     marketSettings.Name,
                     null));
             
@@ -115,7 +115,7 @@ namespace MarginTrading.AssetService.Services
             result.Add(MarketScheduleExtensions.MapWeekends(platformId, marketName, assetPairRegex));
             
             result.Add(
-                MarketScheduleExtensions.GetIntraDaySessionScheduleSettings(platformId, 
+                MarketScheduleExtensions.GetSingleSessionScheduleSettings(platformId, 
                     marketName, 
                     assetPairRegex, 
                     brokerSchedule.Open, 

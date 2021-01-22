@@ -67,8 +67,8 @@ namespace MarginTrading.AssetService.Tests
             var result = await sut.GetFilteredAsync(FakeMarketId);
             
             Assert.Equal(3, result.Count);
-            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(10) && x.End.Time == TimeSpan.FromHours(8));
-            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(20) && x.End.Time == TimeSpan.FromHours(12));
+            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(10) && x.End.Time == TimeSpan.FromHours(12));
+            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(20) && x.End.Time == TimeSpan.FromHours(8));
         }
 
         [Fact]
@@ -82,8 +82,8 @@ namespace MarginTrading.AssetService.Tests
             var result = await sut.GetFilteredAsync(FakeMarketId);
             
             Assert.Equal(4, result.Count);
-            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(10) && x.End.Time == TimeSpan.FromHours(8));
-            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(20) && x.End.Time == TimeSpan.FromHours(12));
+            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(10) && x.End.Time == TimeSpan.FromHours(12));
+            Assert.Single(result, x => x.Start.Time == TimeSpan.FromHours(20) && x.End.Time == TimeSpan.FromHours(8));
             Assert.Single(result, x =>
                 x.Start.Time == TimeSpan.FromHours(14) && x.Start.Date == DateTime.Parse("2022-12-31") &&
                 x.End.Time == TimeSpan.Zero && x.End.Date == DateTime.Parse("2023-01-01"));

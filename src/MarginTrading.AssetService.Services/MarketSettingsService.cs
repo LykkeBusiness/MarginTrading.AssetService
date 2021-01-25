@@ -14,9 +14,6 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using TimeZoneConverter;
-using InconsistentWorkingCalendarException = MarginTrading.AssetService.Core.Exceptions.InconsistentWorkingCalendarException;
-using InvalidOpenAndCloseHoursException = MarginTrading.AssetService.Core.Exceptions.InvalidOpenAndCloseHoursException;
-using OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException = MarginTrading.AssetService.Core.Exceptions.OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException;
 
 namespace MarginTrading.AssetService.Services
 {

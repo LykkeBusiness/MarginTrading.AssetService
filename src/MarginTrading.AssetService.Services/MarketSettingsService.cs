@@ -135,15 +135,15 @@ namespace MarginTrading.AssetService.Services
             });
         }
         
-        private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model, MarketSettings existingSettings = null)
+        private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings newSettings, MarketSettings existingSettings = null)
         {
-            if (model.DividendsLong < 0 || model.DividendsLong > 100)
+            if (newSettings.DividendsLong < 0 || newSettings.DividendsLong > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
 
-            if (model.DividendsShort < 0 || model.DividendsShort > 100)
+            if (newSettings.DividendsShort < 0 || newSettings.DividendsShort > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsShortValue);
 
-            if (model.Dividends871M < 0 || model.Dividends871M > 100)
+            if (newSettings.Dividends871M < 0 || newSettings.Dividends871M > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
 
             if (existingSettings == null) 
@@ -157,15 +157,33 @@ namespace MarginTrading.AssetService.Services
             var hasTradingStarted = existingSettings.MarketSchedule.Open.First() <= currentDay.TimeOfDay;
             
             // check holidays
-            var newHolidays = model.Holidays
+            var newHolidays = newSettings.Holidays
                 .Select(x => x.Date.Date)
                 .Except(existingSettings.Holidays);
             var holidaysViolate = newHolidays.Contains(currentDay.Date) && hasTradingStarted;
-            
+
             // check half-working days
-            var halfWorkingDaysViolate = model.MarketSchedule.HalfWorkingDaysContain(currentDay) &&
-                                         !existingSettings.MarketSchedule.HalfWorkingDaysContain(currentDay) &&
-                                         hasTradingStarted;
+            var halfWorkingDaysViolate = false;
+            if (newSettings.MarketSchedule.HalfWorkingDaysContain(currentDay) && hasTradingStarted)
+            {
+                if (existingSettings.MarketSchedule.HalfWorkingDaysContain(currentDay))
+                {
+                    // both, old settings and new settings contain the same half-working day but the time portion
+                    // can be different
+                    var existingHalfWorkingDay =
+                        existingSettings.MarketSchedule.HalfWorkingDays.Single(d => d.SameCalendarDay(currentDay));
+                    var newHalfWorkingDay =
+                        newSettings.MarketSchedule.HalfWorkingDays.Single(d => d.SameCalendarDay(currentDay));
+
+                    halfWorkingDaysViolate = !existingHalfWorkingDay.Equals(newHalfWorkingDay);
+                }
+                else
+                {
+                    // we are trying to add new half-working day for the current trading day which has already started
+                    // and it has not been added before
+                    halfWorkingDaysViolate = true;
+                }
+            }
             
             if (holidaysViolate || halfWorkingDaysViolate)
             {

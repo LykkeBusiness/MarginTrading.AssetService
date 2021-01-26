@@ -163,28 +163,11 @@ namespace MarginTrading.AssetService.Services
             var holidaysViolate = newHolidays.Contains(currentDay.Date) && hasTradingStarted;
 
             // check half-working days
-            var halfWorkingDaysViolate = false;
-            if (newSettings.MarketSchedule.HalfWorkingDaysContain(currentDay) && hasTradingStarted)
-            {
-                if (existingSettings.MarketSchedule.HalfWorkingDaysContain(currentDay))
-                {
-                    // both, old settings and new settings contain the same half-working day but the time portion
-                    // can be different
-                    var existingHalfWorkingDay =
-                        existingSettings.MarketSchedule.HalfWorkingDays.Single(d => d.SameCalendarDay(currentDay));
-                    var newHalfWorkingDay =
-                        newSettings.MarketSchedule.HalfWorkingDays.Single(d => d.SameCalendarDay(currentDay));
+            var newHalfWorkingDays =
+                newSettings.MarketSchedule.HalfWorkingDays.Except(existingSettings.MarketSchedule.HalfWorkingDays);
+            var halfWorkingDaysViolate =
+                newHalfWorkingDays.Any(d => d.SameCalendarDay(currentDay)) && hasTradingStarted;
 
-                    halfWorkingDaysViolate = !existingHalfWorkingDay.Equals(newHalfWorkingDay);
-                }
-                else
-                {
-                    // we are trying to add new half-working day for the current trading day which has already started
-                    // and it has not been added before
-                    halfWorkingDaysViolate = true;
-                }
-            }
-            
             if (holidaysViolate || halfWorkingDaysViolate)
             {
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);

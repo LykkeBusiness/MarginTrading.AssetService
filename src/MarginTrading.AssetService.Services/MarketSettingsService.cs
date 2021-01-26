@@ -135,7 +135,7 @@ namespace MarginTrading.AssetService.Services
             });
         }
         
-        private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model, MarketSettings currentMarketSettings = null)
+        private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model, MarketSettings existingSettings = null)
         {
             if (model.DividendsLong < 0 || model.DividendsLong > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
@@ -146,16 +146,28 @@ namespace MarginTrading.AssetService.Services
             if (model.Dividends871M < 0 || model.Dividends871M > 100)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
 
-            if (currentMarketSettings == null) 
+            if (existingSettings == null) 
                 return new Result<MarketSettingsErrorCodes>();
 
-            //This is the current day taking into account the timezone
-            var currentDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TZConvert.GetTimeZoneInfo(currentMarketSettings.MarketSchedule.TimeZoneId));
-            var newHolidays = model.Holidays.Select(x => x.Date.Date).Except(currentMarketSettings.Holidays);
+            // This is the current day taking into account the timezone
+            var currentDay = TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                TZConvert.GetTimeZoneInfo(existingSettings.MarketSchedule.TimeZoneId));
 
-            //Validate if we try to add holiday or half-working day for already started trading day
-            if ((newHolidays.Contains(currentDay.Date) || model.MarketSchedule.HalfWorkingDaysContain(currentDay)) && 
-                currentMarketSettings.MarketSchedule.Open.First() <= currentDay.TimeOfDay)
+            var hasTradingStarted = existingSettings.MarketSchedule.Open.First() <= currentDay.TimeOfDay;
+            
+            // check holidays
+            var newHolidays = model.Holidays
+                .Select(x => x.Date.Date)
+                .Except(existingSettings.Holidays);
+            var holidaysViolate = newHolidays.Contains(currentDay.Date) && hasTradingStarted;
+            
+            // check half-working days
+            var halfWorkingDaysViolate = model.MarketSchedule.HalfWorkingDaysContain(currentDay) &&
+                                         !existingSettings.MarketSchedule.HalfWorkingDaysContain(currentDay) &&
+                                         hasTradingStarted;
+            
+            if (holidaysViolate || halfWorkingDaysViolate)
             {
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
             }

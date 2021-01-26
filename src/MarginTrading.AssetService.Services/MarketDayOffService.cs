@@ -82,7 +82,7 @@ namespace MarginTrading.AssetService.Services
             return GetTradingDayInfo(rawPlatformSchedule, brokerSettings, currentDateTime);
         }
 
-        private static TradingDayInfo GetTradingDayInfo(IEnumerable<ScheduleSettings> scheduleSettings, 
+        private TradingDayInfo GetTradingDayInfo(IEnumerable<ScheduleSettings> scheduleSettings, 
             BrokerSettingsContract brokerSettings, 
             DateTime currentDateTime)
         {
@@ -96,8 +96,7 @@ namespace MarginTrading.AssetService.Services
             var isEnabled = currentInterval.Enabled();
             var lastTradingDay = GetPreviousTradingDay(compiledSchedule, currentInterval, currentDateTime);
             var nextTradingDay = GetNextTradingDay(compiledSchedule, currentInterval, currentDateTime, lastTradingDay);
-            var isBusinessDay = currentDateTime.DayOfWeek != DayOfWeek.Saturday
-                                && currentDateTime.DayOfWeek != DayOfWeek.Sunday
+            var isBusinessDay = !brokerSettings.Weekends.Contains(currentDateTime.DayOfWeek)
                                 && !brokerSettings.Holidays.Select(x => x.Date).Contains(currentDateTime.Date);
 
             var result = new TradingDayInfo

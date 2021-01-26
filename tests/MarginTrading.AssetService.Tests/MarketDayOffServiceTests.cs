@@ -76,7 +76,8 @@ namespace MarginTrading.AssetService.Tests
                         ErrorCode = BrokerSettingsErrorCodesContract.None,
                         BrokerSettings = new BrokerSettingsContract
                         {
-                            Holidays = new List<DateTime>()
+                            Holidays = new List<DateTime>(),
+                            Weekends = new List<DayOfWeek> {DayOfWeek.Saturday, DayOfWeek.Sunday}
                         }
                     });
             

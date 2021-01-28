@@ -45,7 +45,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             AddValidation(MarketSettingsMustExist);
             AddValidation(TickFormulaMustExist);
             AddValidation(AssetTypeMustExist);
-            AddValidation(SingleProductPerUnderlying);
             AddValidation(SetCategoryIdAsync);
             AddValidation(SetExistingFields);
         }
@@ -90,18 +89,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             {
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.MarketSettingsDoNotExist);
             }
-
-            return new Result<Product, ProductsErrorCodes>(value);
-        }
-
-        private async Task<Result<Product, ProductsErrorCodes>> SingleProductPerUnderlying(Product value,
-            string userName,
-            string correlationId, Product existing = null)
-        {
-            var singleProductPerUnderlying =
-                await _productsRepository.UnderlyingHasOnlyOneProduct(value.UnderlyingMdsCode, value.ProductId);
-            if (!singleProductPerUnderlying)
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CanOnlyCreateOneProductPerUnderlying);
 
             return new Result<Product, ProductsErrorCodes>(value);
         }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
@@ -38,12 +39,13 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<IReadOnlyList<IScheduleSettings>> GetFilteredAsync(string marketId = null)
         {
+            var brokerSchedule = await GetBrokerScheduleAsync();
+            
             if (!string.IsNullOrEmpty(marketId))
             {
                 //We need only platform settings
                 if (marketId == _platformSettings.PlatformMarketId)
                 {
-                    var brokerSchedule = await GetBrokerScheduleAsync();
                     return MapPlatformSchedule(brokerSchedule);
                 }
 
@@ -51,41 +53,47 @@ namespace MarginTrading.AssetService.Services
                 if (marketSettingsById == null)
                     return new List<IScheduleSettings>();
 
-                return MapMarketSchedule(marketSettingsById);
+                return MapMarketSchedule(marketSettingsById, brokerSchedule.Weekends);
             }
             
             // add all markets and platform schedules
-            var allMarketSchedules = await _marketSettingsRepository.GetAllMarketSettingsAsync();
-            var result = allMarketSchedules.SelectMany(MapMarketSchedule).ToList();
-            var platformSchedules = MapPlatformSchedule(await GetBrokerScheduleAsync());
-            result.AddRange(platformSchedules);
+            var allMarketSettings = await _marketSettingsRepository.GetAllMarketSettingsAsync();
+            var allMarketSchedules = allMarketSettings
+                .SelectMany(x => MapMarketSchedule(x, brokerSchedule.Weekends))
+                .ToList();
+            var platformSchedules = MapPlatformSchedule(brokerSchedule);
+            allMarketSchedules.AddRange(platformSchedules);
 
-            return result;
+            return allMarketSchedules;
         }
 
         private async Task<BrokerSettingsScheduleContract> GetBrokerScheduleAsync()
         {
-            // broker schedule is already UTC adjusted
+            // Note: broker schedule is already UTC adjusted
             var result = await _brokerSettingsApi.GetScheduleInfoByIdAsync(_brokerId);
 
             if (result.ErrorCode != BrokerSettingsErrorCodesContract.None)
             {
                 _log?.WriteErrorAsync(nameof(ScheduleSettingsService), nameof(GetBrokerScheduleAsync),
-                    $"Broker schedule missing for brokerId assigned to AssetService:{_brokerId}", null);
+                    $"Schedule is missing for brokerId assigned to AssetService:{_brokerId}", null);
                 throw new BrokerSettingsDoNotExistException();
             }
 
             return result.BrokerSettingsSchedule;
         }
 
-        private List<ScheduleSettings> MapMarketSchedule(MarketSettings marketSettings)
+        private List<ScheduleSettings> MapMarketSchedule(MarketSettings marketSettings, List<DayOfWeek> platformWeekends)
         {
             var result = MarketScheduleExtensions.MapHolidays(marketSettings.Id,
                 marketSettings.Name,
                 marketSettings.Holidays,
                 null);
             
-            result.Add(MarketScheduleExtensions.MapWeekends(marketSettings.Id, marketSettings.Name, null));
+            result.AddRange(MarketScheduleExtensions.MapWeekends(
+                marketSettings.Id, 
+                marketSettings.Name, 
+                platformWeekends,
+                null));
             
             var marketScheduleUtcRespectful = marketSettings.MarketSchedule.ShiftToUtc();
             result.AddRange(
@@ -112,7 +120,10 @@ namespace MarginTrading.AssetService.Services
                 brokerSchedule.Holidays, 
                 assetPairRegex);
 
-            result.Add(MarketScheduleExtensions.MapWeekends(platformId, marketName, assetPairRegex));
+            result.AddRange(MarketScheduleExtensions.MapWeekends(platformId, 
+                marketName,
+                brokerSchedule.Weekends,
+                assetPairRegex));
             
             result.Add(
                 MarketScheduleExtensions.GetSingleSessionScheduleSettings(platformId, 

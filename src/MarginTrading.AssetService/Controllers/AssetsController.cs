@@ -9,7 +9,6 @@ using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Core.Caches;
-using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Extensions;
@@ -112,6 +111,15 @@ namespace MarginTrading.AssetService.Controllers
             var result = _legacyAssetsCache.GetById(assetId);
 
             return result;
+        }
+
+        /// <summary>
+        /// Performs search and returns list of asset ids
+        /// </summary>
+        [HttpPost("/api/assets/legacy/search")]
+        public Task<IEnumerable<Asset>> SearchLegacyAssets([FromBody]SearchLegacyAssetsRequest request)
+        {
+            return Task.FromResult(_legacyAssetsCache.Search(request));
         }
     }
 }

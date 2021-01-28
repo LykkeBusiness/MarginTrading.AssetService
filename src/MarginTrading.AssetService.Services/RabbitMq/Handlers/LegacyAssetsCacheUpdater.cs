@@ -22,17 +22,20 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         private readonly IMessageProducer<AssetUpsertedEvent> _assetUpsertedPublisher;
         private readonly ILog _log;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private readonly IList<string> _assetTypesWithZeroInterestRate;
 
         public LegacyAssetsCacheUpdater(
             ILegacyAssetsService legacyAssetsService,
             ILegacyAssetsCache legacyAssetsCache,
             IMessageProducer<AssetUpsertedEvent> assetUpsertedPublisher,
-            ILog log)
+            ILog log,
+            IList<string> assetTypesWithZeroInterestRate)
         {
             _legacyAssetsService = legacyAssetsService;
             _legacyAssetsCache = legacyAssetsCache;
             _assetUpsertedPublisher = assetUpsertedPublisher;
             _log = log;
+            _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
         }
 
         public async Task HandleProductRemoved(string productId, DateTime timestamp)
@@ -116,10 +119,16 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleCurrencyUpdated(string oldInterestRateMdsCode, Currency currency, DateTime timestamp)
         {
             Func<Asset, bool> tradingCurrencyFilter = x => x.Underlying.InterestRates.Any(c => c.Currency == currency.Id);
-            await Handle(currency, tradingCurrencyFilter, CronutAssetExtensions.SetAssetFieldsFromTradingCurrency, timestamp);
+            await Handle(currency,
+                tradingCurrencyFilter,
+                (a, c) => a.SetAssetFieldsFromTradingCurrency(c, _assetTypesWithZeroInterestRate),
+                timestamp);
 
             Func<Asset, bool> baseCurrencyFilter = x => x.Underlying.VariableInterestRate1 == oldInterestRateMdsCode;
-            await Handle(currency, baseCurrencyFilter, CronutAssetExtensions.SetAssetFieldsFromBaseCurrency, timestamp);
+            await Handle(currency, 
+                baseCurrencyFilter, 
+                (a, c) => a.SetAssetFieldsFromBaseCurrency(c, _assetTypesWithZeroInterestRate), 
+                timestamp);
         }
 
         public async Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying, DateTime timestamp)

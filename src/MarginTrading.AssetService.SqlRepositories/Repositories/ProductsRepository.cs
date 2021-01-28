@@ -203,17 +203,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<bool> UnderlyingHasOnlyOneProduct(string mdsCode, string productId)
-        {
-            await using var context = _contextFactory.CreateDataContext();
-
-            var result = await context.Products
-                .AnyAsync(p => p.UnderlyingMdsCode == mdsCode
-                               && p.ProductId != productId);
-
-            return !result;
-        }
-
         public async Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
             byte[] valueTimestamp,
             ProductFreezeInfo freezeInfo)

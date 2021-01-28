@@ -174,6 +174,7 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<LegacyAssetsService>()
                 .As<ILegacyAssetsService>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))
+                .WithParameter(new NamedParameter("assetTypesWithZeroInterestRate", _settings.CurrentValue.AssetTypesWithZeroInterestRates))
                 .SingleInstance();
 
             builder.RegisterType<LegacyAssetCache>()
@@ -182,6 +183,7 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<LegacyAssetsCacheUpdater>()
                 .As<ILegacyAssetsCacheUpdater>()
+                .WithParameter(new NamedParameter("assetTypesWithZeroInterestRate", _settings.CurrentValue.AssetTypesWithZeroInterestRates))
                 .SingleInstance();
 
             builder.RegisterType<UnderlyingChangedHandler>()

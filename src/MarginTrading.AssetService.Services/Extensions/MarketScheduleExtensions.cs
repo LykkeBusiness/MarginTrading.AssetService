@@ -78,20 +78,25 @@ namespace MarginTrading.AssetService.Services.Extensions
             return result;
         }
         
-        public static ScheduleSettings MapWeekends(string marketId, string marketName, string assetPairRegex)
+        public static List<ScheduleSettings> MapWeekends(string marketId, string marketName, List<DayOfWeek> weekends, string assetPairRegex)
         {
-            var start = new ScheduleConstraint
+            var result = new List<ScheduleSettings>();
+            
+            foreach (var weekend in weekends)
             {
-                DayOfWeek = DayOfWeek.Saturday
-            };
-            var end = new ScheduleConstraint
-            {
-                DayOfWeek = DayOfWeek.Monday
-            };
-            var id = $"{marketId}_weekend";
-            var settings = ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex);
-
-            return settings;
+                var start = new ScheduleConstraint
+                {
+                    DayOfWeek = weekend
+                };
+                var end = new ScheduleConstraint
+                {
+                    DayOfWeek = weekend == DayOfWeek.Saturday ? DayOfWeek.Sunday : weekend + 1
+                };
+                var id = $"{marketId}_{weekend.ToString()}";
+                result.Add(ScheduleSettings.Create(id, marketId, marketName, start, end, assetPairRegex));
+            }
+            
+            return result;
         }
     }
 }

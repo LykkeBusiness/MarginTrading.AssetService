@@ -46,7 +46,6 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
                     await UpdateUnderlyingsCache(e, model);
                     await HandleMdsCodeChanged(e);
-                    await HandleStartDateChanged(e);
 
                     await _legacyAssetsCacheUpdater.HandleUnderlyingUpdated(e.OldValue.MdsCode, model, e.Timestamp);
                     break;
@@ -92,18 +91,6 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                             $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
                     }
                 }
-            }
-        }
-
-        private async Task HandleStartDateChanged(UnderlyingChangedEvent e)
-        {
-            if (e.OldValue.StartDate != e.NewValue.StartDate)
-            {
-                var result = await _productsService.UpdateStartDate(e.NewValue.MdsCode, e.NewValue.StartDate,
-                    e.Username, e.CorrelationId);
-                if (result.IsFailed)
-                    _log.WriteInfo(nameof(UnderlyingChangedHandler), nameof(Handle),
-                        $"Cannot update StartDate for product with underlying mds code {e.NewValue.MdsCode}, error was {result.Error}");
             }
         }
     }

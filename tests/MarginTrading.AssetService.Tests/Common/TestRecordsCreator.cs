@@ -82,11 +82,16 @@ namespace MarginTrading.AssetService.Tests.Common
 
         public static async Task CreateMarketSettings(HttpClient client, string id)
         {
-            var request = new AddMarketSettingsRequest()
+            var request = new AddMarketSettingsRequest
             {
                 Id = id,
                 Name = id,
                 Username = "username",
+                Timezone = "UTC",
+                Holidays = new List<DateTime>(),
+                Open = new[] {new TimeSpan(8, 0, 0)},
+                Close = new[] {new TimeSpan(20, 0, 0)},
+                HalfWorkingDays = new List<string>()
             };
 
             await client.PostAsync("/api/market-settings", request.ToJsonStringContent());

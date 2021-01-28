@@ -20,12 +20,14 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public decimal? Dividends871M { get; set; }
 
-        public TimeSpan? Open { get; set; }
+        public TimeSpan[] Open { get; set; }
 
-        public TimeSpan? Close { get; set; }
+        public TimeSpan[] Close { get; set; }
 
         public string Timezone { get; set; }
 
         public List<DateTime> Holidays { get; set; }
+        
+        public List<string> HalfWorkingDays { get; set; }
     }
 }

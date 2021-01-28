@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Lykke.Snow.Common.Extensions;
+using Lykke.Snow.Common.Exceptions;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.MarketSettings;
@@ -44,7 +44,10 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username, string correlationId)
         {
-            var marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
+            var creationResult = CreateMarketSettingsWithDefaults(model, out var marketSettings);
+
+            if (creationResult.IsFailed)
+                return creationResult;
 
             var validationResult = ValidateSettings(marketSettings);
 
@@ -66,8 +69,11 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username, string correlationId)
         {
-            var marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
-
+            var creationResult = CreateMarketSettingsWithDefaults(model, out var marketSettings);
+            
+            if (creationResult.IsFailed)
+                return creationResult;
+            
             var currentSettings = await _marketSettingsRepository.GetByIdAsync(marketSettings.Id);
 
             if (currentSettings == null)
@@ -114,49 +120,6 @@ namespace MarginTrading.AssetService.Services
             return new Result<MarketSettingsErrorCodes>();
         }
 
-        private Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings model, MarketSettings currentMarketSettings = null)
-        {
-            var valid = TZConvert.TryGetTimeZoneInfo(model.Timezone, out var timezone);
-            if (!valid)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidTimezone);
-
-            if (model.Open.TotalHours >= 24 || model.Close.TotalHours >= 24 || (model.Open > model.Close && model.Close != TimeSpan.Zero))
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
-
-            var openUtc = model.Open.ShiftToUtc(timezone);
-            var closeUtc = model.Close.ShiftToUtc(timezone);
-
-            if (openUtc.TotalHours >= 24 || closeUtc.TotalHours >= 24 ||
-                openUtc.TotalHours < 0 || closeUtc.TotalHours < 0)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
-
-            if (model.DividendsLong < 0 || model.DividendsLong > 100)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
-
-            if (model.DividendsShort < 0 || model.DividendsShort > 100)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsShortValue);
-
-            if (model.Dividends871M < 0 || model.Dividends871M > 100)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
-
-            if (currentMarketSettings == null) 
-                return new Result<MarketSettingsErrorCodes>();
-
-            //This is the current day taking into account the timezone
-            var currentDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TZConvert.GetTimeZoneInfo(currentMarketSettings.Timezone));
-            var newHolidays = model.Holidays.Select(x => x.Date.Date).Except(currentMarketSettings.Holidays);
-
-            //Validate if we try to add holiday for already started trading day
-            if (newHolidays.Contains(currentDay.Date) && currentMarketSettings.Open <= currentDay.TimeOfDay &&
-                //Close will be Zero when it is set to 00h next day
-                (currentMarketSettings.Close >= currentDay.TimeOfDay || model.Close == TimeSpan.Zero))
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
-            }
-
-            return new Result<MarketSettingsErrorCodes>();
-        }
-
         private async Task PublishMarketSettingsChangedEvent
             (MarketSettings oldSettings, MarketSettings newSettings, string username, string correlationId, ChangeType changeType)
         {
@@ -170,6 +133,82 @@ namespace MarginTrading.AssetService.Services
                 OldMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(oldSettings),
                 NewMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(newSettings),
             });
+        }
+        
+        private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings newSettings, MarketSettings existingSettings = null)
+        {
+            if (newSettings.DividendsLong < 0 || newSettings.DividendsLong > 100)
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
+
+            if (newSettings.DividendsShort < 0 || newSettings.DividendsShort > 100)
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsShortValue);
+
+            if (newSettings.Dividends871M < 0 || newSettings.Dividends871M > 100)
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
+
+            if (existingSettings == null) 
+                return new Result<MarketSettingsErrorCodes>();
+
+            // This is the current day taking into account the timezone
+            var currentDay = TimeZoneInfo.ConvertTimeFromUtc(
+                DateTime.UtcNow,
+                TZConvert.GetTimeZoneInfo(existingSettings.MarketSchedule.TimeZoneId));
+
+            var hasTradingStarted = existingSettings.MarketSchedule.Open.First() <= currentDay.TimeOfDay;
+            
+            // check holidays
+            var newHolidays = newSettings.Holidays
+                .Select(x => x.Date.Date)
+                .Except(existingSettings.Holidays);
+            var holidaysViolate = newHolidays.Contains(currentDay.Date) && hasTradingStarted;
+
+            // check half-working days
+            var newHalfWorkingDays =
+                newSettings.MarketSchedule.HalfWorkingDays.Except(existingSettings.MarketSchedule.HalfWorkingDays);
+            var halfWorkingDaysViolate =
+                newHalfWorkingDays.Any(d => d.SameCalendarDay(currentDay)) && hasTradingStarted;
+
+            if (holidaysViolate || halfWorkingDaysViolate)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
+            }
+
+            return new Result<MarketSettingsErrorCodes>();
+        }
+        
+        private static Result<MarketSettingsErrorCodes> CreateMarketSettingsWithDefaults(
+            MarketSettingsCreateOrUpdateDto model,
+            out MarketSettings marketSettings)
+        {
+            marketSettings = null;
+
+            try
+            {
+                marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
+            }
+            catch (InvalidOpenAndCloseHoursException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
+            }
+            catch (OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes
+                    .OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
+            }
+            catch (InvalidTimeZoneException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidTimezone);
+            }
+            catch (InconsistentWorkingCalendarException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InconsistentWorkingCalendar);
+            }
+            catch (InvalidWorkingDayStringException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidHalfWorkingDayString);
+            }
+            
+            return new Result<MarketSettingsErrorCodes>();
         }
     }
 }

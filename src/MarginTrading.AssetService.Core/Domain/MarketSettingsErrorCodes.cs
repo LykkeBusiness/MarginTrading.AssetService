@@ -17,5 +17,7 @@ namespace MarginTrading.AssetService.Core.Domain
         InvalidDividends871MValue,
         CannotDeleteMarketSettingsAssignedToAnyProduct,
         OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay,
+        InconsistentWorkingCalendar,
+        InvalidHalfWorkingDayString
     }
 }

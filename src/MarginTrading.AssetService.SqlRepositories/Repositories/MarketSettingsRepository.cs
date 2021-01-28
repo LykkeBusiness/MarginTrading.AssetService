@@ -188,10 +188,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 DividendsLong = entity.DividendsLong,
                 DividendsShort = entity.DividendsShort,
                 Dividends871M = entity.Dividends871M,
-                Close = entity.Close,
-                Open = entity.Open,
-                Timezone = entity.Timezone,
                 Holidays = entity.Holidays.Select(x => x.Date).ToList(),
+                MarketSchedule = entity.MarketSchedule.Schedule
             };
         }
     }

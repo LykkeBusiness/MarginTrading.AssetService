@@ -2,12 +2,10 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.Common.Chaos;
-using Lykke.Common.MsSql;
 using Lykke.Logs.MsSql.Interfaces;
 using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
@@ -18,13 +16,12 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Services.Caches;
+using MarginTrading.AssetService.Services.Mapping;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
 using MarginTrading.AssetService.Services.Validations.Products;
 using MarginTrading.AssetService.Settings.Candles;
 using MarginTrading.AssetService.Settings.ServiceSettings;
-using MarginTrading.AssetService.SqlRepositories;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
 using AzureRepos = MarginTrading.AssetService.AzureRepositories.Repositories;
@@ -204,6 +201,10 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<UnderlyingCategoriesCache>()
                 .As<IUnderlyingCategoriesCache>()
+                .SingleInstance();
+
+            builder.RegisterType<MarketScheduleResolver>()
+                .AsSelf()
                 .SingleInstance();
 
             RegisterRepositories(builder);

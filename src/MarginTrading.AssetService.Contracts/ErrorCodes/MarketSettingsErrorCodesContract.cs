@@ -17,5 +17,7 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         InvalidDividends871MValue,
         CannotDeleteMarketSettingsAssignedToAnyProduct,
         OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay,
+        InconsistentWorkingCalendar,
+        InvalidHalfWorkingDayString,
     }
 }

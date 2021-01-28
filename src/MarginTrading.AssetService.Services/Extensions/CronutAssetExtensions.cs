@@ -13,6 +13,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 {
     public static class CronutAssetExtensions
     {
+        public const string DateFormat = "dd/MM/yyyy";
         public static void SetAssetFieldsFromProduct(this Asset asset, Product product)
         {
             asset.AssetId = product.ProductId;
@@ -48,7 +49,6 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)
         {
-            const string dateFormat = "dd/MM/yyyy";
             asset.Underlying.AlmParam = underlying.AlmParam;
             asset.Underlying.CfiCode = underlying.CfiCode;
             asset.Underlying.Eligible871m = underlying.Eligible871M;
@@ -63,9 +63,9 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.IndexName = underlying.IndexName;
             asset.Underlying.EMIRType = underlying.EmirType;
             asset.Underlying.CommodityDetails = underlying.CommodityDetails;
-            asset.LastTradingDate = underlying.LastTradingDate?.ToString(dateFormat, CultureInfo.InvariantCulture);
-            asset.ExpiryDate = underlying.ExpiryDate?.ToString(dateFormat, CultureInfo.InvariantCulture);
-            asset.Underlying.MaturityDate = underlying.MaturityDate?.ToString(dateFormat, CultureInfo.InvariantCulture);
+            asset.LastTradingDate = underlying.LastTradingDate?.ToString(DateFormat, CultureInfo.InvariantCulture);
+            asset.ExpiryDate = underlying.ExpiryDate?.ToString(DateFormat, CultureInfo.InvariantCulture);
+            asset.Underlying.MaturityDate = underlying.MaturityDate?.ToString(DateFormat, CultureInfo.InvariantCulture);
         }
 
         public static void SetAssetFieldsFromMarketSettings(this Asset asset, MarketSettings marketSettings)

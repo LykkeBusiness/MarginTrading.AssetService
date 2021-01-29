@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Lykke.Snow.Common.WorkingDays;
+using MarginTrading.AssetService.Core.Constants;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
@@ -22,6 +24,10 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public static MarketSettings GetMarketSettingsWithDefaults(MarketSettingsCreateOrUpdateDto model)
         {
+            var open = model.Open.Any() ? model.Open : new[] { MarketSettingsConstants.DefaultOpen };
+            var close = model.Close.Any() ? model.Close : new[] { MarketSettingsConstants.DefaultClose };
+            var timeZone = !string.IsNullOrEmpty(model.Timezone) ? model.Timezone: MarketSettingsConstants.DefaultTimeZone;
+
             return new MarketSettings
             {
                 Id = model.Id,
@@ -31,7 +37,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 DividendsShort = model.DividendsShort,
                 Holidays = model.Holidays,
                 MarketSchedule =
-                    new MarketSchedule(model.Open, model.Close, model.Timezone, model.HalfWorkingDays)
+                    new MarketSchedule(open, close, timeZone, model.HalfWorkingDays)
             };
         }
     }

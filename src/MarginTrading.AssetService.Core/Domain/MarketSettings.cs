@@ -31,7 +31,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 DividendsShort = model.DividendsShort,
                 Holidays = model.Holidays,
                 MarketSchedule =
-                    new MarketSchedule(model.Open, model.Close, model.Timezone, model.HalfWorkingDays)
+                    new MarketSchedule(model.Open, model.Close, model.Timezone ?? "UTC", model.HalfWorkingDays)
             };
         }
     }

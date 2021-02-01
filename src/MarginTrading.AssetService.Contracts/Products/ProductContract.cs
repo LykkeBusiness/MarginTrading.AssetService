@@ -112,5 +112,11 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(33)]
         public bool IsStarted { get; set; }
+
+        [MessagePack.Key(38)]
+        public bool EnforceMargin { get; set; }
+
+        [MessagePack.Key(39)]
+        public decimal? Margin { get; set; }
     }
 }

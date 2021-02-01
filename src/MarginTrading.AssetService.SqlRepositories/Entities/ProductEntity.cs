@@ -84,5 +84,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public bool IsStarted { get; set; }
         
         public byte[] Timestamp { get; set; }
+        public bool EnforceMargin { get; set; }
+
+        public decimal? Margin { get; set; }
     }
 }

@@ -83,6 +83,8 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.IsStarted).IsRequired();
 
             builder.Property(x => x.Timestamp).IsRowVersion();
+            builder.Property(p => p.Margin).HasColumnType(DbDecimal);
+            builder.Property(p => p.EnforceMargin).IsRequired();
         }
     }
 }

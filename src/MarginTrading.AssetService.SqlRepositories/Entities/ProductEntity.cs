@@ -92,5 +92,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public decimal? Dividends871M { get; set; }
 
         public decimal HedgeCost { get; set; }
+
+        public bool EnforceMargin { get; set; }
+
+        public decimal? Margin { get; set; }
     }
 }

@@ -419,7 +419,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Dividends871M = product.Dividends871M,
                 DividendsLong = product.DividendsLong,
                 DividendsShort = product.DividendsShort,
-                HedgeCost = product.HedgeCost
+                HedgeCost = product.HedgeCost,
+                EnforceMargin = product.EnforceMargin,
+                Margin = product.Margin
             };
 
             return result;
@@ -467,7 +469,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Dividends871M = product.Dividends871M,
                 DividendsLong = product.DividendsLong,
                 DividendsShort = product.DividendsShort,
-                HedgeCost = product.HedgeCost
+                HedgeCost = product.HedgeCost,
+                EnforceMargin = product.EnforceMargin,
+                Margin = product.Margin
             };
 
             return result;

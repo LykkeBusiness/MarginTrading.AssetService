@@ -135,6 +135,7 @@ namespace MarginTrading.AssetService.Services
                 asset.SetAssetFieldsFromProduct(product);
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]]);
                 asset.SetAssetFieldsFromClientProfileSettings(clientProfileSettings[productAssetTypeIdMap[id]]);
+                asset.SetMargin(product, clientProfileSettings[productAssetTypeIdMap[id]]);
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);
                 asset.SetAssetFieldsFromTickFormula(productTickFormulas[productTickFormulaMap[id]]);

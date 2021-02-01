@@ -124,5 +124,11 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(37)]
         public decimal HedgeCost { get; set; }
+
+        [MessagePack.Key(38)]
+        public bool EnforceMargin { get; set; }
+
+        [MessagePack.Key(39)]
+        public decimal? Margin { get; set; }
     }
 }

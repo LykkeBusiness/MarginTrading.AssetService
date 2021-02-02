@@ -243,6 +243,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<decimal?>("DividendsShort")
                         .HasColumnType("decimal(18,13)");
 
+                    b.Property<bool>("EnforceMargin")
+                        .HasColumnType("bit");
+
                     b.Property<string>("ForceId")
                         .IsRequired()
                         .HasColumnType("nvarchar(400)")
@@ -284,6 +287,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<string>("Keywords")
                         .HasColumnType("nvarchar(400)")
                         .HasMaxLength(400);
+
+                    b.Property<decimal?>("Margin")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("MarketId")
                         .IsRequired()

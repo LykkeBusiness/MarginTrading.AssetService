@@ -106,7 +106,7 @@ namespace MarginTrading.AssetService.Services
                 var tradingInstrument = TradingInstrument.CreateFromProduct(
                     product,
                     defaultProfile.Id,
-                    profileSettingsForProduct.Margin,
+                    profileSettingsForProduct,
                     product.HedgeCost,
                     underlying?.Spread ?? _defaultTradingInstrumentSettings.Spread);
 

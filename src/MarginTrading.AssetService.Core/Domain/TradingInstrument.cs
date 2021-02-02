@@ -64,14 +64,15 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal HedgeCost { get; }
         public decimal Spread { get; }
 
-        public static TradingInstrument CreateFromProduct(Product product, string profileId, decimal marginRate,
+        public static TradingInstrument CreateFromProduct(Product product, string profileId, ClientProfileSettings clientProfileSettings,
             decimal hedgeCost, decimal spread)
         {
+            var margin = product.GetMargin(clientProfileSettings);
             return new TradingInstrument(
                 tradingConditionId: profileId,
                 instrument: product.ProductId,
-                leverageInit: (int)(100 / marginRate),
-                leverageMaintenance: (int)(100 / marginRate),
+                leverageInit: (int)(100 / margin),
+                leverageMaintenance: (int)(100 / margin),
                 swapLong: TradingInstrumentsConstants.SwapLong,
                 swapShort: TradingInstrumentsConstants.SwapShort,
                 delta: TradingInstrumentsConstants.Delta,

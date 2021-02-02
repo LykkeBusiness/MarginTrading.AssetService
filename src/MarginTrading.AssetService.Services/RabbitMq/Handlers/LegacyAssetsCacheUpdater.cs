@@ -112,8 +112,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
         public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings, DateTime timestamp)
         {
-            Func<Asset, bool> filter = x => x.Underlying.ExecutionFeeParameter.AssetType == clientProfileSettings.AssetTypeId;
-            await Handle(clientProfileSettings, filter, CronutAssetExtensions.SetAssetFieldsFromClientProfileSettings, timestamp);
+            await Handle(x => x.Underlying.ExecutionFeeParameter.AssetType == clientProfileSettings.AssetTypeId, timestamp);
         }
 
         public async Task HandleCurrencyUpdated(string oldInterestRateMdsCode, Currency currency, DateTime timestamp)

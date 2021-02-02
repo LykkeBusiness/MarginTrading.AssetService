@@ -112,6 +112,7 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         public bool EnforceMargin { get; set; }
 
+        [Range(0, 100)]
         public decimal? Margin { get; set; }
     }
 }

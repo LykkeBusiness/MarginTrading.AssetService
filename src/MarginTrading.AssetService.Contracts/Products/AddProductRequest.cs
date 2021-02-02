@@ -115,5 +115,10 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [Required]
         public decimal HedgeCost { get; set; }
+
+        public bool EnforceMargin { get; set; }
+
+        [Range(0.01, 100)]
+        public decimal? Margin { get; set; }
     }
 }

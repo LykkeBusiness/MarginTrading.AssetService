@@ -151,8 +151,12 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
             asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;
             asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
-            asset.Underlying.MarginRate = clientProfileSettings.Margin / 100;
             asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
+        }
+
+        public static void SetMargin(this Asset asset, Product product, ClientProfileSettings clientProfileSettings)
+        {
+            asset.Underlying.MarginRate = product.GetMargin(clientProfileSettings) / 100;
         }
     }
 }

@@ -397,6 +397,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Timestamp = product.Timestamp,
                 StartDate = product.StartDate.Value,
                 IsStarted = product.IsStarted,
+                EnforceMargin = product.EnforceMargin,
+                Margin = product.Margin
             };
 
             return result;
@@ -441,6 +443,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Timestamp = product.Timestamp,
                 StartDate = product.StartDate,
                 IsStarted = product.IsStarted,
+                EnforceMargin = product.EnforceMargin,
+                Margin = product.Margin
             };
 
             return result;

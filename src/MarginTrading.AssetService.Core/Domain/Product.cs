@@ -83,6 +83,10 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public byte[] Timestamp { get; set; }
 
+        public bool EnforceMargin { get; set; }
+
+        public decimal? Margin { get; set; }
+
         public Product ShallowCopy()
         {
             return (Product) this.MemberwiseClone();

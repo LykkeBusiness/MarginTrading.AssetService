@@ -100,5 +100,9 @@ namespace MarginTrading.AssetService.Contracts.Products
         public decimal OvernightMarginMultiplier { get; set; }
         
         public DateTime? StartDate { get; set; }
+
+        public bool EnforceMargin { get; set; }
+
+        public decimal? Margin { get; set; }
     }
 }

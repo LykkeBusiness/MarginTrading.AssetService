@@ -184,6 +184,27 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             }
         }
 
+        private async Task Handle(Func<Asset, bool> getAffectedFilter, DateTime timestamp)
+        {
+            if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+                return;
+
+            await _semaphore.WaitAsync();
+            try
+            {
+                var affectedAssets = _legacyAssetsCache.GetByFilter(getAffectedFilter);
+                var updatedAssets = await _legacyAssetsService.GetLegacyAssets(affectedAssets.Select(x => x.AssetId));
+
+                _legacyAssetsCache.AddOrUpdateMultiple(updatedAssets);
+
+                await PublishAssetUpsertedEvents(updatedAssets);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
+
         private async Task PublishAssetUpsertedEvents(List<Asset> assets)
         {
             foreach (var asset in assets)

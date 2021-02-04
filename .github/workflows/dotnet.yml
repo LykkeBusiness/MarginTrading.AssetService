@@ -17,6 +17,10 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 5.0.x
+    - name: Setup nuget
+      uses: Nuget/setup-nuget@latest
+    - name: Setup nuget sources
+      run: nuget sources add -name "Snow Feed" -Source "http://nuget-lykkecloud.azurewebsites.net/nuget"
     - name: Restore dependencies
       run: dotnet restore
     - name: Build

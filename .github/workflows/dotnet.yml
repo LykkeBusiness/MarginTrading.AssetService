@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 5.0.x
+        dotnet-version: 3.1.x
     - name: Setup nuget
       run: dotnet nuget add source http://nuget-lykkecloud.azurewebsites.net/nuget -n snow
     - name: Restore dependencies
@@ -24,4 +24,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test tests/**/*Tests.csproj --no-build --verbosity normal
+      run: dotnet test --no-build --verbosity normal

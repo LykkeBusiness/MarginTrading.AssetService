@@ -20,7 +20,7 @@
     <NoWarn>1701;1702;1705;CS1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Cronut.Dto" Version="3.14.0" />
+    <PackageReference Include="Cronut.Dto" Version="3.17.2" />
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
     <PackageReference Include="Lykke.Snow.Common" Version="1.17.0" />
     <PackageReference Include="Refit" Version="5.2.1" />

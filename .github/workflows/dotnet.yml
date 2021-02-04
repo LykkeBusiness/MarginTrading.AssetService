@@ -1,4 +1,4 @@
-name: .NET
+name: Build and test master branch
 
 on:
   push:
@@ -24,4 +24,4 @@ jobs:
     - name: Build
       run: dotnet build --no-restore
     - name: Test
-      run: dotnet test --no-build --verbosity normal
+      run: dotnet test tests/**/*Tests.csproj --no-build --verbosity normal

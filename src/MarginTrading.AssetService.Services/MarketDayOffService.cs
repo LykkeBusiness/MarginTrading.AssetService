@@ -161,7 +161,7 @@ namespace MarginTrading.AssetService.Services
             var stateIsChangedToEnabled = nextInterval.Schedule.IsTradeEnabled != currentInterval.Enabled() && nextInterval.Enabled();
             var intervalIsMissing = currentInterval != null && nextInterval.Start > currentInterval.End;
 
-            if (stateIsChangedToEnabled || intervalIsMissing && currentInterval.End.Date > lastTradingDay.Date)
+            if (stateIsChangedToEnabled || intervalIsMissing && currentInterval.End.Date >= lastTradingDay.Date && !nextInterval.Enabled())
             {
                 // ReSharper disable once PossibleNullReferenceException
                 // if status was changed and next is enabled, that means current interval is disable == it not null

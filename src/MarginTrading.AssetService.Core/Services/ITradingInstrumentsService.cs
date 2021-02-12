@@ -7,9 +7,7 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface ITradingInstrumentsService
     {
-        Task<IReadOnlyList<ITradingInstrument>> GetAsync();
-
-        Task<IReadOnlyList<ITradingInstrument>> GetByTradingConditionAsync(string tradingConditionId);
+        Task<IReadOnlyList<ITradingInstrument>> GetAsync(string tradingConditionId);
 
         Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null, int? skip = null, int? take = null);
 

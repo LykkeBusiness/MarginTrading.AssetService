@@ -7,13 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.TradingConditions;
-using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Core.Settings;
-using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Middleware;
-using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -56,11 +52,22 @@ namespace MarginTrading.AssetService.Controllers
         /// <summary>
         /// Get the trading condition
         /// </summary>
+        [Obsolete("Use GetByClientProfileId instead.")]
         [HttpGet]
         [Route("{tradingConditionId}")]
         public async Task<TradingConditionContract> Get(string tradingConditionId)
         {
             var obj = await _tradingConditionsService.GetAsync(tradingConditionId);
+            
+            return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);
+        }
+
+        /// <summary>
+        /// Get the trading condition by client profile id
+        /// </summary>
+        public async Task<TradingConditionContract> GetByClientProfileId(string clientProfileId)
+        {
+            var obj = await _tradingConditionsService.GetAsync(clientProfileId);
             
             return _convertService.Convert<ITradingCondition, TradingConditionContract>(obj);
         }

@@ -36,9 +36,9 @@ namespace MarginTrading.AssetService.Services
             return profiles.Select(x => MapTradingCondition(x, settlementCurrency)).ToList();
         }
 
-        public async Task<ITradingCondition> GetAsync(string tradingConditionId)
+        public async Task<ITradingCondition> GetAsync(string clientProfileId)
         {
-            var clientProfile = await _clientProfilesRepository.GetByIdAsync(tradingConditionId);
+            var clientProfile = await _clientProfilesRepository.GetByIdAsync(clientProfileId);
 
             if (clientProfile == null)
                 return null;
@@ -58,8 +58,10 @@ namespace MarginTrading.AssetService.Services
         private ITradingCondition MapTradingCondition(ClientProfile clientProfile, string settlementCurrency)
         {
             return TradingCondition.CreateFromClientProfile(clientProfile,
-                _defaultLegalEntitySettings.DefaultLegalEntity, _defaultTradingConditionsSettings.MarginCall1,
-                _defaultTradingConditionsSettings.MarginCall2, _defaultTradingConditionsSettings.StopOut,
+                _defaultLegalEntitySettings.DefaultLegalEntity,
+                _defaultTradingConditionsSettings.MarginCall1,
+                _defaultTradingConditionsSettings.MarginCall2,
+                _defaultTradingConditionsSettings.StopOut,
                 settlementCurrency);
         }
     }

@@ -89,7 +89,7 @@ namespace MarginTrading.AssetService.Services
                 (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var clientProfileSettings =
-                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id,
+                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id,
                     productAssetTypeIdMap.Values.Distinct()))
                 .ToDictionary(x => x.AssetTypeId, v => v);
 
@@ -139,7 +139,7 @@ namespace MarginTrading.AssetService.Services
                 
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
                 asset.SetAssetFieldsFromClientProfileSettings(clientProfileSettings[productAssetTypeIdMap[id]]);
-                asset.SetMargin(product, clientProfileSettings[productAssetTypeIdMap[id]]);
+                asset.SetMargin(product, clientProfileSettings[productAssetTypeIdMap[id]].Margin);
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);
                 asset.SetAssetFieldsFromTickFormula(productTickFormulas[productTickFormulaMap[id]]);

@@ -156,16 +156,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.CategoryRaw = category.Id;
         }
 
-        public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
-        {
-            asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
-            asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
-            asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;
-            asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
-            asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
-            asset.IsAvailable = clientProfileSettings.IsAvailable;
-        }
-
         public static void SetMargin(this Asset asset, Product product, decimal profileMargin)
         {
             asset.Underlying.MarginRate = product.GetMargin(profileMargin) / 100;
@@ -174,6 +164,16 @@ namespace MarginTrading.AssetService.Services.Extensions
         public static void SetAssetFieldsFromAssetType(this Asset asset, AssetType assetType)
         {
             asset.Underlying.UnderlyingCategoryId = assetType.UnderlyingCategoryId;
+        }
+        
+        public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
+        {
+            asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
+            asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
+            asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;
+            asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
+            asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
+            asset.IsAvailable = clientProfileSettings.IsAvailable;
         }
     }
 }

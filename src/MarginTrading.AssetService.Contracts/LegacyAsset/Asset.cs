@@ -134,6 +134,7 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         public DividendsFactor DividendsFactor { get; set; } = new DividendsFactor();
 
         [JsonProperty("isAvailable")]
+        [Obsolete("To determine asset availability use ClientProfiles section instead")]
         public bool IsAvailable { get; set; }
     }
 }

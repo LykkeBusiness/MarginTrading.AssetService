@@ -96,6 +96,7 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         /// Represents an execution fee parameters object.
         /// Mapped from the normalized data after deserialization.
         /// </summary>
+        [Obsolete("Use value in ClientProfiles section instead")]
         public ExecutionFeeParameter ExecutionFeeParameter { get; set; }
 
         /// <summary>
@@ -109,12 +110,14 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         /// Mapped from the normalized data after deserialization.
         /// </summary>
         [JsonProperty("marginRate")]
+        [Obsolete("Use value in ClientProfiles section instead")]
         public decimal? MarginRate { get; set; }
 
         /// <summary>
         /// Represents the financing fix rate.
         /// Mapped from the normalized data after deserialization.
         /// </summary>
+        [Obsolete("Use value in ClientProfiles section instead")]
         public decimal FinancingFixRate { get; set; }
 
         [JsonProperty("Keywords")]

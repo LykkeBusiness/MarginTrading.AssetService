@@ -112,7 +112,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var result = await context.ClientProfileSettings
-                    .Where(x => x.ClientProfileId == clientProfileId)
+                    .Where(x => string.IsNullOrEmpty(clientProfileId) || x.ClientProfileId == clientProfileId)
                     .Where(x => assetTypeIds.Contains(x.AssetTypeId))
                     .Where(x => !availableOnly || x.IsAvailable)
                     .Include(x => x.ClientProfile)

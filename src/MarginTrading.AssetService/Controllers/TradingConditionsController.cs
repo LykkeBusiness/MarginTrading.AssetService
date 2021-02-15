@@ -65,6 +65,8 @@ namespace MarginTrading.AssetService.Controllers
         /// <summary>
         /// Get the trading condition by client profile id
         /// </summary>
+        [HttpGet]
+        [Route(("clientProfile/{clientProfileId}"))]
         public async Task<TradingConditionContract> GetByClientProfileId(string clientProfileId)
         {
             var obj = await _tradingConditionsService.GetAsync(clientProfileId);

@@ -12,8 +12,8 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
-using ClientProfile = MarginTrading.AssetService.Contracts.LegacyAsset.ClientProfile;
 using Market = MarginTrading.AssetService.Contracts.LegacyAsset.Market;
+using ClientProfile = MarginTrading.AssetService.Contracts.LegacyAsset.ClientProfile;
 using TickFormula = MarginTrading.AssetService.Contracts.LegacyAsset.TickFormula;
 
 namespace MarginTrading.AssetService.Services

@@ -8,7 +8,6 @@ using AsyncFriendlyStackTrace;
 using JetBrains.Annotations;
 using Lykke.HttpClientGenerator;
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Market;

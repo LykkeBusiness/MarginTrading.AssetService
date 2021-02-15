@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using Cronut.Dto.Assets;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
-using Asset = Cronut.Dto.Assets.Asset;
+using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 
 namespace MarginTrading.AssetService.Services.Extensions
 {
-    public static class CronutAssetExtensions
+    public static class AssetExtensions
     {
         public const string DateFormat = "dd/MM/yyyy";
         public static void SetAssetFieldsFromProduct(this Asset asset, Product product)

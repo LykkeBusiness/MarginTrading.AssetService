@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
-using Cronut.Dto.Assets;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Asset = Cronut.Dto.Assets.Asset;
-using Market = Cronut.Dto.Assets.Market;
+using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
+using Market = MarginTrading.AssetService.Contracts.LegacyAsset.Market;
 
 namespace MarginTrading.AssetService.Services
 {

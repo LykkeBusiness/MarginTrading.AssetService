@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Cronut.Dto.Assets;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 
 namespace MarginTrading.AssetService.Core.Services
 {

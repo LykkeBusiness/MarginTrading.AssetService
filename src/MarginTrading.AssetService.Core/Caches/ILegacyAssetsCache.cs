@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Cronut.Dto.Assets;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 
 namespace MarginTrading.AssetService.Core.Caches
 {

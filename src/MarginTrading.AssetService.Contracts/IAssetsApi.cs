@@ -4,8 +4,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts
@@ -40,15 +40,15 @@ namespace MarginTrading.AssetService.Contracts
         /// Get the list of legacy assets
         /// </summary>
         [Get("/api/assets/legacy")]
-        Task<List<Cronut.Dto.Assets.Asset>> GetLegacyAssets();
+        Task<List<Asset>> GetLegacyAssets();
 
         /// <summary>
         /// Get legacy asset by id
         /// </summary>
         [Get("/api/assets/legacy/{assetId}")]
-        Task<Cronut.Dto.Assets.Asset> GetLegacyAssetById(string assetId);        
+        Task<Asset> GetLegacyAssetById(string assetId);        
         
         [Post("/api/assets/legacy/search")]
-        Task<IEnumerable<Cronut.Dto.Assets.Asset>> SearchLegacyAssets(SearchLegacyAssetsRequest request);
+        Task<IEnumerable<Asset>> SearchLegacyAssets(SearchLegacyAssetsRequest request);
     }
 }

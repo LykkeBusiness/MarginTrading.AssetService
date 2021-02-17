@@ -22,7 +22,7 @@ namespace MarginTrading.AssetService.Tests
     public class MarketDayOffServiceTests
     {
         [Theory]
-        [InlineData("Market1.1", false, "2019-10-11", "2019-10-12")]
+        [InlineData("Market1.1", false, "2019-10-11", "2019-10-11")]
         [InlineData("Market1.2", true, "2019-10-11", "2019-10-12")]
         [InlineData("Market1.3", true, "2019-10-11", "2019-10-12")]
         [InlineData("Market2.1", true, "2019-10-11", "2019-10-14")]

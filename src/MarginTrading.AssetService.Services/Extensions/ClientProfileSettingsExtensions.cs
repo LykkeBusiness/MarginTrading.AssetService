@@ -16,8 +16,8 @@ namespace MarginTrading.AssetService.Services.Extensions
                 MarginRate = marginRate,
                 ExecutionFeesCap = source.ExecutionFeesCap,
                 ExecutionFeesFloor = source.ExecutionFeesFloor,
-                ExecutionFeesRate = source.ExecutionFeesRate,
-                FinancingFeesRate = source.FinancingFeesRate,
+                ExecutionFeesRate = source.ExecutionFeesRate / 100,
+                FinancingFeesRate = source.FinancingFeesRate / 100,
                 OnBehalfFee = source.OnBehalfFee
             };
         }

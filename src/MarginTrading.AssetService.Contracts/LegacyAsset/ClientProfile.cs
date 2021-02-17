@@ -10,7 +10,7 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
     {
         public string Id { get; set; }
         
-        public decimal Margin { get; set; }
+        public decimal MarginRate { get; set; }
         
         public decimal ExecutionFeesFloor { get; set; }
         

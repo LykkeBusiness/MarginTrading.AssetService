@@ -158,7 +158,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         public static void SetMargin(this Asset asset, Product product, decimal profileMargin)
         {
-            asset.Underlying.MarginRate = product.GetMargin(profileMargin) / 100;
+            asset.Underlying.MarginRate = product.GetMarginRate(profileMargin);
         }
 
         public static void SetAssetFieldsFromAssetType(this Asset asset, AssetType assetType)

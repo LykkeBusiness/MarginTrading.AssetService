@@ -65,8 +65,6 @@ namespace MarginTrading.AssetService.Services.Mapping
                     .ForMember(x => x.RegulatoryProfileId, opt => opt.Ignore())
                     .ForMember(x => x.RegulatoryTypeId, opt => opt.Ignore());
                 cfg.CreateMap<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>();
-                cfg.CreateMap<ClientProfileSettings, Contracts.LegacyAsset.ClientProfile>()
-                    .ForMember(dest => dest.Id, opt => opt.MapFrom(x => x.ClientProfileId));
 
                 //Client profiles
                 cfg.CreateMap<ClientProfile, ClientProfileContract>().ReverseMap();

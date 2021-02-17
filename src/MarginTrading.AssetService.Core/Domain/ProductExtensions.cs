@@ -20,5 +20,7 @@ namespace MarginTrading.AssetService.Core.Domain
             return Math.Max(profileMargin, product.Margin.Value);
         }
 
+        public static decimal GetMarginRate(this Product product, decimal profileMargin) =>
+            product.GetMargin(profileMargin) / 100;
     }
 }

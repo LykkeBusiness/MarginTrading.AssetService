@@ -33,7 +33,6 @@ namespace MarginTrading.AssetService.Services
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly string _brokerId;
         private readonly IList<string> _assetTypesWithZeroInterestRate;
-        private readonly IConvertService _convertService;
 
         public LegacyAssetsService(
             IProductsRepository productsRepository,
@@ -48,7 +47,6 @@ namespace MarginTrading.AssetService.Services
             IBrokerSettingsApi brokerSettingsApi,
             string brokerId,
             IList<string> assetTypesWithZeroInterestRate,
-            IConvertService convertService,
             IClientProfilesRepository clientProfilesRepository)
         {
             _productsRepository = productsRepository;
@@ -61,7 +59,6 @@ namespace MarginTrading.AssetService.Services
             _assetTypesRepository = assetTypesRepository;
             _log = log;
             _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
-            _convertService = convertService;
             _clientProfilesRepository = clientProfilesRepository;
             _brokerSettingsApi = brokerSettingsApi;
             _brokerId = brokerId;
@@ -99,7 +96,7 @@ namespace MarginTrading.AssetService.Services
                 (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id, productAssetTypeIdMap.Values.Distinct()))
                 .ToDictionary(x => x.AssetTypeId, v => v);
 
-            var clientProfileSettings =
+            var clientProfileSettingsList =
                 (await _clientProfileSettingsRepository.GetAllAsync(string.Empty, productAssetTypeIdMap.Values.Distinct(), true))
                 .GroupBy(x => x.AssetTypeId)
                 .ToDictionary(x => x.Key, v => v.AsEnumerable());
@@ -149,10 +146,8 @@ namespace MarginTrading.AssetService.Services
                 
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
 
-                var clientProfiles = _convertService
-                    .Convert<IEnumerable<ClientProfileSettings>, IEnumerable<ClientProfile>>(
-                        clientProfileSettings[asset.Underlying.AssetType])
-                    .ToList();
+                var clientProfiles = clientProfileSettingsList[asset.Underlying.AssetType]
+                    .Select(x => x.ToClientProfileWithRate(product.GetMarginRate(x.Margin)));
                 asset.Underlying.ClientProfiles.AddRange(clientProfiles);
                 
                 // todo: remove it once commission service is updated

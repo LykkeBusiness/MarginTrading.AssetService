@@ -3,10 +3,8 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
-using Microsoft.EntityFrameworkCore;
 
 namespace MarginTrading.AssetService.StorageInterfaces.Repositories
 {

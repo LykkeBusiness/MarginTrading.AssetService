@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace MarginTrading.AssetService.SqlRepositories.Entities
+﻿namespace MarginTrading.AssetService.SqlRepositories.Entities
 {
     public class ClientProfileEntity
     {

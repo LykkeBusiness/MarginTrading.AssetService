@@ -2,8 +2,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Autofac;
 using Common;
-using Lykke.Snow.Mdm.Contracts.Api;
-using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.ProductCategories;

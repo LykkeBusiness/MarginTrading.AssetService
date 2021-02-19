@@ -1,5 +1,3 @@
-using MarginTrading.AssetService.Contracts.Common;
-
 namespace MarginTrading.AssetService.Contracts.Products
 {
     public class ChangeMultipleProductFrozenStatusRequest

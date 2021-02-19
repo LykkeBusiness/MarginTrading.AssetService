@@ -1,15 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

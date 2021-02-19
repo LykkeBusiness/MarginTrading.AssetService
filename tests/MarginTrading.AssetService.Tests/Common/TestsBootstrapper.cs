@@ -2,22 +2,13 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Autofac;
-using Autofac.Core;
 using Autofac.Extensions.DependencyInjection;
-using Lykke.Common.MsSql;
-using Lykke.Snow.Mdm.Contracts.Api;
-using Lykke.Snow.Mdm.Contracts.Models.Contracts;
-using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Controllers;
-using MarginTrading.AssetService.Modules;
-using MarginTrading.AssetService.SqlRepositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.TestHost;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Moq;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.Common;

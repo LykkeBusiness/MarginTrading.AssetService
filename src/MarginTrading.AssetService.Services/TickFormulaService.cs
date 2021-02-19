@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Snow.Common.Model;
-using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Extensions;

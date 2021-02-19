@@ -15,7 +15,7 @@ namespace MarginTrading.AssetService.Extensions
             {
                 //we have to provide format because expire date is not in default one
                 var expiryDate = DateTime.TryParseExact(x.ExpiryDate, 
-                    AssetExtensions.DateFormat,
+                    LegacyAssetExtensions.DateFormat,
                     DateTimeFormatInfo.InvariantInfo, 
                     DateTimeStyles.None, 
                     out var ed) ? ed : (DateTime?) null;

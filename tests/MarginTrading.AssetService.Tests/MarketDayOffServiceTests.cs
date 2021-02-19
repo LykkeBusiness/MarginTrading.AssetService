@@ -12,7 +12,6 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services;
-using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Internal;
 using Moq;
 using Xunit;

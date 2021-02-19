@@ -2,18 +2,13 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using AsyncFriendlyStackTrace;
 using JetBrains.Annotations;
 using Lykke.HttpClientGenerator;
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Enums;
-using MarginTrading.AssetService.Contracts.Market;
 using MarginTrading.AssetService.Contracts.Routes;
-using MarginTrading.AssetService.Contracts.Scheduling;
-using MarginTrading.AssetService.Contracts.TradingConditions;
 using Newtonsoft.Json;
 using Refit;
 

@@ -1,5 +1,4 @@
-﻿using System;
-using MarginTrading.AssetService.Core.Domain;
+﻿using MarginTrading.AssetService.Core.Domain;
 
 namespace MarginTrading.AssetService.SqlRepositories.Entities
 {

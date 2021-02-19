@@ -6,7 +6,6 @@ using System.Net;
 using Lykke.Common.Api.Contract.Responses;
 using MarginTrading.AssetService.Core.Services;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace MarginTrading.AssetService.Controllers
 {

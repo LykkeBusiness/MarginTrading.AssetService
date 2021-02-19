@@ -103,13 +103,13 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleTickFormulaUpdated(TickFormula tickFormula, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.TickFormulaName == tickFormula.Id;
-            await Handle(tickFormula, filter, AssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
+            await Handle(tickFormula, filter, LegacyAssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
         }
 
         public async Task HandleProductCategoryUpdated(ProductCategory productCategory, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.CategoryRaw == productCategory.Id;
-            await Handle(productCategory, filter, AssetExtensions.SetAssetFieldsFromCategory, timestamp);
+            await Handle(productCategory, filter, LegacyAssetExtensions.SetAssetFieldsFromCategory, timestamp);
         }
 
         public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings, DateTime timestamp)
@@ -135,13 +135,13 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.MdsCode == oldMdsCode;
-            await Handle(underlying, filter, AssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
+            await Handle(underlying, filter, LegacyAssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
         }
 
         public async Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.AssetType == assetType.Id;
-            await Handle(assetType, filter, AssetExtensions.SetAssetFieldsFromAssetType, timestamp);
+            await Handle(assetType, filter, LegacyAssetExtensions.SetAssetFieldsFromAssetType, timestamp);
         }
 
         public Task UpdateAll(DateTime timestamp)

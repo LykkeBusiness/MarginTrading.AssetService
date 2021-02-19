@@ -5,7 +5,6 @@ using Common;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.Enums;
-using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;

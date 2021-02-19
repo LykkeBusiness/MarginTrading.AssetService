@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
-using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -18,20 +16,17 @@ namespace MarginTrading.AssetService.Services
         private readonly ICurrenciesRepository _currenciesRepository;
         private readonly ISettlementCurrencyService _settlementCurrencyService;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
-        private readonly ILog _log;
 
         public AssetPairService(
             IProductsRepository productsRepository,
             ICurrenciesRepository currenciesRepository,
             ISettlementCurrencyService settlementCurrencyService,
-            DefaultLegalEntitySettings defaultLegalEntitySettings,
-            ILog log)
+            DefaultLegalEntitySettings defaultLegalEntitySettings)
         {
             _productsRepository = productsRepository;
             _currenciesRepository = currenciesRepository;
             _settlementCurrencyService = settlementCurrencyService;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
-            _log = log;
         }
 
         public async Task<IAssetPair> GetByIdAsync(string assetPairId)

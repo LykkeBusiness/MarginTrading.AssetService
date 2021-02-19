@@ -1,6 +1,5 @@
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations

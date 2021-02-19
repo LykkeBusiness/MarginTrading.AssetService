@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Log;
 using JsonDiffPatchDotNet;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Extensions;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {

@@ -22,7 +22,6 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly IProductsRepository _productsRepository;
         private readonly IClientProfileSettingsRepository _clientProfileSettingsRepository;
-        private readonly IClientProfilesRepository _clientProfilesRepository;
         private readonly ICurrenciesRepository _currenciesRepository;
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
@@ -46,8 +45,7 @@ namespace MarginTrading.AssetService.Services
             ILog log, 
             IBrokerSettingsApi brokerSettingsApi,
             string brokerId,
-            IList<string> assetTypesWithZeroInterestRate,
-            IClientProfilesRepository clientProfilesRepository)
+            IList<string> assetTypesWithZeroInterestRate)
         {
             _productsRepository = productsRepository;
             _clientProfileSettingsRepository = clientProfileSettingsRepository;
@@ -59,7 +57,6 @@ namespace MarginTrading.AssetService.Services
             _assetTypesRepository = assetTypesRepository;
             _log = log;
             _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
-            _clientProfilesRepository = clientProfilesRepository;
             _brokerSettingsApi = brokerSettingsApi;
             _brokerId = brokerId;
         }
@@ -87,16 +84,7 @@ namespace MarginTrading.AssetService.Services
             var tradingCurrencies =
                 (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
             
-            // todo : remove default profile usage once commission service migrated
-            var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
-            if (defaultProfile == null)
-                throw new InvalidOperationException("There is no default client profile in the system");
-            
-            var defaultProfileSettings =
-                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id, productAssetTypeIdMap.Values.Distinct()))
-                .ToDictionary(x => x.AssetTypeId, v => v);
-
-            var clientProfileSettingsDict =
+            var availableClientProfileSettingsDict =
                 (await _clientProfileSettingsRepository.GetAllAsync(string.Empty, productAssetTypeIdMap.Values.Distinct(), true))
                 .GroupBy(x => x.AssetTypeId)
                 .ToDictionary(x => x.Key, v => v.AsEnumerable());
@@ -146,17 +134,12 @@ namespace MarginTrading.AssetService.Services
                 
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
 
-                if (clientProfileSettingsDict.TryGetValue(asset.Underlying.AssetType, out var clientProfileSettingsList))
+                if (availableClientProfileSettingsDict.TryGetValue(asset.Underlying.AssetType, out var clientProfileSettingsList))
                 {
-                    var clientProfiles = clientProfileSettingsList.Select(x =>
+                    var availableClientProfileSettingsForAssetType = clientProfileSettingsList.Select(x =>
                         x.ToClientProfileWithRate(product.GetMarginRate(x.Margin)));
-                    asset.Underlying.ClientProfiles.AddRange(clientProfiles);
+                    asset.Underlying.AvailableClientProfiles.AddRange(clientProfiles);
                 }
-                
-                // todo: remove it once commission service is updated
-                // so far default client profile is used to fill in values
-                asset.SetAssetFieldsFromClientProfileSettings(defaultProfileSettings[productAssetTypeIdMap[id]]);
-                asset.SetMargin(product, defaultProfileSettings[productAssetTypeIdMap[id]].Margin);
                 
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);
@@ -183,7 +166,6 @@ namespace MarginTrading.AssetService.Services
                 },
                 Underlying = new Underlying
                 {
-                    ExecutionFeeParameter = new ExecutionFeeParameter(),
                     MarketDetails = new Market
                     {
                         Calendar = new Calendar(),
@@ -192,7 +174,7 @@ namespace MarginTrading.AssetService.Services
                     },
                     InterestRates = new List<InterestRate>(),
                     DividendsFactor = new DividendsFactor(),
-                    ClientProfiles = new List<ClientProfile>()
+                    AvailableClientProfiles = new List<ClientProfile>()
                 },
             };
             return asset;

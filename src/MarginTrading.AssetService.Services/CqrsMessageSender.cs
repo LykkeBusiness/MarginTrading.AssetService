@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
-using MarginTrading.AssetService.Contracts.AssetPair;
-using MarginTrading.AssetService.Contracts.Common;
-using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 

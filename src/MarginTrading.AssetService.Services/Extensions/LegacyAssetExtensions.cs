@@ -10,7 +10,7 @@ using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 
 namespace MarginTrading.AssetService.Services.Extensions
 {
-    public static class AssetExtensions
+    public static class LegacyAssetExtensions
     {
         public const string DateFormat = "dd/MM/yyyy";
         public static void SetAssetFieldsFromProduct(this Asset asset, Product product)
@@ -152,24 +152,9 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.CategoryRaw = category.Id;
         }
 
-        public static void SetMargin(this Asset asset, Product product, decimal profileMargin)
-        {
-            asset.Underlying.MarginRate = product.GetMarginRate(profileMargin);
-        }
-
         public static void SetAssetFieldsFromAssetType(this Asset asset, AssetType assetType)
         {
             asset.Underlying.UnderlyingCategoryId = assetType.UnderlyingCategoryId;
-        }
-        
-        public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
-        {
-            asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
-            asset.Underlying.ExecutionFeeParameter.CommissionCap = clientProfileSettings.ExecutionFeesCap;
-            asset.Underlying.ExecutionFeeParameter.CommissionFloor = clientProfileSettings.ExecutionFeesFloor;
-            asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
-            asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
-            asset.IsAvailable = clientProfileSettings.IsAvailable;
         }
     }
 }

@@ -2,8 +2,6 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Lykke.Snow.Common.Model;
-using Lykke.Snow.Mdm.Contracts.Api;
-using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;

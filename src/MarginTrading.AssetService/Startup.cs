@@ -91,6 +91,8 @@ namespace MarginTrading.AssetService
                     var contractsXmlPath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath,
                         "MarginTrading.AssetService.Contracts.xml");
                     options.IncludeXmlComments(contractsXmlPath);
+                    // to avoid naming collision with Cronut packages
+                    options.CustomSchemaIds(i => i.FullName);
                     if (!string.IsNullOrWhiteSpace(_mtSettingsManager.CurrentValue.MarginTradingAssetServiceClient?.ApiKey))
                     {
                         options.AddApiKeyAwareness();

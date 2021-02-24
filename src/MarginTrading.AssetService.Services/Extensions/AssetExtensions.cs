@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
@@ -79,12 +80,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         private static void SetHalfWorkingDays(this Asset asset, MarketSettings marketSettings)
         {
-            asset.Underlying.MarketDetails.Calendar.HalfWorkingDays = marketSettings.MarketSchedule.HalfWorkingDays.Select(
-                x => new WorkingDay()
-                {
-                    Duration = (WorkingDayDuration)x.Duration,
-                    Timestamp = x.Timestamp,
-                }).ToList();
+            asset.Underlying.MarketDetails.Calendar.HalfWorkingDays = marketSettings.MarketSchedule.HalfWorkingDays.ToList();
         }
 
         public static void SetDividendFactorFields(this Asset asset, MarketSettings marketSettings,

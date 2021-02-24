@@ -98,8 +98,9 @@ namespace MarginTrading.AssetService.Services
 
             if (existing.IsSuccess)
             {
-                if(existing.Value.IsStarted) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
-                
+                if (existing.Value.IsStarted)
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+
                 var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
 
                 if (result.IsSuccess)
@@ -201,9 +202,10 @@ namespace MarginTrading.AssetService.Services
             string correlationId)
         {
             var existing = await _repository.GetAllAsync(null, productIds.ToArray());
-            
-            if(existing.Value.Any(x => x.IsStarted)) return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
-            
+
+            if (existing.Value.Any(x => x.IsStarted))
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+
             var withTimestamps = productIds.ToDictionary(productId => productId,
                 productId => existing.Value.FirstOrDefault(p => p.ProductId == productId)?.Timestamp);
 
@@ -281,9 +283,9 @@ namespace MarginTrading.AssetService.Services
         {
             var existing = await _repository.GetByUnderlyingMdsCodeAsync(oldMdsCode);
 
-            if (existing.IsSuccess)
+            foreach (var oldProduct in existing.Value)
             {
-                var product = existing.Value.ShallowCopy();
+                var product = oldProduct.ShallowCopy();
                 product.UnderlyingMdsCode = newMdsCode;
 
                 var result = await _repository.UpdateAsync(product);
@@ -293,39 +295,12 @@ namespace MarginTrading.AssetService.Services
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
                     await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existing.Value, product,
-                        username, correlationId);
-                }
-
-                return result;
-            }
-
-            return existing.ToResultWithoutValue();
-        }
-
-        public async Task<Result<ProductsErrorCodes>> UpdateStartDate(string mdsCode, DateTime startDate,
-            string username, string correlationId)
-        {
-            var existing = await _repository.GetByUnderlyingMdsCodeAsync(mdsCode);
-            if (existing.IsSuccess)
-            {
-                var product = existing.Value.ShallowCopy();
-                product.StartDate = startDate;
-                product.IsStarted = startDate < DateTime.UtcNow; 
-
-                var result = await _repository.UpdateAsync(product);
-
-                if (result.IsSuccess)
-                {
-                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                        product.ToJson(), existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existing.Value, product,
+                        oldProduct, product,
                         username, correlationId);
                 }
             }
 
-            return existing.ToResultWithoutValue();
+            return new Result<ProductsErrorCodes>();
         }
     }
 }

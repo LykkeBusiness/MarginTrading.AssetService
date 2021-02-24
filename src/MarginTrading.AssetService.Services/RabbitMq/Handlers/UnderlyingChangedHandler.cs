@@ -74,22 +74,18 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         {
             if (e.OldValue.MdsCode != e.NewValue.MdsCode)
             {
-                var productUpdateResult = await _productsService.ChangeUnderlyingMdsCodeAsync(e.OldValue.MdsCode,
-                    e.NewValue.MdsCode,
-                    e.Username,
-                    e.CorrelationId);
-                if (productUpdateResult.IsFailed)
+                try
                 {
-                    if (productUpdateResult.Error == ProductsErrorCodes.DoesNotExist)
-                    {
-                        _log.WriteInfo(nameof(UnderlyingChangedHandler), nameof(Handle),
-                            $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: product not found");
-                    }
-                    else
-                    {
-                        throw new Exception(
-                            $"Cannot update a product with underlying mds code {e.OldValue.MdsCode}: {productUpdateResult.Error.ToString()}");
-                    }
+                    await _productsService.ChangeUnderlyingMdsCodeAsync(e.OldValue.MdsCode,
+                        e.NewValue.MdsCode,
+                        e.Username,
+                        e.CorrelationId);
+                }
+                catch (Exception exception)
+                {
+                    throw new Exception(
+                        $"Cannot update products with underlying mds code {e.OldValue.MdsCode}: {exception.Message}",
+                        exception);
                 }
             }
         }

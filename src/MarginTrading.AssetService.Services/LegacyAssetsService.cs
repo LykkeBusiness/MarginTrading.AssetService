@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
-using Cronut.Dto.Assets;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
+using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using Asset = Cronut.Dto.Assets.Asset;
-using Market = Cronut.Dto.Assets.Market;
+using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
+using ClientProfile = MarginTrading.AssetService.Contracts.LegacyAsset.ClientProfile;
+using Market = MarginTrading.AssetService.Contracts.LegacyAsset.Market;
+using TickFormula = MarginTrading.AssetService.Contracts.LegacyAsset.TickFormula;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -34,7 +37,6 @@ namespace MarginTrading.AssetService.Services
         public LegacyAssetsService(
             IProductsRepository productsRepository,
             IClientProfileSettingsRepository clientProfileSettingsRepository,
-            IClientProfilesRepository clientProfilesRepository,
             ICurrenciesRepository currenciesRepository,
             ITickFormulaRepository tickFormulaRepository,
             IMarketSettingsRepository marketSettingsRepository,
@@ -44,11 +46,11 @@ namespace MarginTrading.AssetService.Services
             ILog log, 
             IBrokerSettingsApi brokerSettingsApi,
             string brokerId,
-            IList<string> assetTypesWithZeroInterestRate)
+            IList<string> assetTypesWithZeroInterestRate,
+            IClientProfilesRepository clientProfilesRepository)
         {
             _productsRepository = productsRepository;
             _clientProfileSettingsRepository = clientProfileSettingsRepository;
-            _clientProfilesRepository = clientProfilesRepository;
             _currenciesRepository = currenciesRepository;
             _tickFormulaRepository = tickFormulaRepository;
             _marketSettingsRepository = marketSettingsRepository;
@@ -57,6 +59,7 @@ namespace MarginTrading.AssetService.Services
             _assetTypesRepository = assetTypesRepository;
             _log = log;
             _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
+            _clientProfilesRepository = clientProfilesRepository;
             _brokerSettingsApi = brokerSettingsApi;
             _brokerId = brokerId;
         }
@@ -67,11 +70,7 @@ namespace MarginTrading.AssetService.Services
                 (await _productsRepository.GetByProductsIdsAsync(productIds))
                 .Where(x => x.IsStarted)
                 .ToDictionary(x => x.ProductId, v => v);
-
-            var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
-            if (defaultProfile == null)
-                throw new InvalidOperationException("There is not default client profile in the system");
-
+            
             var brokerSettingsResponse =  await _brokerSettingsApi.GetByIdAsync(_brokerId);
             if (brokerSettingsResponse.ErrorCode != BrokerSettingsErrorCodesContract.None)
             {
@@ -87,11 +86,20 @@ namespace MarginTrading.AssetService.Services
 
             var tradingCurrencies =
                 (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
-
-            var clientProfileSettings =
-                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id,
-                    productAssetTypeIdMap.Values.Distinct()))
+            
+            // todo : remove default profile usage once commission service migrated
+            var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
+            if (defaultProfile == null)
+                throw new InvalidOperationException("There is no default client profile in the system");
+            
+            var defaultProfileSettings =
+                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id, productAssetTypeIdMap.Values.Distinct()))
                 .ToDictionary(x => x.AssetTypeId, v => v);
+
+            var clientProfileSettingsList =
+                (await _clientProfileSettingsRepository.GetAllAsync(string.Empty, productAssetTypeIdMap.Values.Distinct(), true))
+                .GroupBy(x => x.AssetTypeId)
+                .ToDictionary(x => x.Key, v => v.AsEnumerable());
 
             var underlyings = products.Select(x => x.Value.UnderlyingMdsCode).Distinct()
                 .Select(_underlyingsCache.GetByMdsCode)
@@ -113,7 +121,6 @@ namespace MarginTrading.AssetService.Services
                 (await _tickFormulaRepository.GetByIdsAsync(productTickFormulaMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
             var assetTypes = (await _assetTypesRepository.GetAllAsync()).ToDictionary(x => x.Id, v=> v);
-
 
             var result = new List<Asset>();
             foreach (var product in products.Values)
@@ -138,8 +145,16 @@ namespace MarginTrading.AssetService.Services
                     asset.SetAssetFieldsFromBaseCurrency(baseCurrency, _assetTypesWithZeroInterestRate);
                 
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
-                asset.SetAssetFieldsFromClientProfileSettings(clientProfileSettings[productAssetTypeIdMap[id]]);
-                asset.SetMargin(product, clientProfileSettings[productAssetTypeIdMap[id]]);
+
+                var clientProfiles = clientProfileSettingsList[asset.Underlying.AssetType]
+                    .Select(x => x.ToClientProfileWithRate(product.GetMarginRate(x.Margin)));
+                asset.Underlying.ClientProfiles.AddRange(clientProfiles);
+                
+                // todo: remove it once commission service is updated
+                // so far default client profile is used to fill in values
+                asset.SetAssetFieldsFromClientProfileSettings(defaultProfileSettings[productAssetTypeIdMap[id]]);
+                asset.SetMargin(product, defaultProfileSettings[productAssetTypeIdMap[id]].Margin);
+                
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);
                 asset.SetAssetFieldsFromMarketSettings(productMarketSettings[productMarketSettingsMap[id]]);
                 asset.SetAssetFieldsFromTickFormula(productTickFormulas[productTickFormulaMap[id]]);
@@ -174,6 +189,7 @@ namespace MarginTrading.AssetService.Services
                     },
                     InterestRates = new List<InterestRate>(),
                     DividendsFactor = new DividendsFactor(),
+                    ClientProfiles = new List<ClientProfile>()
                 },
             };
             return asset;

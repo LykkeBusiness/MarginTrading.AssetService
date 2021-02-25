@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using Cronut.Dto.Assets;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
-using Asset = Cronut.Dto.Assets.Asset;
+using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 
 namespace MarginTrading.AssetService.Services.Extensions
 {
-    public static class CronutAssetExtensions
+    public static class AssetExtensions
     {
         public const string DateFormat = "dd/MM/yyyy";
         public static void SetAssetFieldsFromProduct(this Asset asset, Product product)
@@ -80,12 +80,7 @@ namespace MarginTrading.AssetService.Services.Extensions
 
         private static void SetHalfWorkingDays(this Asset asset, MarketSettings marketSettings)
         {
-            asset.Underlying.MarketDetails.Calendar.HalfWorkingDays = marketSettings.MarketSchedule.HalfWorkingDays.Select(
-                x => new WorkingDay()
-                {
-                    Duration = (WorkingDayDuration)x.Duration,
-                    Timestamp = x.Timestamp,
-                }).ToList();
+            asset.Underlying.MarketDetails.Calendar.HalfWorkingDays = marketSettings.MarketSchedule.HalfWorkingDays.ToList();
         }
 
         public static void SetDividendFactorFields(this Asset asset, MarketSettings marketSettings,
@@ -157,6 +152,16 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.CategoryRaw = category.Id;
         }
 
+        public static void SetMargin(this Asset asset, Product product, decimal profileMargin)
+        {
+            asset.Underlying.MarginRate = product.GetMarginRate(profileMargin);
+        }
+
+        public static void SetAssetFieldsFromAssetType(this Asset asset, AssetType assetType)
+        {
+            asset.Underlying.UnderlyingCategoryId = assetType.UnderlyingCategoryId;
+        }
+        
         public static void SetAssetFieldsFromClientProfileSettings(this Asset asset, ClientProfileSettings clientProfileSettings)
         {
             asset.Underlying.ExecutionFeeParameter.AssetType = clientProfileSettings.AssetTypeId;
@@ -165,16 +170,6 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.ExecutionFeeParameter.RatePercent = clientProfileSettings.ExecutionFeesRate / 100;
             asset.Underlying.FinancingFixRate = clientProfileSettings.FinancingFeesRate / 100;
             asset.IsAvailable = clientProfileSettings.IsAvailable;
-        }
-
-        public static void SetMargin(this Asset asset, Product product, ClientProfileSettings clientProfileSettings)
-        {
-            asset.Underlying.MarginRate = product.GetMargin(clientProfileSettings) / 100;
-        }
-
-        public static void SetAssetFieldsFromAssetType(this Asset asset, AssetType assetType)
-        {
-            asset.Underlying.UnderlyingCategoryId = assetType.UnderlyingCategoryId;
         }
     }
 }

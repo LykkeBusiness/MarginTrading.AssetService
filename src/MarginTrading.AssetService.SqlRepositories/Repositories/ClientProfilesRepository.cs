@@ -121,7 +121,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var existingEntity = await context.ClientProfiles.FindAsync(id);
-
+                
                 if (existingEntity == null)
                     throw new ClientProfileDoesNotExistException();
 

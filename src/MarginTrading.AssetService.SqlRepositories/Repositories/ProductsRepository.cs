@@ -111,16 +111,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<Result<Product, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode)
+        public async Task<Result<List<Product>, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = await context.Products.FirstOrDefaultAsync(x => x.UnderlyingMdsCode == mdsCode);
+                var entities = await context.Products
+                    .Where(x => x.UnderlyingMdsCode == mdsCode)
+                    .ToListAsync();
 
-                if (entity == null)
-                    return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                return new Result<Product, ProductsErrorCodes>(ToModel(entity));
+                return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
             }
         }
 

@@ -16,7 +16,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesService _currenciesService;
         private readonly IMarketSettingsRepository _marketSettingsRepository;
-        private readonly IProductsRepository _productsRepository;
         private readonly IProductCategoriesService _productCategoriesService;
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAssetTypesRepository _assetTypesRepository;
@@ -25,7 +24,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             IUnderlyingsCache underlyingsCache,
             ICurrenciesService currenciesService,
             IMarketSettingsRepository marketSettingsRepository,
-            IProductsRepository productsRepository,
             IProductCategoriesService productCategoriesService,
             ITickFormulaRepository tickFormulaRepository,
             IAssetTypesRepository assetTypesRepository)
@@ -33,7 +31,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             _underlyingsCache = underlyingsCache;
             _currenciesService = currenciesService;
             _marketSettingsRepository = marketSettingsRepository;
-            _productsRepository = productsRepository;
             _productCategoriesService = productCategoriesService;
             _tickFormulaRepository = tickFormulaRepository;
             _assetTypesRepository = assetTypesRepository;

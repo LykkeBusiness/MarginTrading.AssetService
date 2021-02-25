@@ -17,41 +17,21 @@ namespace MarginTrading.AssetService.Contracts
     public interface IRateSettingsApi
     {
         /// <summary>
-        /// Get order execution rates
-        /// </summary>
-        [Get("/api/rates/get-order-exec")]
-        Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRatesAsync();
-
-        /// <summary>
-        /// Get order execution rates for asset pair id
-        /// </summary>
-        [Get("/api/rates/get-order-exec/{assetPairId}")]
-        Task<OrderExecutionRateContract> GetOrderExecutionRateAsync(string assetPairId);
-
-        /// <summary>	
-        /// Get order execution rates for the list of asset pair ids	
-        /// </summary>	
-        /// <param name="assetPairIds">The list of asset pair ids</param>	
-        /// <returns></returns>	
-        [Post("/api/rates/get-order-exec/list")]
-        Task<IReadOnlyList<OrderExecutionRateContract>> GetOrderExecutionRatesAsync([Body] string[] assetPairIds);
-
-        /// <summary>
         /// Get overnight swap rates
         /// </summary>
-        [Get("/api/rates/get-overnight-swap")]
-        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync();
+        [Get("/api/rates/get-overnight-swap/{clientProfileId}")]
+        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync(string clientProfileId);
 
         /// <summary>
         /// Get overnight swap rates for asset pair id
         /// </summary>
-        [Get("/api/rates/get-overnight-swap/{assetPairId}")]
-        Task<OvernightSwapRateContract> GetOvernightSwapRatesAsync(string assetPairId);
+        [Get("/api/rates/get-overnight-swap/{clientProfileId}/{assetPairId}")]
+        Task<OvernightSwapRateContract> GetOvernightSwapRatesAsync(string clientProfileId, string assetPairId);
 
         /// <summary>	
         /// Get overnight swap rates for asset pair id	
         /// </summary>	
-        [Post("/api/rates/get-overnight-swap/list")]
-        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync([Body] string[] assetPairIds);
+        [Post("/api/rates/get-overnight-swap/{clientProfileId}/list")]
+        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync(string clientProfileId, [Body] string[] assetPairIds);
     }
 }

@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Core.Services;
@@ -10,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Rates;
-using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Domain.Rates;
 using Microsoft.AspNetCore.Authorization;
 

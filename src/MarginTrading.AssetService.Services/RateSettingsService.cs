@@ -68,7 +68,7 @@ namespace MarginTrading.AssetService.Services
             }
 
             var clientProfileSettingsMap =
-                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id,
+                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id,
                     productAssetTypeMap.Values)).ToDictionary(x => x.AssetTypeId, v => v);
 
             var result = new List<OrderExecutionRate>();
@@ -126,7 +126,7 @@ namespace MarginTrading.AssetService.Services
             var productAssetTypeIdMap = products.ToDictionary(x => x.Key, v => v.Value.AssetType);
 
             var clientProfileSettings =
-                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id, productAssetTypeIdMap.Values))
+                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id, productAssetTypeIdMap.Values))
                 .ToDictionary(x => x.AssetTypeId, v => v);
 
             var underlyings = products.Select(x => x.Value.UnderlyingMdsCode).Distinct()

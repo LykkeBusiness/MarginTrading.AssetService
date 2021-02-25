@@ -1,13 +1,12 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Asset;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -16,7 +15,7 @@ using MarginTrading.AssetService.Middleware;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Asset = Cronut.Dto.Assets.Asset;
+using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 
 namespace MarginTrading.AssetService.Controllers
 {
@@ -91,11 +90,11 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("legacy")]
-        public async Task<List<Asset>> GetLegacyAssets()
+        public Task<List<Asset>> GetLegacyAssets()
         {
             var result = _legacyAssetsCache.GetAll();
 
-            return result;
+            return Task.FromResult(result);
         }
 
         /// <summary>
@@ -103,14 +102,14 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("legacy/{assetId}")]
-        public async Task<Asset> GetLegacyAssetById(string assetId)
+        public Task<Asset> GetLegacyAssetById(string assetId)
         {
             if (string.IsNullOrEmpty(assetId))
                 return null;
 
             var result = _legacyAssetsCache.GetById(assetId);
 
-            return result;
+            return Task.FromResult(result);
         }
 
         /// <summary>

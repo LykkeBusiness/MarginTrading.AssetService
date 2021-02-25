@@ -1,21 +1,16 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.TradingConditions;
-using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Middleware;
-using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -47,10 +42,7 @@ namespace MarginTrading.AssetService.Controllers
         [Route("")]
         public async Task<List<TradingInstrumentContract>> List([FromQuery] string tradingConditionId)
         {
-            var data = string.IsNullOrWhiteSpace(tradingConditionId)
-                ? await _tradingInstrumentsService.GetAsync()
-                : await _tradingInstrumentsService.GetByTradingConditionAsync(tradingConditionId);
-            
+            var data = await _tradingInstrumentsService.GetAsync(tradingConditionId);
             return data.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList();
         }
 

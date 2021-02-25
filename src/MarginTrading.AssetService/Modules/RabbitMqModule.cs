@@ -1,18 +1,14 @@
-﻿using System;
-using Autofac;
+﻿using Autofac;
 using Common;
 using Common.Log;
-using Cronut.Dto.MessageBus;
 using Lykke.Common;
 using Lykke.RabbitMqBroker.Publisher;
-using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.SettingsReader;
-using Lykke.Snow.Common.Startup;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
 using MarginTrading.AssetService.Services.RabbitMq.Subscribers;
 using MarginTrading.AssetService.Settings.ServiceSettings;
-using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Modules
 {

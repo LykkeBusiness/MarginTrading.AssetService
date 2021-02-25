@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using Cronut.Dto.Assets;
-using MarginTrading.AssetService.Contracts.Asset;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Services.Extensions;
 
@@ -16,7 +15,7 @@ namespace MarginTrading.AssetService.Extensions
             {
                 //we have to provide format because expire date is not in default one
                 var expiryDate = DateTime.TryParseExact(x.ExpiryDate, 
-                    CronutAssetExtensions.DateFormat,
+                    AssetExtensions.DateFormat,
                     DateTimeFormatInfo.InvariantInfo, 
                     DateTimeStyles.None, 
                     out var ed) ? ed : (DateTime?) null;

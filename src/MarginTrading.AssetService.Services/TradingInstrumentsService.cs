@@ -33,16 +33,15 @@ namespace MarginTrading.AssetService.Services
             _defaultTradingInstrumentSettings = defaultTradingInstrumentSettings;
         }
 
-        public async Task<IReadOnlyList<ITradingInstrument>> GetAsync()
+        public async Task<IReadOnlyList<ITradingInstrument>> GetAsync(string tradingConditionId)
         {
-            var allActiveAssetTypesIds = await _clientProfileSettingsRepository.GetActiveAssetTypeIdsForDefaultProfileAsync();
-            var products = await _productsRepository.GetByAssetTypeIdsAsync(allActiveAssetTypesIds);
-            return await GetTradingInstrumentsAsync(products);
-        }
-
-        public Task<IReadOnlyList<ITradingInstrument>> GetByTradingConditionAsync(string tradingConditionId)
-        {
-            return GetAsync();
+            var activeAssetTypesIds = string.IsNullOrEmpty(tradingConditionId) 
+                ? await _clientProfileSettingsRepository.GetActiveAssetTypeIdsAsync()
+                : await _clientProfileSettingsRepository.GetActiveAssetTypeIdsAsync(tradingConditionId);
+            
+            var products = await _productsRepository.GetByAssetTypeIdsAsync(activeAssetTypesIds);
+            
+            return await GetTradingInstruments(products, tradingConditionId).ToListAsync();
         }
 
         public async Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null,
@@ -51,69 +50,64 @@ namespace MarginTrading.AssetService.Services
             skip ??= 0;
             take = PaginationHelper.GetTake(take);
 
-            var allActiveAssetTypesIds = await _clientProfileSettingsRepository.GetActiveAssetTypeIdsForDefaultProfileAsync();
-            var products = await _productsRepository.GetPagedByAssetTypeIdsAsync(allActiveAssetTypesIds, skip.Value, take.Value);
+            var activeAssetTypesIds = string.IsNullOrEmpty(tradingConditionId) 
+                ? await _clientProfileSettingsRepository.GetActiveAssetTypeIdsAsync()
+                : await _clientProfileSettingsRepository.GetActiveAssetTypeIdsAsync(tradingConditionId);
 
-            var tradingInstruments = await GetTradingInstrumentsAsync(products.Contents);
+            var products =
+                await _productsRepository.GetPagedByAssetTypeIdsAsync(activeAssetTypesIds, skip.Value, take.Value);
 
+            var tradingInstruments =
+                await GetTradingInstruments(products.Contents, tradingConditionId).ToListAsync();
+            
             return new PaginatedResponse<ITradingInstrument>(tradingInstruments, products.Start, products.Size, products.TotalSize);
         }
 
         public async Task<ITradingInstrument> GetAsync(string assetPairId, string tradingConditionId)
         {
-            var product = await _productsRepository.GetByIdAsync(assetPairId);
+            var productResult = await _productsRepository.GetByIdAsync(assetPairId);
 
-            if (product.IsFailed)
+            if (productResult.IsFailed)
                 return null;
 
-            var isProductForAvailableAssetSettings =
-                await _clientProfileSettingsRepository.IsAvailableForDefaultProfileAsync(product.Value.AssetType);
-
-            if (!isProductForAvailableAssetSettings)
-                return null;
-
-            //tradingConditionId is not used because we always use default profile
-            var tradingInstrument = await GetTradingInstrumentsAsync(new List<Product> { product.Value });
-
-            return tradingInstrument.FirstOrDefault();
+            var tradingInstruments = 
+                GetTradingInstruments(new List<Product> {productResult.Value}, tradingConditionId);
+            
+            return await tradingInstruments.FirstOrDefaultAsync();
         }
 
-        private async Task<IReadOnlyList<ITradingInstrument>> GetTradingInstrumentsAsync(IReadOnlyList<Product> products)
+        private async IAsyncEnumerable<ITradingInstrument> GetTradingInstruments(
+            IReadOnlyList<Product> products,
+            string tradingConditionId = null)
         {
-            var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
-            if (defaultProfile == null)
-                return new List<ITradingInstrument>();
+            var clientProfiles = tradingConditionId == null
+                ? await _clientProfilesRepository.GetAllAsync()
+                : new[] {await _clientProfilesRepository.GetByIdAsync(tradingConditionId)};
 
-            var productAssetTypeIdMap = products.ToDictionary(x => x.ProductId, v => v.AssetType);
-
-            var underlyings = products
-                .Select(x => x.UnderlyingMdsCode)
-                .Distinct()
-                .Select(_underlyingsCache.GetByMdsCode)
-                .ToDictionary(x => x.MdsCode, v => v);
-
-            var clientProfileSettings =
-                (await _clientProfileSettingsRepository.GetAllByProfileAndMultipleAssetTypesAsync(defaultProfile.Id,
-                    productAssetTypeIdMap.Values))
-                .ToDictionary(x => x.AssetTypeId, v => v);
-
-            var result = new List<TradingInstrument>();
-            foreach (var product in products)
+            var assetTypes = products.Select(p => p.AssetType).Distinct().ToList();
+            
+            foreach (var clientProfile in clientProfiles)
             {
-                var profileSettingsForProduct = clientProfileSettings[productAssetTypeIdMap[product.ProductId]];
-                underlyings.TryGetValue(product.UnderlyingMdsCode, out var underlying);
+                var availableClientProfileSettingsList = 
+                    await _clientProfileSettingsRepository.GetAllAsync(clientProfile.Id, assetTypes, true);
+                
+                foreach (var product in products)
+                {
+                    var clientProfileSettings = availableClientProfileSettingsList.SingleOrDefault(x =>
+                        x.ClientProfileId == clientProfile.Id && x.AssetTypeId == product.AssetType);
+                    
+                    if (clientProfileSettings == null)
+                        continue;
 
-                var tradingInstrument = TradingInstrument.CreateFromProduct(
-                    product,
-                    defaultProfile.Id,
-                    profileSettingsForProduct,
-                    product.HedgeCost,
-                    underlying?.Spread ?? _defaultTradingInstrumentSettings.Spread);
+                    var underlying = _underlyingsCache.GetByMdsCode(product.UnderlyingMdsCode);
 
-                result.Add(tradingInstrument);
+                    yield return TradingInstrument.CreateFromProduct(
+                        product,
+                        clientProfileSettings.ClientProfileId,
+                        clientProfileSettings.Margin,
+                        underlying?.Spread ?? _defaultTradingInstrumentSettings.Spread);
+                }
             }
-
-            return result;
         }
     }
 }

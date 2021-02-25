@@ -64,10 +64,13 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal HedgeCost { get; }
         public decimal Spread { get; }
 
-        public static TradingInstrument CreateFromProduct(Product product, string profileId, ClientProfileSettings clientProfileSettings,
-            decimal hedgeCost, decimal spread)
+        public static TradingInstrument CreateFromProduct(Product product, 
+            string profileId, 
+            decimal profileMargin,
+            decimal spread)
         {
-            var margin = product.GetMargin(clientProfileSettings);
+            var margin = product.GetMargin(profileMargin);
+            
             return new TradingInstrument(
                 tradingConditionId: profileId,
                 instrument: product.ProductId,
@@ -86,7 +89,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 commissionMin:TradingInstrumentsConstants.CommissionMin,
                 commissionMax:TradingInstrumentsConstants.CommissionMax,
                 commissionCurrency:string.Empty,
-                hedgeCost:hedgeCost,
+                hedgeCost:product.HedgeCost,
                 spread:spread
             );
         }

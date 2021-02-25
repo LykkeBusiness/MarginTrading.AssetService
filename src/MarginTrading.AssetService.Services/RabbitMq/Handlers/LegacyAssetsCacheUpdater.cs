@@ -5,13 +5,15 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Cronut.Dto.MessageBus;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
-using Asset = Cronut.Dto.Assets.Asset;
+using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
+using ClientProfile = MarginTrading.AssetService.Core.Domain.ClientProfile;
+using TickFormula = MarginTrading.AssetService.Core.Domain.TickFormula;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 {
@@ -101,13 +103,13 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleTickFormulaUpdated(TickFormula tickFormula, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.TickFormulaName == tickFormula.Id;
-            await Handle(tickFormula, filter, CronutAssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
+            await Handle(tickFormula, filter, AssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
         }
 
         public async Task HandleProductCategoryUpdated(ProductCategory productCategory, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.CategoryRaw == productCategory.Id;
-            await Handle(productCategory, filter, CronutAssetExtensions.SetAssetFieldsFromCategory, timestamp);
+            await Handle(productCategory, filter, AssetExtensions.SetAssetFieldsFromCategory, timestamp);
         }
 
         public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings, DateTime timestamp)
@@ -133,13 +135,13 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.MdsCode == oldMdsCode;
-            await Handle(underlying, filter, CronutAssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
+            await Handle(underlying, filter, AssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
         }
 
         public async Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.AssetType == assetType.Id;
-            await Handle(assetType, filter, CronutAssetExtensions.SetAssetFieldsFromAssetType, timestamp);
+            await Handle(assetType, filter, AssetExtensions.SetAssetFieldsFromAssetType, timestamp);
         }
 
         public Task UpdateAll(DateTime timestamp)

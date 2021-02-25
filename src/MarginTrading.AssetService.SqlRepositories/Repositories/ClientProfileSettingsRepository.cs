@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Lykke.Common.MsSql;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
-using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,18 +16,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public ClientProfileSettingsRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
-        }
-
-        public async Task InsertMultipleAsync(IEnumerable<ClientProfileSettings> settings, TransactionContext txContext = null)
-        {
-            using (var context = _contextFactory.CreateDataContext(txContext))
-            {
-                var entities = settings.Select(ClientProfileSettingsEntity.Create).ToArray();
-
-                context.ClientProfileSettings.AddRange(entities);
-
-                await context.SaveChangesAsync();
-            }
         }
 
         public async Task UpdateAsync(ClientProfileSettings model)
@@ -120,13 +105,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<List<ClientProfileSettings>> GetAllByProfileAndMultipleAssetTypesAsync(string clientProfileId, IEnumerable<string> assetTypeIds)
+        public async Task<List<ClientProfileSettings>> GetAllAsync(string clientProfileId, 
+            IEnumerable<string> assetTypeIds, 
+            bool availableOnly)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
                 var result = await context.ClientProfileSettings
-                    .Where(x => x.ClientProfileId == clientProfileId)
+                    .Where(x => string.IsNullOrEmpty(clientProfileId) || x.ClientProfileId == clientProfileId)
                     .Where(x => assetTypeIds.Contains(x.AssetTypeId))
+                    .Where(x => !availableOnly || x.IsAvailable)
                     .Include(x => x.ClientProfile)
                     .Include(x => x.AssetType)
                     .Select(x => new ClientProfileSettings
@@ -164,14 +152,14 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return result;
             }
         }
-
-        public async Task<List<string>> GetActiveAssetTypeIdsForDefaultProfileAsync()
+        
+        public async Task<List<string>> GetActiveAssetTypeIdsAsync(bool defaultProfileOnly)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
                 var result = await context.ClientProfileSettings
                     .Include(x => x.ClientProfile)
-                    .Where(x => x.IsAvailable && x.ClientProfile.IsDefault)
+                    .Where(x => x.IsAvailable && (!defaultProfileOnly || x.ClientProfile.IsDefault))
                     .Select(x => x.AssetTypeId)
                     .ToListAsync();
 
@@ -179,12 +167,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<bool> IsAvailableForDefaultProfileAsync(string assetTypeId)
+        public async Task<List<string>> GetActiveAssetTypeIdsAsync(string clientProfileId)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
                 var result = await context.ClientProfileSettings
-                    .AnyAsync(x => x.AssetTypeId == assetTypeId && x.IsAvailable && x.ClientProfile.IsDefault);
+                    .Include(x => x.ClientProfile)
+                    .Where(x => x.IsAvailable &&
+                                (string.IsNullOrEmpty(clientProfileId) || x.ClientProfile.Id == clientProfileId))
+                    .Select(x => x.AssetTypeId)
+                    .ToListAsync();
 
                 return result;
             }

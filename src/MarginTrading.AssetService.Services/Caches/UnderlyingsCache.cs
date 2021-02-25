@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), "Underlyings Cache init started.");
 
-                var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequest { MdsCodes = null }, 0, 0).GetAwaiter().GetResult();
+                var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequestV2 { MdsCodes = null, Take = 0, Skip = 0}).GetAwaiter().GetResult();
 
                 _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), $"{response.Underlyings.Count} underlyings read.");
 

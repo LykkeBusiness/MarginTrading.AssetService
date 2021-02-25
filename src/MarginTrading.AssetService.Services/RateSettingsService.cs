@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,7 +9,6 @@ using Common.Log;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Core.Settings.Rates;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
@@ -22,7 +22,6 @@ namespace MarginTrading.AssetService.Services
         private readonly IProductsRepository _productsRepository;
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesRepository _currenciesRepository;
-        private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         private readonly DefaultRateSettings _defaultRateSettings;
         private readonly ILog _log;
 
@@ -32,7 +31,6 @@ namespace MarginTrading.AssetService.Services
             IProductsRepository productsRepository,
             IUnderlyingsCache underlyingsCache,
             ICurrenciesRepository currenciesRepository,
-            DefaultLegalEntitySettings defaultLegalEntitySettings,
             DefaultRateSettings defaultRateSettings,
             ILog log)
         {
@@ -41,75 +39,25 @@ namespace MarginTrading.AssetService.Services
             _productsRepository = productsRepository;
             _underlyingsCache = underlyingsCache;
             _currenciesRepository = currenciesRepository;
-            _defaultLegalEntitySettings = defaultLegalEntitySettings;
             _defaultRateSettings = defaultRateSettings;
             _log = log;
         }
 
-        #region Order Execution
-
-        public async Task<IReadOnlyList<OrderExecutionRate>> GetOrderExecutionRatesAsync(IList<string> assetPairIds = null)
-        {
-            var productAssetTypeMap = await _productsRepository.GetProductAssetTypeMapAsync(assetPairIds);
-
-            //If filter is empty we should get all products(asset pairs)
-            if (assetPairIds == null || !assetPairIds.Any())
-                assetPairIds = productAssetTypeMap.Keys.ToList();
-
-            var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
-            if (defaultProfile == null)
-            {
-                _log.WriteWarning(nameof(RateSettingsService), nameof(GetOrderExecutionRatesAsync),
-                    "Missing default client profile, default values will be used to create OrderExecutionRates");
-
-                return assetPairIds.Select(x =>
-                        OrderExecutionRate.FromDefault(_defaultRateSettings.DefaultOrderExecutionSettings, x))
-                    .ToList();
-            }
-
-            var clientProfileSettingsMap =
-                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id,
-                    productAssetTypeMap.Values)).ToDictionary(x => x.AssetTypeId, v => v);
-
-            var result = new List<OrderExecutionRate>();
-            foreach (var assetPairId in assetPairIds)
-            {
-                var containsAssetType = productAssetTypeMap.TryGetValue(assetPairId, out var assetTypeId);
-
-                if (!containsAssetType || !clientProfileSettingsMap.ContainsKey(assetTypeId))
-                {
-                    _log.WriteWarning(nameof(RateSettingsService), nameof(GetOrderExecutionRatesAsync),
-                        $"Missing product with id: {assetPairId} , default values will be used to create OrderExecutionRates");
-
-                    result.Add(OrderExecutionRate.FromDefault(_defaultRateSettings.DefaultOrderExecutionSettings, assetPairId));
-                    continue;
-                }
-
-                var clientProfileSettings = clientProfileSettingsMap[assetTypeId];
-                result.Add(OrderExecutionRate.Create(assetPairId,
-                    clientProfileSettings.ExecutionFeesCap,
-                    clientProfileSettings.ExecutionFeesFloor,
-                    clientProfileSettings.ExecutionFeesRate / 100,
-                    _defaultLegalEntitySettings.DefaultLegalEntity));
-            }
-
-            return result;
-        }
-
-        #endregion Order Execution
-
         #region Overnight Swaps
 
-        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync(IList<string> assetPairIds = null)
+        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync(string clientProfileId, IList<string> assetPairIds = null)
         {
+            if (string.IsNullOrEmpty(clientProfileId))
+                throw new ArgumentNullException(nameof(clientProfileId));
+            
             var products = (await _productsRepository.GetByProductsIdsAsync(assetPairIds)).ToDictionary(x => x.ProductId, v=> v);
 
             //If filter is empty we should get all products(asset pairs)
             if (assetPairIds == null || !assetPairIds.Any())
                 assetPairIds = products.Keys.ToList();
 
-            var defaultProfile = await _clientProfilesRepository.GetDefaultAsync();
-            if (defaultProfile == null)
+            var clientProfile = await _clientProfilesRepository.GetByIdAsync(clientProfileId);
+            if (clientProfile == null)
             {
                 _log.WriteWarning(nameof(RateSettingsService), nameof(GetOvernightSwapRatesAsync),
                     "Missing default client profile, default values will be used to create OvernightSwapRate");

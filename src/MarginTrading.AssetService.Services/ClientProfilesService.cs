@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using JetBrains.Annotations;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -207,6 +208,7 @@ namespace MarginTrading.AssetService.Services
                 throw new RegulatoryProfileDoesNotExistException();
         }
 
+        [AssertionMethod]
         private static void ValidateRegulatoryConstraint(GetRegulatorySettingsByIdsResponse regulatorySettings,
             ClientProfileSettings setting)
         {

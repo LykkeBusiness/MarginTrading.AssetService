@@ -6,6 +6,9 @@
     <Version>2.8.1</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <NoWarn>1701;1702;CS0612</NoWarn>
+  </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="7.5.0" />
     <PackageReference Include="AutoMapper" Version="7.0.0" />

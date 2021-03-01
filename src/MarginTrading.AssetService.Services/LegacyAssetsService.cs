@@ -138,7 +138,7 @@ namespace MarginTrading.AssetService.Services
                 {
                     var availableClientProfileSettingsForAssetType = clientProfileSettingsList.Select(x =>
                         x.ToClientProfileWithRate(product.GetMarginRate(x.Margin)));
-                    asset.Underlying.AvailableClientProfiles.AddRange(clientProfiles);
+                    asset.Underlying.AvailableClientProfiles.AddRange(availableClientProfileSettingsForAssetType);
                 }
                 
                 asset.SetAssetFieldsFromCategory(productCategories[productToCategoryMap[id]]);

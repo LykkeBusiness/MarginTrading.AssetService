@@ -96,7 +96,7 @@ namespace MarginTrading.AssetService.Services
                 (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id, productAssetTypeIdMap.Values.Distinct()))
                 .ToDictionary(x => x.AssetTypeId, v => v);
 
-            var clientProfileSettingsList =
+            var clientProfileSettingsDict =
                 (await _clientProfileSettingsRepository.GetAllAsync(string.Empty, productAssetTypeIdMap.Values.Distinct(), true))
                 .GroupBy(x => x.AssetTypeId)
                 .ToDictionary(x => x.Key, v => v.AsEnumerable());
@@ -146,9 +146,12 @@ namespace MarginTrading.AssetService.Services
                 
                 asset.SetAssetFieldsFromTradingCurrency(tradingCurrencies[productTradingCurrencyMap[id]], _assetTypesWithZeroInterestRate);
 
-                var clientProfiles = clientProfileSettingsList[asset.Underlying.AssetType]
-                    .Select(x => x.ToClientProfileWithRate(product.GetMarginRate(x.Margin)));
-                asset.Underlying.ClientProfiles.AddRange(clientProfiles);
+                if (clientProfileSettingsDict.TryGetValue(asset.Underlying.AssetType, out var clientProfileSettingsList))
+                {
+                    var clientProfiles = clientProfileSettingsList.Select(x =>
+                        x.ToClientProfileWithRate(product.GetMarginRate(x.Margin)));
+                    asset.Underlying.ClientProfiles.AddRange(clientProfiles);
+                }
                 
                 // todo: remove it once commission service is updated
                 // so far default client profile is used to fill in values

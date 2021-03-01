@@ -114,7 +114,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
         public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings, DateTime timestamp)
         {
-            await Handle(x => x.Underlying.ExecutionFeeParameter.AssetType == clientProfileSettings.AssetTypeId, timestamp);
+            await Handle(x => x.Underlying.AssetType == clientProfileSettings.AssetTypeId, timestamp);
         }
 
         public async Task HandleCurrencyUpdated(string oldInterestRateMdsCode, Currency currency, DateTime timestamp)

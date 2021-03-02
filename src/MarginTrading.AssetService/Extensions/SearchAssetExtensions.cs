@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
-using MarginTrading.AssetService.Services.Extensions;
+using LegacyAssetExtensions = MarginTrading.AssetService.Services.Extensions.LegacyAssetExtensions;
 
 namespace MarginTrading.AssetService.Extensions
 {

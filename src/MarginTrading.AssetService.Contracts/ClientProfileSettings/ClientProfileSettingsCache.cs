@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -69,6 +70,19 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             _cache.TryGetValue(GetKey(profileId, assetType), out var result);
 
             return result;
+        }
+
+        public IReadOnlyList<ClientProfileSettingsContract> GetByAssetType(string assetType, bool availableOnly = false)
+        {
+            if (string.IsNullOrEmpty(assetType))
+                throw new ArgumentNullException(nameof(assetType));
+
+            return _cache.Values.Where(Filter).ToList();
+            
+            bool Filter(ClientProfileSettingsContract src)
+            {
+                return src.AssetTypeId == assetType && (!availableOnly || src.IsAvailable);
+            }
         }
 
         private string GetKey(ClientProfileSettingsContract clientProfileSettings)

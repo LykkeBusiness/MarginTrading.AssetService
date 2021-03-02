@@ -13,6 +13,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 using ClientProfile = MarginTrading.AssetService.Core.Domain.ClientProfile;
+using LegacyAssetExtensions = MarginTrading.AssetService.Services.Extensions.LegacyAssetExtensions;
 using TickFormula = MarginTrading.AssetService.Core.Domain.TickFormula;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers

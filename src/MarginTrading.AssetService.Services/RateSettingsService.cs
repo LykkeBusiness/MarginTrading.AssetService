@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,8 +16,6 @@ namespace MarginTrading.AssetService.Services
 {
     public class RateSettingsService : IRateSettingsService
     {
-        private readonly IClientProfilesRepository _clientProfilesRepository;
-        private readonly IClientProfileSettingsRepository _clientProfileSettingsRepository;
         private readonly IProductsRepository _productsRepository;
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesRepository _currenciesRepository;
@@ -26,16 +23,12 @@ namespace MarginTrading.AssetService.Services
         private readonly ILog _log;
 
         public RateSettingsService(
-            IClientProfilesRepository clientProfilesRepository,
-            IClientProfileSettingsRepository clientProfileSettingsRepository,
             IProductsRepository productsRepository,
             IUnderlyingsCache underlyingsCache,
             ICurrenciesRepository currenciesRepository,
             DefaultRateSettings defaultRateSettings,
             ILog log)
         {
-            _clientProfilesRepository = clientProfilesRepository;
-            _clientProfileSettingsRepository = clientProfileSettingsRepository;
             _productsRepository = productsRepository;
             _underlyingsCache = underlyingsCache;
             _currenciesRepository = currenciesRepository;
@@ -45,27 +38,14 @@ namespace MarginTrading.AssetService.Services
 
         #region Overnight Swaps
 
-        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync(string clientProfileId, IList<string> assetPairIds = null)
+        public async Task<IReadOnlyList<OvernightSwapRate>> GetOvernightSwapRatesAsync(IList<string> assetPairIds = null)
         {
-            if (string.IsNullOrEmpty(clientProfileId))
-                throw new ArgumentNullException(nameof(clientProfileId));
-            
             var products = (await _productsRepository.GetByProductsIdsAsync(assetPairIds)).ToDictionary(x => x.ProductId, v=> v);
 
             //If filter is empty we should get all products(asset pairs)
             if (assetPairIds == null || !assetPairIds.Any())
                 assetPairIds = products.Keys.ToList();
-
-            var clientProfile = await _clientProfilesRepository.GetByIdAsync(clientProfileId);
-            if (clientProfile == null)
-            {
-                _log.WriteWarning(nameof(RateSettingsService), nameof(GetOvernightSwapRatesAsync),
-                    "Missing default client profile, default values will be used to create OvernightSwapRate");
-
-                return assetPairIds.Select(x =>
-                        OvernightSwapRate.FromDefault(_defaultRateSettings.DefaultOvernightSwapSettings, x))
-                    .ToList();
-            }
+            
             var productTradingCurrencyMap = products.ToDictionary(x => x.Key, v => v.Value.TradingCurrency);
 
             var tradingCurrencies =

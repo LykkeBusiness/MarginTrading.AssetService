@@ -12,8 +12,6 @@ namespace MarginTrading.AssetService.Core.Domain.Rates
         
         public decimal RepoSurchargePercent { get; set; }
         
-        public decimal FixRate { get; set; }
-        
         [CanBeNull] public string VariableRateBase { get; set; }
         
         [CanBeNull] public string VariableRateQuote { get; set; }
@@ -25,7 +23,6 @@ namespace MarginTrading.AssetService.Core.Domain.Rates
             {
                 AssetPairId = assetPairId,
                 RepoSurchargePercent = defaultOvernightSwapSettings.RepoSurchargePercent,
-                FixRate = defaultOvernightSwapSettings.FixRate,
                 VariableRateBase = defaultOvernightSwapSettings.VariableRateBase,
                 VariableRateQuote = defaultOvernightSwapSettings.VariableRateQuote,
             };

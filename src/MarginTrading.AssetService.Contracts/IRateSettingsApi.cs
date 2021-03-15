@@ -19,19 +19,19 @@ namespace MarginTrading.AssetService.Contracts
         /// <summary>
         /// Get overnight swap rates
         /// </summary>
-        [Get("/api/rates/get-overnight-swap/{clientProfileId}")]
-        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync(string clientProfileId);
+        [Get("/api/rates/get-overnight-swap")]
+        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync();
 
         /// <summary>
         /// Get overnight swap rates for asset pair id
         /// </summary>
-        [Get("/api/rates/get-overnight-swap/{clientProfileId}/{assetPairId}")]
-        Task<OvernightSwapRateContract> GetOvernightSwapRatesAsync(string clientProfileId, string assetPairId);
+        [Get("/api/rates/get-overnight-swap/{assetPairId}")]
+        Task<OvernightSwapRateContract> GetOvernightSwapRatesAsync(string assetPairId);
 
         /// <summary>	
         /// Get overnight swap rates for asset pair id	
         /// </summary>	
-        [Post("/api/rates/get-overnight-swap/{clientProfileId}/list")]
-        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync(string clientProfileId, [Body] string[] assetPairIds);
+        [Post("/api/rates/get-overnight-swap/list")]
+        Task<IReadOnlyList<OvernightSwapRateContract>> GetOvernightSwapRatesAsync([Body] string[] assetPairIds);
     }
 }

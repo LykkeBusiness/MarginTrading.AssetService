@@ -63,7 +63,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="request"></param>
         /// <returns></returns>
         [Get("/api/products/counter")]
-        Task<GetProductsCountResponse> GetAllCountAsync([Query(CollectionFormat.Multi)] GetProductsRequest request);
+        Task<GetProductsCountResponse> GetAllCountAsync([Query] GetProductsCountRequest request);
 
         /// <summary>
         /// Updates a list of products

@@ -167,7 +167,7 @@ namespace MarginTrading.AssetService.Controllers
 
         [HttpGet("counter")]
         [ProducesResponseType(typeof(GetProductsCountResponse), (int) HttpStatusCode.OK)]
-        public async Task<GetProductsCountResponse> GetAllCountAsync([FromQuery] GetProductsRequest request)
+        public async Task<GetProductsCountResponse> GetAllCountAsync([FromQuery] GetProductsCountRequest request)
         {
             var result = await _productsService.GetAllCountAsync(request.MdsCodes, request.ProductIds);
 

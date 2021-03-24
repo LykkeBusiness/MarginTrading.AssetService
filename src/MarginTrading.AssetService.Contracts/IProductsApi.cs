@@ -58,7 +58,7 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Put("/api/products/frozen-status")]
         Task<ChangeMultipleProductFrozenStatusResponse> ChangeFrozenStatusMultipleAsync(ChangeMultipleProductFrozenStatusRequest request);
-        
+
         /// <summary>
         /// Gets products count for particular request
         /// </summary>

@@ -168,7 +168,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
-            string[] productIds, bool? isStarted = null, int skip = default, int take = 20)
+            string[] productIds, bool? isStarted = null, bool? isDiscontinued = null, int skip = default, int take = 20)
         {
             skip = Math.Max(0, skip);
             take = take < 0 ? 20 : Math.Min(take, 100);
@@ -190,6 +190,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                 if (isStarted.HasValue)
                     query = query.Where(x => x.IsStarted == isStarted.Value);
+
+                if (isDiscontinued.HasValue)
+                    query = query.Where(x => x.IsDiscontinued == isDiscontinued.Value);
 
 
                 var entities = await query

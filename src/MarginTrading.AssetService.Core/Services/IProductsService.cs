@@ -15,7 +15,7 @@ namespace MarginTrading.AssetService.Core.Services
             bool? isStarted);
         Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes, string[] productIds);
         Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
-            bool? isStarted, int skip = default, int take = 20);
+            bool? isStarted, bool? isDiscontinued, int skip = default, int take = 20);
         Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
             bool forceFreezeIfAlreadyFrozen,
             ProductFreezeInfo freezeInfo, string userName, string correlationId);

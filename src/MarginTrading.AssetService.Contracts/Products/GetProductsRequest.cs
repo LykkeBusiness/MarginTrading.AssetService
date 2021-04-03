@@ -13,6 +13,8 @@ namespace MarginTrading.AssetService.Contracts.Products
         
         public bool? IsStarted { get; set; }
 
+        public bool? IsDiscontinued { get; set; }
+
         public int Skip { get; set; }
 
         public int Take { get; set; }

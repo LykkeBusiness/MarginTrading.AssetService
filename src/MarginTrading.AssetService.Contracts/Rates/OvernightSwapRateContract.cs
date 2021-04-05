@@ -1,7 +1,6 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
-using System;
 using JetBrains.Annotations;
 
 namespace MarginTrading.AssetService.Contracts.Rates
@@ -11,9 +10,6 @@ namespace MarginTrading.AssetService.Contracts.Rates
         [NotNull] public string AssetPairId { get; set; }
         
         public decimal RepoSurchargePercent { get; set; }
-        
-        [Obsolete("Use value from client profile")]
-        public decimal FixRate { get; set; }
         
         public string VariableRateBase { get; set; }
         

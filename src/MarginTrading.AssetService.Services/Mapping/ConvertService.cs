@@ -124,8 +124,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>();
                 
                 //Overnight swaps
-                cfg.CreateMap<OvernightSwapRate, OvernightSwapRateContract>()
-                    .ForMember(dest => dest.FixRate, opt => opt.UseValue(0));
+                cfg.CreateMap<OvernightSwapRate, OvernightSwapRateContract>();
             }).CreateMapper();
         }
 

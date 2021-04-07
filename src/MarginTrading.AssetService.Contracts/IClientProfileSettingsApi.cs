@@ -23,6 +23,13 @@ namespace MarginTrading.AssetService.Contracts
         Task<GetAllClientProfileSettingsResponse> GetClientProfileSettingsByRegulationAsync();
 
         /// <summary>
+        /// Get default client profile settings
+        /// </summary>
+        /// <returns></returns>
+        [Get("/api/client-profile-settings/default/{typeId}")]
+        Task<GetDefaultClientProfileSettingsResponse> GetDefaultProfileSettings(string typeId);
+
+        /// <summary>
         /// Updates existing client settings
         /// </summary>
         /// <param name="request"></param>

@@ -72,6 +72,9 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             return result;
         }
 
+        public bool TryGetValue(string profileId, string assetType, out ClientProfileSettingsContract result) =>
+            _cache.TryGetValue(GetKey(profileId, assetType), out result);
+
         public IReadOnlyList<ClientProfileSettingsContract> GetByAssetType(string assetType, bool availableOnly = false)
         {
             if (string.IsNullOrEmpty(assetType))

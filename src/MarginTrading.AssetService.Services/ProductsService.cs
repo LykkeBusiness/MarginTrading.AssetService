@@ -162,8 +162,9 @@ namespace MarginTrading.AssetService.Services
 
         public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
             bool? isStarted,
+            bool? isDiscontinued,
             int skip = default, int take = 20)
-            => _repository.GetByPageAsync(mdsCodes, productIds, isStarted, skip, take);
+            => _repository.GetByPageAsync(mdsCodes, productIds, isStarted, isDiscontinued, skip, take);
 
         public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username,
             string correlationId)

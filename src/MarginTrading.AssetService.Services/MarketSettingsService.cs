@@ -190,10 +190,15 @@ namespace MarginTrading.AssetService.Services
             {
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
             }
-            catch (OpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
+            catch (WinterOpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
             {
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes
-                    .OpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
+                    .WinterOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
+            }
+            catch (SummerOpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
+            {
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes
+                    .SummerOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
             }
             catch (InvalidTimeZoneException)
             {

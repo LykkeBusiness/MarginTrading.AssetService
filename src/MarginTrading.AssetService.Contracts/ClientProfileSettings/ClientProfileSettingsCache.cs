@@ -55,9 +55,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             _lockSlim.EnterWriteLock();
             try
             {
-                var isInCache = _cache.ContainsKey(GetKey(clientProfileSettings));
-                if (isInCache)
-                    _cache.Remove(clientProfileSettings.ClientProfileId);
+                _cache.Remove(GetKey(clientProfileSettings));
             }
             finally
             {

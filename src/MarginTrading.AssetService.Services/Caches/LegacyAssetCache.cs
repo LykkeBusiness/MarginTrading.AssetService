@@ -108,9 +108,7 @@ namespace MarginTrading.AssetService.Services.Caches
             _lockSlim.EnterWriteLock();
             try
             {
-                var isInCache = _cache.TryGetValue(assetId, out _);
-                if (isInCache)
-                    _cache.Remove(assetId);
+                _cache.Remove(assetId);
             }
             finally
             {

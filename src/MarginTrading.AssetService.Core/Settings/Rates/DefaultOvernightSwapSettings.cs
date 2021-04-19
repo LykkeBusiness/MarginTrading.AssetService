@@ -8,8 +8,6 @@ namespace MarginTrading.AssetService.Core.Settings.Rates
         
         public decimal RepoSurchargePercent { get; set; }
         
-        public decimal FixRate { get; set; }
-        
         public string VariableRateBase { get; set; }
         
         public string VariableRateQuote { get; set; }

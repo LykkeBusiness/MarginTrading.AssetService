@@ -150,26 +150,22 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             return Handle(x => true, timestamp);
         }
 
-        public async Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp)
+        public async Task HandleClientProfileChanged(DateTime timestamp)
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
                 return;
 
-            if (updated.IsDefault && (old == null || !old.IsDefault))
+            var reinitializedAssets = await _legacyAssetsService.GetLegacyAssets();
+            
+            await _semaphore.WaitAsync();
+            try
             {
-                //If default client profile is changed all assets will be affected
-                var reinitializedAssets = await _legacyAssetsService.GetLegacyAssets();
-
-                await _semaphore.WaitAsync();
-                try
-                {
-                    _legacyAssetsCache.AddOrUpdateMultiple(reinitializedAssets);
-                    await PublishAssetUpsertedEvents(reinitializedAssets);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
+                _legacyAssetsCache.AddOrUpdateMultiple(reinitializedAssets);
+                await PublishAssetUpsertedEvents(reinitializedAssets);
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 

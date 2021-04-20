@@ -43,7 +43,8 @@ namespace MarginTrading.AssetService.Controllers
         /// <returns></returns>
         [HttpGet("will-violate-regulation-constraint")]
         [ProducesResponseType(typeof(bool), (int) HttpStatusCode.OK)]
-        public async Task<bool> WillViolateRegulationConstraintAsync([FromQuery] CheckRegulationConstraintViolationRequest request)
+        public async Task<bool> WillViolateRegulationConstraintAsync(
+            [FromQuery] CheckRegulationConstraintViolationRequest request)
         {
             var model =
                 _convertService.Convert<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>(request);

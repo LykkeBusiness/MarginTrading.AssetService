@@ -123,6 +123,12 @@ namespace MarginTrading.AssetService.Services
             var tradingCurrencies =
                 (await _currenciesRepository.GetByIdsAsync(productTradingCurrencyMap.Values)).ToDictionary(x => x.Id, v => v);
 
+            var productAssetTypeIdMap = products.ToDictionary(x => x.Key, v => v.Value.AssetType);
+
+            var clientProfileSettings =
+                (await _clientProfileSettingsRepository.GetAllAsync(defaultProfile.Id, productAssetTypeIdMap.Values))
+                .ToDictionary(x => x.AssetTypeId, v => v);
+
             var underlyings = products.Select(x => x.Value.UnderlyingMdsCode).Distinct()
                 .Select(_underlyingsCache.GetByMdsCode)
                 .ToDictionary(x => x.MdsCode, v => v);
@@ -153,11 +159,14 @@ namespace MarginTrading.AssetService.Services
                     baseCurrencies.ContainsKey(baseCurrencyId) ? baseCurrencies[baseCurrencyId] : null;
                 var tradingCurrencyId = productTradingCurrencyMap[productId];
                 var tradingCurrency = tradingCurrencies[tradingCurrencyId];
+                var assetTypeId = productAssetTypeIdMap[productId];
+                var profileSettings = clientProfileSettings[assetTypeId];
 
                 var rate = new OvernightSwapRate
                 {
                     AssetPairId = productId,
                     VariableRateQuote = tradingCurrency.InterestRateMdsCode,
+                    FixRate = profileSettings.FinancingFeesRate / 100,
                     RepoSurchargePercent = underlying?.RepoSurchargePercent ?? _defaultRateSettings.DefaultOvernightSwapSettings.RepoSurchargePercent,
                     VariableRateBase = baseCurrency?.InterestRateMdsCode,
                 };

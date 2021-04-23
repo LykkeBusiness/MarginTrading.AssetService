@@ -107,13 +107,22 @@ namespace MarginTrading.AssetService.Services
                 }
             }
             
-            await _clientProfilesRepository.InsertAsync(model, clientProfileSettings);
-
-            await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
+            var formerDefaultProfile = await _clientProfilesRepository.InsertAsync(model, clientProfileSettings);
+            
+            await _auditService.TryAudit(correlationId, 
+                username, 
+                model.Id, 
+                AuditDataType.ClientProfile, 
                 model.ToJson());
-            await _entityChangedSender
-                .SendEntityCreatedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(model,
-                    username, correlationId);
+                
+            await _entityChangedSender.SendEntityCreatedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(
+                model, username, correlationId);
+
+            if (formerDefaultProfile != null)
+            {
+                await AuditAndNotifyDefaultProfileChangedAsync(correlationId, username, formerDefaultProfile);
+            }
+            
             foreach (var profileSettings in clientProfileSettings)
             {
                 await _entityChangedSender
@@ -149,13 +158,18 @@ namespace MarginTrading.AssetService.Services
                 ValidateRegulatoryConstraint(regulatorySettings, setting);
             }
 
-            await _clientProfilesRepository.UpdateAsync(model);
+            var formerDefaultProfile = await _clientProfilesRepository.UpdateAsync(model);
 
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
                 model.ToJson(), existing.ToJson());
             await _entityChangedSender
                 .SendEntityEditedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(existing,
                     model, username, correlationId);
+
+            if (formerDefaultProfile != null)
+            {
+                await AuditAndNotifyDefaultProfileChangedAsync(correlationId, username, formerDefaultProfile);
+            }
         }
 
         public async Task DeleteAsync(string id, string username, string correlationId)
@@ -173,7 +187,7 @@ namespace MarginTrading.AssetService.Services
 
             await _clientProfilesRepository.DeleteAsync(id);
 
-            await _auditService.TryAudit(correlationId, username, id.ToString(), AuditDataType.ClientProfile,
+            await _auditService.TryAudit(correlationId, username, id, AuditDataType.ClientProfile,
                 oldStateJson: existing.ToJson());
 
             await _entityChangedSender
@@ -216,6 +230,21 @@ namespace MarginTrading.AssetService.Services
             if (!regulatorySettings.RegulatorySettings.IsAvailable && setting.IsAvailable ||
                 regulatorySettings.RegulatorySettings.MarginMinPercent > setting.Margin)
                 throw new RegulationConstraintViolationException();
+        }
+        
+        private async Task AuditAndNotifyDefaultProfileChangedAsync(string correlationId, string username, ClientProfile formerDefaultProfile)
+        {
+            var oldValue = formerDefaultProfile.ChangeDefault(true);
+                
+            await _auditService.TryAudit(correlationId, 
+                username, 
+                formerDefaultProfile.Id, 
+                AuditDataType.ClientProfile, 
+                formerDefaultProfile.ToJson(),
+                oldValue.ToJson());
+                
+            await _entityChangedSender.SendEntityEditedEvent<ClientProfile, ClientProfileContract, ClientProfileChangedEvent>(
+                oldValue, formerDefaultProfile, username, correlationId);
         }
     }
 }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Common.Log;
+using JetBrains.Annotations;
 using Lykke.Common.Log;
 using Lykke.Common.MsSql;
 using MarginTrading.AssetService.Core.Domain;
@@ -24,7 +25,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _log = log;
         }
 
-        public async Task InsertAsync(ClientProfileWithTemplate model, IEnumerable<ClientProfileSettings> clientProfileSettingsToAdd)
+        [ItemCanBeNull]
+        public async Task<ClientProfile> InsertAsync(ClientProfileWithTemplate model, IEnumerable<ClientProfileSettings> clientProfileSettingsToAdd)
         {
             var entity = new ClientProfileEntity
             {
@@ -35,85 +37,93 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
 
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x => x.IsDefault);
+            var defaultProfileChanged = false;
+            
+            if(currentDefault?.Id == model.Id)
+                throw new AlreadyExistsException();
+            
+            if (currentDefault == null)
             {
-                var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x => x.IsDefault);
-
-                if(currentDefault?.Id == model.Id)
-                    throw new AlreadyExistsException();
-
-                if (currentDefault == null)
-                {
-                    entity.IsDefault = true;
-                }
-                else if (model.IsDefault)
-                {
-                    currentDefault.IsDefault = false;
-                    context.Update(currentDefault);
-                }
-
-                context.ClientProfiles.Add(entity);
-
-                context.ClientProfileSettings.AddRange(clientProfileSettingsEntities);
-
-                try
-                {
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateException e)
-                {
-                    if (e.InnerException is SqlException sqlException &&
-                        sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
-                    {
-                        throw new AlreadyExistsException();
-                    }
-
-                    throw;
-                }
+                entity.IsDefault = true;
             }
+            else if (model.IsDefault)
+            {
+                currentDefault.IsDefault = false;
+                context.Update(currentDefault);
+                defaultProfileChanged = true;
+            }
+            
+            context.ClientProfiles.Add(entity);
+            
+            context.ClientProfileSettings.AddRange(clientProfileSettingsEntities);
+            
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                if (e.InnerException is SqlException sqlException &&
+                    sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
+                {
+                    throw new AlreadyExistsException();
+                }
+            
+                throw;
+            }
+
+            return defaultProfileChanged
+                ? new ClientProfile(currentDefault.Id, currentDefault.RegulatoryProfileId, currentDefault.IsDefault)
+                : null;
         }
 
-        public async Task UpdateAsync(ClientProfile model)
+        public async Task<ClientProfile> UpdateAsync(ClientProfile model)
         {
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            var existingEntity = await context.ClientProfiles.FindAsync(model.Id);
+
+            if (existingEntity == null)
+                throw new ClientProfileDoesNotExistException();
+
+            existingEntity.IsDefault = model.IsDefault;
+            existingEntity.RegulatoryProfileId = model.RegulatoryProfileId;
+
+            var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x =>
+                x.IsDefault && x.Id != model.Id);
+            var defaultProfileChanged = false;
+
+            if (currentDefault == null)
             {
-                var existingEntity = await context.ClientProfiles.FindAsync(model.Id);
-
-                if (existingEntity == null)
-                    throw new ClientProfileDoesNotExistException();
-
-                existingEntity.IsDefault = model.IsDefault;
-                existingEntity.RegulatoryProfileId = model.RegulatoryProfileId;
-
-                var currentDefault = await context.ClientProfiles.FirstOrDefaultAsync(x =>
-                    x.IsDefault && x.Id != model.Id);
-
-                if (currentDefault == null)
-                {
-                    existingEntity.IsDefault = true;
-                    _log.Warning($"Tried to update ClientProfile with Id {model.Id} IsAvailable to false but it was not updated cause there will be no default");
-                }
-                else if (model.IsDefault)
-                {
-                    currentDefault.IsDefault = false;
-                    context.Update(currentDefault);
-                }
-
-                try
-                {
-                    await context.SaveChangesAsync();
-                }
-                catch (DbUpdateException e)
-                {
-                    if (e.InnerException is SqlException sqlException &&
-                        sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
-                    {
-                        throw new AlreadyExistsException();
-                    }
-
-                    throw;
-                }
+                existingEntity.IsDefault = true;
+                _log.Warning($"Tried to update ClientProfile with Id {model.Id} IsAvailable to false but it was not updated cause there will be no default");
             }
+            else if (model.IsDefault)
+            {
+                currentDefault.IsDefault = false;
+                context.Update(currentDefault);
+                defaultProfileChanged = true;
+            }
+
+            try
+            {
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateException e)
+            {
+                if (e.InnerException is SqlException sqlException &&
+                    sqlException.Number == MsSqlErrorCodes.PrimaryKeyConstraintViolation)
+                {
+                    throw new AlreadyExistsException();
+                }
+
+                throw;
+            }
+            
+            return defaultProfileChanged
+                ? new ClientProfile(currentDefault.Id, currentDefault.RegulatoryProfileId, currentDefault.IsDefault)
+                : null;
         }
 
         public async Task DeleteAsync(string id)

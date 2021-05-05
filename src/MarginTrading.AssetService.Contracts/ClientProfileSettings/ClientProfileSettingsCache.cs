@@ -67,19 +67,41 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         {
             _cache.TryGetValue(GetKey(profileId, assetType), out var result);
 
+            if (result == null)
+                throw new ArgumentOutOfRangeException(nameof(profileId),
+                    $"Client profile settings not found for profile [{profileId}] and asset type [{assetType}]");
+
             return result;
         }
 
-        public bool TryGetValue(string profileId, string assetType, out ClientProfileSettingsContract result) =>
-            _cache.TryGetValue(GetKey(profileId, assetType), out result);
+        public bool TryGetValue(string profileId, string assetType, out ClientProfileSettingsContract result)
+        {
+            _lockSlim.EnterReadLock();
+            try
+            {
+                return _cache.TryGetValue(GetKey(profileId, assetType), out result);
+            }
+            finally
+            {
+                _lockSlim.ExitReadLock();
+            }
+        }
 
         public IReadOnlyList<ClientProfileSettingsContract> GetByAssetType(string assetType, bool availableOnly = false)
         {
             if (string.IsNullOrEmpty(assetType))
                 throw new ArgumentNullException(nameof(assetType));
 
-            return _cache.Values.Where(Filter).ToList();
-            
+            _lockSlim.EnterReadLock();
+            try
+            {
+                return _cache.Values.Where(Filter).ToList();
+            }
+            finally
+            {
+                _lockSlim.ExitReadLock();
+            }
+
             bool Filter(ClientProfileSettingsContract src)
             {
                 return src.AssetTypeId == assetType && (!availableOnly || src.IsAvailable);

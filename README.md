@@ -1,3 +1,4 @@
+
 # MarginTrading.AssetService API #
 
 API for settings management.
@@ -134,7 +135,6 @@ Settings schema is:
       },
       "DefaultOvernightSwapSettings": {
         "RepoSurchargePercent": 0,
-        "FixRate": 0.035,
         "VariableRateBase": "",
         "VariableRateQuote": ""
       },

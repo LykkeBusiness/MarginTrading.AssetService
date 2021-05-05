@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
@@ -24,6 +21,13 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Get("/api/client-profile-settings")]
         Task<GetAllClientProfileSettingsResponse> GetClientProfileSettingsByRegulationAsync();
+
+        /// <summary>
+        /// Get default client profile settings
+        /// </summary>
+        /// <returns></returns>
+        [Get("/api/client-profile-settings/default/{typeId}")]
+        Task<GetDefaultClientProfileSettingsResponse> GetDefaultProfileSettings(string typeId);
 
         /// <summary>
         /// Updates existing client settings

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -190,6 +191,7 @@ namespace MarginTrading.AssetService.Controllers
             }
         }
 
+        [AssertionMethod]
         private void ValidateId(string id, MatchingEngineRouteContract contract)
         {
             if (contract?.Id != id)

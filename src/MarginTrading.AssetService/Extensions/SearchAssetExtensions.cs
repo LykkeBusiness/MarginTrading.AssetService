@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
-using MarginTrading.AssetService.Services.Extensions;
+using LegacyAssetExtensions = MarginTrading.AssetService.Services.Extensions.LegacyAssetExtensions;
 
 namespace MarginTrading.AssetService.Extensions
 {
@@ -15,7 +15,7 @@ namespace MarginTrading.AssetService.Extensions
             {
                 //we have to provide format because expire date is not in default one
                 var expiryDate = DateTime.TryParseExact(x.ExpiryDate, 
-                    AssetExtensions.DateFormat,
+                    LegacyAssetExtensions.DateFormat,
                     DateTimeFormatInfo.InvariantInfo, 
                     DateTimeStyles.None, 
                     out var ed) ? ed : (DateTime?) null;

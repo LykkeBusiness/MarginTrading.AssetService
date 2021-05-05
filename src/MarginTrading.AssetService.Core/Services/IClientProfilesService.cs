@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Core.Domain;
 
@@ -16,6 +15,8 @@ namespace MarginTrading.AssetService.Core.Services
         Task<ClientProfile> GetByIdAsync(string id);
 
         Task<IReadOnlyList<ClientProfile>> GetAllAsync();
+
+        Task<ClientProfile> GetDefaultAsync();
 
         Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId);
     }

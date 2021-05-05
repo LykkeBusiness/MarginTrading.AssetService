@@ -12,7 +12,6 @@ using Lykke.AzureQueueIntegration;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
-using Lykke.HttpClientGenerator.Exceptions;
 using Lykke.Logs;
 using Lykke.Logs.MsSql;
 using Lykke.Logs.MsSql.Repositories;

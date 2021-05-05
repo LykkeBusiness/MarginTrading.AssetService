@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Common.Log;
@@ -82,9 +81,7 @@ namespace MarginTrading.AssetService.Services.Caches
             _lockSlim.EnterWriteLock();
             try
             {
-                var isInCache = _cache.TryGetValue(oldMdsCode, out _);
-                if (isInCache)
-                    _cache.Remove(oldMdsCode);
+                _cache.Remove(oldMdsCode);
 
                 _cache.TryAdd(underlying.MdsCode, underlying);
             }
@@ -99,9 +96,7 @@ namespace MarginTrading.AssetService.Services.Caches
             _lockSlim.EnterWriteLock();
             try
             {
-                var isInCache = _cache.TryGetValue(underlying.MdsCode, out var result);
-                if (isInCache)
-                    _cache.Remove(underlying.MdsCode);
+                _cache.Remove(underlying.MdsCode);
             }
             finally
             {

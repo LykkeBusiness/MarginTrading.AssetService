@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Xml;
 using Lykke.Snow.Common.Model;
 
 namespace MarginTrading.AssetService.Services

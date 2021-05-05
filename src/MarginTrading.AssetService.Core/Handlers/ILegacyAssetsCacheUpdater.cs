@@ -23,7 +23,7 @@ namespace MarginTrading.AssetService.Core.Handlers
 
         Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying, DateTime timestamp);
 
-        Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp);
+        Task HandleClientProfileChanged(DateTime timestamp);
 
         Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp);
 

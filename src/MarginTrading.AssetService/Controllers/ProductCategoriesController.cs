@@ -10,7 +10,6 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MoreLinq;
 
 namespace MarginTrading.AssetService.Controllers
 {

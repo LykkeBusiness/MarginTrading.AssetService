@@ -13,6 +13,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 using ClientProfile = MarginTrading.AssetService.Core.Domain.ClientProfile;
+using LegacyAssetExtensions = MarginTrading.AssetService.Services.Extensions.LegacyAssetExtensions;
 using TickFormula = MarginTrading.AssetService.Core.Domain.TickFormula;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
@@ -103,13 +104,13 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleTickFormulaUpdated(TickFormula tickFormula, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.TickFormulaName == tickFormula.Id;
-            await Handle(tickFormula, filter, AssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
+            await Handle(tickFormula, filter, LegacyAssetExtensions.SetAssetFieldsFromTickFormula, timestamp);
         }
 
         public async Task HandleProductCategoryUpdated(ProductCategory productCategory, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.CategoryRaw == productCategory.Id;
-            await Handle(productCategory, filter, AssetExtensions.SetAssetFieldsFromCategory, timestamp);
+            await Handle(productCategory, filter, LegacyAssetExtensions.SetAssetFieldsFromCategory, timestamp);
         }
 
         public async Task HandleClientProfileSettingsUpdated(ClientProfileSettings clientProfileSettings, DateTime timestamp)
@@ -135,13 +136,13 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         public async Task HandleUnderlyingUpdated(string oldMdsCode, UnderlyingsCacheModel underlying, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.MdsCode == oldMdsCode;
-            await Handle(underlying, filter, AssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
+            await Handle(underlying, filter, LegacyAssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
         }
 
         public async Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.AssetType == assetType.Id;
-            await Handle(assetType, filter, AssetExtensions.SetAssetFieldsFromAssetType, timestamp);
+            await Handle(assetType, filter, LegacyAssetExtensions.SetAssetFieldsFromAssetType, timestamp);
         }
 
         public Task UpdateAll(DateTime timestamp)
@@ -149,26 +150,22 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             return Handle(x => true, timestamp);
         }
 
-        public async Task HandleClientProfileUpserted(ClientProfile old, ClientProfile updated, DateTime timestamp)
+        public async Task HandleClientProfileChanged(DateTime timestamp)
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
                 return;
 
-            if (updated.IsDefault && (old == null || !old.IsDefault))
+            var reinitializedAssets = await _legacyAssetsService.GetLegacyAssets();
+            
+            await _semaphore.WaitAsync();
+            try
             {
-                //If default client profile is changed all assets will be affected
-                var reinitializedAssets = await _legacyAssetsService.GetLegacyAssets();
-
-                await _semaphore.WaitAsync();
-                try
-                {
-                    _legacyAssetsCache.AddOrUpdateMultiple(reinitializedAssets);
-                    await PublishAssetUpsertedEvents(reinitializedAssets);
-                }
-                finally
-                {
-                    _semaphore.Release();
-                }
+                _legacyAssetsCache.AddOrUpdateMultiple(reinitializedAssets);
+                await PublishAssetUpsertedEvents(reinitializedAssets);
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 

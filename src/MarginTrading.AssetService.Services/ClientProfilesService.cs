@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using JetBrains.Annotations;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -193,6 +194,9 @@ namespace MarginTrading.AssetService.Services
         public Task<IReadOnlyList<ClientProfile>> GetAllAsync()
             => _clientProfilesRepository.GetAllAsync();
 
+        public Task<ClientProfile> GetDefaultAsync()
+            => _clientProfilesRepository.GetDefaultAsync();
+
         public Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId)
             => _clientProfilesRepository.IsRegulatoryProfileAssignedToAnyClientProfileAsync(regulatoryProfileId);
 
@@ -207,6 +211,7 @@ namespace MarginTrading.AssetService.Services
                 throw new RegulatoryProfileDoesNotExistException();
         }
 
+        [AssertionMethod]
         private static void ValidateRegulatoryConstraint(GetRegulatorySettingsByIdsResponse regulatorySettings,
             ClientProfileSettings setting)
         {

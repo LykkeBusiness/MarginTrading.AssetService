@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using AutoMapper;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.Common;
@@ -26,13 +24,17 @@ namespace MarginTrading.AssetService.Controllers
     [Route("api/client-profile-settings")]
     public class ClientProfileSettingsController : ControllerBase, IClientProfileSettingsApi
     {
+        private readonly IClientProfilesService _clientProfilesService;
         private readonly IClientProfileSettingsService _clientProfileSettingsService;
         private readonly IConvertService _convertService;
 
-        public ClientProfileSettingsController(IClientProfileSettingsService clientProfileSettingsService, IConvertService convertService)
+        public ClientProfileSettingsController(IClientProfileSettingsService clientProfileSettingsService,
+            IConvertService convertService,
+            IClientProfilesService clientProfilesService)
         {
             _clientProfileSettingsService = clientProfileSettingsService;
             _convertService = convertService;
+            _clientProfilesService = clientProfilesService;
         }
 
         /// <summary>
@@ -40,13 +42,15 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("will-violate-regulation-constraint")]
-        [ProducesResponseType(typeof(bool), (int)HttpStatusCode.OK)]
-        public async Task<bool> WillViolateRegulationConstraintAsync([FromQuery] CheckRegulationConstraintViolationRequest request)
+        [ProducesResponseType(typeof(bool), (int) HttpStatusCode.OK)]
+        public async Task<bool> WillViolateRegulationConstraintAsync(
+            [FromQuery] CheckRegulationConstraintViolationRequest request)
         {
             var model =
                 _convertService.Convert<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>(request);
 
-            var response = await _clientProfileSettingsService.WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(model);
+            var response = await _clientProfileSettingsService
+                .WillViolateRegulationConstraintAfterRegulatorySettingsUpdateAsync(model);
 
             return response;
         }
@@ -56,8 +60,10 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("profile/{profileId}/type/{typeId}")]
-        [ProducesResponseType(typeof(GetClientProfileSettingsByIdsResponse), (int)HttpStatusCode.OK)]
-        public async Task<GetClientProfileSettingsByIdsResponse> GetClientProfileSettingsByIdsAsync([FromRoute][Required] string profileId, [FromRoute][Required] string typeId)
+        [ProducesResponseType(typeof(GetClientProfileSettingsByIdsResponse), (int) HttpStatusCode.OK)]
+        public async Task<GetClientProfileSettingsByIdsResponse> GetClientProfileSettingsByIdsAsync(
+            [FromRoute] [Required] string profileId,
+            [FromRoute] [Required] string typeId)
         {
             var response = new GetClientProfileSettingsByIdsResponse();
 
@@ -80,14 +86,37 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(GetAllClientProfileSettingsResponse), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(GetAllClientProfileSettingsResponse), (int) HttpStatusCode.OK)]
         public async Task<GetAllClientProfileSettingsResponse> GetClientProfileSettingsByRegulationAsync()
         {
             var clientProfileSettings = await _clientProfileSettingsService.GetAllAsync();
 
             return new GetAllClientProfileSettingsResponse
             {
-                ClientProfileSettings = clientProfileSettings.Select(s => _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(s)).ToList()
+                ClientProfileSettings = clientProfileSettings.Select(s =>
+                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(s)).ToList()
+            };
+        }
+
+        /// <summary>
+        /// Get default profile settings for asset type id
+        /// </summary>
+        /// <param name="typeId">The asset type identifier</param>
+        /// <returns></returns>
+        [HttpGet("default/{typeId}")]
+        [ProducesResponseType(typeof(GetDefaultClientProfileSettingsResponse), (int) HttpStatusCode.OK)]
+        public async Task<GetDefaultClientProfileSettingsResponse> GetDefaultProfileSettings(string typeId)
+        {
+            var clientProfile = await _clientProfilesService.GetDefaultAsync();
+            if (clientProfile == null)
+                throw new InvalidOperationException("Default client profile is not found");
+
+            var clientProfileSettings = await _clientProfileSettingsService.GetByIdAsync(clientProfile.Id, typeId);
+
+            return new GetDefaultClientProfileSettingsResponse
+            {
+                ClientProfileSettings =
+                    _convertService.Convert<ClientProfileSettings, ClientProfileSettingsContract>(clientProfileSettings)
             };
         }
 
@@ -99,9 +128,11 @@ namespace MarginTrading.AssetService.Controllers
         /// <param name="typeId"></param>
         /// <returns></returns>
         [HttpPut("profile/{profileId}/type/{typeId}")]
-        [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int)HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ClientProfilesErrorCodesContract>), (int) HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> UpdateClientProfileSettingsAsync(
-            [FromBody] UpdateClientProfileSettingsRequest request, [FromRoute][Required] string profileId, [FromRoute][Required] string typeId)
+            [FromBody] UpdateClientProfileSettingsRequest request,
+            [FromRoute] [Required] string profileId,
+            [FromRoute] [Required] string typeId)
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
@@ -121,7 +152,8 @@ namespace MarginTrading.AssetService.Controllers
             }
             catch (CannotSetToAvailableException)
             {
-                response.ErrorCode = ClientProfilesErrorCodesContract.CannotSetToAvailableBecauseOfRegulatoryRestriction;
+                response.ErrorCode =
+                    ClientProfilesErrorCodesContract.CannotSetToAvailableBecauseOfRegulatoryRestriction;
             }
             catch (ClientSettingsDoNotExistException)
             {

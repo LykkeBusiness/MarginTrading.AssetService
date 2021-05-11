@@ -4,6 +4,7 @@ using BookKeeper.Client.Workflow.Events;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
+using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
@@ -12,14 +13,17 @@ namespace MarginTrading.AssetService.Workflow.Products
     public class StartProductsSaga
     {
         private readonly IProductsRepository _productsRepository;
+        private readonly IMarketDayOffService _marketDayOffService;
         private readonly CqrsContextNamesSettings _contextNames;
         private readonly ILog _log;
 
         public StartProductsSaga(IProductsRepository productsRepository,
+            IMarketDayOffService marketDayOffService,
             CqrsContextNamesSettings _contextNames,
             ILog log)
         {
             _productsRepository = productsRepository;
+            _marketDayOffService = marketDayOffService;
             this._contextNames = _contextNames;
             _log = log;
         }
@@ -31,9 +35,12 @@ namespace MarginTrading.AssetService.Workflow.Products
 
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())
             {
-                var endOfNextDay = e.TradingDay.Date.AddDays(2);
+                var products = productsResult.Value;
+                var markets = products.Select(x => x.Market).ToArray();
+                var marketInfos = await _marketDayOffService.GetMarketsInfo(markets, null);
+
                 var productsToStart = productsResult.Value
-                    .Where(x => x.StartDate < endOfNextDay)
+                    .Where(x => x.StartDate < marketInfos[x.Market].NextTradingDayStart.Date.AddDays(1))
                     .ToList();
                 
                 _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle), 

@@ -2,6 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Autofac;
@@ -265,7 +266,10 @@ namespace MarginTrading.AssetService
 
             if (settings.CurrentValue.MarginTradingAssetService.UseSerilog)
             {
-                var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration);
+                var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration, new List<Func<(string Name, object Value)>>()
+                {
+                    () => ("BrokerId", settings.CurrentValue.MarginTradingAssetService.BrokerId),
+                });
 
                 LogLocator.RequestsLog = LogLocator.CommonLog = serilogLogger;
 

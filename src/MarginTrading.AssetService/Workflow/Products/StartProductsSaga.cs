@@ -40,7 +40,7 @@ namespace MarginTrading.AssetService.Workflow.Products
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())
             {
                 var products = productsResult.Value;
-                var markets = products.Select(x => x.Market).ToArray();
+                var markets = products.Select(x => x.Market).Distinct().ToArray();
                 var marketInfos = await _marketDayOffService.GetMarketsInfo(markets, null);
 
                 foreach (var product in products)

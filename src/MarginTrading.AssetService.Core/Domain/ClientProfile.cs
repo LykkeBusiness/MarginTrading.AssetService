@@ -16,7 +16,8 @@ namespace MarginTrading.AssetService.Core.Domain
                 throw new ArgumentNullException(nameof(id));
             
             if (string.IsNullOrEmpty(regulatoryProfileId))
-                throw new ArgumentNullException(nameof(regulatoryProfileId));
+                if (string.IsNullOrEmpty(regulatoryProfileId))
+                    throw new ArgumentNullException(nameof(regulatoryProfileId));
 
             if (isDefault && id != ClientProfileDefaultId)
                 throw new ClientProfileNonDefaultUpdateForbiddenException();
@@ -25,5 +26,7 @@ namespace MarginTrading.AssetService.Core.Domain
             RegulatoryProfileId = regulatoryProfileId;
             IsDefault = isDefault;
         }
+
+        public ClientProfile ChangeDefault(bool isDefault) => new ClientProfile(Id, RegulatoryProfileId, isDefault);
     }
 }

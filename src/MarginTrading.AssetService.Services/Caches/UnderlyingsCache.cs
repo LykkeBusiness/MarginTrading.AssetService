@@ -17,6 +17,7 @@ namespace MarginTrading.AssetService.Services.Caches
         private readonly ILog _log;
 
         private Dictionary<string, UnderlyingsCacheModel> _cache = new Dictionary<string, UnderlyingsCacheModel>();
+        private HashSet<string> _isins = new HashSet<string>();
         private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
 
         public UnderlyingsCache(IUnderlyingsApi underlyingsApi, IConvertService convertService, ILog log)
@@ -33,12 +34,13 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), "Underlyings Cache init started.");
 
-                var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequestV2 { MdsCodes = null, Take = 0, Skip = 0}).GetAwaiter().GetResult();
+                var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequestV2 { MdsCodes = null, Take = 0, Skip = 0 }).GetAwaiter().GetResult();
 
                 _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), $"{response.Underlyings.Count} underlyings read.");
 
                 _cache = response.Underlyings.ToDictionary(u => u.MdsCode,
                     v => _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(v));
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -63,12 +65,26 @@ namespace MarginTrading.AssetService.Services.Caches
             }
         }
 
+        public bool IsinExists(string isin)
+        {
+            _lockSlim.EnterReadLock();
+            try
+            {
+                return _isins.Contains(isin);
+            }
+            finally
+            {
+                _lockSlim.ExitReadLock();
+            }
+        }
+
         public void AddOrUpdateByMdsCode(UnderlyingsCacheModel underlying)
         {
             _lockSlim.EnterWriteLock();
             try
             {
                 _cache[underlying.MdsCode] = underlying;
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -84,6 +100,7 @@ namespace MarginTrading.AssetService.Services.Caches
                 _cache.Remove(oldMdsCode);
 
                 _cache.TryAdd(underlying.MdsCode, underlying);
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -97,11 +114,17 @@ namespace MarginTrading.AssetService.Services.Caches
             try
             {
                 _cache.Remove(underlying.MdsCode);
+                InitIsinsUnsafely();
             }
             finally
             {
                 _lockSlim.ExitWriteLock();
             }
+        }
+
+        private void InitIsinsUnsafely()
+        {
+            _isins = _cache.Select(x => x.Value.Isin).ToHashSet();
         }
     }
 }

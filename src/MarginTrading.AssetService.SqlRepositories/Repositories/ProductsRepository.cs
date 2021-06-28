@@ -467,5 +467,18 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             return result;
         }
+
+        public async Task<(bool result, string id)> IsinExists(string isin)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var id = await context.Products
+                    .Where(p => p.IsinLong == isin || p.IsinShort == isin)
+                    .Select(p => p.ProductId)
+                    .FirstOrDefaultAsync();
+
+                return (!string.IsNullOrWhiteSpace(id), id);
+            }
+        }
     }
 }

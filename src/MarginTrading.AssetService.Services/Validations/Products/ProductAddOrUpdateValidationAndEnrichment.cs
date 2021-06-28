@@ -19,6 +19,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         private readonly IProductCategoriesService _productCategoriesService;
         private readonly ITickFormulaRepository _tickFormulaRepository;
         private readonly IAssetTypesRepository _assetTypesRepository;
+        private readonly IProductsRepository _productsRepository;
 
         public ProductAddOrUpdateValidationAndEnrichment(
             IUnderlyingsCache underlyingsCache,
@@ -26,7 +27,8 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             IMarketSettingsRepository marketSettingsRepository,
             IProductCategoriesService productCategoriesService,
             ITickFormulaRepository tickFormulaRepository,
-            IAssetTypesRepository assetTypesRepository)
+            IAssetTypesRepository assetTypesRepository,
+            IProductsRepository productsRepository)
         {
             _underlyingsCache = underlyingsCache;
             _currenciesService = currenciesService;
@@ -34,14 +36,51 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             _productCategoriesService = productCategoriesService;
             _tickFormulaRepository = tickFormulaRepository;
             _assetTypesRepository = assetTypesRepository;
+            _productsRepository = productsRepository;
 
             AddValidation(UnderlyingMustExist);
+            AddValidation(LongIsinMustBeUniqueAcrossAllIsins);
+            AddValidation(ShortIsinMustBeUniqueAcrossAllIsins);
             AddValidation(CurrencyMustExist);
             AddValidation(MarketSettingsMustExist);
             AddValidation(TickFormulaMustExist);
             AddValidation(AssetTypeMustExist);
             AddValidation(SetCategoryIdAsync);
             AddValidation(SetExistingFields);
+        }
+
+        private async Task<Result<Product, ProductsErrorCodes>> LongIsinMustBeUniqueAcrossAllIsins(Product value, string userName,
+            string correlationId, Product existing = null)
+        {
+            if (_underlyingsCache.IsinExists(value.IsinLong))
+            {
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.LongIsinNotUnique);
+            }
+            var exists = await _productsRepository.IsinExists(value.IsinLong);
+            if (exists.result && exists.id != existing?.ProductId)
+            {
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.LongIsinNotUnique);
+            }
+            return new Result<Product, ProductsErrorCodes>(value);
+        }
+
+        private async Task<Result<Product, ProductsErrorCodes>> ShortIsinMustBeUniqueAcrossAllIsins(Product value, string userName,
+            string correlationId, Product existing = null)
+        {
+            if (value.IsinShort == value.IsinLong)
+            {
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.ShortIsinNotUnique);
+            }
+            if (_underlyingsCache.IsinExists(value.IsinShort))
+            {
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.ShortIsinNotUnique);
+            }
+            var exists = await _productsRepository.IsinExists(value.IsinShort);
+            if (exists.result && exists.id != existing?.ProductId)
+            {
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.ShortIsinNotUnique);
+            }
+            return new Result<Product, ProductsErrorCodes>(value);
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,
@@ -59,17 +98,17 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             if (existing == null)
             {
                 // we use StartDate from the request, if possible, and fallback to the underlying's StartDate otherwise
-                startDate = value.StartDate ?? underlying.StartDate;    
+                startDate = value.StartDate ?? underlying.StartDate;
             }
             else
             {
                 // for existing products we should not update StartDate from underlying 
-                startDate = value.StartDate ?? existing.StartDate; 
+                startDate = value.StartDate ?? existing.StartDate;
             }
-            
-            if(existing != null && existing.IsStarted && startDate > DateTime.UtcNow) 
+
+            if (existing != null && existing.IsStarted && startDate > DateTime.UtcNow)
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotChangeStartDateFromPastToFuture);
-                
+
             value.StartDate = startDate;
             value.IsStarted = startDate < DateTime.UtcNow;
 

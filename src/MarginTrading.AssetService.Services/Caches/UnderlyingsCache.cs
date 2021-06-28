@@ -40,7 +40,7 @@ namespace MarginTrading.AssetService.Services.Caches
 
                 _cache = response.Underlyings.ToDictionary(u => u.MdsCode,
                     v => _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(v));
-                InitIsins();
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -84,7 +84,7 @@ namespace MarginTrading.AssetService.Services.Caches
             try
             {
                 _cache[underlying.MdsCode] = underlying;
-                InitIsins();
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -100,7 +100,7 @@ namespace MarginTrading.AssetService.Services.Caches
                 _cache.Remove(oldMdsCode);
 
                 _cache.TryAdd(underlying.MdsCode, underlying);
-                InitIsins();
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -114,7 +114,7 @@ namespace MarginTrading.AssetService.Services.Caches
             try
             {
                 _cache.Remove(underlying.MdsCode);
-                InitIsins();
+                InitIsinsUnsafely();
             }
             finally
             {
@@ -122,7 +122,7 @@ namespace MarginTrading.AssetService.Services.Caches
             }
         }
 
-        private void InitIsins()
+        private void InitIsinsUnsafely()
         {
             _isins = _cache.Select(x => x.Value.Isin).ToHashSet();
         }

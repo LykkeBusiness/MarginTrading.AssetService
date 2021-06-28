@@ -54,14 +54,14 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         {
             if (_underlyingsCache.IsinExists(value.IsinLong))
             {
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.LongIsinNotUnique);
+                return ProductsErrorCodes.LongIsinNotUnique;
             }
             var exists = await _productsRepository.IsinExists(value.IsinLong);
             if (exists.result && exists.id != existing?.ProductId)
             {
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.LongIsinNotUnique);
+                return ProductsErrorCodes.LongIsinNotUnique;
             }
-            return new Result<Product, ProductsErrorCodes>(value);
+            return value;
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> ShortIsinMustBeUniqueAcrossAllIsins(Product value, string userName,
@@ -69,18 +69,18 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         {
             if (value.IsinShort == value.IsinLong)
             {
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.ShortIsinNotUnique);
+                return ProductsErrorCodes.ShortIsinNotUnique;
             }
             if (_underlyingsCache.IsinExists(value.IsinShort))
             {
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.ShortIsinNotUnique);
+                return ProductsErrorCodes.ShortIsinNotUnique;
             }
             var exists = await _productsRepository.IsinExists(value.IsinShort);
             if (exists.result && exists.id != existing?.ProductId)
             {
-                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.ShortIsinNotUnique);
+                return ProductsErrorCodes.ShortIsinNotUnique;
             }
-            return new Result<Product, ProductsErrorCodes>(value);
+            return value;
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,

@@ -17,5 +17,7 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotFreezeDiscontinuedProduct,
         CannotDeleteStartedProduct,
         CannotChangeStartDateFromPastToFuture,
+        LongIsinNotUnique,
+        ShortIsinNotUnique,
     }
 }

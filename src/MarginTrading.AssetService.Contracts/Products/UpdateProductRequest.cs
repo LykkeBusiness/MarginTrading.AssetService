@@ -20,11 +20,11 @@ namespace MarginTrading.AssetService.Contracts.Products
         public int ContractSize { get; set; }
 
         [Required]
-        [MaxLength(100)]
+        [StringLength(12, MinimumLength = 12)]
         public string IsinLong { get; set; }
         
         [Required]
-        [MaxLength(100)]
+        [StringLength(12, MinimumLength = 12)]
         public string IsinShort { get; set; }
         
         [MaxLength(100)]

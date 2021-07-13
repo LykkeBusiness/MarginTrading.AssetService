@@ -28,5 +28,9 @@ namespace MarginTrading.AssetService.Contracts.TradingConditions
         public decimal HedgeCost { get; set; }
         
         public decimal Spread { get; set; }
+        
+        public decimal LeverageIni { get; set; }
+        public decimal LeverageMnt { get; set; }
+        public decimal MarginRatePercent { get; set; }
     }
 }

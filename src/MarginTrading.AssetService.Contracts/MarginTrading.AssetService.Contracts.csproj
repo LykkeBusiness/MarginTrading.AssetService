@@ -21,7 +21,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2020.1.0" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.23.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.25.1" />
     <PackageReference Include="Refit" Version="5.2.1" />
     <PackageReference Include="MessagePack" Version="1.9.11" />
     <PackageReference Include="System.ComponentModel" Version="4.3.0" />

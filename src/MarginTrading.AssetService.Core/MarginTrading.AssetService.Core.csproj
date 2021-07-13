@@ -16,7 +16,7 @@
     <PackageReference Include="Lykke.RabbitMqBroker" Version="7.13.2" />
     <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
     <PackageReference Include="Lykke.SlackNotifications" Version="2.0.0" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.23.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.25.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />

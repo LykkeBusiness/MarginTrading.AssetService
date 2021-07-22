@@ -11,17 +11,31 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class TradingInstrument : ITradingInstrument
     {
-        public TradingInstrument(string tradingConditionId, string instrument, int leverageInit,
-            int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit,
-            decimal dealMaxLimit, decimal positionLimit, bool shortPosition, decimal liquidationThreshold,
-            decimal overnightMarginMultiplier, decimal commissionRate, decimal commissionMin, decimal commissionMax,
-            string commissionCurrency, decimal hedgeCost, decimal spread, Leverage leverageIni, 
-            Leverage leverageMnt, MarginRate marginRate)
+        public TradingInstrument(string tradingConditionId,
+            string instrument,
+            decimal swapLong,
+            decimal swapShort,
+            decimal delta,
+            decimal dealMinLimit,
+            decimal dealMaxLimit,
+            decimal positionLimit,
+            bool shortPosition,
+            decimal liquidationThreshold,
+            decimal overnightMarginMultiplier,
+            decimal commissionRate,
+            decimal commissionMin,
+            decimal commissionMax,
+            string commissionCurrency,
+            decimal hedgeCost,
+            decimal spread,
+            Leverage initLeverage,
+            Leverage maintenanceLeverage,
+            MarginRate marginRate)
         {
             TradingConditionId = tradingConditionId;
             Instrument = instrument;
-            LeverageInit = leverageInit;
-            LeverageMaintenance = leverageMaintenance;
+            LeverageInit = (int) initLeverage;
+            LeverageMaintenance = (int) maintenanceLeverage;
             SwapLong = swapLong;
             SwapShort = swapShort;
             Delta = delta;
@@ -37,8 +51,8 @@ namespace MarginTrading.AssetService.Core.Domain
             CommissionCurrency = commissionCurrency;
             HedgeCost = hedgeCost;
             Spread = spread;
-            LeverageIni = leverageIni;
-            LeverageMnt = leverageMnt;
+            InitLeverage = initLeverage;
+            MaintenanceLeverage = maintenanceLeverage;
             MarginRate = marginRate;
         }
 
@@ -46,8 +60,8 @@ namespace MarginTrading.AssetService.Core.Domain
         public string Instrument { get; }
         public int LeverageInit { get; }
         public int LeverageMaintenance { get; }
-        public Leverage LeverageIni { get; }
-        public Leverage LeverageMnt { get; }
+        public Leverage InitLeverage { get; }
+        public Leverage MaintenanceLeverage { get; }
         public MarginRate MarginRate { get; set; }
 
         [Obsolete]
@@ -85,8 +99,6 @@ namespace MarginTrading.AssetService.Core.Domain
             return new TradingInstrument(
                 tradingConditionId: profileId,
                 instrument: product.ProductId,
-                leverageInit: (int) leverage,
-                leverageMaintenance: (int) leverage,
                 swapLong: TradingInstrumentsConstants.SwapLong,
                 swapShort: TradingInstrumentsConstants.SwapShort,
                 delta: TradingInstrumentsConstants.Delta,
@@ -102,8 +114,8 @@ namespace MarginTrading.AssetService.Core.Domain
                 commissionCurrency: string.Empty,
                 hedgeCost: product.HedgeCost,
                 spread: spread,
-                leverageIni: leverage,
-                leverageMnt: leverage,
+                initLeverage: leverage,
+                maintenanceLeverage: leverage,
                 marginRate: marginRate
             );
         }

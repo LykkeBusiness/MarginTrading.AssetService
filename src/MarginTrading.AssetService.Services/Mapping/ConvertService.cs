@@ -91,8 +91,8 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<UpdateProductRequest, Product>();
                 cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
                 cfg.CreateMap<ITradingInstrument, TradingInstrumentContract>()
-                    .ForMember(dest => dest.LeverageIni, opt => opt.MapFrom(x => (decimal) x.LeverageIni))
-                    .ForMember(dest => dest.LeverageMnt, opt => opt.MapFrom(x => (decimal) x.LeverageMnt))
+                    .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))
+                    .ForMember(dest => dest.MaintenanceLeverage, opt => opt.MapFrom(x => (decimal) x.MaintenanceLeverage))
                     .ForMember(dest => dest.MarginRatePercent, opt => opt.MapFrom(x => x.MarginRate.Value));
                 
                 //ProductCategories

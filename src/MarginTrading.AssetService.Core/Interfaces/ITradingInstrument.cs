@@ -19,9 +19,9 @@ namespace MarginTrading.AssetService.Core.Interfaces
         [Obsolete("Use decimal field LeverageMnt")]
         int LeverageMaintenance { get; }
         
-        Leverage LeverageIni { get; }
+        Leverage InitLeverage { get; }
         
-        Leverage LeverageMnt { get; }
+        Leverage MaintenanceLeverage { get; }
         
         MarginRate MarginRate { get; set; }
         

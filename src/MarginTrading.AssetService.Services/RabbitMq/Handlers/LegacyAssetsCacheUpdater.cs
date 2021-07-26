@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
+using Lykke.Common.Log;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
@@ -172,7 +173,16 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         private async Task Handle(Func<Asset, bool> getAffectedFilter,  DateTime timestamp)
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
+            {
+                _log.WriteInfo(nameof(LegacyAssetsCacheUpdater),
+                    new
+                    {
+                        EventTimestamp = timestamp,
+                        CacheInitiallizationTimestamp = _legacyAssetsCache.CacheInitTimestamp
+                    }.ToJson(), "Legacy asset cache update is discarded, source event is out of date");
+
                 return;
+            }
 
             await _semaphore.WaitAsync();
             try
@@ -180,9 +190,14 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                 var affectedAssets = _legacyAssetsCache.GetByFilter(getAffectedFilter);
                 var updatedAssets = await _legacyAssetsService.GetLegacyAssets(affectedAssets.Select(x => x.AssetId));
 
-                _legacyAssetsCache.AddOrUpdateMultiple(updatedAssets);
+                if (updatedAssets.Count > 0)
+                {
+                    _legacyAssetsCache.AddOrUpdateMultiple(updatedAssets);
+                    await PublishAssetUpsertedEvents(updatedAssets);
 
-                await PublishAssetUpsertedEvents(updatedAssets);
+                    _log.WriteInfo(nameof(LegacyAssetsCacheUpdater),
+                        new {UpdatedAssetsCount = updatedAssets.Count}.ToJson(), "Updated assets in legacy cache");
+                }
             }
             finally
             {

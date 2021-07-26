@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
+
 namespace MarginTrading.AssetService.Contracts.TradingConditions
 {
     // TODO: Category hierarchy
@@ -8,7 +10,9 @@ namespace MarginTrading.AssetService.Contracts.TradingConditions
     {
         public string TradingConditionId { get; set; }
         public string Instrument { get; set; }
+        [Obsolete("Use decimal field InitLeverage")]
         public int LeverageInit { get; set; }
+        [Obsolete("Use decimal field MaintenanceLeverage")]
         public int LeverageMaintenance { get; set; }
         public decimal SwapLong { get; set; }
         public decimal SwapShort { get; set; }
@@ -28,5 +32,9 @@ namespace MarginTrading.AssetService.Contracts.TradingConditions
         public decimal HedgeCost { get; set; }
         
         public decimal Spread { get; set; }
+        
+        public decimal InitLeverage { get; set; }
+        public decimal MaintenanceLeverage { get; set; }
+        public decimal MarginRatePercent { get; set; }
     }
 }

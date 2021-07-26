@@ -1,11 +1,18 @@
 using System;
+using Lykke.Snow.Common.Percents;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
     public static class ProductExtensions
     {
+        /// <summary>
+        /// Margin rate as percent
+        /// </summary>
+        /// <param name="product"></param>
+        /// <param name="profileMargin"></param>
+        /// <returns></returns>
         //see https://lykke-snow.atlassian.net/browse/BUGS-1981 for details
-        public static decimal GetMargin(this Product product, decimal profileMargin)
+        public static decimal GetMarginRateAsPercent(this Product product, decimal profileMargin)
         {
             if (product.Margin == null)
             {
@@ -20,7 +27,13 @@ namespace MarginTrading.AssetService.Core.Domain
             return Math.Max(profileMargin, product.Margin.Value);
         }
 
-        public static decimal GetMarginRate(this Product product, decimal profileMargin) =>
-            product.GetMargin(profileMargin) / 100;
+        /// <summary>
+        /// Margin rate
+        /// </summary>
+        /// <param name="product"></param>
+        /// <param name="profileMargin"></param>
+        /// <returns></returns>
+        public static MarginRate GetMarginRate(this Product product, decimal profileMargin) =>
+            new MarginRate(product.GetMarginRateAsPercent(profileMargin));
     }
 }

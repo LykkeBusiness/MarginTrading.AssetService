@@ -2,6 +2,8 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
+using Lykke.Snow.Common;
+using Lykke.Snow.Common.Percents;
 using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Interfaces;
 
@@ -9,16 +11,31 @@ namespace MarginTrading.AssetService.Core.Domain
 {
     public class TradingInstrument : ITradingInstrument
     {
-        public TradingInstrument(string tradingConditionId, string instrument, int leverageInit,
-            int leverageMaintenance, decimal swapLong, decimal swapShort, decimal delta, decimal dealMinLimit,
-            decimal dealMaxLimit, decimal positionLimit, bool shortPosition, decimal liquidationThreshold,
-            decimal overnightMarginMultiplier, decimal commissionRate, decimal commissionMin, decimal commissionMax,
-            string commissionCurrency, decimal hedgeCost, decimal spread)
+        public TradingInstrument(string tradingConditionId,
+            string instrument,
+            decimal swapLong,
+            decimal swapShort,
+            decimal delta,
+            decimal dealMinLimit,
+            decimal dealMaxLimit,
+            decimal positionLimit,
+            bool shortPosition,
+            decimal liquidationThreshold,
+            decimal overnightMarginMultiplier,
+            decimal commissionRate,
+            decimal commissionMin,
+            decimal commissionMax,
+            string commissionCurrency,
+            decimal hedgeCost,
+            decimal spread,
+            Leverage initLeverage,
+            Leverage maintenanceLeverage,
+            MarginRate marginRate)
         {
             TradingConditionId = tradingConditionId;
             Instrument = instrument;
-            LeverageInit = leverageInit;
-            LeverageMaintenance = leverageMaintenance;
+            LeverageInit = (int) initLeverage;
+            LeverageMaintenance = (int) maintenanceLeverage;
             SwapLong = swapLong;
             SwapShort = swapShort;
             Delta = delta;
@@ -34,12 +51,19 @@ namespace MarginTrading.AssetService.Core.Domain
             CommissionCurrency = commissionCurrency;
             HedgeCost = hedgeCost;
             Spread = spread;
+            InitLeverage = initLeverage;
+            MaintenanceLeverage = maintenanceLeverage;
+            MarginRate = marginRate;
         }
 
         public string TradingConditionId { get; }
         public string Instrument { get; }
         public int LeverageInit { get; }
         public int LeverageMaintenance { get; }
+        public Leverage InitLeverage { get; }
+        public Leverage MaintenanceLeverage { get; }
+        public MarginRate MarginRate { get; set; }
+
         [Obsolete]
         public decimal SwapLong { get; }
         [Obsolete]
@@ -69,28 +93,30 @@ namespace MarginTrading.AssetService.Core.Domain
             decimal profileMargin,
             decimal spread)
         {
-            var margin = product.GetMargin(profileMargin);
-            
+            var marginRate = product.GetMarginRate(profileMargin);
+            var leverage = new Leverage(marginRate);
+
             return new TradingInstrument(
                 tradingConditionId: profileId,
                 instrument: product.ProductId,
-                leverageInit: (int)(100 / margin),
-                leverageMaintenance: (int)(100 / margin),
                 swapLong: TradingInstrumentsConstants.SwapLong,
                 swapShort: TradingInstrumentsConstants.SwapShort,
                 delta: TradingInstrumentsConstants.Delta,
-                dealMinLimit:product.MinOrderSize,
-                dealMaxLimit:product.MaxOrderSize,
-                positionLimit:product.MaxPositionSize,
-                shortPosition:product.ShortPosition,
+                dealMinLimit: product.MinOrderSize,
+                dealMaxLimit: product.MaxOrderSize,
+                positionLimit: product.MaxPositionSize,
+                shortPosition: product.ShortPosition,
                 liquidationThreshold: TradingInstrumentsConstants.LiquidationThreshold,
-                overnightMarginMultiplier:product.OvernightMarginMultiplier,
-                commissionRate:TradingInstrumentsConstants.CommissionRate,
-                commissionMin:TradingInstrumentsConstants.CommissionMin,
-                commissionMax:TradingInstrumentsConstants.CommissionMax,
-                commissionCurrency:string.Empty,
-                hedgeCost:product.HedgeCost,
-                spread:spread
+                overnightMarginMultiplier: product.OvernightMarginMultiplier,
+                commissionRate: TradingInstrumentsConstants.CommissionRate,
+                commissionMin: TradingInstrumentsConstants.CommissionMin,
+                commissionMax: TradingInstrumentsConstants.CommissionMax,
+                commissionCurrency: string.Empty,
+                hedgeCost: product.HedgeCost,
+                spread: spread,
+                initLeverage: leverage,
+                maintenanceLeverage: leverage,
+                marginRate: marginRate
             );
         }
     }

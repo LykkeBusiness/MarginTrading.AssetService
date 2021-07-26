@@ -17,12 +17,11 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
-using MarginTrading.AssetService.Contracts.Rates;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
+using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
@@ -89,6 +88,10 @@ namespace MarginTrading.AssetService.Services.Mapping
                     .ForMember(p=> p.IsSuspended, o=>o.UseValue(true)); 
                 cfg.CreateMap<UpdateProductRequest, Product>();
                 cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
+                cfg.CreateMap<ITradingInstrument, TradingInstrumentContract>()
+                    .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))
+                    .ForMember(dest => dest.MaintenanceLeverage, opt => opt.MapFrom(x => (decimal) x.MaintenanceLeverage))
+                    .ForMember(dest => dest.MarginRatePercent, opt => opt.MapFrom(x => x.MarginRate.Value));
                 
                 //ProductCategories
                 cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();

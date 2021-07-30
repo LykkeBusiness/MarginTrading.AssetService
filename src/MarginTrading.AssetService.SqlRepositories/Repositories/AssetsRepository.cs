@@ -22,6 +22,28 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _contextFactory = contextFactory;
         }
 
+        public async Task<IReadOnlyList<string>> GetUsedIsinsAsync()
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var filteredQuery = context.Products.Where(x => !x.IsDiscontinued);
+                var longQuery = filteredQuery.Select(x => x.IsinLong);
+                var shortQuery = filteredQuery.Select(x => x.IsinShort);
+                return await longQuery.Union(shortQuery).ToListAsync();
+            }
+        }
+
+        public async Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync()
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                return await context.Products
+                    .Where(x => x.IsDiscontinued)
+                    .Select(x => x.ProductId)
+                    .ToListAsync();
+            }
+        }
+
         public async Task<IReadOnlyList<IAsset>> GetAsync()
         {
             var result = new Dictionary<string, IAsset>();

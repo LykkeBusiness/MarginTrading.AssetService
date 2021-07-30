@@ -54,6 +54,30 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
+        /// Get deleted product ids
+        /// </summary>
+        [HttpGet]
+        [Route("discontinued-ids")]
+        public async Task<List<string>> GetDiscontinuedIds()
+        {
+            var data = await _assetsRepository.GetDiscontinuedIdsAsync();
+
+            return data.ToList();
+        }
+
+        /// <summary>
+        /// Get used isins
+        /// </summary>
+        [HttpGet]
+        [Route("used-isins")]
+        public async Task<List<string>> GetUsedIsins()
+        {
+            var data = await _assetsRepository.GetUsedIsinsAsync();
+
+            return data.ToList();
+        }
+
+        /// <summary>
         /// Get the list of assets with optional pagination
         /// </summary>
         [HttpGet]

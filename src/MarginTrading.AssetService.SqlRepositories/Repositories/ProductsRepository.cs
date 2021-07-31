@@ -78,7 +78,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = new ProductEntity() {ProductId = productId, Timestamp = timestamp};
+                var entity = new ProductEntity() { ProductId = productId, Timestamp = timestamp };
 
                 context.Attach(entity);
                 context.Products.Remove(entity);
@@ -249,7 +249,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             await using var context = _contextFactory.CreateDataContext();
             var entities = productIdsWithTimestamps.Select(kvp =>
-                    new ProductEntity() {ProductId = kvp.Key, Timestamp = kvp.Value})
+                    new ProductEntity() { ProductId = kvp.Key, Timestamp = kvp.Value })
                 .ToArray();
 
             context.AttachRange(entities);
@@ -468,12 +468,20 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             return result;
         }
 
-        public async Task<(bool result, string id)> IsinExists(string isin)
+        public async Task<(bool result, string id)> IsinExists(string isin, bool? isDiscontinued = null)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var id = await context.Products
-                    .Where(p => p.IsinLong == isin || p.IsinShort == isin)
+                var filteredQuery = context.Products
+                    .Where(p => p.IsinLong == isin || p.IsinShort == isin);
+
+                if (isDiscontinued.HasValue)
+                {
+                    filteredQuery = filteredQuery
+                        .Where(x => x.IsDiscontinued == isDiscontinued.Value);
+                }
+
+                var id = await filteredQuery
                     .Select(p => p.ProductId)
                     .FirstOrDefaultAsync();
 

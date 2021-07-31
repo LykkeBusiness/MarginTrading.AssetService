@@ -56,7 +56,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             {
                 return ProductsErrorCodes.LongIsinNotUnique;
             }
-            var exists = await _productsRepository.IsinExists(value.IsinLong);
+            var exists = await _productsRepository.IsinExists(value.IsinLong, false);
             if (exists.result && exists.id != existing?.ProductId)
             {
                 return ProductsErrorCodes.LongIsinNotUnique;
@@ -75,7 +75,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             {
                 return ProductsErrorCodes.ShortIsinNotUnique;
             }
-            var exists = await _productsRepository.IsinExists(value.IsinShort);
+            var exists = await _productsRepository.IsinExists(value.IsinShort, false);
             if (exists.result && exists.id != existing?.ProductId)
             {
                 return ProductsErrorCodes.ShortIsinNotUnique;

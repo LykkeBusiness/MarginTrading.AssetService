@@ -17,6 +17,18 @@ namespace MarginTrading.AssetService.Contracts
     public interface IAssetsApi
     {
         /// <summary>
+        /// Get deleted product ids
+        /// </summary>
+        [Get("/api/assets/discontinued-ids")]
+        Task<List<string>> GetDiscontinuedIds();
+
+        /// <summary>
+        /// Get used isins
+        /// </summary>
+        [Get("/api/assets/used-isins")]
+        Task<List<string>> GetUsedIsins();
+
+        /// <summary>
         /// Get the list of assets
         /// </summary>
         [Get("/api/assets")]

@@ -204,6 +204,8 @@ namespace MarginTrading.AssetService.Services
                         currentEnd = currentEnd.AddDays(7);
                     }
 
+                    // By default, we use a range of (-7, 7) as of the current date to retrieve the nearest day-offs.
+                    // In a case of long holidays (14+ days specifically) can cause irrelevant results.
                     return new[]
                     {
                         new CompiledScheduleTimeInterval(sch, currentStart.AddDays(-7), currentEnd.AddDays(-7)),
@@ -221,6 +223,10 @@ namespace MarginTrading.AssetService.Services
                 // ReSharper restore PossibleInvalidOperationException - validated previously
                 : new List<CompiledScheduleTimeInterval>();
 
+            var weeklyIntervals = weekly.ToArray();
+            var singleIntervals = single.ToArray();
+            var nearestGap = FindNearestGapAsOfNow(weeklyIntervals, singleIntervals, currentDateTime);
+
             //handle daily
             var daily = scheduleSettingsByType.TryGetValue(ScheduleConstraintType.Daily, out var dailySchedule)
                 ? dailySchedule.SelectMany(sch =>
@@ -232,16 +238,48 @@ namespace MarginTrading.AssetService.Services
                         end = end.AddDays(1);
                     }
 
-                    return new[]
+                    var result = new List<CompiledScheduleTimeInterval>
                     {
                         new CompiledScheduleTimeInterval(sch, start.AddDays(-1), end.AddDays(-1)),
-                        new CompiledScheduleTimeInterval(sch, start, end),
-                        new CompiledScheduleTimeInterval(sch, start.AddDays(1), end.AddDays(1))
+                        new CompiledScheduleTimeInterval(sch, start, end)
                     };
+
+                    for (var i = 1; i <= (nearestGap - start.Date).Days; i++)
+                    {
+                        result.Add(new CompiledScheduleTimeInterval(sch, start.AddDays(i), end.AddDays(i)));
+                    }
+
+                    return result;
                 })
                 : new List<CompiledScheduleTimeInterval>();
 
-            return weekly.Concat(single).Concat(daily).ToList();
+            return weeklyIntervals.Concat(singleIntervals).Concat(daily).ToList();
+        }
+
+        /// <summary>
+        /// Returns nearest gap for a given sets of weekly & single (combined together) day-offs
+        /// </summary>
+        private static DateTime FindNearestGapAsOfNow(IEnumerable<CompiledScheduleTimeInterval> weekly, 
+            IEnumerable<CompiledScheduleTimeInterval> single, DateTime currentDate)
+        {
+            var now = currentDate.Date;
+            var futureIntervalsRaw = weekly.Concat(single).Where(x => x.Start > now);
+            var futureIntervals = futureIntervalsRaw
+                .GroupBy(key => key.Start)
+                .Select(interval => interval.Aggregate((max, current) => 
+                    max == null || current.Schedule.Rank > max.Schedule.Rank ? current : max))
+                .OrderBy(x => x.Start)
+                .ToArray();
+            
+            var end = futureIntervals.Max(x => x.Start);
+            
+            var setOfDates = Enumerable.Range(1, (end - now).Days)
+                .Select(offset => now.AddDays(offset))
+                .ToArray(); 
+            
+            var nearestGap = setOfDates.Except(futureIntervals.Select(x => x.Start)).Min();
+
+            return nearestGap;
         }
 
         private static DateTime CurrentWeekday(DateTime start, DayOfWeek day)

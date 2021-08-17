@@ -238,18 +238,14 @@ namespace MarginTrading.AssetService.Services
                         end = end.AddDays(1);
                     }
 
-                    var result = new List<CompiledScheduleTimeInterval>
+                    var offset = (nearestGap - start.Date).Days;
+
+                    return new[]
                     {
                         new CompiledScheduleTimeInterval(sch, start.AddDays(-1), end.AddDays(-1)),
-                        new CompiledScheduleTimeInterval(sch, start, end)
+                        new CompiledScheduleTimeInterval(sch, start, end),
+                        new CompiledScheduleTimeInterval(sch, start.AddDays(offset), end.AddDays(offset))
                     };
-
-                    for (var i = 1; i <= (nearestGap - start.Date).Days; i++)
-                    {
-                        result.Add(new CompiledScheduleTimeInterval(sch, start.AddDays(i), end.AddDays(i)));
-                    }
-
-                    return result;
                 })
                 : new List<CompiledScheduleTimeInterval>();
 

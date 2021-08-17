@@ -238,7 +238,9 @@ namespace MarginTrading.AssetService.Services
                         end = end.AddDays(1);
                     }
 
-                    var offset = (nearestGap - start.Date).Days;
+                    var offset = nearestGap != DateTime.MinValue 
+                        ? (nearestGap - start.Date).Days 
+                        : 1;
 
                     return new[]
                     {
@@ -259,7 +261,12 @@ namespace MarginTrading.AssetService.Services
             IEnumerable<CompiledScheduleTimeInterval> single, DateTime currentDate)
         {
             var now = currentDate.Date;
-            var futureIntervalsRaw = weekly.Concat(single).Where(x => x.Start > now);
+            var futureIntervalsRaw = weekly.Concat(single).Where(x => x.Start > now).ToArray();
+            if (!futureIntervalsRaw.Any())
+            {
+                return DateTime.MinValue;
+            }
+
             var futureIntervals = futureIntervalsRaw
                 .GroupBy(key => key.Start)
                 .Select(interval => interval.Aggregate((max, current) => 
@@ -268,14 +275,13 @@ namespace MarginTrading.AssetService.Services
                 .ToArray();
             
             var end = futureIntervals.Max(x => x.Start);
-            
             var setOfDates = Enumerable.Range(1, (end - now).Days)
                 .Select(offset => now.AddDays(offset))
                 .ToArray(); 
             
-            var nearestGap = setOfDates.Except(futureIntervals.Select(x => x.Start)).Min();
+            var gaps = setOfDates.Except(futureIntervals.Select(x => x.Start)).ToArray();
 
-            return nearestGap;
+            return gaps.Any() ? gaps.Min() : DateTime.MinValue;
         }
 
         private static DateTime CurrentWeekday(DateTime start, DayOfWeek day)

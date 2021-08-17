@@ -87,11 +87,8 @@ namespace MarginTrading.AssetService.Services
             DateTime currentDateTime)
         {
             var compiledSchedule = CompileSchedule(scheduleSettings, currentDateTime);
-
-            var currentInterval = compiledSchedule
-                .Where(x => IsBetween(currentDateTime, x.Start, x.End))
-                .OrderByDescending(x => x.Schedule.Rank)
-                .FirstOrDefault();
+            
+            var currentInterval = GetCurrentInterval(compiledSchedule, currentDateTime);
 
             var isEnabled = currentInterval.Enabled();
             var lastTradingDay = GetPreviousTradingDay(compiledSchedule, currentInterval, currentDateTime);
@@ -108,6 +105,15 @@ namespace MarginTrading.AssetService.Services
             };
 
             return result;
+        }
+
+        private static CompiledScheduleTimeInterval GetCurrentInterval(
+            IEnumerable<CompiledScheduleTimeInterval> intervals, DateTime currentDateTime)
+        {
+            return intervals
+                .Where(x => IsBetween(currentDateTime, x.Start, x.End))
+                .OrderByDescending(x => x.Schedule.Rank)
+                .FirstOrDefault();
         }
 
         private static DateTime GetPreviousTradingDay(List<CompiledScheduleTimeInterval>
@@ -239,7 +245,7 @@ namespace MarginTrading.AssetService.Services
                     }
 
                     var offset = nearestGap != DateTime.MinValue 
-                        ? (nearestGap - start.Date).Days 
+                        ? (nearestGap - start.Date).Days - 1
                         : 1;
 
                     return new[]
@@ -260,28 +266,17 @@ namespace MarginTrading.AssetService.Services
         private static DateTime FindNearestGapAsOfNow(IEnumerable<CompiledScheduleTimeInterval> weekly, 
             IEnumerable<CompiledScheduleTimeInterval> single, DateTime currentDate)
         {
-            var now = currentDate.Date;
-            var futureIntervalsRaw = weekly.Concat(single).Where(x => x.Start > now).ToArray();
-            if (!futureIntervalsRaw.Any())
+            var intervals = weekly.Concat(single).ToList();
+            if (!intervals.Any())
             {
                 return DateTime.MinValue;
             }
 
-            var futureIntervals = futureIntervalsRaw
-                .GroupBy(key => key.Start)
-                .Select(interval => interval.Aggregate((max, current) => 
-                    max == null || current.Schedule.Rank > max.Schedule.Rank ? current : max))
-                .OrderBy(x => x.Start)
-                .ToArray();
-            
-            var end = futureIntervals.Max(x => x.Start);
-            var setOfDates = Enumerable.Range(1, (end - now).Days)
-                .Select(offset => now.AddDays(offset))
-                .ToArray(); 
-            
-            var gaps = setOfDates.Except(futureIntervals.Select(x => x.Start)).ToArray();
+            var currentInterval = GetCurrentInterval(intervals, currentDate);
+            var lastTradingDay = GetPreviousTradingDay(intervals, currentInterval, currentDate);
+            var nextTradingDay = GetNextTradingDay(intervals, currentInterval, currentDate, lastTradingDay);
 
-            return gaps.Any() ? gaps.Min() : DateTime.MinValue;
+            return nextTradingDay;
         }
 
         private static DateTime CurrentWeekday(DateTime start, DayOfWeek day)

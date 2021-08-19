@@ -21,21 +21,21 @@ namespace MarginTrading.AssetService.Tests
     public class MarketDayOffServiceTests
     {
         [Theory]
-        [InlineData("Market1.1", false, "2019-10-11", "2019-10-11")]
-        [InlineData("Market1.2", true, "2019-10-11", "2019-10-12")]
-        [InlineData("Market1.3", true, "2019-10-11", "2019-10-12")]
-        [InlineData("Market2.1", true, "2019-10-11", "2019-10-14")]
-        [InlineData("Market2.2", false, "2019-10-11", "2019-10-12")]
-        [InlineData("Market2.3", true, "2019-10-11", "2019-10-14")]
-        [InlineData("Market2.4", false, "2019-10-10", "2019-10-11")]
-        [InlineData("Market2.5", true, "2019-10-11", "2019-10-12")]
-        [InlineData("Market2.6", true, "2019-10-11", "2019-10-12")]
-        [InlineData("Market3.1", false, "2019-10-10", "2019-10-12")]
-        [InlineData("Market3.2", false, "2019-10-10", "2019-10-13")]
-        [InlineData("Market3.3", false, "2019-10-10", "2019-10-15")]
-        [InlineData("Market4.1", true, "2019-10-11", "2019-10-15")]
-        [InlineData("Market4.2", true, "2019-10-11", "2019-10-14")]
-        [InlineData("Market4.3", false, "2019-10-08", "2019-10-11")]
+        [InlineData("Market1.1", false, "2019-10-11", "2019-10-11 23:00:00")]
+        [InlineData("Market1.2", true, "2019-10-11", "2019-10-12 02:00:00")]
+        [InlineData("Market1.3", true, "2019-10-11", "2019-10-12 00:00:00")]
+        [InlineData("Market2.1", true, "2019-10-11", "2019-10-14 00:00:00")]
+        [InlineData("Market2.2", false, "2019-10-11", "2019-10-12 01:00:00")]
+        [InlineData("Market2.3", true, "2019-10-11", "2019-10-14 00:00:00")]
+        [InlineData("Market2.4", false, "2019-10-10", "2019-10-11 22:00:00")]
+        [InlineData("Market2.5", true, "2019-10-11", "2019-10-12 00:00:00")]
+        [InlineData("Market2.6", true, "2019-10-11", "2019-10-12 00:00:00")]
+        [InlineData("Market3.1", false, "2019-10-10", "2019-10-12 00:00:00")]
+        [InlineData("Market3.2", false, "2019-10-10", "2019-10-13 00:00:00")]
+        [InlineData("Market3.3", false, "2019-10-10", "2019-10-15 00:00:00")]
+        [InlineData("Market4.1", true, "2019-10-11", "2019-10-15 00:00:00")]
+        [InlineData("Market4.2", true, "2019-10-11", "2019-10-14 06:00:00")]
+        [InlineData("Market4.3", false, "2019-10-08", "2019-10-11 12:00:00")]
         public async Task TestGetMarketsInfo(string marketId, bool isTradingEnabled, 
             string lastTradingDay, string nextTradingDay)
         {
@@ -45,9 +45,10 @@ namespace MarginTrading.AssetService.Tests
         }
         
         [Theory]
-        [InlineData("Market5.1", true, "2019-10-11", "2019-10-13")]
-        [InlineData("Market5.2", true, "2019-10-11", "2019-10-14")]
-        [InlineData("Market5.3", false, "2019-10-10", "2019-10-11")]
+        [InlineData("Market5.1", true, "2019-10-11", "2019-10-13 06:00:00")]
+        [InlineData("Market5.2", true, "2019-10-11", "2019-10-14 06:00:00")]
+        [InlineData("Market5.3", false, "2019-10-10", "2019-10-11 21:00:00")]
+        [InlineData("Market6.1", true, "2019-10-11", "2019-10-17 06:00:00")]
         public async Task TestGetMarketsInfoWithPlatform(string marketId, bool isTradingEnabled, 
             string lastTradingDay, string nextTradingDay)
         {
@@ -87,7 +88,8 @@ namespace MarginTrading.AssetService.Tests
             brokerSettingsMock.Verify();
             Assert.Equal(isTradingEnabled, info.IsTradingEnabled);
             Assert.Equal(DateTime.Parse(lastTradingDay), info.LastTradingDay);
-            Assert.Equal(DateTime.Parse(nextTradingDay), info.NextTradingDayStart.Date);
+            Assert.Equal(DateTime.Parse(nextTradingDay).Date, info.NextTradingDayStart.Date);
+            Assert.Equal(DateTime.Parse(nextTradingDay).TimeOfDay, info.NextTradingDayStart.TimeOfDay);
         }
 
         private List<IScheduleSettings> GetPopulatedRepository()
@@ -382,6 +384,18 @@ namespace MarginTrading.AssetService.Tests
                 new ScheduleConstraint
                 {
                     Time = TimeSpan.Parse("21:00:00"),
+                });
+            
+            AddSettings(
+                repoData,
+                "Market6.1",
+                new ScheduleConstraint
+                {
+                    Date = DateTime.Parse("2019-10-12"),
+                },
+                new ScheduleConstraint
+                {
+                    Date = DateTime.Parse("2019-10-17")
                 });
 
             return repoData;

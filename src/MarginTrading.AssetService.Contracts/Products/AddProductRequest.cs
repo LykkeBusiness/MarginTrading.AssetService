@@ -107,10 +107,13 @@ namespace MarginTrading.AssetService.Contracts.Products
         
         public DateTime? StartDate { get; set; }
 
+        [Range(0, 200)]
         public decimal? DividendsLong { get; set; }
 
+        [Range(0, 200)]
         public decimal? DividendsShort { get; set; }
 
+        [Range(0, 100)]
         public decimal? Dividends871M { get; set; }
 
         [Required]

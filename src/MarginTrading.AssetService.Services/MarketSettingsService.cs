@@ -137,10 +137,10 @@ namespace MarginTrading.AssetService.Services
         
         private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings newSettings, MarketSettings existingSettings = null)
         {
-            if (newSettings.DividendsLong < 0 || newSettings.DividendsLong > 100)
+            if (newSettings.DividendsLong < 0 || newSettings.DividendsLong > 200)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
 
-            if (newSettings.DividendsShort < 0 || newSettings.DividendsShort > 100)
+            if (newSettings.DividendsShort < 0 || newSettings.DividendsShort > 200)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsShortValue);
 
             if (newSettings.Dividends871M < 0 || newSettings.Dividends871M > 100)

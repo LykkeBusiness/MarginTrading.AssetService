@@ -29,6 +29,12 @@ namespace MarginTrading.AssetService.Contracts
         Task<List<string>> GetUsedIsins();
 
         /// <summary>
+        /// Returns used product names
+        /// </summary>
+        [Get("/api/assets/used-names")]
+        Task<List<string>> GetUsedNames();
+
+        /// <summary>
         /// Get the list of assets
         /// </summary>
         [Get("/api/assets")]

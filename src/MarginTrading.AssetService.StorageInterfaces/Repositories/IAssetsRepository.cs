@@ -11,6 +11,7 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     public interface IAssetsRepository
     {
         Task<IReadOnlyList<string>> GetUsedIsinsAsync();
+        Task<IReadOnlyList<string>> GetUsedNamesAsync();
         Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync();
         Task<IReadOnlyList<IAsset>> GetAsync();
         Task<IAsset> GetAsync(string assetId);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +31,18 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 var longQuery = filteredQuery.Select(x => x.IsinLong);
                 var shortQuery = filteredQuery.Select(x => x.IsinShort);
                 return await longQuery.Union(shortQuery).ToListAsync();
+            }
+        }
+
+        public async Task<IReadOnlyList<string>> GetUsedNamesAsync()
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products
+                    .Where(x => !x.IsDiscontinued)
+                    .Select(x => x.Name);
+
+                return await query.ToListAsync();
             }
         }
 

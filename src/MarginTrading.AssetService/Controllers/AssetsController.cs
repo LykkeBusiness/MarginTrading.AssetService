@@ -80,6 +80,8 @@ namespace MarginTrading.AssetService.Controllers
         /// <summary>
         /// Returns used product names
         /// </summary>
+        [HttpGet]
+        [Route("used-names")]
         public async Task<List<string>> GetUsedNames()
         {
             var data = await _assetsRepository.GetUsedNamesAsync();

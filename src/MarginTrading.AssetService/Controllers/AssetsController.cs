@@ -40,7 +40,7 @@ namespace MarginTrading.AssetService.Controllers
             _assetsRepository = assetsRepository;
             _convertService = convertService;
         }
-        
+
         /// <summary>
         /// Get the list of assets
         /// </summary>
@@ -73,6 +73,16 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<List<string>> GetUsedIsins()
         {
             var data = await _assetsRepository.GetUsedIsinsAsync();
+
+            return data.ToList();
+        }
+        
+        /// <summary>
+        /// Returns used product names
+        /// </summary>
+        public async Task<List<string>> GetUsedNames()
+        {
+            var data = await _assetsRepository.GetUsedNamesAsync();
 
             return data.ToList();
         }

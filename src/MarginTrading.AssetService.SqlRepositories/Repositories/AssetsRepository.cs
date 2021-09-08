@@ -54,12 +54,12 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var query = await context.Products
+                var duplicates = await context.Products
                     .Where(x => !x.IsDiscontinued)
                     .Select(x => x.Name).Where(x => names.Contains(x))
                     .ToListAsync();
 
-                return query;
+                return duplicates;
             }
         }
 

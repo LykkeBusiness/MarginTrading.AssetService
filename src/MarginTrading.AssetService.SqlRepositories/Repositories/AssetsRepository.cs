@@ -34,15 +34,35 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<string>> GetUsedNamesAsync()
+        public async Task<IReadOnlyList<string>> GetDuplicatedIsinsAsync(string[] isins)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var query = context.Products
-                    .Where(x => !x.IsDiscontinued)
-                    .Select(x => x.Name);
+                var query = context.Products.Where(x => !x.IsDiscontinued);
+                var longQuery = query.Select(x => x.IsinLong);
+                var shortQuery = query.Select(x => x.IsinShort);
 
-                return await query.ToListAsync();
+                var duplicates = await longQuery.Concat(shortQuery).Concat(isins)
+                    .GroupBy(x => x).Where(g => g.Count() > 1)
+                    .Select(grouping => grouping.Key)
+                    .ToListAsync();
+
+                return duplicates;
+            }
+        }
+
+        public async Task<IReadOnlyList<string>> GetDuplicatedNamesAsync(string[] names)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var duplicates = await context.Products
+                    .Where(x => !x.IsDiscontinued)
+                    .Select(x => x.Name).Concat(names)
+                    .GroupBy(x => x).Where(g => g.Count() > 1)
+                    .Select(grouping => grouping.Key)
+                    .ToListAsync();
+
+                return duplicates;
             }
         }
 

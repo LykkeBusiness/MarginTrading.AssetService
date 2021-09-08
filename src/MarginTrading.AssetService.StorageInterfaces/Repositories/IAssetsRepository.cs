@@ -11,10 +11,13 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     public interface IAssetsRepository
     {
         Task<IReadOnlyList<string>> GetUsedIsinsAsync();
-        Task<IReadOnlyList<string>> GetUsedNamesAsync();
+        Task<IReadOnlyList<string>> GetDuplicatedIsinsAsync(string[] isins);
+        Task<IReadOnlyList<string>> GetDuplicatedNamesAsync(string[] names);
         Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync();
         Task<IReadOnlyList<IAsset>> GetAsync();
         Task<IAsset> GetAsync(string assetId);
         Task<PaginatedResponse<IAsset>> GetByPagesAsync(int? skip = null, int? take = null);
+
+        
     }
 }

@@ -27,12 +27,18 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         [Get("/api/assets/used-isins")]
         Task<List<string>> GetUsedIsins();
+        
+        /// <summary>
+        /// Returns duplicates for a given product isins (short & long)
+        /// </summary>
+        [Post("/api/assets/duplicated-isins")]
+        Task<List<string>> GetDuplicatedIsins(string[] isins);
 
         /// <summary>
-        /// Returns used product names
+        /// Returns duplicates for a given product names
         /// </summary>
-        [Get("/api/assets/used-names")]
-        Task<List<string>> GetUsedNames();
+        [Post("/api/assets/duplicated-names")]
+        Task<List<string>> GetDuplicatedNames(string[] names);
 
         /// <summary>
         /// Get the list of assets

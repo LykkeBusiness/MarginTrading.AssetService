@@ -17,7 +17,5 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<IReadOnlyList<IAsset>> GetAsync();
         Task<IAsset> GetAsync(string assetId);
         Task<PaginatedResponse<IAsset>> GetByPagesAsync(int? skip = null, int? take = null);
-
-        
     }
 }

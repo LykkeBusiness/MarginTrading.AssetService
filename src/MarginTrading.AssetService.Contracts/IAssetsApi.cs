@@ -29,7 +29,7 @@ namespace MarginTrading.AssetService.Contracts
         Task<List<string>> GetUsedIsins();
         
         /// <summary>
-        /// Returns duplicates for a given product isins (short & long)
+        /// Returns duplicates for a given product isins (short, long)
         /// </summary>
         [Post("/api/assets/duplicated-isins")]
         Task<List<string>> GetDuplicatedIsins(string[] isins);

@@ -77,16 +77,22 @@ namespace MarginTrading.AssetService.Controllers
             return data.ToList();
         }
         
-        /// <summary>
-        /// Returns used product names
-        /// </summary>
-        [HttpGet]
-        [Route("used-names")]
-        public async Task<List<string>> GetUsedNames()
+        [HttpPost]
+        [Route("duplicated-isins")]
+        public async Task<List<string>> GetDuplicatedIsins([FromBody] string[] isins)
         {
-            var data = await _assetsRepository.GetUsedNamesAsync();
+            var result = await _assetsRepository.GetDuplicatedIsinsAsync(isins);
 
-            return data.ToList();
+            return result.ToList();
+        }
+
+        [HttpPost]
+        [Route("duplicated-names")]
+        public async Task<List<string>> GetDuplicatedNames([FromBody] string[] names)
+        {
+            var result = await _assetsRepository.GetDuplicatedNamesAsync(names);
+
+            return result.ToList();
         }
 
         /// <summary>

@@ -77,6 +77,9 @@ namespace MarginTrading.AssetService.Controllers
             return data.ToList();
         }
         
+        /// <summary>
+        /// Returns duplicates for a given product isins (short, long)
+        /// </summary>
         [HttpPost]
         [Route("duplicated-isins")]
         public async Task<List<string>> GetDuplicatedIsins([FromBody] string[] isins)
@@ -86,6 +89,9 @@ namespace MarginTrading.AssetService.Controllers
             return result.ToList();
         }
 
+        /// <summary>
+        /// Returns duplicates for a given product names
+        /// </summary>
         [HttpPost]
         [Route("duplicated-names")]
         public async Task<List<string>> GetDuplicatedNames([FromBody] string[] names)

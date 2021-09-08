@@ -11,6 +11,7 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using MoreLinq;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
@@ -39,12 +40,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             using (var context = _contextFactory.CreateDataContext())
             {
                 var query = context.Products.Where(x => !x.IsDiscontinued);
-                var longQuery = query.Select(x => x.IsinLong);
-                var shortQuery = query.Select(x => x.IsinShort);
+                var longQuery = query.Select(x => x.IsinLong).Where(x => isins.Contains(x));
+                var shortQuery = query.Select(x => x.IsinShort).Where(x => isins.Contains(x));
 
-                var duplicates = await longQuery.Concat(shortQuery).Concat(isins)
-                    .GroupBy(x => x).Where(g => g.Count() > 1)
-                    .Select(grouping => grouping.Key)
+                var duplicates = await longQuery.Concat(shortQuery)
                     .ToListAsync();
 
                 return duplicates;
@@ -57,9 +56,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 var duplicates = await context.Products
                     .Where(x => !x.IsDiscontinued)
-                    .Select(x => x.Name).Concat(names)
-                    .GroupBy(x => x).Where(g => g.Count() > 1)
-                    .Select(grouping => grouping.Key)
+                    .Select(x => x.Name).Where(x => names.Contains(x))
                     .ToListAsync();
 
                 return duplicates;

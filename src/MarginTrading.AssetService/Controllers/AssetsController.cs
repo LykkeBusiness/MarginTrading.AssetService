@@ -64,18 +64,6 @@ namespace MarginTrading.AssetService.Controllers
 
             return data.ToList();
         }
-
-        /// <summary>
-        /// Get used isins
-        /// </summary>
-        [HttpGet]
-        [Route("used-isins")]
-        public async Task<List<string>> GetUsedIsins()
-        {
-            var data = await _assetsRepository.GetUsedIsinsAsync();
-
-            return data.ToList();
-        }
         
         /// <summary>
         /// Returns duplicates for a given product isins (short, long)

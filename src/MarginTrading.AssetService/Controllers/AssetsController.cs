@@ -70,7 +70,7 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpPost]
         [Route("existing-ids")]
-        public async Task<List<string>> GetExistingIds(string[] ids)
+        public async Task<List<string>> GetExistingIds([FromBody] string[] ids)
         {
             var result = await _assetsRepository.GetExistingIdsAsync(ids);
 

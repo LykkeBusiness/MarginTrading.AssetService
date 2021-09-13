@@ -64,7 +64,19 @@ namespace MarginTrading.AssetService.Controllers
 
             return data.ToList();
         }
-        
+
+        /// <summary>
+        /// Returns existing ids for a given product ids
+        /// </summary>
+        [HttpPost]
+        [Route("existing-ids")]
+        public async Task<List<string>> GetExistingIds(string[] ids)
+        {
+            var result = await _assetsRepository.GetExistingIdsAsync(ids);
+
+            return result.ToList();
+        }
+
         /// <summary>
         /// Returns duplicates for a given product isins (short, long)
         /// </summary>

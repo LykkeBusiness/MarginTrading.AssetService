@@ -21,7 +21,13 @@ namespace MarginTrading.AssetService.Contracts
         /// </summary>
         [Get("/api/assets/discontinued-ids")]
         Task<List<string>> GetDiscontinuedIds();
-        
+
+        /// <summary>
+        /// Returns existing ids for a given product ids
+        /// </summary>
+        [Post("/api/assets/existing-ids")]
+        Task<List<string>> GetExistingIds(string[] ids);
+
         /// <summary>
         /// Returns duplicates for a given product isins (short, long)
         /// </summary>

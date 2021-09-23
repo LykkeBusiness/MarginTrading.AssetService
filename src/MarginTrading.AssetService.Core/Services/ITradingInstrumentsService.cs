@@ -12,5 +12,7 @@ namespace MarginTrading.AssetService.Core.Services
         Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null, int? skip = null, int? take = null);
 
         Task<ITradingInstrument> GetAsync(string assetPairId, string tradingConditionId);
+
+        Task<List<string>> GetUnavailableProductsAsync(List<string> productIds, string tradingConditionId);
     }
 }

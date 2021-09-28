@@ -3,9 +3,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -25,14 +27,17 @@ namespace MarginTrading.AssetService.Controllers
     public class TradingInstrumentsController : Controller, ITradingInstrumentsApi
     {
         private readonly ITradingInstrumentsService _tradingInstrumentsService;
+        private readonly IClientProfilesService _clientProfilesService;
         private readonly IConvertService _convertService;
         
         public TradingInstrumentsController(
             ITradingInstrumentsService tradingInstrumentsService,
-            IConvertService convertService, ITradingConditionsService tradingConditionsService)
+            IConvertService convertService, 
+            IClientProfilesService clientProfilesService)
         {
             _tradingInstrumentsService = tradingInstrumentsService;
             _convertService = convertService;
+            _clientProfilesService = clientProfilesService;
         }
         
         /// <summary>
@@ -76,6 +81,31 @@ namespace MarginTrading.AssetService.Controllers
             var obj = await _tradingInstrumentsService.GetAsync(assetPairId, tradingConditionId);
 
             return _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(obj);
+        }
+        
+        /// <summary>
+        /// Returns trading instruments that are not available for a given client profile
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(CheckProductsUnavailableForClientProfileResponse), (int) HttpStatusCode.OK)]
+        [Route("unavailable")]
+        public async Task<CheckProductsUnavailableForClientProfileResponse> CheckProductsUnavailableForTradingCondition(
+            [FromBody] CheckProductsUnavailableForClientProfileRequest request)
+        {
+            var response = new CheckProductsUnavailableForClientProfileResponse();
+            
+            var clientProfile = await _clientProfilesService.GetByIdAsync(request.ClientProfileId);
+            if (clientProfile == null)
+            {
+                response.ErrorCode = ClientProfilesErrorCodesContract.ClientProfileDoesNotExist;
+                return response;
+            }
+            
+            var unavailableProductIds = 
+                await _tradingInstrumentsService.GetUnavailableProductsAsync(request.ProductIds, request.ClientProfileId);
+            response.UnavailableProductIds = unavailableProductIds;
+
+            return response;
         }
     }
 }

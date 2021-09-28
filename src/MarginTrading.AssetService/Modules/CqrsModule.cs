@@ -179,9 +179,8 @@ namespace MarginTrading.AssetService.Modules
                 .WithCommandsHandler<AssetPairFlagsCommandsHandler>()
                 .PublishingEvents(
                     typeof(AssetPairChangedEvent),
-                    typeof(ProductChangedEvent)
-                )
-                .With(DefaultPipeline);
+                    typeof(ProductChangedEvent))
+                .With(DefaultEventPipeline);
         }
 
         private ISagaRegistration RegisterSaga<TSaga>()

@@ -29,7 +29,7 @@ namespace MarginTrading.AssetService.Controllers
         
         public TradingInstrumentsController(
             ITradingInstrumentsService tradingInstrumentsService,
-            IConvertService convertService)
+            IConvertService convertService, ITradingConditionsService tradingConditionsService)
         {
             _tradingInstrumentsService = tradingInstrumentsService;
             _convertService = convertService;
@@ -76,26 +76,6 @@ namespace MarginTrading.AssetService.Controllers
             var obj = await _tradingInstrumentsService.GetAsync(assetPairId, tradingConditionId);
 
             return _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(obj);
-        }
-
-        /// <summary>
-        /// Get trading instruments that are not available on a specified trading condition
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        [HttpPost]
-        [Route("unavailable")]
-        public async Task<CheckProductsUnavailableForTradingConditionResponse> CheckProductsUnavailableForTradingCondition(
-            [FromBody] CheckProductsUnavailableForTradingConditionRequest request)
-        {
-            var unavailableProductIds =
-                await _tradingInstrumentsService.GetUnavailableProductsAsync(request.ProductIds,
-                    request.TradingConditionId);
-
-            return new CheckProductsUnavailableForTradingConditionResponse
-            {
-                UnavailableProductIds = unavailableProductIds,
-            };
         }
     }
 }

@@ -6,6 +6,7 @@ using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
+using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
@@ -23,13 +24,20 @@ namespace MarginTrading.AssetService.Controllers
     [Route("api/client-profiles")]
     public class ClientProfilesController : ControllerBase, IClientProfilesApi
     {
+        private readonly ITradingInstrumentsService _tradingInstrumentsService;
+        private readonly ITradingConditionsService _tradingConditionsService;
         private readonly IClientProfilesService _regulatoryProfilesService;
         private readonly IConvertService _convertService;
 
-        public ClientProfilesController(IClientProfilesService regulatoryProfilesService, IConvertService convertService)
+        public ClientProfilesController(IClientProfilesService regulatoryProfilesService, 
+            IConvertService convertService,
+            ITradingInstrumentsService tradingInstrumentsService, 
+            ITradingConditionsService tradingConditionsService)
         {
             _regulatoryProfilesService = regulatoryProfilesService;
             _convertService = convertService;
+            _tradingInstrumentsService = tradingInstrumentsService;
+            _tradingConditionsService = tradingConditionsService;
         }
 
         /// <summary>
@@ -216,6 +224,39 @@ namespace MarginTrading.AssetService.Controllers
             }
 
             return response;
+        }
+        
+        /// <summary>
+        /// Returns trading instruments that are not available for a given client profile
+        /// </summary>
+        [HttpPost]
+        [ProducesResponseType(typeof(CheckProductsUnavailableForClientProfileResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CheckProductsUnavailableForClientProfileResponse), (int) HttpStatusCode.NotFound)]
+        [Route("{id}/unavailable-products")]
+        public async Task<CheckProductsUnavailableForClientProfileResponse> CheckProductsUnavailableForTradingCondition(
+            [FromRoute] string id, [FromBody] CheckProductsUnavailableForClientProfileRequest request)
+        {
+            var clientProfile = await _regulatoryProfilesService.GetByIdAsync(id);
+            CheckProductsUnavailableForClientProfileResponse result;
+            if (clientProfile == null)
+            {
+                HttpContext.Response.StatusCode = (int) HttpStatusCode.NotFound;
+                result = new CheckProductsUnavailableForClientProfileResponse
+                {
+                    Error = $"Client profile {id} not found."
+                };
+                return result;
+            }
+            
+            var unavailableProductIds =
+                await _tradingInstrumentsService.GetUnavailableProductsAsync(request.ProductIds, id);
+
+            result = new CheckProductsUnavailableForClientProfileResponse
+            {
+                UnavailableProductIds = unavailableProductIds
+            };
+
+            return result;
         }
     }
 }

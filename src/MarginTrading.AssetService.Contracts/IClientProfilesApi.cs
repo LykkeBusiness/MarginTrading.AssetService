@@ -2,6 +2,7 @@
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
+using MarginTrading.AssetService.Contracts.TradingConditions;
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts
@@ -53,5 +54,11 @@ namespace MarginTrading.AssetService.Contracts
         /// <returns></returns>
         [Get("/api/client-profiles/any/assigned-to-regulatory-profile/{regulatoryProfileId}")]
         Task<bool> IsRegulatoryProfileAssignedToAnyClientProfileAsync(string regulatoryProfileId);
+
+        /// <summary>
+        /// Returns trading instruments that are not available for a given client profile
+        /// </summary>
+        Task<CheckProductsUnavailableForClientProfileResponse> CheckProductsUnavailableForTradingCondition(string id,
+            CheckProductsUnavailableForClientProfileRequest request);
     }
 }

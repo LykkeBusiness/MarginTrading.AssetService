@@ -94,7 +94,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new CheckProductsUnavailableForClientProfileResponse();
             
-            var clientProfile = await _clientProfilesService.GetByIdAsync(request.ClientProfileId);
+            var clientProfile = await _clientProfilesService.GetByIdAsync(request.TradingConditionId);
             if (clientProfile == null)
             {
                 response.ErrorCode = ClientProfilesErrorCodesContract.ClientProfileDoesNotExist;
@@ -102,7 +102,7 @@ namespace MarginTrading.AssetService.Controllers
             }
             
             var unavailableProductIds = 
-                await _tradingInstrumentsService.GetUnavailableProductsAsync(request.ProductIds, request.ClientProfileId);
+                await _tradingInstrumentsService.GetUnavailableProductsAsync(request.ProductIds, request.TradingConditionId);
             response.UnavailableProductIds = unavailableProductIds;
 
             return response;

@@ -8,6 +8,6 @@ namespace MarginTrading.AssetService.Contracts.TradingConditions
         [Required]
         public List<string> ProductIds { get; set; }
         [Required]
-        public string ClientProfileId { get; set; }
+        public string TradingConditionId { get; set; }
     }
 }

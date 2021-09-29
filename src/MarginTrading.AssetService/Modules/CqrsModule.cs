@@ -172,14 +172,15 @@ namespace MarginTrading.AssetService.Modules
             contextRegistration
                 .ListeningCommands(
                     typeof(SuspendAssetPairCommand),
-                    typeof(UnsuspendAssetPairCommand)
+                    typeof(UnsuspendAssetPairCommand),
+                    typeof(ChangeProductSuspendedStatusCommand)
                 )
                 .On(DefaultRoute)
                 .WithCommandsHandler<AssetPairFlagsCommandsHandler>()
                 .PublishingEvents(
-                    typeof(AssetPairChangedEvent)
-                )
-                .With(DefaultPipeline);
+                    typeof(AssetPairChangedEvent),
+                    typeof(ProductChangedEvent))
+                .With(DefaultEventPipeline);
         }
 
         private ISagaRegistration RegisterSaga<TSaga>()

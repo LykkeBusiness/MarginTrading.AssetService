@@ -1,10 +1,12 @@
 // Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using MessagePack;
 
 namespace MarginTrading.AssetService.Contracts.AssetPair
 {
+    [Obsolete("Use ChangeProductSuspendedStatusCommand instead")]
     [MessagePackObject]
     public class UnsuspendAssetPairCommand
     {

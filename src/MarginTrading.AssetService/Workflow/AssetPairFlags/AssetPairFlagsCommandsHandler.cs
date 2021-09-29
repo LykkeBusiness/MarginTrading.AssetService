@@ -3,8 +3,10 @@
 
 using System;
 using System.Threading.Tasks;
+using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
+using Lykke.Common.Log;
 using Lykke.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -13,6 +15,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
+using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 {
@@ -22,25 +25,32 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 
         private readonly TimeSpan _delay = TimeSpan.FromSeconds(15);
         private readonly IProductsDiscontinueService _productsDiscontinueService;
+        private readonly IProductsRepository _productsRepository;
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         private readonly IConvertService _convertService;
         private readonly IChaosKitty _chaosKitty;
+        private readonly ILog _log;
 
         public AssetPairFlagsCommandsHandler(
             IProductsDiscontinueService productsDiscontinueService,
+            IProductsRepository productsRepository,
             DefaultLegalEntitySettings defaultLegalEntitySettings,
             IConvertService convertService,
-            IChaosKitty chaosKitty)
+            IChaosKitty chaosKitty,
+            ILog log)
         {
             _productsDiscontinueService = productsDiscontinueService;
+            _productsRepository = productsRepository;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
             _convertService = convertService;
             _chaosKitty = chaosKitty;
+            _log = log;
         }
 
         /// <summary>
         /// Suspend asset pair
         /// </summary>
+        [Obsolete("Migrate to ChangeProductSuspendedStatusCommand handler. Left for backwards compatibility during migration")]
         [UsedImplicitly]
         private async Task<CommandHandlingResult> Handle(SuspendAssetPairCommand command,
             IEventPublisher publisher)
@@ -76,6 +86,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
         /// <summary>
         /// Unsuspend asset pair
         /// </summary>
+        [Obsolete("Migrate to ChangeProductSuspendedStatusCommand handler. Left for backwards compatibility during migration")]
         [UsedImplicitly]
         private async Task<CommandHandlingResult> Handle(UnsuspendAssetPairCommand command,
             IEventPublisher publisher)
@@ -89,6 +100,57 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             if (!updateResult.IsSuccess)
                 return CommandHandlingResult.Fail(_delay);
 
+            _chaosKitty.Meow(command.OperationId);
+
+            var assetPair =
+                AssetPair.CreateFromProduct(updateResult.NewValue, _defaultLegalEntitySettings.DefaultLegalEntity);
+
+            publisher.PublishEvent(new AssetPairChangedEvent
+            {
+                OperationId = command.OperationId,
+                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+            });
+
+            publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
+                updateResult.NewValue,
+                username,
+                command.OperationId));
+
+            return CommandHandlingResult.Ok();
+        }
+        
+        [UsedImplicitly]
+        private async Task<CommandHandlingResult> Handle(ChangeProductSuspendedStatusCommand command,
+            IEventPublisher publisher)
+        {
+            var getProductResult = await _productsRepository.GetByIdAsync(command.ProductId);
+            if (getProductResult.IsFailed)
+            {
+                _log.WriteWarning(nameof(AssetPairFlagsCommandsHandler), nameof(Handle), 
+                    $"Product {command.ProductId} not found");
+                return CommandHandlingResult.Fail(_delay);
+            }
+
+            var product = getProductResult.Value;
+
+            if (product.IsSuspended == command.IsSuspended)
+            {
+                _log.WriteWarning(nameof(AssetPairFlagsCommandsHandler), nameof(Handle), 
+                    $"IsSuspended status on both product {command.ProductId} and event are same: on product {product.IsSuspended}, on command {command.IsSuspended}. Update is skipped");
+                return CommandHandlingResult.Ok();
+            }
+
+            var updateResult = await _productsDiscontinueService.ChangeSuspendStatusAsync(command.ProductId,
+                command.IsSuspended,
+                username,
+                command.OperationId);
+
+            if (!updateResult.IsSuccess)
+                return CommandHandlingResult.Fail(_delay);
+
+            _log.WriteInfo(nameof(AssetPairFlagsCommandsHandler), nameof(Handle), 
+                $"IsSuspended status on product {command.ProductId} is updated successfully. ChangeAssetPairSuspendedStatusCommand Timestamp: {command.Timestamp}, new status: {command.IsSuspended}");
+            
             _chaosKitty.Meow(command.OperationId);
 
             var assetPair =

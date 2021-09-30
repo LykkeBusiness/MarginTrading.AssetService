@@ -38,5 +38,11 @@ namespace MarginTrading.AssetService.Contracts
         Task<TradingInstrumentContract> Get(
             [NotNull] string tradingConditionId,
             [NotNull] string assetPairId);
+
+        /// <summary>
+        /// Returns trading instruments that are not available for a given client profile
+        /// </summary>
+        Task<CheckProductsUnavailableForTradingConditionResponse> CheckProductsUnavailableForTradingCondition(
+            CheckProductsUnavailableForTradingConditionRequest request);
     }
 }

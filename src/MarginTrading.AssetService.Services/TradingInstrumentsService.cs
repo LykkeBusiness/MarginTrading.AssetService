@@ -76,6 +76,16 @@ namespace MarginTrading.AssetService.Services
             return await tradingInstruments.FirstOrDefaultAsync();
         }
 
+        public async Task<List<string>> GetUnavailableProductsAsync(List<string> productIds, string tradingConditionId)
+        {
+            productIds ??= new List<string>();
+
+            var availableInstruments = await GetAsync(tradingConditionId);
+            var availableProductIds = availableInstruments.Select(x => x.Instrument);
+
+            return productIds.Except(availableProductIds).ToList();
+        }
+
         private async IAsyncEnumerable<ITradingInstrument> GetTradingInstruments(
             IReadOnlyList<Product> products,
             string tradingConditionId = null)

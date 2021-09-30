@@ -2,6 +2,7 @@
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
+using MarginTrading.AssetService.Contracts.TradingConditions;
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts

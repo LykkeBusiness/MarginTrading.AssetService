@@ -26,7 +26,8 @@ namespace MarginTrading.AssetService.Controllers
         private readonly IClientProfilesService _regulatoryProfilesService;
         private readonly IConvertService _convertService;
 
-        public ClientProfilesController(IClientProfilesService regulatoryProfilesService, IConvertService convertService)
+        public ClientProfilesController(IClientProfilesService regulatoryProfilesService, 
+            IConvertService convertService)
         {
             _regulatoryProfilesService = regulatoryProfilesService;
             _convertService = convertService;

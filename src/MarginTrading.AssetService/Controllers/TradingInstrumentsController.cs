@@ -87,12 +87,12 @@ namespace MarginTrading.AssetService.Controllers
         /// Returns trading instruments that are not available for a given client profile
         /// </summary>
         [HttpPost]
-        [ProducesResponseType(typeof(CheckProductsUnavailableForClientProfileResponse), (int) HttpStatusCode.OK)]
+        [ProducesResponseType(typeof(CheckProductsUnavailableForTradingConditionResponse), (int) HttpStatusCode.OK)]
         [Route("unavailable")]
-        public async Task<CheckProductsUnavailableForClientProfileResponse> CheckProductsUnavailableForTradingCondition(
-            [FromBody] CheckProductsUnavailableForClientProfileRequest request)
+        public async Task<CheckProductsUnavailableForTradingConditionResponse> CheckProductsUnavailableForTradingCondition(
+            [FromBody] CheckProductsUnavailableForTradingConditionRequest request)
         {
-            var response = new CheckProductsUnavailableForClientProfileResponse();
+            var response = new CheckProductsUnavailableForTradingConditionResponse();
             
             var clientProfile = await _clientProfilesService.GetByIdAsync(request.TradingConditionId);
             if (clientProfile == null)

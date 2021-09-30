@@ -4,7 +4,7 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 
 namespace MarginTrading.AssetService.Contracts.TradingConditions
 {
-    public class CheckProductsUnavailableForClientProfileResponse: ErrorCodeResponse<ClientProfilesErrorCodesContract>
+    public class CheckProductsUnavailableForTradingConditionResponse: ErrorCodeResponse<ClientProfilesErrorCodesContract>
     {
         public IReadOnlyList<string> UnavailableProductIds { get; set; } = new List<string>();
     }

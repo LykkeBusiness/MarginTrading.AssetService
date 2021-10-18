@@ -8,7 +8,6 @@ using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.Services.Validations.Products;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
@@ -154,43 +153,18 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
-        {
-            var product = await _repository.GetByIdAsync(productId);
-            product.Value.StartDate = product.Value.StartDate.StartOfDay();
+        public Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
+            => _repository.GetByIdAsync(productId);
 
-            return product;
-        }
-
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
             bool? isStarted)
-        {
-            var products = await _repository.GetAllAsync(mdsCodes, productIds, isStarted);
+            => _repository.GetAllAsync(mdsCodes, productIds, isStarted);
 
-            foreach (var product in products.Value)
-            {
-                product.StartDate = product.StartDate.StartOfDay();
-            }
-
-            return products;
-        }
-
-
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
-            string[] productIds,
+        public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
             bool? isStarted,
             bool? isDiscontinued,
             int skip = default, int take = 20)
-        {
-            var products = await _repository.GetByPageAsync(mdsCodes, productIds, isStarted, isDiscontinued, skip, take);
-            
-            foreach (var product in products.Value)
-            {
-                product.StartDate = product.StartDate.StartOfDay();
-            }
-
-            return products;
-        }
+            => _repository.GetByPageAsync(mdsCodes, productIds, isStarted, isDiscontinued, skip, take);
 
         public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username,
             string correlationId)

@@ -1,4 +1,5 @@
 using System;
+using Lykke.Snow.Common.Types;
 using MarginTrading.AssetService.Core.Extensions;
 
 namespace MarginTrading.AssetService.Core.Domain
@@ -62,14 +63,8 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal OvernightMarginMultiplier { get; set; }
 
         public string TradingCurrency { get; set; }
-
-        private DateTime? _startDate;
-
-        public DateTime? StartDate
-        {
-            get => _startDate;
-            set => _startDate = value?.TrimMilliseconds();
-        }
+        
+        public DateOnly? StartDate { get; set; }
 
         public bool IsSuspended { get; set; }
 

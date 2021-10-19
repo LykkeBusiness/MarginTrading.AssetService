@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace MarginTrading.AssetService.Contracts.TradingConditions
 {
-    public class CheckProductsUnavailableForClientProfileRequest
+    public class CheckProductsUnavailableForTradingConditionRequest
     {
         [Required]
         public List<string> ProductIds { get; set; }

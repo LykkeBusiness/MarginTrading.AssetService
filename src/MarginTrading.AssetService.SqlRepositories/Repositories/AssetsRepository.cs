@@ -23,7 +23,22 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             _contextFactory = contextFactory;
         }
-        
+
+        public async Task<IReadOnlyList<string>> GetDuplicatedIsinsAsync(string[] isins)
+        {
+            using (var context = _contextFactory.CreateDataContext())
+            {
+                var query = context.Products.Where(x => !x.IsDiscontinued);
+                var longQuery = query.Select(x => x.IsinLong).Where(x => isins.Contains(x));
+                var shortQuery = query.Select(x => x.IsinShort).Where(x => isins.Contains(x));
+
+                var duplicates = await longQuery.Concat(shortQuery)
+                    .ToListAsync();
+
+                return duplicates;
+            }
+        }
+                
         public async Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync()
         {
             using (var context = _contextFactory.CreateDataContext())

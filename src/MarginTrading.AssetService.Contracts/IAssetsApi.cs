@@ -23,6 +23,12 @@ namespace MarginTrading.AssetService.Contracts
         Task<List<string>> GetDiscontinuedIds();
 
         /// <summary>
+        /// Returns duplicates for a given set of product isins (short, long)
+        /// </summary>
+        [Post("/api/assets/duplicated-isins")]
+        Task<List<string>> GetDuplicatedIsins(string[] isins);
+        
+        /// <summary>
         /// Get the list of assets
         /// </summary>
         [Get("/api/assets")]

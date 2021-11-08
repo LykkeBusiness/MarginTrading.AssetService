@@ -64,7 +64,19 @@ namespace MarginTrading.AssetService.Controllers
 
             return data.ToList();
         }
-        
+
+        /// <summary>
+        /// Returns duplicates for a set given product isins (short, long)
+        /// </summary>
+        [HttpPost]
+        [Route("duplicated-isins")]
+        public async Task<List<string>> GetDuplicatedIsins([FromBody] string[] isins)
+        {
+            var result = await _assetsRepository.GetDuplicatedIsinsAsync(isins);
+            
+            return result.ToList();
+        }
+            
         /// <summary>
         /// Get the list of assets with optional pagination
         /// </summary>

@@ -41,6 +41,12 @@ namespace MarginTrading.AssetService.Contracts
         [ItemCanBeNull]
         [Get("/api/assets/{assetId}")]
         Task<AssetContract> Get([NotNull] string assetId);
+        
+        /// <summary>
+        /// Returns duplicates for a given product isins (short, long)
+        /// </summary>
+        [Post("/api/assets/duplicated-isins")]
+        Task<List<string>> GetDuplicatedIsins(string[] isins);
 
         /// <summary>
         /// Get the list of legacy assets

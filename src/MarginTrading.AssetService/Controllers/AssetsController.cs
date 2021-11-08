@@ -96,6 +96,18 @@ namespace MarginTrading.AssetService.Controllers
             
             return _convertService.Convert<IAsset, AssetContract>(obj);
         }
+        
+        /// <summary>
+        /// Returns duplicates for a given set of product isins (short & long)
+        /// </summary>
+        [HttpPost]
+        [Route("duplicated-isins")]
+        public async Task<List<string>> GetDuplicatedIsins([FromBody] string[] isins)
+        {
+            var result = await _assetsRepository.GetDuplicatedIsinsAsync(isins);
+
+            return result.ToList();
+        }
 
         /// <summary>
         /// Get the list of legacy assets

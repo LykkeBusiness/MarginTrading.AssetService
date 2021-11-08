@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BookKeeper.Client.Workflow.Events;
+using Common;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
@@ -31,6 +32,9 @@ namespace MarginTrading.AssetService.Workflow.Products
         [UsedImplicitly]
         public async Task Handle(EodProcessFinishedEvent e, ICommandSender sender)
         {
+            _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle),
+                $"EodProcessFinishedEvent received: {e.ToJson()}");
+
             var productsResult = await _productsRepository.GetAllAsync(null, null, isStarted: false);
 
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())
@@ -39,13 +43,19 @@ namespace MarginTrading.AssetService.Workflow.Products
                 var markets = products.Select(x => x.Market).Distinct().ToArray();
                 var marketInfos = await _marketDayOffService.GetMarketsInfo(markets, null);
 
+                foreach (var product in products)
+                {
+                    _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle),
+                        $"Product {product.ProductId}, startDate: {product.StartDate}, next trading day: {marketInfos[product.Market].NextTradingDayStart}, will start: {product.StartDate < marketInfos[product.Market].NextTradingDayStart.Date.AddDays(1)}");
+                }
+
                 var productsToStart = productsResult.Value
                     .Where(x => x.StartDate < marketInfos[x.Market].NextTradingDayStart.Date.AddDays(1))
                     .ToList();
-                
-                _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle), 
-                    $"Found {productsToStart.Count} products that need to be started. Ids are: {string.Concat(',', productsToStart.Select(x => x.ProductId))}" 
-                    );
+
+                _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle),
+                    $"Found {productsToStart.Count} products that need to be started. Ids are: {string.Concat(',', productsToStart.Select(x => x.ProductId))}"
+                );
 
                 foreach (var product in productsToStart)
                 {

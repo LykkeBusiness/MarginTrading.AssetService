@@ -23,12 +23,6 @@ namespace MarginTrading.AssetService.Contracts
         Task<List<string>> GetDiscontinuedIds();
 
         /// <summary>
-        /// Get used isins
-        /// </summary>
-        [Get("/api/assets/used-isins")]
-        Task<List<string>> GetUsedIsins();
-
-        /// <summary>
         /// Get the list of assets
         /// </summary>
         [Get("/api/assets")]

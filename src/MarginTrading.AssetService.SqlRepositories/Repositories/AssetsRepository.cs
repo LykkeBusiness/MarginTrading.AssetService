@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using MoreLinq;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
@@ -21,18 +23,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             _contextFactory = contextFactory;
         }
-
-        public async Task<IReadOnlyList<string>> GetUsedIsinsAsync()
-        {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var filteredQuery = context.Products.Where(x => !x.IsDiscontinued);
-                var longQuery = filteredQuery.Select(x => x.IsinLong);
-                var shortQuery = filteredQuery.Select(x => x.IsinShort);
-                return await longQuery.Union(shortQuery).ToListAsync();
-            }
-        }
-
+        
         public async Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync()
         {
             using (var context = _contextFactory.CreateDataContext())

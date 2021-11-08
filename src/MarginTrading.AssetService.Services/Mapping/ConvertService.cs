@@ -17,11 +17,13 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
+using MarginTrading.AssetService.Contracts.Rates;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
@@ -125,6 +127,9 @@ namespace MarginTrading.AssetService.Services.Mapping
 
                 //Underlying
                 cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>();
+                
+                //Overnight swaps
+                cfg.CreateMap<OvernightSwapRate, OvernightSwapRateContract>();
             }).CreateMapper();
         }
 

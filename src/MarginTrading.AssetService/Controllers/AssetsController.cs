@@ -30,15 +30,18 @@ namespace MarginTrading.AssetService.Controllers
         private readonly ILegacyAssetsCache _legacyAssetsCache;
         private readonly IAssetsRepository _assetsRepository;
         private readonly IConvertService _convertService;
+        private readonly ILegacyAssetsService _legacyAssetsService;
         
         public AssetsController(
             ILegacyAssetsCache legacyAssetsCache,
             IAssetsRepository assetsRepository,
-            IConvertService convertService)
+            IConvertService convertService,
+            ILegacyAssetsService legacyAssetsService)
         {
             _legacyAssetsCache = legacyAssetsCache;
             _assetsRepository = assetsRepository;
             _convertService = convertService;
+            _legacyAssetsService = legacyAssetsService;
         }
 
         /// <summary>
@@ -126,14 +129,20 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("legacy/{assetId}")]
-        public Task<Asset> GetLegacyAssetById(string assetId)
+        public async Task<Asset> GetLegacyAssetById(string assetId, bool startedOnly = true)
         {
             if (string.IsNullOrEmpty(assetId))
                 return null;
 
             var result = _legacyAssetsCache.GetById(assetId);
 
-            return Task.FromResult(result);
+            if (result == null && !startedOnly)
+            {
+                var assets = await _legacyAssetsService.GetLegacyAssets(new[] { assetId }, false);
+                result = assets.FirstOrDefault();
+            }
+
+            return result;
         }
 
         /// <summary>

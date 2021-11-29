@@ -61,11 +61,10 @@ namespace MarginTrading.AssetService.Services
             _brokerId = brokerId;
         }
 
-        public async Task<List<Asset>> GetLegacyAssets(IEnumerable<string> productIds = null)
+        public async Task<List<Asset>> GetLegacyAssets(IEnumerable<string> productIds = null, bool startedOnly = true)
         {
             var products =
-                (await _productsRepository.GetByProductsIdsAsync(productIds))
-                .Where(x => x.IsStarted)
+                (await _productsRepository.GetByProductsIdsAsync(productIds, startedOnly))
                 .ToDictionary(x => x.ProductId, v => v);
             
             var brokerSettingsResponse =  await _brokerSettingsApi.GetByIdAsync(_brokerId);

@@ -2,25 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
 {
     public class ClientProfileSettingsCache : IClientProfileSettingsCache
     {
         private readonly IClientProfileSettingsApi _clientProfileSettingsApi;
+        private readonly ILogger<ClientProfileSettingsCache> _logger;
 
         private Dictionary<string, ClientProfileSettingsContract> _cache =
             new Dictionary<string, ClientProfileSettingsContract>();
 
         private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
 
-        public ClientProfileSettingsCache(IClientProfileSettingsApi clientProfileSettingsApi)
+        public ClientProfileSettingsCache(IClientProfileSettingsApi clientProfileSettingsApi, 
+            ILogger<ClientProfileSettingsCache> logger)
         {
             _clientProfileSettingsApi = clientProfileSettingsApi;
+            _logger = logger;
         }
 
         public void Start()
         {
+            _logger?.LogDebug("Starting client profile settings cache ...");
+            
             _lockSlim.EnterWriteLock();
             try
             {
@@ -30,6 +36,8 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
                     .GetResult();
 
                 _cache = response.ClientProfileSettings.ToDictionary(GetKey, x => x);
+                
+                _logger?.LogDebug($"Client profile settings cache has been started. Items: {_cache.Count}");
             }
             finally
             {
@@ -43,6 +51,8 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             try
             {
                 _cache[GetKey(clientProfileSettings)] = clientProfileSettings;
+                
+                _logger?.LogDebug($"New entry has been added into client profile settings cache. Items: {_cache.Count}", clientProfileSettings);
             }
             finally
             {
@@ -56,6 +66,8 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             try
             {
                 _cache.Remove(GetKey(clientProfileSettings));
+                
+                _logger?.LogDebug($"One entry has been removed from client profile settings cache. Items: {_cache.Count}", clientProfileSettings);
             }
             finally
             {
@@ -95,7 +107,13 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             _lockSlim.EnterReadLock();
             try
             {
-                return _cache.Values.Where(Filter).ToList();
+                var result = _cache.Values.Where(Filter).ToList();
+                if (!result.Any())
+                {
+                    _logger?.LogDebug($"Couldn't find client profile settings cache entries for assetType={assetType} with availableOnly={availableOnly}. Items: {_cache.Count}");
+                }
+
+                return result;
             }
             finally
             {

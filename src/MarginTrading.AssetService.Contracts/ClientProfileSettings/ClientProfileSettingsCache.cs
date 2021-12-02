@@ -112,6 +112,8 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
                 {
                     _logger?.LogDebug($"Couldn't find client profile settings cache entries for assetType={assetType} with availableOnly={availableOnly}. Items: {_cache.Count}");
                 }
+
+                return result;
             }
             finally
             {

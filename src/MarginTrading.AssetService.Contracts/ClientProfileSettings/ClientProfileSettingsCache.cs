@@ -37,7 +37,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
 
                 _cache = response.ClientProfileSettings.ToDictionary(GetKey, x => x);
                 
-                _logger?.LogDebug($"Client profile settings cache has been started. Items: {_cache.Count}");
+                _logger?.LogDebug("Client profile settings cache has been started. Items: {count}", _cache.Count);
             }
             finally
             {
@@ -51,8 +51,11 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             try
             {
                 _cache[GetKey(clientProfileSettings)] = clientProfileSettings;
-                
-                _logger?.LogDebug($"New entry has been added into client profile settings cache. Items: {_cache.Count}", clientProfileSettings);
+
+                _logger?.LogDebug(
+                    "New entry has been added into client profile settings cache. Items: {count}. Entry: {clientProfileSettings}.", 
+                    _cache.Count,
+                    clientProfileSettings);
             }
             finally
             {
@@ -66,8 +69,11 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             try
             {
                 _cache.Remove(GetKey(clientProfileSettings));
-                
-                _logger?.LogDebug($"One entry has been removed from client profile settings cache. Items: {_cache.Count}", clientProfileSettings);
+
+                _logger?.LogDebug(
+                    "One entry has been removed from client profile settings cache. Items: {count}. Entry: {clientProfileSettings}",
+                    _cache.Count,
+                    clientProfileSettings);
             }
             finally
             {
@@ -110,7 +116,11 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
                 var result = _cache.Values.Where(Filter).ToList();
                 if (!result.Any())
                 {
-                    _logger?.LogDebug($"Couldn't find client profile settings cache entries for assetType={assetType} with availableOnly={availableOnly}. Items: {_cache.Count}");
+                    _logger?.LogDebug(
+                        "Couldn't find client profile settings cache entries for assetType={assetType} with availableOnly={availableOnly}. Items: {count}",
+                        assetType,
+                        availableOnly,
+                        _cache.Count);
                 }
 
                 return result;

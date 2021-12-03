@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.ProductCategories;
@@ -21,23 +22,27 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
 
         public ProductCategoriesService(IProductCategoriesRepository productCategoriesRepository,
             IProductCategoryStringService productCategoryStringService,
             IAuditService auditService,
             ICqrsMessageSender cqrsMessageSender,
-            IConvertService convertService)
+            IConvertService convertService,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator)
         {
             _productCategoriesRepository = productCategoriesRepository;
             _productCategoryStringService = productCategoryStringService;
             _auditService = auditService;
             _cqrsMessageSender = cqrsMessageSender;
             _convertService = convertService;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
         }
 
-        public async Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category,
-            string username,
-            string correlationId)
+        public async Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category, string username)
         {
             var categoryNameResult = await _productCategoryStringService.Create(category);
             if (categoryNameResult.IsFailed)
@@ -71,6 +76,8 @@ namespace MarginTrading.AssetService.Services
                 var result = await _productCategoriesRepository.InsertAsync(productCategory);
                 if (result.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, productCategory.Id,
                         AuditDataType.ProductCategory,
                         productCategory.ToJson());
@@ -84,8 +91,7 @@ namespace MarginTrading.AssetService.Services
             return newLeaf;
         }
 
-        public async Task<Result<ProductCategoriesErrorCodes>> DeleteAsync(string id, string username,
-            string correlationId)
+        public async Task<Result<ProductCategoriesErrorCodes>> DeleteAsync(string id, string username)
         {
             var category = await _productCategoriesRepository.GetByIdAsync(id);
 
@@ -107,6 +113,8 @@ namespace MarginTrading.AssetService.Services
                 var deleteResult = await _productCategoriesRepository.DeleteAsync(id, category.Value.Timestamp);
                 if (deleteResult.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, id, AuditDataType.ProductCategory,
                         oldStateJson: category.Value.ToJson());
                     await PublishProductCategoryChangedEvent(category.Value, null, username, correlationId,

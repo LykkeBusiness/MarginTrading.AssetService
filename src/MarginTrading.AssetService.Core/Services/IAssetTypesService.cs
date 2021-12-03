@@ -6,9 +6,9 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface IAssetTypesService
     {
-        Task InsertAsync(AssetTypeWithTemplate model, string username, string correlationId);
-        Task UpdateAsync(AssetType model, string username, string correlationId);
-        Task DeleteAsync(string id, string username, string correlationId);
+        Task InsertAsync(AssetTypeWithTemplate model, string username);
+        Task UpdateAsync(AssetType model, string username);
+        Task DeleteAsync(string id, string username);
         Task<AssetType> GetByIdAsync(string id);
         Task<IReadOnlyList<AssetType>> GetAllAsync();
         Task<bool> IsRegulatoryTypeAssignedToAnyAssetTypeAsync(string regulatoryTypeId);

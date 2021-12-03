@@ -6,11 +6,11 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface IClientProfilesService
     {
-        Task InsertAsync(ClientProfileWithTemplate model, string username, string correlationId);
+        Task InsertAsync(ClientProfileWithTemplate model, string username);
 
-        Task UpdateAsync(ClientProfile model, string username, string correlationId);
+        Task UpdateAsync(ClientProfile model, string username);
 
-        Task DeleteAsync(string id, string username, string correlationId);
+        Task DeleteAsync(string id, string username);
 
         Task<ClientProfile> GetByIdAsync(string id);
 

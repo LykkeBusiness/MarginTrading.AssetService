@@ -7,8 +7,7 @@ namespace MarginTrading.AssetService.Core.Services
 {
     public interface IProductCategoriesService
     {
-        Task<Result<ProductCategoriesErrorCodes>> DeleteAsync(string id, string username,
-            string correlationId);
+        Task<Result<ProductCategoriesErrorCodes>> DeleteAsync(string id, string username);
 
         Task<Result<List<ProductCategory>, ProductCategoriesErrorCodes>> GetAllAsync();
 
@@ -22,9 +21,7 @@ namespace MarginTrading.AssetService.Core.Services
         /// <param name="username"></param>
         /// <param name="correlationId"></param>
         /// <returns>Category leaf</returns>
-        Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category,
-            string username,
-            string correlationId);
+        Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category, string username);
 
         Task<List<string>> Validate(List<ProductAndCategoryPair> pairs);
     }

@@ -9,8 +9,8 @@ namespace MarginTrading.AssetService.Core.Services
     {
         Task<ITickFormula> GetByIdAsync(string id);
         Task<IReadOnlyList<ITickFormula>> GetAllAsync();
-        Task<Result<TickFormulaErrorCodes>> AddAsync(ITickFormula model, string username, string correlationId);
-        Task<Result<TickFormulaErrorCodes>> UpdateAsync(ITickFormula model, string username, string correlationId);
-        Task<Result<TickFormulaErrorCodes>> DeleteAsync(string id, string username, string correlationId);
+        Task<Result<TickFormulaErrorCodes>> AddAsync(ITickFormula model, string username);
+        Task<Result<TickFormulaErrorCodes>> UpdateAsync(ITickFormula model, string username);
+        Task<Result<TickFormulaErrorCodes>> DeleteAsync(string id, string username);
     }
 }

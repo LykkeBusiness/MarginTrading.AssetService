@@ -11,7 +11,6 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,8 +84,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             var model = _convertService.Convert<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>(request);
 
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _marketSettingsService.AddAsync(model, request.Username, correlationId);
+            var result = await _marketSettingsService.AddAsync(model, request.Username);
 
             var response = new ErrorCodeResponse<MarketSettingsErrorCodesContract>();
 
@@ -111,9 +109,7 @@ namespace MarginTrading.AssetService.Controllers
             var model = _convertService.Convert<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>(request);
             model.Id = id;
 
-            var correlationId = this.TryGetCorrelationId();
-
-            var result = await _marketSettingsService.UpdateAsync(model, request.Username, correlationId);
+            var result = await _marketSettingsService.UpdateAsync(model, request.Username);
 
             var response = new ErrorCodeResponse<MarketSettingsErrorCodesContract>();
 
@@ -135,8 +131,7 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(ErrorCodeResponse<MarketSettingsErrorCodesContract>), (int)HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<MarketSettingsErrorCodesContract>> DeleteMarketSettingsAsync([Required]string id, [Required] string username)
         {
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _marketSettingsService.DeleteAsync(id, username, correlationId);
+            var result = await _marketSettingsService.DeleteAsync(id, username);
 
             var response = new ErrorCodeResponse<MarketSettingsErrorCodesContract>();
 

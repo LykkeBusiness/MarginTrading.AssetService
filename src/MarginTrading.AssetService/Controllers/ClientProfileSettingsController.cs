@@ -10,7 +10,6 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -136,15 +135,13 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             var model = _convertService.Convert<UpdateClientProfileSettingsRequest, ClientProfileSettings>(request);
             model.ClientProfileId = profileId;
             model.AssetTypeId = typeId;
 
             try
             {
-                await _clientProfileSettingsService.UpdateAsync(model, request.Username, correlationId);
+                await _clientProfileSettingsService.UpdateAsync(model, request.Username);
             }
             catch (InvalidMarginValueException)
             {

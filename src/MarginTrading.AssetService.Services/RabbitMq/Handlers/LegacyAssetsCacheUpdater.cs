@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Lykke.Common.Log;
+using Lykke.RabbitMqBroker.Publisher;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
@@ -13,7 +13,6 @@ using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
-using ClientProfile = MarginTrading.AssetService.Core.Domain.ClientProfile;
 using LegacyAssetExtensions = MarginTrading.AssetService.Services.Extensions.LegacyAssetExtensions;
 using TickFormula = MarginTrading.AssetService.Core.Domain.TickFormula;
 
@@ -23,15 +22,14 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
     {
         private readonly ILegacyAssetsService _legacyAssetsService;
         private readonly ILegacyAssetsCache _legacyAssetsCache;
-        private readonly IMessageProducer<AssetUpsertedEvent> _assetUpsertedPublisher;
+        private readonly Lykke.RabbitMqBroker.Publisher.IMessageProducer<AssetUpsertedEvent> _assetUpsertedPublisher;
         private readonly ILog _log;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private readonly IList<string> _assetTypesWithZeroInterestRate;
 
         public LegacyAssetsCacheUpdater(
             ILegacyAssetsService legacyAssetsService,
-            ILegacyAssetsCache legacyAssetsCache,
-            IMessageProducer<AssetUpsertedEvent> assetUpsertedPublisher,
+            ILegacyAssetsCache legacyAssetsCache, Lykke.RabbitMqBroker.Publisher.IMessageProducer<AssetUpsertedEvent> assetUpsertedPublisher,
             ILog log,
             IList<string> assetTypesWithZeroInterestRate)
         {

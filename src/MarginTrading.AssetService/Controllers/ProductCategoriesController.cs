@@ -7,7 +7,6 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,8 +33,7 @@ namespace MarginTrading.AssetService.Controllers
             [FromBody] AddProductCategoryRequest request)
         {
             var result =
-                await _productCategoriesService.GetOrCreate(request.Category, request.UserName,
-                    this.TryGetCorrelationId());
+                await _productCategoriesService.GetOrCreate(request.Category, request.UserName);
 
             var response = new ErrorCodeResponse<ProductCategoriesErrorCodesContract>();
             if (result.IsFailed)
@@ -54,8 +52,7 @@ namespace MarginTrading.AssetService.Controllers
             [FromBody] DeleteProductCategoryRequest request)
         {
             var result =
-                await _productCategoriesService.DeleteAsync(id, request.UserName,
-                    this.TryGetCorrelationId());
+                await _productCategoriesService.DeleteAsync(id, request.UserName);
 
             var response = new ErrorCodeResponse<ProductCategoriesErrorCodesContract>();
             if (result.IsFailed)

@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using JetBrains.Annotations;
+using Lykke.RabbitMqBroker.Publisher;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Messages;
 using MarginTrading.AssetService.Core.Domain;
@@ -21,7 +22,7 @@ namespace MarginTrading.AssetService.Services
         private readonly ILog _log;
         private readonly ISystemClock _systemClock;
 
-        private readonly IMessageProducer<SettingsChangedEvent> _settingsChangedMessageProducer;
+        private readonly Lykke.RabbitMqBroker.Publisher.IMessageProducer<SettingsChangedEvent> _settingsChangedMessageProducer;
 
         public EventSender(
             IRabbitMqService rabbitMqService,

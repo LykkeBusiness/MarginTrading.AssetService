@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using Common;
 using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
@@ -55,7 +56,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
                 _logger?.LogDebug(
                     "New entry has been added into client profile settings cache. Items: {count}. Entry: {clientProfileSettings}.", 
                     _cache.Count,
-                    clientProfileSettings);
+                    clientProfileSettings.ToJson());
             }
             finally
             {
@@ -73,7 +74,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
                 _logger?.LogDebug(
                     "One entry has been removed from client profile settings cache. Items: {count}. Entry: {clientProfileSettings}",
                     _cache.Count,
-                    clientProfileSettings);
+                    clientProfileSettings.ToJson());
             }
             finally
             {

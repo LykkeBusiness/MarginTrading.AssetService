@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using JetBrains.Annotations;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -27,6 +28,8 @@ namespace MarginTrading.AssetService.Services
         private readonly IRegulatoryProfilesApi _regulatoryProfilesApi;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
         private readonly string _brokerId;
 
         public ClientProfilesService(
@@ -38,6 +41,8 @@ namespace MarginTrading.AssetService.Services
             IRegulatoryProfilesApi regulatoryProfilesApi,
             IRegulatorySettingsApi regulatorySettingsApi,
             ICqrsEntityChangedSender entityChangedSender,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator,
             string brokerId)
         {
             _clientProfilesRepository = clientProfilesRepository;
@@ -48,10 +53,12 @@ namespace MarginTrading.AssetService.Services
             _regulatoryProfilesApi = regulatoryProfilesApi;
             _regulatorySettingsApi = regulatorySettingsApi;
             _entityChangedSender = entityChangedSender;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
             _brokerId = brokerId;
         }
 
-        public async Task InsertAsync(ClientProfileWithTemplate model, string username, string correlationId)
+        public async Task InsertAsync(ClientProfileWithTemplate model, string username)
         {
             var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
 
@@ -110,6 +117,8 @@ namespace MarginTrading.AssetService.Services
             
             var formerDefaultProfile = await _clientProfilesRepository.InsertAsync(model, clientProfileSettings);
             
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, 
                 username, 
                 model.Id, 
@@ -132,7 +141,7 @@ namespace MarginTrading.AssetService.Services
             }
         }
 
-        public async Task UpdateAsync(ClientProfile model, string username, string correlationId)
+        public async Task UpdateAsync(ClientProfile model, string username)
         {
             var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
 
@@ -161,6 +170,8 @@ namespace MarginTrading.AssetService.Services
 
             var formerDefaultProfile = await _clientProfilesRepository.UpdateAsync(model);
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.ClientProfile,
                 model.ToJson(), existing.ToJson());
             await _entityChangedSender
@@ -173,7 +184,7 @@ namespace MarginTrading.AssetService.Services
             }
         }
 
-        public async Task DeleteAsync(string id, string username, string correlationId)
+        public async Task DeleteAsync(string id, string username)
         {
             var existing = await _clientProfilesRepository.GetByIdAsync(id);
 
@@ -188,6 +199,8 @@ namespace MarginTrading.AssetService.Services
 
             await _clientProfilesRepository.DeleteAsync(id);
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.ClientProfile,
                 oldStateJson: existing.ToJson());
 

@@ -20,6 +20,11 @@ using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Lykke.SlackNotifications;
+using Lykke.Snow.Common.Correlation;
+using Lykke.Snow.Common.Correlation.Cqrs;
+using Lykke.Snow.Common.Correlation.Http;
+using Lykke.Snow.Common.Correlation.RabbitMq;
+using Lykke.Snow.Common.Correlation.Serilog;
 using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Common.Startup.ApiKey;
 using Lykke.Snow.Common.Startup.Hosting;
@@ -38,6 +43,7 @@ using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
+using Serilog.Core;
 
 namespace MarginTrading.AssetService
 {
@@ -99,7 +105,13 @@ namespace MarginTrading.AssetService
                     }
                 }).AddSwaggerGenNewtonsoftSupport();
 
-                Log = CreateLogWithSlack(Configuration, services, _mtSettingsManager);
+                var correlationContextAccessor = new CorrelationContextAccessor();
+                services.AddSingleton<CorrelationContextAccessor>();
+                services.AddSingleton<RabbitMqCorrelationManager>();
+                services.AddSingleton<CqrsCorrelationManager>();
+                services.AddTransient<HttpCorrelationHandler>();
+                
+                Log = CreateLogWithSlack(Configuration, services, _mtSettingsManager, correlationContextAccessor);
 
                 services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(LogLocator.CommonLog));
 
@@ -139,6 +151,7 @@ namespace MarginTrading.AssetService
                     app.UseHsts();
                 }
 
+                app.UseCorrelation();
 #if DEBUG
                 app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
 #else
@@ -230,7 +243,7 @@ namespace MarginTrading.AssetService
         }
 
         private static ILog CreateLogWithSlack(IConfiguration configuration, IServiceCollection services,
-            IReloadingManager<AppSettings> settings)
+            IReloadingManager<AppSettings> settings, CorrelationContextAccessor correlationContextAccessor)
         {
             const string requestsLogName = "SettingsServiceRequestsLog";
             const string logName = "SettingsServiceLog";
@@ -266,10 +279,15 @@ namespace MarginTrading.AssetService
 
             if (settings.CurrentValue.MarginTradingAssetService.UseSerilog)
             {
-                var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration, new List<Func<(string Name, object Value)>>()
-                {
-                    () => ("BrokerId", settings.CurrentValue.MarginTradingAssetService.BrokerId),
-                });
+                var serilogLogger = new SerilogLogger(typeof(Startup).Assembly, configuration,
+                    new List<Func<(string Name, object Value)>>
+                    {
+                        () => ("BrokerId", settings.CurrentValue.MarginTradingAssetService.BrokerId),
+                    },
+                    new List<ILogEventEnricher>()
+                    {
+                        new CorrelationLogEventEnricher("CorrelationId", correlationContextAccessor)
+                    });
 
                 LogLocator.RequestsLog = LogLocator.CommonLog = serilogLogger;
 

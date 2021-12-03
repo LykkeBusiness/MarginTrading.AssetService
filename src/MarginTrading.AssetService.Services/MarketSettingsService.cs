@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Exceptions;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -23,17 +24,23 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
 
         public MarketSettingsService(
             IMarketSettingsRepository marketSettingsRepository,
             IAuditService auditService,
             ICqrsMessageSender cqrsMessageSender,
-            IConvertService convertService)
+            IConvertService convertService,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator)
         {
             _marketSettingsRepository = marketSettingsRepository;
             _auditService = auditService;
             _cqrsMessageSender = cqrsMessageSender;
             _convertService = convertService;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
         }
 
         public Task<MarketSettings> GetByIdAsync(string id)
@@ -42,7 +49,7 @@ namespace MarginTrading.AssetService.Services
         public Task<IReadOnlyList<MarketSettings>> GetAllMarketSettingsAsync()
             => _marketSettingsRepository.GetAllMarketSettingsAsync();
 
-        public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username, string correlationId)
+        public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
             var creationResult = CreateMarketSettingsWithDefaults(model, out var marketSettings);
 
@@ -59,6 +66,8 @@ namespace MarginTrading.AssetService.Services
             if (addResult.IsFailed)
                 return addResult;
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.MarketSettings,
                 marketSettings.ToJson());
 
@@ -67,7 +76,7 @@ namespace MarginTrading.AssetService.Services
             return new Result<MarketSettingsErrorCodes>();
         }
 
-        public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username, string correlationId)
+        public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
             var creationResult = CreateMarketSettingsWithDefaults(model, out var marketSettings);
             
@@ -89,6 +98,8 @@ namespace MarginTrading.AssetService.Services
             if (updateResult.IsFailed)
                 return updateResult;
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, marketSettings.Id, AuditDataType.MarketSettings,
                 marketSettings.ToJson(), currentSettings.ToJson());
 
@@ -97,7 +108,7 @@ namespace MarginTrading.AssetService.Services
             return new Result<MarketSettingsErrorCodes>();
         }
 
-        public async Task<Result<MarketSettingsErrorCodes>> DeleteAsync(string id, string username, string correlationId)
+        public async Task<Result<MarketSettingsErrorCodes>> DeleteAsync(string id, string username)
         {
             var existing = await _marketSettingsRepository.GetByIdAsync(id);
 
@@ -112,6 +123,8 @@ namespace MarginTrading.AssetService.Services
             if (deleteResult.IsFailed)
                 return deleteResult;
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.MarketSettings,
                 oldStateJson: existing.ToJson());
 

@@ -110,6 +110,8 @@ namespace MarginTrading.AssetService.Modules
             builder.RegisterType<ProductsService>().AsImplementedInterfaces().SingleInstance();
             builder.RegisterType<ProductsDiscontinueService>().AsImplementedInterfaces().SingleInstance();
             
+            builder.RegisterType<GuidIdentityGenerator>().AsImplementedInterfaces().SingleInstance();
+            
             builder.RegisterType<ProductCategoriesService>().AsImplementedInterfaces().SingleInstance();
 
             builder.RegisterType<TickFormulaService>().As<ITickFormulaService>().SingleInstance();

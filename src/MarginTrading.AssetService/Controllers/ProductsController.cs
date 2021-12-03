@@ -37,8 +37,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> AddAsync(AddProductRequest request)
         {
             var product = _convertService.Convert<AddProductRequest, Product>(request);
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _productsService.InsertAsync(product, request.UserName, correlationId);
+            var result = await _productsService.InsertAsync(product, request.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 
@@ -59,9 +58,8 @@ namespace MarginTrading.AssetService.Controllers
         {
             var product = _convertService.Convert<UpdateProductRequest, Product>(request);
             product.ProductId = productId;
-            var correlationId = this.TryGetCorrelationId();
 
-            var result = await _productsService.UpdateAsync(product, request.UserName, correlationId);
+            var result = await _productsService.UpdateAsync(product, request.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 
@@ -79,8 +77,7 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int) HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteAsync(string productId, [FromBody] DeleteProductRequest request)
         {
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _productsService.DeleteAsync(productId, request.UserName, correlationId);
+            var result = await _productsService.DeleteAsync(productId, request.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 
@@ -185,8 +182,6 @@ namespace MarginTrading.AssetService.Controllers
         {
             var freezeInfo = _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeInfo);
             
-            var correlationId = this.TryGetCorrelationId();
-
             if (!request.IsFrozen && request.FreezeInfo != null)
             {
                 return new ChangeProductFrozenStatusResponse()
@@ -195,7 +190,7 @@ namespace MarginTrading.AssetService.Controllers
                 }; 
             }
             
-            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.IsForceFreeze(), freezeInfo, request.UserName, correlationId);
+            var result = await _productsService.ChangeFrozenStatus(productId, request.IsFrozen, request.IsForceFreeze(), freezeInfo, request.UserName);
 
             var response = new ChangeProductFrozenStatusResponse();
 
@@ -222,8 +217,6 @@ namespace MarginTrading.AssetService.Controllers
                 _convertService.Convert<ProductFreezeInfoContract, ProductFreezeInfo>(request.FreezeParameters
                     .FreezeInfo);
 
-            var correlationId = this.TryGetCorrelationId();
-
             if (!request.FreezeParameters.IsFrozen && request.FreezeParameters.FreezeInfo != null)
             {
                 return new ChangeMultipleProductFrozenStatusResponse
@@ -242,8 +235,7 @@ namespace MarginTrading.AssetService.Controllers
                     request.FreezeParameters.IsFrozen, 
                     request.FreezeParameters.IsForceFreeze(), 
                     freezeInfo,
-                    request.FreezeParameters.UserName, 
-                    correlationId);
+                    request.FreezeParameters.UserName);
 
                 var singleProductResponse = new ChangeProductFrozenStatusResponse();
 
@@ -278,10 +270,8 @@ namespace MarginTrading.AssetService.Controllers
                 })
                 .ToList();
 
-            var correlationId = this.TryGetCorrelationId();
-
             var result = await _productsService.UpdateBatchAsync(products,
-                request.Requests.FirstOrDefault().Value.UserName, correlationId);
+                request.Requests.FirstOrDefault().Value.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
             
@@ -301,10 +291,8 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> DeleteBatchAsync(
             [FromBody] DeleteProductBatchRequest request)
         {
-            var correlationId = this.TryGetCorrelationId();
-
             var result = await _productsService.DeleteBatchAsync(request.ProductIds.ToList(),
-                request.UserName, correlationId);
+                request.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
             
@@ -328,9 +316,7 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int)HttpStatusCode.OK)]
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> MarkMultipleAsDiscontinuedAsync([FromBody] MarkProductsAsDiscontinuedRequest request)
         {
-            var correlationId = this.TryGetCorrelationId();
-
-            var result = await _productsService.DiscontinueBatchAsync(request.ProductIds, request.UserName, correlationId);
+            var result = await _productsService.DiscontinueBatchAsync(request.ProductIds, request.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 

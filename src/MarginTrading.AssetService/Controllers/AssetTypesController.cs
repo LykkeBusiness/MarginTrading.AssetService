@@ -9,7 +9,6 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -95,13 +94,10 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             try
             {
                 var model = _convertService.Convert<AddAssetTypeRequest, AssetTypeWithTemplate>(request);
-                await _assetTypesService.InsertAsync(model, request.Username,
-                    correlationId);
+                await _assetTypesService.InsertAsync(model, request.Username);
             }
             catch (AssetTypeDoesNotExistException)
             {
@@ -148,14 +144,12 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             var model = _convertService.Convert<UpdateAssetTypeRequest, AssetType>(request);
             model.Id = id;
 
             try
             {
-                await _assetTypesService.UpdateAsync(model, request.Username, correlationId);
+                await _assetTypesService.UpdateAsync(model, request.Username);
             }
             catch (AlreadyExistsException)
             {
@@ -199,11 +193,9 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             try
             {
-                await _assetTypesService.DeleteAsync(id, username, correlationId);
+                await _assetTypesService.DeleteAsync(id, username);
             }
             catch (AssetTypeDoesNotExistException)
             {

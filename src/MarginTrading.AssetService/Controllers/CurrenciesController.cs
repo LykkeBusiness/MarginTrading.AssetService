@@ -9,7 +9,6 @@ using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -35,8 +34,7 @@ namespace MarginTrading.AssetService.Controllers
             [FromBody] AddCurrencyRequest request)
         {
             var currency = _convertService.Convert<AddCurrencyRequest, Currency>(request);
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _currenciesService.InsertAsync(currency, request.UserName, correlationId);
+            var result = await _currenciesService.InsertAsync(currency, request.UserName);
 
             var response = new ErrorCodeResponse<CurrenciesErrorCodesContract>();
 
@@ -57,9 +55,7 @@ namespace MarginTrading.AssetService.Controllers
             var currency = _convertService.Convert<UpdateCurrencyRequest, Currency>(request);
             currency.Id = id;
             
-            var correlationId = this.TryGetCorrelationId();
-
-            var result = await _currenciesService.UpdateAsync(currency, request.UserName, correlationId);
+            var result = await _currenciesService.UpdateAsync(currency, request.UserName);
 
             var response = new ErrorCodeResponse<CurrenciesErrorCodesContract>();
 
@@ -77,8 +73,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<CurrenciesErrorCodesContract>> DeleteAsync(
             [FromRoute] [Required] string id, [FromBody] DeleteCurrencyRequest request)
         {
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _currenciesService.DeleteAsync(id, request.UserName, correlationId);
+            var result = await _currenciesService.DeleteAsync(id, request.UserName);
 
             var response = new ErrorCodeResponse<CurrenciesErrorCodesContract>();
 

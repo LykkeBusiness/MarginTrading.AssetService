@@ -16,6 +16,7 @@ using Lykke.Messaging;
 using Lykke.Messaging.Contract;
 using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
+using Lykke.Snow.Common.Correlation.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
@@ -113,6 +114,9 @@ namespace MarginTrading.AssetService.Modules
                 Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
                 Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
 
+            var correlationManager = ctx.Resolve<CqrsCorrelationManager>();
+            engine.SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);
+            engine.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
             engine.StartPublishers();
 
             return engine;

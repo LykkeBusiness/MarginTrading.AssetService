@@ -105,11 +105,6 @@ namespace MarginTrading.AssetService.Services
             var productMarketSettings =
                 (await _marketSettingsRepository.GetByIdsAsync(productMarketSettingsMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 
-            foreach (var productMarketSetting in productMarketSettings)
-            {
-                productMarketSetting.Value.MarketSchedule = productMarketSetting.Value.MarketSchedule.ShiftToUtc();
-            }
-            
             var productTickFormulas =
                 (await _tickFormulaRepository.GetByIdsAsync(productTickFormulaMap.Values.Distinct())).ToDictionary(x => x.Id, v => v);
 

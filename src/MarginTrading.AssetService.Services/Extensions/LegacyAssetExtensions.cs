@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Lykke.Snow.Common.WorkingDays;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
@@ -75,12 +76,12 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.MarketDetails.MarketHours.Close = marketScheduleUtcRespectful.Close;
             asset.Underlying.MarketDetails.Name = marketSettings.Name;
             asset.Underlying.MarketDetails.MarketId = marketSettings.Id;
-            asset.SetHalfWorkingDays(marketSettings);
+            asset.SetHalfWorkingDays(marketScheduleUtcRespectful);
         }
 
-        private static void SetHalfWorkingDays(this Asset asset, MarketSettings marketSettings)
+        private static void SetHalfWorkingDays(this Asset asset, MarketSchedule marketSchedule)
         {
-            asset.Underlying.MarketDetails.Calendar.HalfWorkingDays = marketSettings.MarketSchedule.HalfWorkingDays.ToList();
+            asset.Underlying.MarketDetails.Calendar.HalfWorkingDays = marketSchedule.HalfWorkingDays.ToList();
         }
 
         public static void SetDividendFactorFields(this Asset asset, MarketSettings marketSettings,

@@ -54,7 +54,7 @@
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
   </Target>
   <ItemGroup>
-    <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.1.1" />
+    <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.1.2" />
     <PackageReference Include="Lykke.Cqrs" Version="9.0.1" />
     <PackageReference Include="Lykke.Logs" Version="7.4.0" />
     <PackageReference Include="Lykke.Logs.MsSql" Version="2.1.0" />

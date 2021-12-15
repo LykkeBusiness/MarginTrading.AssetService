@@ -161,6 +161,7 @@ namespace MarginTrading.AssetService
                 app.AddRefitExceptionHandler();
 
                 app.UseRouting();
+                app.UseSentryTracing();
                 app.UseAuthentication();
                 app.UseAuthorization();
                 app.UseEndpoints(endpoints =>

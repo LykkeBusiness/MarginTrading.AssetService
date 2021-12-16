@@ -9,7 +9,6 @@ using MarginTrading.AssetService.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
 
 namespace MarginTrading.AssetService
@@ -51,11 +50,6 @@ namespace MarginTrading.AssetService
                                 .ConfigureKestrel(serverOptions =>
                                 {
                                     // Set properties and call methods on options
-                                })
-                                .ConfigureLogging(logBuilder =>
-                                {
-                                    logBuilder.ClearProviders();
-                                    logBuilder.AddConsole();
                                 })
                                 .UseStartup<Startup>()
                                 .UseSentry(o =>

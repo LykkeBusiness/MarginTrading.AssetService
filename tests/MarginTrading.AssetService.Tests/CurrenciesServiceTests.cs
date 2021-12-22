@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using System;
 using System.Threading.Tasks;
+using Lykke.Snow.Common.Correlation;
 using Xunit;
 
 namespace MarginTrading.AssetService.Tests
@@ -19,6 +20,8 @@ namespace MarginTrading.AssetService.Tests
         private readonly IAuditService _auditService;
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
 
         public CurrenciesServiceTests()
         {
@@ -27,6 +30,8 @@ namespace MarginTrading.AssetService.Tests
             _auditService = new Mock<IAuditService>().Object;
             _cqrsMessageSender = new Mock<ICqrsMessageSender>().Object;
             _convertService = new Mock<IConvertService>().Object;
+            _correlationContextAccessor = new Mock<CorrelationContextAccessor>().Object;
+            _identityGenerator = new Mock<IIdentityGenerator>().Object;
         }
 
         private static DbContextOptions<T> CreateNewContextOptions<T>(string databaseName) where T : DbContext
@@ -76,12 +81,13 @@ namespace MarginTrading.AssetService.Tests
             }
 
             var repository = new CurrenciesRepository(_contextFactory);
-            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService);
+            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService,
+                _correlationContextAccessor, _identityGenerator);
 
             // Act
             const string userName = "admin";
             string correlationId = Guid.NewGuid().ToString("N");
-            var result = await service.DeleteAsync(currencyId, userName, correlationId);
+            var result = await service.DeleteAsync(currencyId, userName);
 
             // Assert
             Assert.True(result.IsFailed);
@@ -108,12 +114,12 @@ namespace MarginTrading.AssetService.Tests
             }
 
             var repository = new CurrenciesRepository(_contextFactory);
-            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService);
+            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService, _correlationContextAccessor, _identityGenerator);
 
             // Act
             const string userName = "admin";
             string correlationId = Guid.NewGuid().ToString("N");
-            var result = await service.DeleteAsync(currencyId, userName, correlationId);
+            var result = await service.DeleteAsync(currencyId, userName);
 
             // Assert
             Assert.True(result.IsSuccess);

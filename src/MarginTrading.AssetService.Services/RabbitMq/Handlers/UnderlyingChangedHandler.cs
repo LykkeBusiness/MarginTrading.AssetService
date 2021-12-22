@@ -78,8 +78,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                 {
                     await _productsService.ChangeUnderlyingMdsCodeAsync(e.OldValue.MdsCode,
                         e.NewValue.MdsCode,
-                        e.Username,
-                        e.CorrelationId);
+                        e.Username);
                 }
                 catch (Exception exception)
                 {

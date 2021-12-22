@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -17,24 +18,31 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
 
         public CurrenciesService(ICurrenciesRepository currenciesRepository, IAuditService auditService,
             ICqrsMessageSender cqrsMessageSender,
-            IConvertService convertService)
+            IConvertService convertService,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator)
         {
             _currenciesRepository = currenciesRepository;
             _auditService = auditService;
             _cqrsMessageSender = cqrsMessageSender;
             _convertService = convertService;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
         }
 
-        public async Task<Result<CurrenciesErrorCodes>> InsertAsync(Currency currency, string username,
-            string correlationId)
+        public async Task<Result<CurrenciesErrorCodes>> InsertAsync(Currency currency, string username)
         {
             var result = await _currenciesRepository.InsertAsync(currency);
 
             if (result.IsSuccess)
             {
+                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                    _identityGenerator.GenerateId();
                 await _auditService.TryAudit(correlationId, username, currency.Id, AuditDataType.Currency,
                     currency.ToJson());
 
@@ -44,8 +52,7 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<CurrenciesErrorCodes>> UpdateAsync(Currency currency, string username,
-            string correlationId)
+        public async Task<Result<CurrenciesErrorCodes>> UpdateAsync(Currency currency, string username)
         {
             var existing = await _currenciesRepository.GetByIdAsync(currency.Id);
 
@@ -56,6 +63,8 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, currency.Id, AuditDataType.Currency,
                         currency.ToJson(), existing.Value.ToJson());
                     
@@ -68,7 +77,7 @@ namespace MarginTrading.AssetService.Services
             return existing.ToResultWithoutValue();
         }
 
-        public async Task<Result<CurrenciesErrorCodes>> DeleteAsync(string id, string username, string correlationId)
+        public async Task<Result<CurrenciesErrorCodes>> DeleteAsync(string id, string username)
         {
             var existing = await _currenciesRepository.GetByIdAsync(id);
 
@@ -81,6 +90,8 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, id, AuditDataType.Currency,
                         oldStateJson: existing.Value.ToJson());
                     

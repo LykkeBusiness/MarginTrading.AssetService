@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
@@ -18,20 +19,26 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
 
         public ClientProfileSettingsService(
             IClientProfileSettingsRepository regulatorySettingsRepository,
             IAuditService auditService,
             IRegulatorySettingsApi regulatorySettingsApi,
-            ICqrsEntityChangedSender entityChangedSender)
+            ICqrsEntityChangedSender entityChangedSender,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator)
         {
             _regulatorySettingsRepository = regulatorySettingsRepository;
             _auditService = auditService;
             _regulatorySettingsApi = regulatorySettingsApi;
             _entityChangedSender = entityChangedSender;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
         }
 
-        public async Task UpdateAsync(ClientProfileSettings model, string username, string correlationId)
+        public async Task UpdateAsync(ClientProfileSettings model, string username)
         {
             var existing = await _regulatorySettingsRepository.GetByIdsAsync(model.ClientProfileId, model.AssetTypeId);
 
@@ -68,6 +75,8 @@ namespace MarginTrading.AssetService.Services
 
             var referenceId = $"ClientProfileId:{model.ClientProfileId},AssetTypeId:{model.AssetTypeId}";
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, referenceId, AuditDataType.ClientProfileSettings,
                 model.ToJson(), existing.ToJson());
 

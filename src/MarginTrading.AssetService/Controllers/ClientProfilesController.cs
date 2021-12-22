@@ -9,7 +9,6 @@ using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -96,8 +95,6 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             try
             {
                 var clientProfile = new ClientProfileWithTemplate(
@@ -105,7 +102,7 @@ namespace MarginTrading.AssetService.Controllers
                     request.RegulatoryProfileId,
                     request.ClientProfileTemplateId, 
                     request.IsDefault);
-                await _regulatoryProfilesService.InsertAsync(clientProfile, request.Username, correlationId);
+                await _regulatoryProfilesService.InsertAsync(clientProfile, request.Username);
             }
             catch (ClientProfileDoesNotExistException)
             {
@@ -152,12 +149,10 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             try
             {
                 var clientProfile = new ClientProfile(id, request.RegulatoryProfileId, request.IsDefault);
-                await _regulatoryProfilesService.UpdateAsync(clientProfile, request.Username, correlationId);
+                await _regulatoryProfilesService.UpdateAsync(clientProfile, request.Username);
             }
             catch (AlreadyExistsException)
             {
@@ -201,11 +196,9 @@ namespace MarginTrading.AssetService.Controllers
         {
             var response = new ErrorCodeResponse<ClientProfilesErrorCodesContract>();
 
-            var correlationId = this.TryGetCorrelationId();
-
             try
             {
-                await _regulatoryProfilesService.DeleteAsync(id, username, correlationId);
+                await _regulatoryProfilesService.DeleteAsync(id, username);
             }
             catch (ClientProfileDoesNotExistException)
             {

@@ -50,7 +50,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> LongIsinMustBeUniqueAcrossAllIsins(Product value, string userName,
-            string correlationId, Product existing = null)
+            Product existing = null)
         {
             if (_underlyingsCache.IsinExists(value.IsinLong))
             {
@@ -65,7 +65,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> ShortIsinMustBeUniqueAcrossAllIsins(Product value, string userName,
-            string correlationId, Product existing = null)
+            Product existing = null)
         {
             if (value.IsinShort == value.IsinLong)
             {
@@ -84,7 +84,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,
-            string correlationId, Product existing = null)
+            Product existing = null)
         {
             var underlying = _underlyingsCache.GetByMdsCode(value.UnderlyingMdsCode);
             if (underlying == null)
@@ -116,7 +116,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> CurrencyMustExist(Product value, string userName,
-            string correlationId, Product existing = null)
+            Product existing = null)
         {
             var currencyResult = await _currenciesService.GetByIdAsync(value.TradingCurrency);
             if (currencyResult.IsFailed)
@@ -128,7 +128,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> MarketSettingsMustExist(Product value, string userName,
-            string correlationId, Product existing = null)
+            Product existing = null)
         {
             if (!await _marketSettingsRepository.ExistsAsync(value.Market))
             {
@@ -139,10 +139,9 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> SetCategoryIdAsync(Product value,
-            string userName,
-            string correlationId, Product existing = null)
+            string userName, Product existing = null)
         {
-            var categoryResult = await _productCategoriesService.GetOrCreate(value.Category, userName, correlationId);
+            var categoryResult = await _productCategoriesService.GetOrCreate(value.Category, userName);
             if (categoryResult.IsFailed)
             {
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotCreateCategory);
@@ -157,8 +156,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> TickFormulaMustExist(Product value,
-            string userName,
-            string correlationId, Product existing = null)
+            string userName, Product existing = null)
         {
             if (!await _tickFormulaRepository.ExistsAsync(value.TickFormula))
             {
@@ -169,8 +167,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> AssetTypeMustExist(Product value,
-            string userName,
-            string correlationId, Product existing = null)
+            string userName, Product existing = null)
         {
             if (!await _assetTypesRepository.ExistsAsync(value.AssetType))
             {
@@ -181,8 +178,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> SetExistingFields(Product value,
-            string userName,
-            string correlationId, Product existing = null)
+            string userName, Product existing = null)
         {
             if (existing != null)
             {

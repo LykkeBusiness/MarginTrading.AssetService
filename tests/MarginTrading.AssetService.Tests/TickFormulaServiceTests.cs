@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Lykke.Snow.Common.Correlation;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services;
@@ -12,12 +13,13 @@ namespace MarginTrading.AssetService.Tests
     public class TickFormulaServiceTests
     {
         private const string Username = "username";
-        private const string CorrelationId = "correlation-id";
         private const string Id = "id";
 
         private readonly Mock<ITickFormulaRepository> _tickFormulaRepoMock = new Mock<ITickFormulaRepository>();
         private readonly Mock<IAuditService> _auditServiceMock = new Mock<IAuditService>();
         private readonly Mock<ICqrsEntityChangedSender> _cqrsSenderMock = new Mock<ICqrsEntityChangedSender>();
+        private readonly Mock<CorrelationContextAccessor> _correlationContextAccessor = new Mock<CorrelationContextAccessor>();
+        private readonly Mock<IIdentityGenerator> _identityGenerator = new Mock<IIdentityGenerator>();
 
         [Fact]
         public async Task AddTickFormula_LaddersAndTicksWithDifferentLengths_ErrorReturned()
@@ -30,7 +32,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.AddAsync(request, Username, CorrelationId);
+            var actual = await sut.AddAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersAndTicksMustHaveEqualLengths, actual.Error);
         }
@@ -46,7 +48,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.AddAsync(request, Username, CorrelationId);
+            var actual = await sut.AddAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersValuesMustBeGreaterOrEqualToZero, actual.Error);
         }
@@ -62,7 +64,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.AddAsync(request, Username, CorrelationId);
+            var actual = await sut.AddAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlTicksValuesMustBeGreaterThanZero, actual.Error);
         }
@@ -78,7 +80,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.AddAsync(request, Username, CorrelationId);
+            var actual = await sut.AddAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersMustStartFromZero, actual.Error);
         }
@@ -94,7 +96,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.AddAsync(request, Username, CorrelationId);
+            var actual = await sut.AddAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersMustBeInAscendingOrderWithoutDuplicates, actual.Error);
         }
@@ -110,7 +112,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.AddAsync(request, Username, CorrelationId);
+            var actual = await sut.AddAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlTicksMustBeInAscendingOrder, actual.Error);
         }
@@ -128,7 +130,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.TickFormulaDoesNotExist, actual.Error);
         }
@@ -148,7 +150,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersAndTicksMustHaveEqualLengths, actual.Error);
         }
@@ -168,7 +170,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersValuesMustBeGreaterOrEqualToZero, actual.Error);
         }
@@ -188,7 +190,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlTicksValuesMustBeGreaterThanZero, actual.Error);
         }
@@ -208,7 +210,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersMustStartFromZero, actual.Error);
         }
@@ -228,7 +230,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlLaddersMustBeInAscendingOrderWithoutDuplicates, actual.Error);
         }
@@ -248,7 +250,7 @@ namespace MarginTrading.AssetService.Tests
 
             var sut = CreateSutInstance();
 
-            var actual = await sut.UpdateAsync(request, Username, CorrelationId);
+            var actual = await sut.UpdateAsync(request, Username);
 
             Assert.Equal(TickFormulaErrorCodes.PdlTicksMustBeInAscendingOrder, actual.Error);
         }
@@ -258,7 +260,9 @@ namespace MarginTrading.AssetService.Tests
             return new TickFormulaService(
                 _tickFormulaRepoMock.Object,
                 _auditServiceMock.Object,
-                _cqrsSenderMock.Object);
+                _cqrsSenderMock.Object,
+                _correlationContextAccessor.Object,
+                _identityGenerator.Object);
         }
     }
 }

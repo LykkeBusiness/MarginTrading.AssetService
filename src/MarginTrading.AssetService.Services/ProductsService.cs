@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
@@ -21,27 +22,32 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly ILog _log;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
 
         public ProductsService(
             ProductAddOrUpdateValidationAndEnrichment addOrUpdateValidationAndEnrichment,
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
             IAuditService auditService,
-            ILog log)
+            ILog log,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator)
         {
             _addOrUpdateValidationAndEnrichment = addOrUpdateValidationAndEnrichment;
             _repository = repository;
             _auditService = auditService;
             _log = log;
             _entityChangedSender = entityChangedSender;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
         }
 
 
-        public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username,
-            string correlationId)
+        public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username)
         {
             var validationResult =
-                await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId);
+                await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username);
             if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
 
             product = validationResult.Value;
@@ -50,6 +56,8 @@ namespace MarginTrading.AssetService.Services
 
             if (result.IsSuccess)
             {
+                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                    _identityGenerator.GenerateId();
                 await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                     product.ToJson());
                 await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -60,16 +68,14 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<ProductsErrorCodes>> UpdateAsync(Product product, string username,
-            string correlationId)
+        public async Task<Result<ProductsErrorCodes>> UpdateAsync(Product product, string username)
         {
             var existing = await _repository.GetByIdAsync(product.ProductId);
 
             if (existing.IsSuccess)
             {
                 var validationResult =
-                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId,
-                        existing.Value);
+                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, existing.Value);
                 if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
 
                 product = validationResult.Value;
@@ -78,6 +84,8 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
                     await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -91,8 +99,7 @@ namespace MarginTrading.AssetService.Services
             return existing.ToResultWithoutValue();
         }
 
-        public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, string username,
-            string correlationId)
+        public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, string username)
         {
             var existing = await _repository.GetByIdAsync(productId);
 
@@ -105,6 +112,8 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, productId, AuditDataType.Product,
                         oldStateJson: existing.Value.ToJson());
                     await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -120,7 +129,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
             bool forceFreezeIfAlreadyFrozen,
-            ProductFreezeInfo freezeInfo, string userName, string correlationId)
+            ProductFreezeInfo freezeInfo, string userName)
         {
             var existing = await _repository.GetByIdAsync(productId);
             if (existing.IsFailed) return existing;
@@ -144,6 +153,8 @@ namespace MarginTrading.AssetService.Services
 
             if (result.IsSuccess)
             {
+                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                    _identityGenerator.GenerateId();
                 await _auditService.TryAudit(correlationId, userName, productId, AuditDataType.Product,
                     result.Value.ToJson(), existing.Value.ToJson());
                 await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -166,16 +177,14 @@ namespace MarginTrading.AssetService.Services
             int skip = default, int take = 20)
             => _repository.GetByPageAsync(mdsCodes, productIds, isStarted, isDiscontinued, skip, take);
 
-        public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username,
-            string correlationId)
+        public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username)
         {
             var existing = await _repository.GetAllAsync(null, products.Select(p => p.ProductId).ToArray());
             foreach (var product in products)
             {
                 var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
                 var validationResult =
-                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, correlationId,
-                        existingProduct);
+                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, existingProduct);
 
                 if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
             }
@@ -188,6 +197,8 @@ namespace MarginTrading.AssetService.Services
                 {
                     var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
 
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existingProduct.ToJson());
                     await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -199,8 +210,7 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<ProductsErrorCodes>> DeleteBatchAsync(List<string> productIds, string username,
-            string correlationId)
+        public async Task<Result<ProductsErrorCodes>> DeleteBatchAsync(List<string> productIds, string username)
         {
             var existing = await _repository.GetAllAsync(null, productIds.ToArray());
 
@@ -216,6 +226,8 @@ namespace MarginTrading.AssetService.Services
             {
                 foreach (var product in existing.Value)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         oldStateJson: existing.Value.ToJson());
                     await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -227,8 +239,7 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username,
-            string correlationId)
+        public async Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username)
         {
             if (!productIds.Any())
             {
@@ -264,6 +275,8 @@ namespace MarginTrading.AssetService.Services
             {
                 var existingProduct = existing.FirstOrDefault(p => p.ProductId == updatedProduct.ProductId);
 
+                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                    _identityGenerator.GenerateId();
                 await _auditService.TryAudit(correlationId, username, updatedProduct.ProductId, AuditDataType.Product,
                     updatedProduct.ToJson(), existingProduct.ToJson());
                 await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
@@ -279,8 +292,7 @@ namespace MarginTrading.AssetService.Services
             => _repository.GetAllCountAsync(mdsCodes, productIds);
 
         public async Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode,
-            string username,
-            string correlationId)
+            string username)
         {
             var existing = await _repository.GetByUnderlyingMdsCodeAsync(oldMdsCode);
 
@@ -293,6 +305,8 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
+                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                        _identityGenerator.GenerateId();
                     await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
                         product.ToJson(), existing.Value.ToJson());
                     await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(

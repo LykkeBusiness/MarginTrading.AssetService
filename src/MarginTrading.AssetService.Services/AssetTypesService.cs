@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using JetBrains.Annotations;
+using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -29,6 +30,8 @@ namespace MarginTrading.AssetService.Services
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
         private readonly IUnderlyingCategoriesCache _underlyingCategoriesCache;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly IIdentityGenerator _identityGenerator;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -41,6 +44,8 @@ namespace MarginTrading.AssetService.Services
             IRegulatorySettingsApi regulatorySettingsApi,
             ICqrsEntityChangedSender entityChangedSender,
             IUnderlyingCategoriesCache underlyingCategoriesCache,
+            CorrelationContextAccessor correlationContextAccessor,
+            IIdentityGenerator identityGenerator,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -52,10 +57,12 @@ namespace MarginTrading.AssetService.Services
             _regulatorySettingsApi = regulatorySettingsApi;
             _entityChangedSender = entityChangedSender;
             _underlyingCategoriesCache = underlyingCategoriesCache;
+            _correlationContextAccessor = correlationContextAccessor;
+            _identityGenerator = identityGenerator;
             _brokerId = brokerId;
         }
 
-        public async Task InsertAsync(AssetTypeWithTemplate model, string username, string correlationId)
+        public async Task InsertAsync(AssetTypeWithTemplate model, string username)
         {
             var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
 
@@ -116,6 +123,8 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.InsertAsync(model, clientProfileSettings);
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson());
 
@@ -129,7 +138,7 @@ namespace MarginTrading.AssetService.Services
             }
         }
 
-        public async Task UpdateAsync(AssetType model, string username, string correlationId)
+        public async Task UpdateAsync(AssetType model, string username)
         {
             var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
 
@@ -160,6 +169,8 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.UpdateAsync(model);
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
                 model.ToJson(), existing.ToJson());
 
@@ -167,7 +178,7 @@ namespace MarginTrading.AssetService.Services
                 existing, model, username, correlationId);
         }
 
-        public async Task DeleteAsync(string id, string username, string correlationId)
+        public async Task DeleteAsync(string id, string username)
         {
             var existing = await _assetTypesRepository.GetByIdAsync(id);
 
@@ -182,6 +193,8 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.DeleteAsync(id);
 
+            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                _identityGenerator.GenerateId();
             await _auditService.TryAudit(correlationId, username, id, AuditDataType.AssetType,
                 oldStateJson: existing.ToJson());
 

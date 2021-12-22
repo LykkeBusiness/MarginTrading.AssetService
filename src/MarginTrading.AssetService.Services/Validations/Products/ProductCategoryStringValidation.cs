@@ -16,7 +16,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
 
         private async Task<Result<string, ProductCategoriesErrorCodes>> CategoryStringMustNotBeNullOrEmpty(string value,
             string userName,
-            string correlationId,
             string existing = null)
         {
             return string.IsNullOrWhiteSpace(value)
@@ -27,7 +26,6 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         private async Task<Result<string, ProductCategoriesErrorCodes>> CategoryStringMustBeOriginalOrNormalized(
             string value,
             string userName,
-            string correlationId,
             string existing = null)
         {
             var str = value.Trim().Trim('/');
@@ -42,7 +40,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<string, ProductCategoriesErrorCodes>> CategoryStringMustNotHaveEmptyNodes(
-            string value, string username, string correlationid, string existing)
+            string value, string username, string existing)
         {
             var separator = IsNormalized(value) ? '.' : '/';
 
@@ -59,7 +57,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
         }
 
         private async Task<Result<string, ProductCategoriesErrorCodes>> NormalizeCategoryString(string value, string username,
-            string correlationid, string existing)
+            string existing)
         {
             var normalized = IsNormalized(value)
                 ? value

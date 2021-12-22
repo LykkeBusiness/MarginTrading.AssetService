@@ -5,8 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Log;
-using Lykke.Common;
 using Lykke.Cqrs;
+using Lykke.RabbitMqBroker;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Services;
 

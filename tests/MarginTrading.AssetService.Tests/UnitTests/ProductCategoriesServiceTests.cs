@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lykke.Snow.Common.Correlation;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services;
@@ -19,6 +20,8 @@ namespace MarginTrading.AssetService.Tests.UnitTests
         private readonly Mock<IAuditService> _auditServiceMock = new Mock<IAuditService>();
         private readonly Mock<ICqrsMessageSender> _cqrsMessageSenderMock = new Mock<ICqrsMessageSender>();
         private readonly Mock<IConvertService> _convertServiceMock = new Mock<IConvertService>();
+        private readonly Mock<CorrelationContextAccessor> _correlationContextAccessor = new Mock<CorrelationContextAccessor>();
+        private readonly Mock<IIdentityGenerator> _identityGenerator = new Mock<IIdentityGenerator>();
 
         [Fact]
         public async Task OneProductInParentCategory()
@@ -130,7 +133,9 @@ namespace MarginTrading.AssetService.Tests.UnitTests
                 new ProductCategoryStringService(new ProductCategoryStringValidation()),
                 _auditServiceMock.Object,
                 _cqrsMessageSenderMock.Object,
-                _convertServiceMock.Object);
+                _convertServiceMock.Object,
+                _correlationContextAccessor.Object,
+                _identityGenerator.Object);
         }
     }
 }

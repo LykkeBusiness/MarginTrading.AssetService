@@ -5,8 +5,14 @@ using Lykke.Common;
 using Lykke.Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.RabbitMqBroker.Subscriber.Deserializers;
+using Lykke.RabbitMqBroker.Subscriber.MessageReadStrategies;
+using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
+using Lykke.Snow.Common.Correlation.RabbitMq;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
+using Microsoft.Extensions.Logging;
+using IStartStop = Lykke.RabbitMqBroker.IStartStop;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
 {
@@ -16,28 +22,37 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
         private readonly RabbitMqSubscriptionSettings _settings;
         private readonly ILog _log;
         private RabbitMqSubscriber<BrokerSettingsChangedEvent> _subscriber;
+        private RabbitMqCorrelationManager _correlationManager;
+        private ILoggerFactory _loggerFactory;
 
         public BrokerSettingsChangedSubscriber(
             BrokerSettingsChangedHandler handler,
             RabbitMqSubscriptionSettings settings,
-            ILog log)
+            ILog log,
+            RabbitMqCorrelationManager correlationManager,
+            ILoggerFactory loggerFactory)
         {
             _handler = handler;
             _settings = settings;
             _log = log;
+            _correlationManager = correlationManager;
+            _loggerFactory = loggerFactory;
         }
 
         public void Start()
         {
             _subscriber = new RabbitMqSubscriber<BrokerSettingsChangedEvent>(
-                    _settings,
-                    new ResilientErrorHandlingStrategy(_log, _settings,
-                        retryTimeout: TimeSpan.FromSeconds(10),
-                        retryNum: 10,
-                        next: new DeadQueueErrorHandlingStrategy(_log, _settings)))
+                    _loggerFactory.CreateLogger<RabbitMqSubscriber<BrokerSettingsChangedEvent>>(),
+                    _settings)
                 .SetMessageDeserializer(new MessagePackMessageDeserializer<BrokerSettingsChangedEvent>())
                 .SetMessageReadStrategy(new MessageReadQueueStrategy())
-                .SetLogger(_log)
+                .UseMiddleware(new DeadQueueMiddleware<BrokerSettingsChangedEvent>(
+                    _loggerFactory.CreateLogger<DeadQueueMiddleware<BrokerSettingsChangedEvent>>()))
+                .UseMiddleware(new ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>(
+                    _loggerFactory.CreateLogger<ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>>(),
+                    TimeSpan.FromSeconds(10),
+                    10))
+                .SetReadHeadersAction(_correlationManager.FetchCorrelationIfExists)
                 .CreateDefaultBinding()
                 .Subscribe(ProcessMessageAsync)
                 .Start();

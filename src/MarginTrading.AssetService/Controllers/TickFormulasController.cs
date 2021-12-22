@@ -7,7 +7,6 @@ using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -83,8 +82,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             var model = _convertService.Convert<AddTickFormulaRequest, ITickFormula>(request);
 
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _tickFormulaService.AddAsync(model, request.Username, correlationId);
+            var result = await _tickFormulaService.AddAsync(model, request.Username);
 
             var response = new ErrorCodeResponse<TickFormulaErrorCodesContract>();
 
@@ -112,9 +110,7 @@ namespace MarginTrading.AssetService.Controllers
             var model = _convertService.Convert<UpdateTickFormulaRequest, ITickFormula>(request);
             model.Id = id;
 
-            var correlationId = this.TryGetCorrelationId();
-
-            var result = await _tickFormulaService.UpdateAsync(model, request.Username, correlationId);
+            var result = await _tickFormulaService.UpdateAsync(model, request.Username);
 
             var response = new ErrorCodeResponse<TickFormulaErrorCodesContract>();
 
@@ -139,8 +135,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<TickFormulaErrorCodesContract>> DeleteAsync(
             [Required] string id, [Required] string username)
         {
-            var correlationId = this.TryGetCorrelationId();
-            var result = await _tickFormulaService.DeleteAsync(id, username, correlationId);
+            var result = await _tickFormulaService.DeleteAsync(id, username);
 
             var response = new ErrorCodeResponse<TickFormulaErrorCodesContract>();
 

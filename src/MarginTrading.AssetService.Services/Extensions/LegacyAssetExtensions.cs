@@ -45,6 +45,8 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.LiquidationThresholdQuantity = 0;
             asset.Underlying.RicCode = product.PublicationRic;
             asset.Underlying.HedgeCost = product.HedgeCost;
+            asset.EnforceMargin = product.EnforceMargin;
+            asset.Margin = product.Margin;
         }
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)

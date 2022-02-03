@@ -255,7 +255,10 @@ namespace MarginTrading.AssetService.Services
             {
                 var existingProduct = existing.FirstOrDefault(p => p.ProductId == productId);
                 if (existingProduct == null)
+                {
+                    _log.WriteWarning(nameof(ProductsService), nameof(DiscontinueBatchAsync), $"Product to discontinue is not found: {productId}");
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+                }
 
                 if (existingProduct.IsDiscontinued)
                     continue;

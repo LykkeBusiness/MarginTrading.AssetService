@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
+using Common.Log;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
@@ -17,13 +18,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     public class ProductsRepository : IProductsRepository
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
+        private readonly ILog _log;
 
         private const string DoesNotExistException =
             "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
 
-        public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
+        public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory,
+            ILog log)
         {
             _contextFactory = contextFactory;
+            _log = log;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product)
@@ -237,6 +241,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
             catch (DbUpdateConcurrencyException e)
             {
+                _log.WriteError(nameof(ProductsRepository), nameof(UpdateBatchAsync), e);
+
                 if (e.Message.Contains(DoesNotExistException))
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 

@@ -248,6 +248,7 @@ namespace MarginTrading.AssetService.Services
                 return new Result<ProductsErrorCodes>();
             }
 
+            _log.WriteInfo(nameof(ProductsService), nameof(DiscontinueBatchAsync), $"Trying to discontinue products: {string.Join(',', productIds)}");
             var existing = (await _repository.GetAllAsync(null, productIds)).Value.ToHashSet();
             var updated = new HashSet<Product>();
 
@@ -256,7 +257,7 @@ namespace MarginTrading.AssetService.Services
                 var existingProduct = existing.FirstOrDefault(p => p.ProductId == productId);
                 if (existingProduct == null)
                 {
-                    _log.WriteWarning(nameof(ProductsService), nameof(DiscontinueBatchAsync), $"Product to discontinue is not found: {productId}");
+                    _log.WriteError(nameof(ProductsService), nameof(DiscontinueBatchAsync), new Exception($"Product to discontinue is not found: {productId}"));
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
                 }
 

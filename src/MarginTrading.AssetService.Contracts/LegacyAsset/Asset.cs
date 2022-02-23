@@ -132,5 +132,11 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         public int DisplayPrecision { get; set; } = 5;
 
         public DividendsFactor DividendsFactor { get; set; } = new DividendsFactor();
+        
+        [JsonProperty("enforceMargin")]
+        public bool EnforceMargin { get; set; }
+        
+        [JsonProperty("margin")]
+        public decimal? Margin { get; set; }
     }
 }

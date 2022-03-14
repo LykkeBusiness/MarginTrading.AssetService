@@ -329,5 +329,28 @@ namespace MarginTrading.AssetService.Controllers
 
             return response;
         }
+        
+        /// <summary>
+        /// Disable trading of a product
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        [HttpPut("disable-trading")]
+        [ProducesResponseType(typeof(ErrorCodeResponse<ProductsErrorCodesContract>), (int)HttpStatusCode.OK)]
+        public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeTradingDisabledStatusAsync([FromBody] ChangeProductTradingDisabledStatusRequest request)
+        {
+            var result = await _productsService.ChangeTradingDisabledAsync(request.ProductId, request.TradingDisabled, request.UserName);
+
+            var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
+
+            if (result.IsFailed)
+            {
+                response.ErrorCode =
+                    _convertService.Convert<ProductsErrorCodes, ProductsErrorCodesContract>(
+                        result.Error.GetValueOrDefault());
+            }
+
+            return response;
+        }
     }
 }

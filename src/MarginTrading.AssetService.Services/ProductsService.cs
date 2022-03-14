@@ -248,7 +248,8 @@ namespace MarginTrading.AssetService.Services
                 return new Result<ProductsErrorCodes>();
             }
 
-            _log.WriteInfo(nameof(ProductsService), nameof(DiscontinueBatchAsync), $"Trying to discontinue products: {string.Join(',', productIds)}");
+            _log.WriteInfo(nameof(ProductsService), nameof(DiscontinueBatchAsync),
+                $"Trying to discontinue products: {string.Join(',', productIds)}");
             var existing = (await _repository.GetAllAsync(null, productIds)).Value.ToHashSet();
             var updated = new HashSet<Product>();
 
@@ -257,7 +258,8 @@ namespace MarginTrading.AssetService.Services
                 var existingProduct = existing.FirstOrDefault(p => p.ProductId == productId);
                 if (existingProduct == null)
                 {
-                    _log.WriteError(nameof(ProductsService), nameof(DiscontinueBatchAsync), new Exception($"Product to discontinue is not found: {productId}"));
+                    _log.WriteError(nameof(ProductsService), nameof(DiscontinueBatchAsync),
+                        new Exception($"Product to discontinue is not found: {productId}"));
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
                 }
 
@@ -320,6 +322,36 @@ namespace MarginTrading.AssetService.Services
             }
 
             return new Result<ProductsErrorCodes>();
+        }
+
+        public async Task<Result<ProductsErrorCodes>> ChangeTradingDisabledAsync(string productId, bool tradingDisabled,
+            string username)
+        {
+            var existing = await _repository.GetByIdAsync(productId);
+            if (existing.IsFailed) return existing;
+
+            var oldProduct = existing.Value;
+
+            if (oldProduct.IsDiscontinued)
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotChangeDiscontinuedProduct);
+
+            var product = oldProduct.ShallowCopy();
+            product.TradingDisabled = tradingDisabled;
+
+            var result = await _repository.UpdateAsync(product);
+
+            if (result.IsSuccess)
+            {
+                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
+                                    _identityGenerator.GenerateId();
+                await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
+                    product.ToJson(), existing.Value.ToJson());
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                    oldProduct, product,
+                    username, correlationId);
+            }
+
+            return result;
         }
     }
 }

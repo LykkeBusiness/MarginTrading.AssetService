@@ -25,5 +25,7 @@ namespace MarginTrading.AssetService.Core.Services
         Task<Result<ProductsErrorCodes>> DiscontinueBatchAsync(string[] productIds, string username);
 
         Task<Result<ProductsErrorCodes>> ChangeUnderlyingMdsCodeAsync(string oldMdsCode, string newMdsCode, string username);
+
+        Task<Result<ProductsErrorCodes>> ChangeTradingDisabledAsync(string productId, bool tradingDisabled, string username);
     }
 }

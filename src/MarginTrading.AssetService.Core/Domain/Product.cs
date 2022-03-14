@@ -90,6 +90,8 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public decimal? Margin { get; set; }
 
+        public bool TradingDisabled { get; set; }
+
         public Product ShallowCopy()
         {
             return (Product) this.MemberwiseClone();

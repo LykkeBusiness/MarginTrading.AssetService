@@ -10,7 +10,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotCreateProductInNonLeafCategory,
         MarketSettingsDoNotExist,
         CurrencyDoesNotExist,
-        CanOnlyCreateOneProductPerUnderlying,
         TickFormulaDoesNotExist,
         AssetTypeDoesNotExist,
         CanOnlySetFreezeInfoForFrozenProduct,
@@ -19,5 +18,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotChangeStartDateFromPastToFuture,
         LongIsinNotUnique,
         ShortIsinNotUnique,
+        CannotChangeDiscontinuedProduct,
     }
 }

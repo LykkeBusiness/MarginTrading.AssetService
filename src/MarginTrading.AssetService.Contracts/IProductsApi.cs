@@ -88,5 +88,9 @@ namespace MarginTrading.AssetService.Contracts
         [Put("/api/products/batch/discontinue")]
         Task<ErrorCodeResponse<ProductsErrorCodesContract>> MarkMultipleAsDiscontinuedAsync(
             [Body] MarkProductsAsDiscontinuedRequest request);
+
+        [Put("/api/products/disable-trading")]
+        Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeTradingDisabledStatusAsync(
+            [Body] ChangeProductTradingDisabledStatusRequest request);
     }
 }

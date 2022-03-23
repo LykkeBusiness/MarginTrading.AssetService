@@ -422,7 +422,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 HedgeCost = product.HedgeCost,
                 EnforceMargin = product.EnforceMargin,
                 Margin = product.Margin,
-                TradingDisabled = product.TradingDisabled,
+                IsTradingDisabled = product.IsTradingDisabled,
             };
 
             return result;
@@ -473,7 +473,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 HedgeCost = product.HedgeCost,
                 EnforceMargin = product.EnforceMargin,
                 Margin = product.Margin,
-                TradingDisabled = product.TradingDisabled,
+                IsTradingDisabled = product.IsTradingDisabled,
             };
 
             return result;

@@ -6,6 +6,6 @@ namespace MarginTrading.AssetService.Contracts.Products
     public class ChangeProductTradingDisabledStatusRequest : UserRequest
     {
         [Required]
-        public bool TradingDisabled { get; set; }
+        public bool IsTradingDisabled { get; set; }
     }
 }

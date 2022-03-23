@@ -75,7 +75,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.IsSuspended).IsRequired();
             builder.Property(x => x.IsFrozen).IsRequired();
             builder.Property(x => x.IsDiscontinued).IsRequired();
-            builder.Property(x => x.TradingDisabled).IsRequired();
+            builder.Property(x => x.IsTradingDisabled).IsRequired();
 
             builder.Property(x => x.StartDate).IsRequired();
             builder.Property(x => x.IsStarted).IsRequired();

@@ -132,6 +132,6 @@ namespace MarginTrading.AssetService.Contracts.Products
         public decimal? Margin { get; set; }
 
         [MessagePack.Key(40)]
-        public bool TradingDisabled { get; set; }
+        public bool IsTradingDisabled { get; set; }
     }
 }

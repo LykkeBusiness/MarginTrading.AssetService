@@ -341,7 +341,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> ChangeTradingDisabledStatusAsync(string productId, 
             [FromBody] ChangeProductTradingDisabledStatusRequest request)
         {
-            var result = await _productsService.ChangeTradingDisabledAsync(productId, request.TradingDisabled, request.UserName);
+            var result = await _productsService.ChangeTradingDisabledAsync(productId, request.IsTradingDisabled, request.UserName);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 

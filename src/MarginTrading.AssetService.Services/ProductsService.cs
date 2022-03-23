@@ -336,7 +336,7 @@ namespace MarginTrading.AssetService.Services
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotChangeDiscontinuedProduct);
 
             var product = oldProduct.ShallowCopy();
-            product.TradingDisabled = tradingDisabled;
+            product.IsTradingDisabled = tradingDisabled;
 
             var result = await _repository.UpdateAsync(product);
 

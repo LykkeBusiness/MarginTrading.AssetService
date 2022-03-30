@@ -12,7 +12,8 @@ namespace MarginTrading.AssetService.Core.Domain
         public AssetPair(string id, string name, string baseAssetId, string quoteAssetId, int accuracy, string marketId,
             string legalEntity, string basePairId, MatchingEngineMode matchingEngineMode,
             decimal stpMultiplierMarkupBid, decimal stpMultiplierMarkupAsk,
-            bool isSuspended, bool isFrozen, bool isDiscontinued, FreezeInfo freezeInfo, string assetType)
+            bool isSuspended, bool isFrozen, bool isDiscontinued, FreezeInfo freezeInfo, string assetType,
+            bool isTradingDisabled)
         {
             Id = id;
             Name = name;
@@ -31,6 +32,7 @@ namespace MarginTrading.AssetService.Core.Domain
             IsDiscontinued = isDiscontinued;
             FreezeInfo = freezeInfo ?? new FreezeInfo();
             AssetType = assetType;
+            IsTradingDisabled = isTradingDisabled;
         }
 
         public string Id { get; }
@@ -55,6 +57,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public bool IsDiscontinued { get; }
         public FreezeInfo FreezeInfo { get; }
         public string AssetType { get; }
+        public bool IsTradingDisabled { get; }
 
         public static IAssetPair CreateFromProduct(Product product, string legalEntity)
         {
@@ -79,7 +82,8 @@ namespace MarginTrading.AssetService.Core.Domain
                     Reason = (FreezeReason)product.FreezeInfo.Reason,
                     UnfreezeDate = product.FreezeInfo.UnfreezeDate,
                 },
-                assetType:product.AssetType
+                assetType:product.AssetType,
+                isTradingDisabled: product.IsTradingDisabled
             );
         }
 
@@ -103,7 +107,8 @@ namespace MarginTrading.AssetService.Core.Domain
                 isFrozen: false,
                 isDiscontinued: false,
                 freezeInfo: new FreezeInfo(),
-                assetType: null
+                assetType: null,
+                isTradingDisabled: false
                 );
         }
     }

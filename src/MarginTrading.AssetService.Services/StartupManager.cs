@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Log;
+using Lykke.Common.Log;
 using Lykke.Cqrs;
 using Lykke.RabbitMqBroker;
 using MarginTrading.AssetService.Core.Caches;
@@ -43,25 +44,41 @@ namespace MarginTrading.AssetService.Services
 
         public async Task StartAsync()
         {
+            _log.Info(nameof(StartupManager), "Trying to start underlyings cache.");
             _underlyingsCache.Start();
+            _log.Info(nameof(StartupManager), "Started underlyings cache.");
+            _log.Info(nameof(StartupManager), "Trying to start legacy assets cache.");
             _legacyAssetsCache.Start();
-            _cqrsEngine.StartSubscribers();
-            _cqrsEngine.StartProcesses();
-            _cqrsEngine.StartPublishers();
+            _log.Info(nameof(StartupManager), "Started legacy assets cache.");
+            _log.Info(nameof(StartupManager), "Trying to start startables.");
             StartStartables();
+            _log.Info(nameof(StartupManager), "Started startables.");
+            _log.Info(nameof(StartupManager), "Trying to start cqrs engine subscribers.");
+            _cqrsEngine.StartSubscribers();
+            _log.Info(nameof(StartupManager), "Started cqrs engine subscribers.");
+            _log.Info(nameof(StartupManager), "Trying to start cqrs engine processes.");
+            _cqrsEngine.StartProcesses();
+            _log.Info(nameof(StartupManager), "Started cqrs engine subscribers.");
+            _log.Info(nameof(StartupManager), "Trying to start cqrs engine publishers.");
+            _cqrsEngine.StartPublishers();
+            _log.Info(nameof(StartupManager), "Started cqrs engine subscribers.");
 
             await Task.CompletedTask;
         }
 
         private void StartStartables()
         {
+            var counter = 1;
             foreach (var component in _starables)
             {
                 var cName = component.GetType().Name;
 
                 try
                 {
+                    _log.Info(nameof(StartupManager), $"Trying to start startable: #{counter}");
                     component.Start();
+                    _log.Info(nameof(StartupManager), $"Started startable: #{counter}");
+                    counter++;
                 }
                 catch (Exception e)
                 {

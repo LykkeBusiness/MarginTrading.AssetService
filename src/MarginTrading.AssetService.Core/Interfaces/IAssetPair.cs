@@ -24,5 +24,6 @@ namespace MarginTrading.AssetService.Core.Interfaces
         bool IsDiscontinued { get; }
         FreezeInfo FreezeInfo { get; }
         string AssetType { get; }
+        public bool IsTradingDisabled { get; }
     }
 }

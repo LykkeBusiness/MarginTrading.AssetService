@@ -4,14 +4,16 @@ using MarginTrading.AssetService.SqlRepositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace MarginTrading.AssetService.SqlRepositories.Migrations
 {
     [DbContext(typeof(AssetDbContext))]
-    partial class AssetDbContextModelSnapshot : ModelSnapshot
+    [Migration("20220311073927_TradingDisabled")]
+    partial class TradingDisabled
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -270,9 +272,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                     b.Property<bool>("IsSuspended")
                         .HasColumnType("bit");
 
-                    b.Property<bool>("IsTradingDisabled")
-                        .HasColumnType("bit");
-
                     b.Property<string>("IsinLong")
                         .IsRequired()
                         .HasColumnType("nvarchar(400)")
@@ -365,6 +364,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(100)")
                         .HasMaxLength(100);
+
+                    b.Property<bool>("TradingDisabled")
+                        .HasColumnType("bit");
 
                     b.Property<string>("UnderlyingMdsCode")
                         .IsRequired()

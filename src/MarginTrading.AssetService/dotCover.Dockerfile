@@ -3,6 +3,6 @@ WORKDIR /app
 COPY . .
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 #ENTRYPOINT ["dotnet", "MarginTrading.AssetService.dll"]
-RUN ls -la
-COPY entrypoint.sh entrypoint.sh
+RUN find "$PWD"
+COPY app/entrypoint.sh entrypoint.sh
 ENTRYPOINT ["entrypoint.sh"]

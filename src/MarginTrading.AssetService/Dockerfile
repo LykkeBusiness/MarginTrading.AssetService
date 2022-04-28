@@ -9,5 +9,5 @@ RUN wget https://download.jetbrains.com/resharper/dotUltimate.2022.1/JetBrains.d
     tar xvf JetBrains.dotCover.CommandLineTools.linux-x64.2022.1.tar.gz 
 #ENTRYPOINT ["dotnet", "MarginTrading.AssetService.dll"]
 #RUN ls -la src
-RUN ls -la ../
+RUN ls -la 
 ENTRYPOINT ["entrypoint.sh"]

@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using Lykke.Common.MsSql;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.SqlRepositories
 {
@@ -19,6 +20,11 @@ namespace MarginTrading.AssetService.SqlRepositories
         internal DbSet<ProductCategoryEntity> ProductCategories { get; set; }
         public DbSet<CurrencyEntity> Currencies { get; set; }
         internal DbSet<TickFormulaEntity> TickFormulas { get; set; }
+        
+#if DEBUG
+        private static readonly ILoggerFactory LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
+            builder => builder.AddConsole());  
+#endif
 
         // Used for EF migrations
         [UsedImplicitly]
@@ -41,6 +47,17 @@ namespace MarginTrading.AssetService.SqlRepositories
         protected override void OnLykkeModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(AssetDbContext).Assembly);
+        }
+
+        protected override void OnLykkeConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnLykkeConfiguring(optionsBuilder);
+#if DEBUG
+            optionsBuilder
+                .UseLoggerFactory(LoggerFactory)
+                .EnableDetailedErrors()
+                .EnableSensitiveDataLogging();
+#endif
         }
     }
 }

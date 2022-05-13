@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -59,6 +60,7 @@ namespace MarginTrading.AssetService
 
         public Startup(IHostEnvironment env)
         {
+            env.ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddSerilogJson(env)

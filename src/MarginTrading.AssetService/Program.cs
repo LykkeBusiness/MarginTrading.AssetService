@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
 using MarginTrading.AssetService.Services;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.PlatformAbstractions;
 
@@ -36,17 +35,11 @@ namespace MarginTrading.AssetService
             {
                 try
                 {
-                    var configuration = new ConfigurationBuilder()
-                        .AddJsonFile("appsettings.json", optional: true)
-                        .AddUserSecrets<Startup>()
-                        .AddEnvironmentVariables()
-                        .Build();
-
                     AppHost = Host.CreateDefaultBuilder()
                         .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                         .ConfigureWebHostDefaults(webBuilder =>
                         {
-                            webBuilder.ConfigureKestrel(serverOptions =>
+                            webBuilder.ConfigureKestrel(_ =>
                                 {
                                     // Set properties and call methods on options
                                 })

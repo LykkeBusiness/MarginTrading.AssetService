@@ -11,6 +11,8 @@ using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
+using Lykke.Common.Api.Contract.Responses;
+using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
 using Lykke.Logs;
 using Lykke.Logs.MsSql;
@@ -151,7 +153,14 @@ namespace MarginTrading.AssetService
                     app.UseHsts();
                 }
 
+#if DEBUG
+                app.UseLykkeMiddleware(ServiceName, ex => ex.ToString(), useStandardLogger: true);
+#else
+                app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message}, useStandardLogger: true);
+#endif
+
                 app.AddRefitExceptionHandler();
+
                 app.UseRouting();
                 app.UseSentryTracing();
                 app.UseAuthentication();

@@ -29,6 +29,10 @@ namespace MarginTrading.AssetService.Tests.Common
             hostBuilder = hostBuilder.ConfigureWebHost(webHost =>
                 {
                     webHost.UseTestServer();
+                    webHost.ConfigureLogging(logBuilder =>
+                    {
+                        logBuilder.AddProvider(NullLoggerProvider.Instance);
+                    });
                     webHost.UseStartup<TestsStartup>();
                     webHost.ConfigureServices(x =>
                     {

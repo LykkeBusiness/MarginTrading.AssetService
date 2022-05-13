@@ -154,9 +154,9 @@ namespace MarginTrading.AssetService
                 }
 
 #if DEBUG
-                app.UseLykkeMiddleware(ServiceName, ex => ex.ToString(), useStandardLogger: true);
+                app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
 #else
-                app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message}, useStandardLogger: true);
+                app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
 
                 app.AddRefitExceptionHandler();

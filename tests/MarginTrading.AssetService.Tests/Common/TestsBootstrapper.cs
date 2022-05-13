@@ -33,12 +33,6 @@ namespace MarginTrading.AssetService.Tests.Common
                         var assembly = typeof(ClientProfilesController).Assembly;
                         x.AddControllers().PartManager.ApplicationParts.Add(new AssemblyPart(assembly));
                     });
-                    webHost.UseSentry(o =>
-                    {
-                        o.Dsn = "https://7ec2d3a753d645d3858a6d2640030196@o1091203.ingest.sentry.io/6107924";
-                        o.Debug = true;
-                        o.TracesSampleRate = 1.0;
-                    });
                 });
 
             var host = await hostBuilder.StartAsync();

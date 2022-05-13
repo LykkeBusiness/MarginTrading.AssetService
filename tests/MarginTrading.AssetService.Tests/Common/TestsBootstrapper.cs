@@ -29,15 +29,12 @@ namespace MarginTrading.AssetService.Tests.Common
             hostBuilder = hostBuilder.ConfigureWebHost(webHost =>
                 {
                     webHost.UseTestServer();
-                    webHost.ConfigureLogging(logBuilder =>
-                    {
-                        logBuilder.AddProvider(NullLoggerProvider.Instance);
-                    });
                     webHost.UseStartup<TestsStartup>();
                     webHost.ConfigureServices(x =>
                     {
                         var assembly = typeof(ClientProfilesController).Assembly;
                         x.AddControllers().PartManager.ApplicationParts.Add(new AssemblyPart(assembly));
+                        x.AddSingleton<ILogger, NullLogger>();
                     });
                     webHost.UseSentry(o =>
                     {

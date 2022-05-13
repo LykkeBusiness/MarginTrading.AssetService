@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
@@ -28,11 +27,6 @@ namespace MarginTrading.AssetService.Tests.Common
             hostBuilder = hostBuilder.ConfigureWebHost(webHost =>
                 {
                     webHost.UseTestServer();
-                    webHost.ConfigureLogging(logBuilder =>
-                    {
-                        logBuilder.ClearProviders();
-                        logBuilder.AddConsole();
-                    });
                     webHost.UseStartup<TestsStartup>();
                     webHost.ConfigureServices(x =>
                     {

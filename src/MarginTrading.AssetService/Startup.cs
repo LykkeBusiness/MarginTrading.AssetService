@@ -4,12 +4,15 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.AzureQueueIntegration;
+using Lykke.Common.Api.Contract.Responses;
+using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
 using Lykke.Logs;
 using Lykke.Logs.MsSql;
@@ -57,6 +60,7 @@ namespace MarginTrading.AssetService
 
         public Startup(IHostEnvironment env)
         {
+            env.ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             Configuration = new ConfigurationBuilder()
                 .SetBasePath(env.ContentRootPath)
                 .AddSerilogJson(env)
@@ -149,9 +153,15 @@ namespace MarginTrading.AssetService
                     app.UseHsts();
                 }
 
+#if DEBUG
+                app.UseLykkeMiddleware(ServiceName, ex => ex.ToString());
+#else
+                app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
+#endif
+
                 app.AddRefitExceptionHandler();
+
                 app.UseRouting();
-                app.UseSentryTracing();
                 app.UseAuthentication();
                 app.UseAuthorization();
                 app.UseEndpoints(endpoints =>

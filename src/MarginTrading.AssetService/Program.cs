@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.PlatformAbstractions;
+using Serilog;
 
 namespace MarginTrading.AssetService
 {
@@ -21,8 +22,18 @@ namespace MarginTrading.AssetService
 
         public static async Task Main(string[] args)
         {
-            Console.WriteLine($"{PlatformServices.Default.Application.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
+            using var log = new LoggerConfiguration()
+                .WriteTo.Console()
+                .WriteTo.File("logs/MTCore/AssetService.log",
+                    outputTemplate:
+                    "[{Timestamp:u}] [{Level:u3}] [{Component}:{Process}:{Context}] [{CorrelationId}] - {info} {Message:lj} {NewLine}{Exception}",
+                    rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+            Log.Logger = log;
             
+            Console.WriteLine($"{PlatformServices.Default.Application.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
+            log.Information($"{PlatformServices.Default.Application.ApplicationName} version {PlatformServices.Default.Application.ApplicationVersion}");
+
             var restartAttemptsLeft = int.TryParse(Environment.GetEnvironmentVariable("RESTART_ATTEMPTS_NUMBER"),
                 out var restartAttemptsFromEnv) 
                 ? restartAttemptsFromEnv
@@ -66,6 +77,7 @@ namespace MarginTrading.AssetService
                 catch (Exception e)
                 {
                     Console.WriteLine($"Error: {e.Message}{Environment.NewLine}{e.StackTrace}{Environment.NewLine}Restarting...");
+                    log.Error(e, $"Attempts left: {restartAttemptsLeft}");
                     LogLocator.CommonLog?.WriteFatalErrorAsync(
                         "MT AssetService", "Restart host", $"Attempts left: {restartAttemptsLeft}", e);
                     restartAttemptsLeft--;

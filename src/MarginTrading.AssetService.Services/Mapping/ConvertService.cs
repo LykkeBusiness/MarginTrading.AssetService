@@ -87,8 +87,10 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<AddProductRequest, Product>()
                     //For new products, the default value for the IsSuspended flag should be true.
                     //see https://lykke-snow.atlassian.net/browse/LT-2875
-                    .ForMember(p=> p.IsSuspended, o=>o.UseValue(true)); 
-                cfg.CreateMap<UpdateProductRequest, Product>();
+                    .ForMember(p => p.IsSuspended, o => o.UseValue(true))
+                    .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
+                cfg.CreateMap<UpdateProductRequest, Product>()
+                    .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
                 cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
                 cfg.CreateMap<ITradingInstrument, TradingInstrumentContract>()
                     .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))

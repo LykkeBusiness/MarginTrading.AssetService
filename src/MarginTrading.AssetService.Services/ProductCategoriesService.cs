@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
+using Lykke.Snow.Audit;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -23,15 +23,13 @@ namespace MarginTrading.AssetService.Services
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
-        private readonly IIdentityGenerator _identityGenerator;
 
         public ProductCategoriesService(IProductCategoriesRepository productCategoriesRepository,
             IProductCategoryStringService productCategoryStringService,
             IAuditService auditService,
             ICqrsMessageSender cqrsMessageSender,
             IConvertService convertService,
-            CorrelationContextAccessor correlationContextAccessor,
-            IIdentityGenerator identityGenerator)
+            CorrelationContextAccessor correlationContextAccessor)
         {
             _productCategoriesRepository = productCategoriesRepository;
             _productCategoryStringService = productCategoryStringService;
@@ -39,7 +37,6 @@ namespace MarginTrading.AssetService.Services
             _cqrsMessageSender = cqrsMessageSender;
             _convertService = convertService;
             _correlationContextAccessor = correlationContextAccessor;
-            _identityGenerator = identityGenerator;
         }
 
         public async Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category, string username)
@@ -76,13 +73,10 @@ namespace MarginTrading.AssetService.Services
                 var result = await _productCategoriesRepository.InsertAsync(productCategory);
                 if (result.IsSuccess)
                 {
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, productCategory.Id,
-                        AuditDataType.ProductCategory,
-                        productCategory.ToJson());
-                    await PublishProductCategoryChangedEvent(null, productCategory, username, correlationId,
-                        ChangeType.Creation, categoryName.GetOriginalNodeName(productCategory.Id));
+                    await _auditService.CreateAuditRecord(AuditEventType.Creation, username, productCategory);
+
+                    await PublishProductCategoryChangedEvent(null, productCategory, username, ChangeType.Creation,
+                        categoryName.GetOriginalNodeName(productCategory.Id));
                 }
             }
 
@@ -113,12 +107,9 @@ namespace MarginTrading.AssetService.Services
                 var deleteResult = await _productCategoriesRepository.DeleteAsync(id, category.Value.Timestamp);
                 if (deleteResult.IsSuccess)
                 {
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, id, AuditDataType.ProductCategory,
-                        oldStateJson: category.Value.ToJson());
-                    await PublishProductCategoryChangedEvent(category.Value, null, username, correlationId,
-                        ChangeType.Deletion);
+                    await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, category.Value);
+                    
+                    await PublishProductCategoryChangedEvent(category.Value, null, username, ChangeType.Deletion);
                 }
             }
 
@@ -175,13 +166,13 @@ namespace MarginTrading.AssetService.Services
         }
 
         private async Task PublishProductCategoryChangedEvent(ProductCategory oldCategory, ProductCategory newCategory,
-            string username, string correlationId, ChangeType changeType, string originalCategoryName = null)
+            string username, ChangeType changeType, string originalCategoryName = null)
         {
             await _cqrsMessageSender.SendEvent(new ProductCategoryChangedEvent()
             {
                 Username = username,
                 ChangeType = changeType,
-                CorrelationId = correlationId,
+                CorrelationId = _correlationContextAccessor.GetOrGenerateCorrelationId(),
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
                 OldValue = _convertService.Convert<ProductCategory, ProductCategoryContract>(oldCategory),

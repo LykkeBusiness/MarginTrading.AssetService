@@ -1,15 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
+using Lykke.Snow.Audit;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-
 
 namespace MarginTrading.AssetService.Workflow.Products
 {
@@ -48,8 +47,7 @@ namespace MarginTrading.AssetService.Workflow.Products
 
                 if (result.IsSuccess)
                 {
-                    await _auditService.TryAudit(command.OperationId, username, product.ProductId, AuditDataType.Product,
-                        product.ToJson(), existing.Value.ToJson());
+                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
                     
                     publisher.PublishEvent(new ProductChangedEvent()
                     {

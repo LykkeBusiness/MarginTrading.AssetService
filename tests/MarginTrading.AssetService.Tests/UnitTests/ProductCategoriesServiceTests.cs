@@ -134,8 +134,7 @@ namespace MarginTrading.AssetService.Tests.UnitTests
                 _auditServiceMock.Object,
                 _cqrsMessageSenderMock.Object,
                 _convertServiceMock.Object,
-                _correlationContextAccessor.Object,
-                _identityGenerator.Object);
+                _correlationContextAccessor.Object);
         }
     }
 }

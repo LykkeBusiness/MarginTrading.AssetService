@@ -1,10 +1,11 @@
 ﻿using System;
+using Lykke.Snow.Audit;
+using Lykke.Snow.Audit.Abstractions;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.SqlRepositories.Entities
 {
-    public class AuditEntity : IAuditModel
+    public class AuditEntity : IAuditModel<AuditDataType>
     {
         public int Id { get; set; }
 
@@ -22,7 +23,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
 
         public string DataDiff { get; set; }
 
-        public static AuditEntity Create(IAuditModel model)
+        public static AuditEntity Create(IAuditModel<AuditDataType> model)
         {
             return new AuditEntity
             {

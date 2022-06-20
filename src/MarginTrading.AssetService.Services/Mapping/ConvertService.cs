@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using AutoMapper;
 using JetBrains.Annotations;
+using Lykke.Snow.Audit;
+using Lykke.Snow.Audit.Abstractions;
 using Lykke.Snow.Common.WorkingDays;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
@@ -28,6 +30,7 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
 using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
+using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
 
 namespace MarginTrading.AssetService.Services.Mapping
 {
@@ -79,8 +82,8 @@ namespace MarginTrading.AssetService.Services.Mapping
                     .ForMember(x => x.Id, opt => opt.Ignore());
                 
                 //Audit
-                cfg.CreateMap<IAuditModel, AuditContract>();
-                cfg.CreateMap<GetAuditLogsRequest, AuditLogsFilterDto>();
+                cfg.CreateMap<IAuditModel<AuditDataType>, AuditContract>();
+                cfg.CreateMap<GetAuditLogsRequest, AuditTrailFilter<AuditDataType>>();
                 
                 //Products
                 cfg.CreateMap<Product, ProductContract>().ReverseMap();
@@ -124,7 +127,10 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<ITickFormula, TickFormulaContract>().ReverseMap();
                 cfg.CreateMap<TickFormula, TickFormulaContract>().ReverseMap();
                 cfg.CreateMap<AddTickFormulaRequest, ITickFormula>();
+                cfg.CreateMap<AddTickFormulaRequest, TickFormula>();
                 cfg.CreateMap<UpdateTickFormulaRequest, ITickFormula>()
+                    .ForMember(x => x.Id, opt => opt.Ignore());
+                cfg.CreateMap<UpdateTickFormulaRequest, TickFormula>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
 
                 //Underlying

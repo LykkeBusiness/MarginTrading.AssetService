@@ -2,16 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
-using Lykke.Snow.Common.Correlation;
+using Lykke.Snow.Audit;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Validations.Products;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -22,25 +20,19 @@ namespace MarginTrading.AssetService.Services
         private readonly IAuditService _auditService;
         private readonly ILog _log;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
-        private readonly CorrelationContextAccessor _correlationContextAccessor;
-        private readonly IIdentityGenerator _identityGenerator;
 
         public ProductsService(
             ProductAddOrUpdateValidationAndEnrichment addOrUpdateValidationAndEnrichment,
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
             IAuditService auditService,
-            ILog log,
-            CorrelationContextAccessor correlationContextAccessor,
-            IIdentityGenerator identityGenerator)
+            ILog log)
         {
             _addOrUpdateValidationAndEnrichment = addOrUpdateValidationAndEnrichment;
             _repository = repository;
             _auditService = auditService;
             _log = log;
             _entityChangedSender = entityChangedSender;
-            _correlationContextAccessor = correlationContextAccessor;
-            _identityGenerator = identityGenerator;
         }
 
 
@@ -56,13 +48,9 @@ namespace MarginTrading.AssetService.Services
 
             if (result.IsSuccess)
             {
-                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                    _identityGenerator.GenerateId();
-                await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                    product.ToJson());
-                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(
-                    product,
-                    username, correlationId);
+                await _auditService.CreateAuditRecord(AuditEventType.Creation, username, product);
+                
+                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product, username);
             }
 
             return result;
@@ -84,13 +72,9 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                        product.ToJson(), existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existing.Value, product,
-                        username, correlationId);
+                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
+                    
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product, username);
                 }
 
                 return result;
@@ -112,13 +96,9 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, productId, AuditDataType.Product,
-                        oldStateJson: existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existing.Value,
-                        username, correlationId);
+                    await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing.Value);
+                    
+                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, username);
                 }
 
                 return result;
@@ -153,12 +133,9 @@ namespace MarginTrading.AssetService.Services
 
             if (result.IsSuccess)
             {
-                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                    _identityGenerator.GenerateId();
-                await _auditService.TryAudit(correlationId, userName, productId, AuditDataType.Product,
-                    result.Value.ToJson(), existing.Value.ToJson());
-                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                    existing.Value, result.Value, userName, correlationId);
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, userName, result.Value, existing.Value);
+                
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, result.Value, userName);
             }
 
             return result;
@@ -197,13 +174,9 @@ namespace MarginTrading.AssetService.Services
                 {
                     var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
 
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                        product.ToJson(), existingProduct.ToJson());
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                        existingProduct, product,
-                        username, correlationId);
+                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existingProduct);
+                    
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existingProduct, product, username);
                 }
             }
 
@@ -226,13 +199,9 @@ namespace MarginTrading.AssetService.Services
             {
                 foreach (var product in existing.Value)
                 {
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                        oldStateJson: existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(
-                        product,
-                        username, correlationId);
+                    await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, product);
+                    
+                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(product, username);
                 }
             }
 
@@ -281,13 +250,9 @@ namespace MarginTrading.AssetService.Services
             {
                 var existingProduct = existing.FirstOrDefault(p => p.ProductId == updatedProduct.ProductId);
 
-                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                    _identityGenerator.GenerateId();
-                await _auditService.TryAudit(correlationId, username, updatedProduct.ProductId, AuditDataType.Product,
-                    updatedProduct.ToJson(), existingProduct.ToJson());
-                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                    existingProduct, updatedProduct,
-                    username, correlationId);
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, updatedProduct, existingProduct);
+                
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existingProduct, updatedProduct, username);
             }
 
             return result;
@@ -311,13 +276,9 @@ namespace MarginTrading.AssetService.Services
 
                 if (result.IsSuccess)
                 {
-                    var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                        _identityGenerator.GenerateId();
-                    await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                        product.ToJson(), existing.Value.ToJson());
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                        oldProduct, product,
-                        username, correlationId);
+                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, oldProduct);
+                    
+                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
                 }
             }
 
@@ -342,13 +303,9 @@ namespace MarginTrading.AssetService.Services
 
             if (result.IsSuccess)
             {
-                var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                    _identityGenerator.GenerateId();
-                await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                    product.ToJson(), existing.Value.ToJson());
-                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
-                    oldProduct, product,
-                    username, correlationId);
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, oldProduct);
+                
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
             }
 
             return result;

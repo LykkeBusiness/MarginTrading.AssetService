@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
 using JetBrains.Annotations;
-using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -15,7 +13,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
+using AuditEventType = Lykke.Snow.Audit.AuditEventType;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -30,8 +28,6 @@ namespace MarginTrading.AssetService.Services
         private readonly IRegulatorySettingsApi _regulatorySettingsApi;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
         private readonly IUnderlyingCategoriesCache _underlyingCategoriesCache;
-        private readonly CorrelationContextAccessor _correlationContextAccessor;
-        private readonly IIdentityGenerator _identityGenerator;
         private readonly string _brokerId;
 
         public AssetTypesService(
@@ -44,8 +40,6 @@ namespace MarginTrading.AssetService.Services
             IRegulatorySettingsApi regulatorySettingsApi,
             ICqrsEntityChangedSender entityChangedSender,
             IUnderlyingCategoriesCache underlyingCategoriesCache,
-            CorrelationContextAccessor correlationContextAccessor,
-            IIdentityGenerator identityGenerator,
             string brokerId)
         {
             _assetTypesRepository = assetTypesRepository;
@@ -57,8 +51,6 @@ namespace MarginTrading.AssetService.Services
             _regulatorySettingsApi = regulatorySettingsApi;
             _entityChangedSender = entityChangedSender;
             _underlyingCategoriesCache = underlyingCategoriesCache;
-            _correlationContextAccessor = correlationContextAccessor;
-            _identityGenerator = identityGenerator;
             _brokerId = brokerId;
         }
 
@@ -123,18 +115,14 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.InsertAsync(model, clientProfileSettings);
 
-            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                _identityGenerator.GenerateId();
-            await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
-                model.ToJson());
+            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, model);
 
-            await _entityChangedSender.SendEntityCreatedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(model,
-                username, correlationId);
+            await _entityChangedSender.SendEntityCreatedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(model, username);
+            
             foreach (var profileSettings in clientProfileSettings)
             {
                 await _entityChangedSender
-                    .SendEntityCreatedEvent<ClientProfileSettings, ClientProfileSettingsContract,
-                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
+                    .SendEntityCreatedEvent<ClientProfileSettings, ClientProfileSettingsContract, ClientProfileSettingsChangedEvent>(profileSettings, username);
             }
         }
 
@@ -169,13 +157,9 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.UpdateAsync(model);
 
-            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                _identityGenerator.GenerateId();
-            await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.AssetType,
-                model.ToJson(), existing.ToJson());
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, model, existing);
 
-            await _entityChangedSender.SendEntityEditedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(
-                existing, model, username, correlationId);
+            await _entityChangedSender.SendEntityEditedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(existing, model, username);
         }
 
         public async Task DeleteAsync(string id, string username)
@@ -193,18 +177,13 @@ namespace MarginTrading.AssetService.Services
 
             await _assetTypesRepository.DeleteAsync(id);
 
-            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                _identityGenerator.GenerateId();
-            await _auditService.TryAudit(correlationId, username, id, AuditDataType.AssetType,
-                oldStateJson: existing.ToJson());
+            await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing);
 
-            await _entityChangedSender.SendEntityDeletedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(
-                existing, username, correlationId);
+            await _entityChangedSender.SendEntityDeletedEvent<AssetType, AssetTypeContract, AssetTypeChangedEvent>(existing, username);
+            
             foreach (var profileSettings in clientProfileSettings)
             {
-                await _entityChangedSender
-                    .SendEntityDeletedEvent<ClientProfileSettings, ClientProfileSettingsContract,
-                        ClientProfileSettingsChangedEvent>(profileSettings, username, correlationId);
+                await _entityChangedSender.SendEntityDeletedEvent<ClientProfileSettings, ClientProfileSettingsContract, ClientProfileSettingsChangedEvent>(profileSettings, username);
             }
         }
 

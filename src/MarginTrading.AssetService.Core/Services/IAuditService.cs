@@ -1,14 +1,17 @@
 ﻿using System.Threading.Tasks;
+using Lykke.Snow.Audit;
+using Lykke.Snow.Audit.Abstractions;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.Core.Services
 {
     public interface IAuditService
     {
-        Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take);
+        Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int? skip, int? take);
 
-        Task<bool> TryAudit(string correlationId, string userName, string referenceId,
-            AuditDataType type, string newStateJson = null, string oldStateJson = null);
+        Task CreateAuditRecord(AuditEventType eventType,
+            string userName,
+            IAuditableObject<AuditDataType> current,
+            IAuditableObject<AuditDataType> original = null);
     }
 }

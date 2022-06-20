@@ -260,9 +260,7 @@ namespace MarginTrading.AssetService.Tests
             return new TickFormulaService(
                 _tickFormulaRepoMock.Object,
                 _auditServiceMock.Object,
-                _cqrsSenderMock.Object,
-                _correlationContextAccessor.Object,
-                _identityGenerator.Object);
+                _cqrsSenderMock.Object);
         }
     }
 }

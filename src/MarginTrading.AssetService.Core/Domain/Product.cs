@@ -1,10 +1,12 @@
-using System;
+using System.Collections.Generic;
+using Lykke.Snow.Audit.Abstractions;
+using Lykke.Snow.Common.Converters;
 using Lykke.Snow.Common.Types;
-using MarginTrading.AssetService.Core.Extensions;
+using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
-    public class Product
+    public class Product : IAuditableObject<AuditDataType>
     {
         // primary id
         public string ProductId { get; set; }
@@ -96,5 +98,17 @@ namespace MarginTrading.AssetService.Core.Domain
         {
             return (Product) this.MemberwiseClone();
         }
+
+        public AuditDataType GetAuditDataType() => AuditDataType.Product;
+
+        public string GetAuditReference() => ProductId;
+
+        public string ToAuditJson() =>
+            JsonConvert.SerializeObject(this,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Include,
+                    Converters = new List<JsonConverter> { new DateOnlyAuditConverter() }
+                });
     }
 }

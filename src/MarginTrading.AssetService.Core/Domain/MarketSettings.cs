@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Lykke.Snow.Audit.Abstractions;
 using Lykke.Snow.Common.WorkingDays;
 using MarginTrading.AssetService.Core.Constants;
+using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
-    public class MarketSettings
+    public class MarketSettings : IAuditableObject<AuditDataType>
     {
         public string Id { get; set; }
 
@@ -40,5 +42,17 @@ namespace MarginTrading.AssetService.Core.Domain
                     new MarketSchedule(open, close, timeZone, model.HalfWorkingDays)
             };
         }
+
+        public AuditDataType GetAuditDataType() => AuditDataType.MarketSettings;
+
+        public string GetAuditReference() => Id;
+
+        public string ToAuditJson() =>
+            JsonConvert.SerializeObject(this,
+                new JsonSerializerSettings
+                {
+                    NullValueHandling = NullValueHandling.Include,
+                    Converters = new List<JsonConverter> { new WorkingDayConverter() }
+                });
     }
 }

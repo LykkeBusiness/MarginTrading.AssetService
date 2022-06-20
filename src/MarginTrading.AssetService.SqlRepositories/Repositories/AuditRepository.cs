@@ -1,8 +1,9 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
+using Lykke.Snow.Audit;
+using Lykke.Snow.Audit.Abstractions;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +19,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             _contextFactory = contextFactory;
         }
 
-        public async Task InsertAsync(IAuditModel model)
+        public async Task InsertAsync(IAuditModel<AuditDataType> model)
         {
             var entity = AuditEntity.Create(model);
 
@@ -30,7 +31,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
+        public async Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int? skip, int? take)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -66,7 +67,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                 var contents = await query.ToListAsync();
 
-                var result = new PaginatedResponse<IAuditModel>(
+                var result = new PaginatedResponse<IAuditModel<AuditDataType>>(
                     contents: contents,
                     start: skip ?? 0,
                     size: contents.Count,

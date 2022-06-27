@@ -7,6 +7,7 @@ using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Extensions;
 using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
 namespace MarginTrading.AssetService.Services
@@ -73,7 +74,7 @@ namespace MarginTrading.AssetService.Services
             if (updateResult.IsFailed)
                 return updateResult;
 
-            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, model, (TickFormula)currentSettings);
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, model, currentSettings.ToDomainModel());
             
             await _entityChangedSender.SendEntityEditedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(currentSettings, model, username);
 
@@ -94,7 +95,7 @@ namespace MarginTrading.AssetService.Services
             var result = await _tickFormulaRepository.DeleteAsync(id);
             if (result.IsSuccess)
             {
-                await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, (TickFormula)existing);
+                await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing.ToDomainModel());
                 
                 await _entityChangedSender.SendEntityDeletedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(existing, username);
             }

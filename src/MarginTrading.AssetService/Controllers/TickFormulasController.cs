@@ -80,7 +80,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<TickFormulaErrorCodesContract>> AddAsync(
             [FromBody] AddTickFormulaRequest request)
         {
-            var model = _convertService.Convert<AddTickFormulaRequest, ITickFormula>(request);
+            var model = _convertService.Convert<AddTickFormulaRequest, TickFormula>(request);
 
             var result = await _tickFormulaService.AddAsync(model, request.Username);
 
@@ -107,7 +107,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<TickFormulaErrorCodesContract>> UpdateAsync(
             [FromBody] UpdateTickFormulaRequest request, [Required] string id)
         {
-            var model = _convertService.Convert<UpdateTickFormulaRequest, ITickFormula>(request);
+            var model = _convertService.Convert<UpdateTickFormulaRequest, TickFormula>(request);
             model.Id = id;
 
             var result = await _tickFormulaService.UpdateAsync(model, request.Username);

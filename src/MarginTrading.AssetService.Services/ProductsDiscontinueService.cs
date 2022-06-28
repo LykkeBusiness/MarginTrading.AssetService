@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using Common;
+using Lykke.Snow.Audit;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -34,8 +34,7 @@ namespace MarginTrading.AssetService.Services
             {
                 var product = result.Value;
 
-                await _auditService.TryAudit(correlationId, username, product.ProductId, AuditDataType.Product,
-                    product.ToJson(), existing.Value.ToJson());
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
 
                 return (existing.Value, result.Value, true);
             }

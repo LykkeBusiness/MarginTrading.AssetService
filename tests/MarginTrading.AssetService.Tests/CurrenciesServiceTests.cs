@@ -81,8 +81,7 @@ namespace MarginTrading.AssetService.Tests
             }
 
             var repository = new CurrenciesRepository(_contextFactory);
-            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService,
-                _correlationContextAccessor, _identityGenerator);
+            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService, _correlationContextAccessor);
 
             // Act
             const string userName = "admin";
@@ -114,7 +113,7 @@ namespace MarginTrading.AssetService.Tests
             }
 
             var repository = new CurrenciesRepository(_contextFactory);
-            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService, _correlationContextAccessor, _identityGenerator);
+            var service = new CurrenciesService(repository, _auditService, _cqrsMessageSender, _convertService, _correlationContextAccessor);
 
             // Act
             const string userName = "admin";

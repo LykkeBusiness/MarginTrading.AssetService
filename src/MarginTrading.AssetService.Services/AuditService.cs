@@ -1,96 +1,64 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Log;
-using JsonDiffPatchDotNet;
+using Common;
+using Lykke.Snow.Audit;
+using Lykke.Snow.Audit.Abstractions;
+using Lykke.Snow.Common.Correlation;
 using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
     public class AuditService : IAuditService
     {
         private readonly IAuditRepository _auditRepository;
-        private readonly ILog _log;
+        private readonly CorrelationContextAccessor _correlationContextAccessor;
+        private readonly ILogger<AuditService> _logger;
 
-        public AuditService(IAuditRepository auditRepository, ILog log)
+        public AuditService(IAuditRepository auditRepository, CorrelationContextAccessor correlationContextAccessor, ILogger<AuditService> logger)
         {
             _auditRepository = auditRepository;
-            _log = log;
+            _correlationContextAccessor = correlationContextAccessor;
+            _logger = logger;
         }
 
-        public Task<PaginatedResponse<IAuditModel>> GetAll(AuditLogsFilterDto filter, int? skip, int? take)
+        public Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int? skip, int? take)
         {
             (skip, take) = ValidateSkipAndTake(skip, take);
 
             return _auditRepository.GetAll(filter, skip, take);
         }
 
-        public async Task<bool> TryAudit(
-            string correlationId,
+        public async Task CreateAuditRecord(AuditEventType eventType,
             string userName,
-            string referenceId,
-            AuditDataType type,
-            string newStateJson = null,
-            string oldStateJson = null)
+            IAuditableObject<AuditDataType> current,
+            IAuditableObject<AuditDataType> original = null)
         {
-            if (string.IsNullOrEmpty(newStateJson) && string.IsNullOrEmpty(oldStateJson))
+            if (string.IsNullOrEmpty(userName))
             {
-                _log?.WriteWarningAsync(nameof(AuditService), nameof(TryAudit),
-                    $"Unable to generate audit event based on both {nameof(newStateJson)} and {nameof(oldStateJson)} state as null.");
-                return false;
+                throw new ArgumentNullException(nameof(userName));
             }
 
-            var auditModel = BuildAuditModel(correlationId, userName, DateTime.UtcNow, referenceId, type, newStateJson, oldStateJson);
+            var correlationId = _correlationContextAccessor.GetOrGenerateCorrelationId();
 
-            if (auditModel == null)
-                return false;
+            var model = current.GetAuditModel(original, eventType, () => (correlationId, userName));
 
-            await _auditRepository.InsertAsync(auditModel);
-
-            return true;
-        }
-
-        private static IAuditModel BuildAuditModel(
-            string correlationId,
-            string userName,
-            DateTime timestamp,
-            string referenceId,
-            AuditDataType dataType,
-            string newStateJson,
-            string oldStateJson)
-        {
-            var eventType = AuditEventType.Edition;
-
-            if (string.IsNullOrEmpty(oldStateJson))
+            if (model == null)
             {
-                eventType = AuditEventType.Creation;
-                oldStateJson = "{}";
+                if (_logger.IsEnabled(LogLevel.Debug))
+                {
+                    _logger.LogDebug($"Audit model is null for eventType [{eventType}], object [{current?.ToJson()}, original [{original?.ToJson()}]");
+                }
+                else
+                {
+                    _logger.LogWarning("Audit model is null");   
+                }
+                return;
             }
 
-            if (string.IsNullOrEmpty(newStateJson))
-            {
-                eventType = AuditEventType.Deletion;
-                newStateJson = "{}";
-            }
-
-            var jdp = new JsonDiffPatch();
-            var diffResult = jdp.Diff(oldStateJson, newStateJson);
-
-            if (string.IsNullOrEmpty(diffResult))
-                return null;
-
-            return new AuditModel
-            {
-                Timestamp = timestamp,
-                CorrelationId = correlationId,
-                UserName = userName,
-                Type = eventType,
-                DataType = dataType,
-                DataReference = referenceId,
-                DataDiff = diffResult
-            };
+            await _auditRepository.InsertAsync(model);
         }
 
         private static (int? skip, int? take) ValidateSkipAndTake(int? skip, int? take)

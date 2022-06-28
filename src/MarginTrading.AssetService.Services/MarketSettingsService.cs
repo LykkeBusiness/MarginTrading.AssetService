@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common;
+using Lykke.Snow.Audit;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Exceptions;
 using Lykke.Snow.Common.Model;
@@ -25,22 +25,19 @@ namespace MarginTrading.AssetService.Services
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
-        private readonly IIdentityGenerator _identityGenerator;
 
         public MarketSettingsService(
             IMarketSettingsRepository marketSettingsRepository,
             IAuditService auditService,
             ICqrsMessageSender cqrsMessageSender,
             IConvertService convertService,
-            CorrelationContextAccessor correlationContextAccessor,
-            IIdentityGenerator identityGenerator)
+            CorrelationContextAccessor correlationContextAccessor)
         {
             _marketSettingsRepository = marketSettingsRepository;
             _auditService = auditService;
             _cqrsMessageSender = cqrsMessageSender;
             _convertService = convertService;
             _correlationContextAccessor = correlationContextAccessor;
-            _identityGenerator = identityGenerator;
         }
 
         public Task<MarketSettings> GetByIdAsync(string id)
@@ -66,12 +63,9 @@ namespace MarginTrading.AssetService.Services
             if (addResult.IsFailed)
                 return addResult;
 
-            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                _identityGenerator.GenerateId();
-            await _auditService.TryAudit(correlationId, username, model.Id, AuditDataType.MarketSettings,
-                marketSettings.ToJson());
+            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, marketSettings);
 
-            await PublishMarketSettingsChangedEvent(null, marketSettings, username, correlationId, ChangeType.Creation);
+            await PublishMarketSettingsChangedEvent(null, marketSettings, username, ChangeType.Creation);
 
             return new Result<MarketSettingsErrorCodes>();
         }
@@ -98,12 +92,9 @@ namespace MarginTrading.AssetService.Services
             if (updateResult.IsFailed)
                 return updateResult;
 
-            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                _identityGenerator.GenerateId();
-            await _auditService.TryAudit(correlationId, username, marketSettings.Id, AuditDataType.MarketSettings,
-                marketSettings.ToJson(), currentSettings.ToJson());
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, marketSettings, currentSettings);
 
-            await PublishMarketSettingsChangedEvent(currentSettings, marketSettings, username, correlationId, ChangeType.Edition);
+            await PublishMarketSettingsChangedEvent(currentSettings, marketSettings, username, ChangeType.Edition);
 
             return new Result<MarketSettingsErrorCodes>();
         }
@@ -123,24 +114,20 @@ namespace MarginTrading.AssetService.Services
             if (deleteResult.IsFailed)
                 return deleteResult;
 
-            var correlationId = _correlationContextAccessor.CorrelationContext?.CorrelationId ??
-                                _identityGenerator.GenerateId();
-            await _auditService.TryAudit(correlationId, username, id, AuditDataType.MarketSettings,
-                oldStateJson: existing.ToJson());
-
-            await PublishMarketSettingsChangedEvent(existing, null, username, correlationId, ChangeType.Deletion);
+            await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing);
+            
+            await PublishMarketSettingsChangedEvent(existing, null, username, ChangeType.Deletion);
 
             return new Result<MarketSettingsErrorCodes>();
         }
 
-        private async Task PublishMarketSettingsChangedEvent
-            (MarketSettings oldSettings, MarketSettings newSettings, string username, string correlationId, ChangeType changeType)
+        private async Task PublishMarketSettingsChangedEvent(MarketSettings oldSettings, MarketSettings newSettings, string username, ChangeType changeType)
         {
             await _cqrsMessageSender.SendEvent(new MarketSettingsChangedEvent
             {
                 Username = username,
                 ChangeType = changeType,
-                CorrelationId = correlationId,
+                CorrelationId = _correlationContextAccessor.GetOrGenerateCorrelationId(),
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
                 OldMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(oldSettings),

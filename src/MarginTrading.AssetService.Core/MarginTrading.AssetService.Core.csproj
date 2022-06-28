@@ -15,7 +15,8 @@
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
     <PackageReference Include="Lykke.SlackNotifications" Version="2.0.0" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.32.0" />
+    <PackageReference Include="Lykke.Snow.Audit" Version="1.2.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.43.3" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using System;
+using Lykke.Snow.Audit;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using Microsoft.EntityFrameworkCore;

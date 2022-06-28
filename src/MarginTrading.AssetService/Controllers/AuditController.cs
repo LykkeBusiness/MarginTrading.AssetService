@@ -1,14 +1,15 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Lykke.Snow.Audit;
+using Lykke.Snow.Audit.Abstractions;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.Common;
-using MarginTrading.AssetService.Core.Domain;
-using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
 
 namespace MarginTrading.AssetService.Controllers
 {
@@ -37,11 +38,11 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(PaginatedResponseContract<AuditContract>), (int)HttpStatusCode.OK)]
         public async Task<PaginatedResponseContract<AuditContract>> GetAuditTrailAsync([FromQuery] GetAuditLogsRequest request, int? skip = null, int? take = null)
         {
-            var filter = _convertService.Convert<GetAuditLogsRequest, AuditLogsFilterDto>(request);
+            var filter = _convertService.Convert<GetAuditLogsRequest, AuditTrailFilter<AuditDataType>>(request);
             var result = await _auditService.GetAll(filter, skip, take);
 
             return new PaginatedResponseContract<AuditContract>(
-                contents: result.Contents.Select(i => _convertService.Convert<IAuditModel, AuditContract>(i)).ToList(),
+                contents: result.Contents.Select(i => _convertService.Convert<IAuditModel<AuditDataType>, AuditContract>(i)).ToList(),
                 start: result.Start,
                 size: result.Size,
                 totalSize: result.TotalSize

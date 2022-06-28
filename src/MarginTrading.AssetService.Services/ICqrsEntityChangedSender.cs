@@ -5,19 +5,15 @@ namespace MarginTrading.AssetService.Services
 {
     public interface ICqrsEntityChangedSender
     {
-        Task SendEntityCreatedEvent<TModel, TContract, TEvent>(TModel newValue,
-            string username, string correlationId)
+        Task SendEntityCreatedEvent<TModel, TContract, TEvent>(TModel newValue, string username)
             where TEvent : EntityChangedEvent<TContract>, new()
             where TModel : class;
 
-        Task SendEntityEditedEvent<TModel, TContract, TEvent>(TModel oldValue,
-            TModel newValue,
-            string username, string correlationId)
+        Task SendEntityEditedEvent<TModel, TContract, TEvent>(TModel oldValue, TModel newValue, string username)
             where TEvent : EntityChangedEvent<TContract>, new()
             where TModel : class;
 
-        Task SendEntityDeletedEvent<TModel, TContract, TEvent>(TModel oldValue,
-            string username, string correlationId)
+        Task SendEntityDeletedEvent<TModel, TContract, TEvent>(TModel oldValue, string username)
             where TEvent : EntityChangedEvent<TContract>, new()
             where TModel : class;
     }

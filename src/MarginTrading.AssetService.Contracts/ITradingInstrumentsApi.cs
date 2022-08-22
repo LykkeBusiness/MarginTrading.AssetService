@@ -42,7 +42,8 @@ namespace MarginTrading.AssetService.Contracts
         /// <summary>
         /// Returns trading instruments that are not available for a given client profile
         /// </summary>
+        [Post("/api/tradingInstruments/unavailable")]
         Task<CheckProductsUnavailableForTradingConditionResponse> CheckProductsUnavailableForTradingCondition(
-            CheckProductsUnavailableForTradingConditionRequest request);
+            [Body] CheckProductsUnavailableForTradingConditionRequest request);
     }
 }

@@ -145,8 +145,8 @@ namespace MarginTrading.AssetService.Services
             => _repository.GetByIdAsync(productId);
 
         public Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
-            bool? isStarted)
-            => _repository.GetAllAsync(mdsCodes, productIds, isStarted);
+            bool? isStarted, bool? isDiscontinued)
+            => _repository.GetAllAsync(mdsCodes, productIds, isStarted, isDiscontinued);
 
         public Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes, string[] productIds,
             bool? isStarted,

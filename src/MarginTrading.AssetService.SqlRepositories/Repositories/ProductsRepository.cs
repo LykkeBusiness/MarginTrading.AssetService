@@ -128,7 +128,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
-            bool? isStarted = null)
+            bool? isStarted = null, bool? isDiscontinued = null)
         {
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -142,6 +142,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                 if (isStarted.HasValue)
                     query = query.Where(x => x.IsStarted == isStarted.Value);
+                
+                if (isDiscontinued.HasValue)
+                    query = query.Where(x => x.IsDiscontinued == isDiscontinued.Value);
 
                 var entities = await query
                     .OrderBy(u => u.Name)

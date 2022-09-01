@@ -131,7 +131,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             // if take == 0 return all rows
             var result = take == default
-                ? await _productsService.GetAllAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted)
+                ? await _productsService.GetAllAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted, null)
                 : await _productsService.GetByPageAsync(request?.MdsCodes, request?.ProductIds, request?.IsStarted, isDiscontinued: null, skip: skip, take: take);
 
             var response = new GetProductsResponse
@@ -149,7 +149,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<GetProductsResponse> GetAllAsync([FromBody] GetProductsRequest request)
         {
             var result = request.Take == default
-                ? await _productsService.GetAllAsync(request.MdsCodes, request.ProductIds, request.IsStarted)
+                ? await _productsService.GetAllAsync(request.MdsCodes, request.ProductIds, request.IsStarted, request.IsDiscontinued)
                 : await _productsService.GetByPageAsync(request.MdsCodes,
                     request.ProductIds,
                     request.IsStarted,

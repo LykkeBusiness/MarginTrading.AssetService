@@ -6,8 +6,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.Common.Chaos;
-using Lykke.Logs.MsSql.Interfaces;
-using Lykke.Logs.MsSql.Repositories;
 using Lykke.SettingsReader;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
@@ -24,7 +22,6 @@ using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
-using AzureRepos = MarginTrading.AssetService.AzureRepositories.Repositories;
 using Module = Autofac.Module;
 using SqlRepos = MarginTrading.AssetService.SqlRepositories.Repositories;
 
@@ -223,32 +220,27 @@ namespace MarginTrading.AssetService.Modules
                     throw new Exception($"{nameof(_settings.CurrentValue.Db.DataConnString)} must have a value if StorageMode is SqlServer");
                 }
 
-                var connstrParameter = new NamedParameter("connectionString", 
+                var connectionStringParameter = new NamedParameter("connectionString", 
                     _settings.CurrentValue.Db.DataConnString);
                 
-                builder.RegisterType<SqlLogRepository>()
-                    .As<ILogRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-
                 builder.RegisterType<SqlRepos.AssetsRepository>()
                     .As<IAssetsRepository>()
-                    .WithParameter(connstrParameter)
+                    .WithParameter(connectionStringParameter)
                     .SingleInstance();
 
                 builder.RegisterType<SqlRepos.TradingRoutesRepository>()
                     .As<ITradingRoutesRepository>()
-                    .WithParameter(connstrParameter)
+                    .WithParameter(connectionStringParameter)
                     .SingleInstance();
                 
                 builder.RegisterType<SqlRepos.OperationExecutionInfoRepository>()
                     .As<IOperationExecutionInfoRepository>()
-                    .WithParameter(connstrParameter)
+                    .WithParameter(connectionStringParameter)
                     .SingleInstance();
                 
                 builder.RegisterType<SqlRepos.BlobRepository>()
                     .As<IMarginTradingBlobRepository>()
-                    .WithParameter(connstrParameter)
+                    .WithParameter(connectionStringParameter)
                     .SingleInstance();
 
                 builder.RegisterType<SqlRepos.AuditRepository>()
@@ -287,28 +279,7 @@ namespace MarginTrading.AssetService.Modules
             }
             else if (_settings.CurrentValue.Db.StorageMode == StorageMode.Azure)
             {
-                if (string.IsNullOrEmpty(_settings.CurrentValue.Db.DataConnString))
-                {
-                    throw new Exception("AzureConnectionString must have a value if StorageMode is Azure");
-                }
-                
-                var connstrParameter = new NamedParameter("connectionStringManager",
-                    _settings.Nested(x => x.Db.DataConnString));
-
-                builder.RegisterType<AzureRepos.TradingRoutesRepository>()
-                    .As<ITradingRoutesRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-                
-                builder.RegisterType<AzureRepos.OperationExecutionInfoRepository>()
-                    .As<IOperationExecutionInfoRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
-                
-                builder.RegisterType<AzureRepos.BlobRepository>()
-                    .As<IMarginTradingBlobRepository>()
-                    .WithParameter(connstrParameter)
-                    .SingleInstance();
+                throw new InvalidOperationException("Azure storage mode is not supported");
             }
         }
     }

@@ -9,17 +9,12 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using JetBrains.Annotations;
-using Lykke.AzureQueueIntegration;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
 using Lykke.Logs;
-using Lykke.Logs.MsSql;
-using Lykke.Logs.MsSql.Repositories;
 using Lykke.Logs.Serilog;
 using Lykke.SettingsReader;
-using Lykke.SlackNotification.AzureQueue;
-using Lykke.SlackNotifications;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Correlation.Http;
@@ -111,7 +106,7 @@ namespace MarginTrading.AssetService
                 services.AddSingleton<CqrsCorrelationManager>();
                 services.AddTransient<HttpCorrelationHandler>();
                 
-                Log = CreateLogWithSlack(Configuration, services, _mtSettingsManager, correlationContextAccessor);
+                Log = CreateLog(Configuration, services, _mtSettingsManager, correlationContextAccessor);
 
                 services.AddSingleton<ILoggerFactory>(x => new WebHostLoggerFactory(LogLocator.CommonLog));
 
@@ -158,7 +153,7 @@ namespace MarginTrading.AssetService
                 app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
 
-                app.AddRefitExceptionHandler();
+                app.UseRefitExceptionHandler();
 
                 app.UseRouting();
                 app.UseAuthentication();
@@ -242,11 +237,9 @@ namespace MarginTrading.AssetService
             }
         }
 
-        private static ILog CreateLogWithSlack(IConfiguration configuration, IServiceCollection services,
+        private static ILog CreateLog(IConfiguration configuration, IServiceCollection services,
             IReloadingManager<AppSettings> settings, CorrelationContextAccessor correlationContextAccessor)
         {
-            const string requestsLogName = "SettingsServiceRequestsLog";
-            const string logName = "SettingsServiceLog";
             var consoleLogger = new LogToConsole();
 
             #region Logs settings validation
@@ -258,24 +251,6 @@ namespace MarginTrading.AssetService
             }
 
             #endregion Logs settings validation
-
-            #region Slack registration
-
-            ISlackNotificationsSender slackService = null;
-
-            if (settings.CurrentValue.SlackNotifications != null)
-            {
-                var azureQueue = new AzureQueueSettings
-                {
-                    ConnectionString = settings.CurrentValue.SlackNotifications.AzureQueue.ConnectionString,
-                    QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
-                };
-
-                slackService =
-                    services.UseSlackNotificationsSenderViaAzureQueue(azureQueue, consoleLogger);
-            }
-
-            #endregion Slack registration
 
             if (settings.CurrentValue.MarginTradingAssetService.UseSerilog)
             {
@@ -294,39 +269,9 @@ namespace MarginTrading.AssetService
                 return serilogLogger;
             }
 
-            if (settings.CurrentValue.MarginTradingAssetService.Db.StorageMode == StorageMode.SqlServer)
-            {
-                LogLocator.CommonLog = new AggregateLogger(
-                    new LogToSql(new SqlLogRepository(logName,
-                        settings.CurrentValue.MarginTradingAssetService.Db.LogsConnString)),
-                    new LogToConsole());
-
-                LogLocator.RequestsLog = new AggregateLogger(
-                    new LogToSql(new SqlLogRepository(requestsLogName,
-                        settings.CurrentValue.MarginTradingAssetService.Db.LogsConnString)),
-                    new LogToConsole());
-
-                return LogLocator.CommonLog;
-            }
-
-            if (settings.CurrentValue.MarginTradingAssetService.Db.StorageMode != StorageMode.Azure)
-            {
-                throw new Exception("Wrong config! Logging must be set either to Serilog, SqlServer or Azure.");
-            }
-
-            #region Azure logging
-
-            LogLocator.RequestsLog = services.UseLogToAzureStorage(settings.Nested(s =>
-                    s.MarginTradingAssetService.Db.LogsConnString),
-                slackService, requestsLogName, consoleLogger);
-
-            LogLocator.CommonLog = services.UseLogToAzureStorage(settings.Nested(s =>
-                    s.MarginTradingAssetService.Db.LogsConnString),
-                slackService, logName, consoleLogger);
-
+            LogLocator.CommonLog = new AggregateLogger(consoleLogger);
+            LogLocator.RequestsLog = new AggregateLogger(consoleLogger);
             return LogLocator.CommonLog;
-
-            #endregion Azure logging
         }
     }
 }

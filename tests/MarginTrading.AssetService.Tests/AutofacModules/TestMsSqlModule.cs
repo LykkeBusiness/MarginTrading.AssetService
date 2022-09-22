@@ -21,7 +21,7 @@ namespace MarginTrading.AssetService.Tests.AutofacModules
             builder
                 .RegisterInstance(contextFactory)
                 .AsSelf()
-                .As<IDbContextFactory<AssetDbContext>>()
+                .As<Lykke.Common.MsSql.IDbContextFactory<AssetDbContext>>()
                 .As<ITransactionRunner>()
                 .SingleInstance();
         }

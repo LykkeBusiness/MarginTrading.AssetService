@@ -9,7 +9,6 @@ using Lykke.SettingsReader.ReloadingManager;
 using MarginTrading.AssetService.Services.Mapping;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using SqlRepos = MarginTrading.AssetService.SqlRepositories.Repositories;
-using AzureRepos = MarginTrading.AssetService.AzureRepositories.Repositories;
 
 namespace MarginTrading.AssetService.Migration
 {
@@ -49,7 +48,6 @@ namespace MarginTrading.AssetService.Migration
 
             var tradingRoutesRepos = new ITradingRoutesRepository[]
             {
-                new AzureRepos.TradingRoutesRepository(fakeLogger, convertService, azureRm), 
                 new SqlRepos.TradingRoutesRepository(convertService, sqlConnStr, fakeLogger),
             };
 

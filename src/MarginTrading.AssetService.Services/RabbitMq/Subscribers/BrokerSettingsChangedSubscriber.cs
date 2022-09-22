@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Common.Log;
-using Lykke.Common;
 using Lykke.Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
@@ -16,14 +15,14 @@ using IStartStop = Lykke.RabbitMqBroker.IStartStop;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
 {
-    public class BrokerSettingsChangedSubscriber : IStartStop
+    public sealed class BrokerSettingsChangedSubscriber : IStartStop
     {
         private readonly BrokerSettingsChangedHandler _handler;
         private readonly RabbitMqSubscriptionSettings _settings;
         private readonly ILog _log;
         private RabbitMqSubscriber<BrokerSettingsChangedEvent> _subscriber;
-        private RabbitMqCorrelationManager _correlationManager;
-        private ILoggerFactory _loggerFactory;
+        private readonly RabbitMqCorrelationManager _correlationManager;
+        private readonly ILoggerFactory _loggerFactory;
 
         public BrokerSettingsChangedSubscriber(
             BrokerSettingsChangedHandler handler,

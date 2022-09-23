@@ -16,7 +16,7 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.1.x
+        dotnet-version: 6.0.x
     - name: Setup nuget
       run: dotnet nuget add source http://nuget-lykkecloud.azurewebsites.net/nuget -n snow
     - name: Restore dependencies

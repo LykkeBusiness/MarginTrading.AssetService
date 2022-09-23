@@ -7,18 +7,18 @@ using Microsoft.Extensions.Hosting;
 
 namespace MarginTrading.AssetService.Tests.Common
 {
-    public class TestsStartup : Startup
+    public class TestsStartup// : Startup
     {
-        public TestsStartup(IHostEnvironment env) : base(env)
-        {
-        }
-
-        [UsedImplicitly]
-        public override void ConfigureContainer(ContainerBuilder builder)
-        {
-            builder.RegisterModule(new TestCqrsModule());
-            builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService), Log));
-            builder.RegisterModule(new TestMsSqlModule());
-        }
+        // public TestsStartup(IHostEnvironment env) : base(env)
+        // {
+        // }
+        //
+        // [UsedImplicitly]
+        // public override void ConfigureContainer(ContainerBuilder builder)
+        // {
+        //     builder.RegisterModule(new TestCqrsModule());
+        //     builder.RegisterModule(new ServiceModule(_mtSettingsManager.Nested(x => x.MarginTradingAssetService)));
+        //     builder.RegisterModule(new TestMsSqlModule());
+        // }
     }
 }

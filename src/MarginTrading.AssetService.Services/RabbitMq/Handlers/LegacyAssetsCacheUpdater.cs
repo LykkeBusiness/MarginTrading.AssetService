@@ -4,14 +4,13 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
-using Lykke.RabbitMqBroker.Publisher;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
+using Microsoft.Extensions.Logging;
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 using LegacyAssetExtensions = MarginTrading.AssetService.Services.Extensions.LegacyAssetExtensions;
 using TickFormula = MarginTrading.AssetService.Core.Domain.TickFormula;
@@ -23,21 +22,21 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         private readonly ILegacyAssetsService _legacyAssetsService;
         private readonly ILegacyAssetsCache _legacyAssetsCache;
         private readonly Lykke.RabbitMqBroker.Publisher.IMessageProducer<AssetUpsertedEvent> _assetUpsertedPublisher;
-        private readonly ILog _log;
+        private readonly ILogger<LegacyAssetsCacheUpdater> _logger;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private readonly IList<string> _assetTypesWithZeroInterestRate;
 
         public LegacyAssetsCacheUpdater(
             ILegacyAssetsService legacyAssetsService,
             ILegacyAssetsCache legacyAssetsCache, Lykke.RabbitMqBroker.Publisher.IMessageProducer<AssetUpsertedEvent> assetUpsertedPublisher,
-            ILog log,
-            IList<string> assetTypesWithZeroInterestRate)
+            IList<string> assetTypesWithZeroInterestRate,
+            ILogger<LegacyAssetsCacheUpdater> logger)
         {
             _legacyAssetsService = legacyAssetsService;
             _legacyAssetsCache = legacyAssetsCache;
             _assetUpsertedPublisher = assetUpsertedPublisher;
-            _log = log;
             _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
+            _logger = logger;
         }
 
         public async Task HandleProductRemoved(string productId, DateTime timestamp)
@@ -81,8 +80,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
                 if (asset == null)
                 {
-                    _log.WriteWarning(nameof(LegacyAssetsCacheUpdater), nameof(HandleProductUpserted),
-                        $"We received ProductChanged with productId: {product.ProductId} but cannot find it in DB to update LegacyAssetCache");
+                    _logger.LogWarning("We received ProductChanged with productId: {ProductId} but cannot find it in DB to update LegacyAssetCache", product.ProductId);
                     return;
                 }
 
@@ -172,12 +170,12 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         {
             if (timestamp < _legacyAssetsCache.CacheInitTimestamp)
             {
-                _log.WriteInfo(nameof(LegacyAssetsCacheUpdater),
-                    new
+                _logger.LogInformation(
+                    "Legacy asset cache update is discarded, source event is out of date. Details: {Details}", new
                     {
                         EventTimestamp = timestamp,
                         CacheInitiallizationTimestamp = _legacyAssetsCache.CacheInitTimestamp
-                    }.ToJson(), "Legacy asset cache update is discarded, source event is out of date");
+                    }.ToJson());
 
                 return;
             }
@@ -193,8 +191,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                     _legacyAssetsCache.AddOrUpdateMultiple(updatedAssets);
                     await PublishAssetUpsertedEvents(updatedAssets);
 
-                    _log.WriteInfo(nameof(LegacyAssetsCacheUpdater),
-                        new {UpdatedAssetsCount = updatedAssets.Count}.ToJson(), "Updated assets in legacy cache");
+                    _logger.LogInformation("Updated {Count} assets in legacy cache", updatedAssets.Count);
                 }
             }
             finally
@@ -250,7 +247,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
                 }
             };
             await _assetUpsertedPublisher.ProduceAsync(evt);
-            _log.WriteInfo(nameof(LegacyAssetsCacheUpdater), evt, "Published asset upserted event");
+            _logger.LogInformation("Published asset upserted event");
         }
     }
 }

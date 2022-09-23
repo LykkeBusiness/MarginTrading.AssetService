@@ -3,12 +3,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Cqrs;
 using Lykke.RabbitMqBroker;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Services;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -21,27 +20,27 @@ namespace MarginTrading.AssetService.Services
 
     public class StartupManager : IStartupManager
     {
-        private readonly ILog _log;
+        private readonly ILogger<StartupManager> _logger;
         private readonly ICqrsEngine _cqrsEngine;
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ILegacyAssetsCache _legacyAssetsCache;
         private readonly IEnumerable<IStartStop> _starables;
 
         public StartupManager(
-            ILog log,
             ICqrsEngine cqrsEngine,
             IUnderlyingsCache underlyingsCache,
             ILegacyAssetsCache legacyAssetsCache,
-            IEnumerable<IStartStop> starables)
+            IEnumerable<IStartStop> starables,
+            ILogger<StartupManager> logger)
         {
-            _log = log;
             _cqrsEngine = cqrsEngine;
             _underlyingsCache = underlyingsCache;
             _legacyAssetsCache = legacyAssetsCache;
             _starables = starables;
+            _logger = logger;
         }
 
-        public async Task StartAsync()
+        public void Start()
         {
             _underlyingsCache.Start();
             _legacyAssetsCache.Start();
@@ -49,8 +48,6 @@ namespace MarginTrading.AssetService.Services
             _cqrsEngine.StartProcesses();
             _cqrsEngine.StartPublishers();
             StartStartables();
-
-            await Task.CompletedTask;
         }
 
         private void StartStartables()
@@ -65,7 +62,7 @@ namespace MarginTrading.AssetService.Services
                 }
                 catch (Exception e)
                 {
-                    _log.WriteError(nameof(StartupManager), $"Couldn't start component {cName}.",e) ;
+                    _logger.LogError(e,  "Couldn't start component {ComponentName}", cName);
                     throw;
                 }
             }

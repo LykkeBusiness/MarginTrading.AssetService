@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
@@ -11,6 +10,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 using Market = MarginTrading.AssetService.Contracts.LegacyAsset.Market;
 using ClientProfile = MarginTrading.AssetService.Contracts.LegacyAsset.ClientProfile;
@@ -28,7 +28,7 @@ namespace MarginTrading.AssetService.Services
         private readonly IProductCategoriesRepository _productCategoriesRepository;
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly IAssetTypesRepository _assetTypesRepository;
-        private readonly ILog _log;
+        private readonly ILogger<LegacyAssetsService> _logger;
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly string _brokerId;
         private readonly IList<string> _assetTypesWithZeroInterestRate;
@@ -42,10 +42,10 @@ namespace MarginTrading.AssetService.Services
             IProductCategoriesRepository productCategoriesRepository,
             IUnderlyingsCache underlyingsCache,
             IAssetTypesRepository assetTypesRepository,
-            ILog log, 
             IBrokerSettingsApi brokerSettingsApi,
             string brokerId,
-            IList<string> assetTypesWithZeroInterestRate)
+            IList<string> assetTypesWithZeroInterestRate,
+            ILogger<LegacyAssetsService> logger)
         {
             _productsRepository = productsRepository;
             _clientProfileSettingsRepository = clientProfileSettingsRepository;
@@ -55,8 +55,8 @@ namespace MarginTrading.AssetService.Services
             _productCategoriesRepository = productCategoriesRepository;
             _underlyingsCache = underlyingsCache;
             _assetTypesRepository = assetTypesRepository;
-            _log = log;
             _assetTypesWithZeroInterestRate = assetTypesWithZeroInterestRate;
+            _logger = logger;
             _brokerSettingsApi = brokerSettingsApi;
             _brokerId = brokerId;
         }
@@ -123,8 +123,7 @@ namespace MarginTrading.AssetService.Services
                 if (underlying != null)
                     asset.SetAssetFieldsFromUnderlying(underlying);
                 else
-                    _log.WriteWarning(nameof(LegacyAssetsService), nameof(GetLegacyAssets),
-                        $"Missing underlying in cache for product with mdsCode:{product.UnderlyingMdsCode}");
+                    _logger.LogWarning("Missing underlying in cache for product with mdsCode:{MdsCode}", product.UnderlyingMdsCode);
 
                 asset.SetAssetFieldsFromProduct(product);
                 

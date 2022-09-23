@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Snow.Common.WorkingDays;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
@@ -12,6 +11,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using Xunit;
 
@@ -187,7 +187,7 @@ namespace MarginTrading.AssetService.Tests
                 _marketSettingsRepositoryMock.Object,
                 new PlatformSettings{PlatformMarketId = PlatformId},
                 brokerId,
-                EmptyLog.Instance);
+                new NullLogger<ScheduleSettingsService>());
         }
     }
 }

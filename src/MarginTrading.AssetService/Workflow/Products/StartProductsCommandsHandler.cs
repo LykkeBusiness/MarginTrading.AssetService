@@ -1,6 +1,5 @@
 using System;
 using System.Threading.Tasks;
-using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using Lykke.Snow.Audit;
@@ -9,28 +8,28 @@ using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Workflow.Products
 {
     public class StartProductsCommandsHandler
     {
-        private string username = "system";
-        
+        private const string Username = "system";
+
         private readonly IProductsRepository _productsRepository;
         private readonly IAuditService _auditService;
         private readonly IConvertService _convertService;
-        private readonly ILog _log;
+        private readonly ILogger<StartProductsCommandsHandler> _logger;
 
         public StartProductsCommandsHandler(IProductsRepository productsRepository,
             IAuditService auditService,
             IConvertService convertService,
-            ILog log
-            )
+            ILogger<StartProductsCommandsHandler> logger)
         {
             _productsRepository = productsRepository;
             _auditService = auditService;
             _convertService = convertService;
-            _log = log;
+            _logger = logger;
         }
         
         [UsedImplicitly]
@@ -47,11 +46,11 @@ namespace MarginTrading.AssetService.Workflow.Products
 
                 if (result.IsSuccess)
                 {
-                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
+                    await _auditService.CreateAuditRecord(AuditEventType.Edition, Username, product, existing.Value);
                     
                     publisher.PublishEvent(new ProductChangedEvent()
                     {
-                        Username = username,
+                        Username = Username,
                         ChangeType = ChangeType.Edition,
                         CorrelationId = command.OperationId,
                         EventId = Guid.NewGuid().ToString(),
@@ -62,17 +61,13 @@ namespace MarginTrading.AssetService.Workflow.Products
                 }
                 else
                 {
-                    _log.WriteWarning(nameof(StartProductsCommandsHandler), nameof(Handle), 
-                        $"Attempt to start product with id {command.ProductId} failed");
-                    
+                    _logger.LogWarning("Attempt to start product with id {ProductId} failed", command.ProductId);
                     throw new Exception($"Could not start product with id {command.ProductId}");
                 }
             }
             else
             {
-                _log.WriteWarning(nameof(StartProductsCommandsHandler), nameof(Handle), 
-                   $"Could not find product with id {command.ProductId} to start it");
-                
+                _logger.LogWarning("Could not find product with id {ProductId} to start it", command.ProductId);
             }
         }
     }

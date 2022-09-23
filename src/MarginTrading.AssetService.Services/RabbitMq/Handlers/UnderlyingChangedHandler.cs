@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Core.Caches;
-using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Handlers;
 using MarginTrading.AssetService.Core.Services;
 
@@ -16,20 +14,17 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
         private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly IProductsService _productsService;
         private readonly IConvertService _convertService;
-        private readonly ILog _log;
 
         public UnderlyingChangedHandler(
             IUnderlyingsCache underlyingsCache,
             ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater,
             IProductsService productsService,
-            IConvertService convertService,
-            ILog log)
+            IConvertService convertService)
         {
             _underlyingsCache = underlyingsCache;
             _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _productsService = productsService;
             _convertService = convertService;
-            _log = log;
         }
 
         public async Task Handle(UnderlyingChangedEvent e)

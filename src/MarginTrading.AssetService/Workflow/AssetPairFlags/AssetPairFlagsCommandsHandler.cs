@@ -3,10 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
-using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Common.Chaos;
-using Lykke.Common.Log;
 using Lykke.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -16,12 +14,13 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 {
     public class AssetPairFlagsCommandsHandler
     {
-        private string username = "system";
+        private const string Username = "system";
 
         private readonly TimeSpan _delay = TimeSpan.FromSeconds(15);
         private readonly IProductsDiscontinueService _productsDiscontinueService;
@@ -29,7 +28,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
         private readonly DefaultLegalEntitySettings _defaultLegalEntitySettings;
         private readonly IConvertService _convertService;
         private readonly IChaosKitty _chaosKitty;
-        private readonly ILog _log;
+        private readonly ILogger<AssetPairFlagsCommandsHandler> _logger;
 
         public AssetPairFlagsCommandsHandler(
             IProductsDiscontinueService productsDiscontinueService,
@@ -37,14 +36,14 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             DefaultLegalEntitySettings defaultLegalEntitySettings,
             IConvertService convertService,
             IChaosKitty chaosKitty,
-            ILog log)
+            ILogger<AssetPairFlagsCommandsHandler> logger)
         {
             _productsDiscontinueService = productsDiscontinueService;
             _productsRepository = productsRepository;
             _defaultLegalEntitySettings = defaultLegalEntitySettings;
             _convertService = convertService;
             _chaosKitty = chaosKitty;
-            _log = log;
+            _logger = logger;
         }
 
         /// <summary>
@@ -58,7 +57,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             //idempotency handling not required
             var updateResult = await _productsDiscontinueService.ChangeSuspendStatusAsync(command.AssetPairId,
                 true,
-                username,
+                Username,
                 command.OperationId);
 
             if (!updateResult.IsSuccess)
@@ -77,7 +76,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 
             publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
                 updateResult.NewValue,
-                username,
+                Username,
                 command.OperationId));
 
             return CommandHandlingResult.Ok();
@@ -94,7 +93,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             //idempotency handling not required
             var updateResult = await _productsDiscontinueService.ChangeSuspendStatusAsync(command.AssetPairId,
                 false,
-                username,
+                Username,
                 command.OperationId);
 
             if (!updateResult.IsSuccess)
@@ -113,7 +112,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 
             publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
                 updateResult.NewValue,
-                username,
+                Username,
                 command.OperationId));
 
             return CommandHandlingResult.Ok();
@@ -126,8 +125,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             var getProductResult = await _productsRepository.GetByIdAsync(command.ProductId);
             if (getProductResult.IsFailed)
             {
-                _log.WriteWarning(nameof(AssetPairFlagsCommandsHandler), nameof(Handle), 
-                    $"Product {command.ProductId} not found");
+                _logger.LogWarning("Product {ProductId} not found", command.ProductId);
                 return CommandHandlingResult.Fail(_delay);
             }
 
@@ -135,21 +133,23 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 
             if (product.IsSuspended == command.IsSuspended)
             {
-                _log.WriteWarning(nameof(AssetPairFlagsCommandsHandler), nameof(Handle), 
-                    $"IsSuspended status on both product {command.ProductId} and event are same: on product {product.IsSuspended}, on command {command.IsSuspended}. Update is skipped");
+                _logger.LogWarning(
+                    "IsSuspended status on both product {ProductId} and event are same: on product {ProductIsSuspended}, on command {CommandIsSuspended}. Update is skipped",
+                    command.ProductId, product.IsSuspended, command.IsSuspended);
                 return CommandHandlingResult.Ok();
             }
 
             var updateResult = await _productsDiscontinueService.ChangeSuspendStatusAsync(command.ProductId,
                 command.IsSuspended,
-                username,
+                Username,
                 command.OperationId);
 
             if (!updateResult.IsSuccess)
                 return CommandHandlingResult.Fail(_delay);
 
-            _log.WriteInfo(nameof(AssetPairFlagsCommandsHandler), nameof(Handle), 
-                $"IsSuspended status on product {command.ProductId} is updated successfully. ChangeAssetPairSuspendedStatusCommand Timestamp: {command.Timestamp}, new status: {command.IsSuspended}");
+            _logger.LogInformation(
+                "IsSuspended status on product {ProductId} is updated successfully. ChangeAssetPairSuspendedStatusCommand Timestamp: {Timestamp}, new status: {IsSuspended}",
+                command.ProductId, command.Timestamp, command.IsSuspended);
             
             _chaosKitty.Meow(command.OperationId);
 
@@ -164,7 +164,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
 
             publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
                 updateResult.NewValue,
-                username,
+                Username,
                 command.OperationId));
 
             return CommandHandlingResult.Ok();

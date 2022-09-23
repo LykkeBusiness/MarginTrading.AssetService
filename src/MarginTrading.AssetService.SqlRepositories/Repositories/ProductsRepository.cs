@@ -3,14 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
-using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
@@ -18,40 +17,37 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     public class ProductsRepository : IProductsRepository
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
-        private readonly ILog _log;
+        private readonly ILogger<ProductsRepository> _logger;
 
         private const string DoesNotExistException =
             "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
 
-        public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory,
-            ILog log)
+        public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory, ILogger<ProductsRepository> logger)
         {
             _contextFactory = contextFactory;
-            _log = log;
+            _logger = logger;
         }
 
         public async Task<Result<ProductsErrorCodes>> InsertAsync(Product product)
         {
             var entity = ToEntity(product);
 
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            await context.Products.AddAsync(entity);
+
+            try
             {
-                await context.Products.AddAsync(entity);
-
-                try
+                await context.SaveChangesAsync();
+                return new Result<ProductsErrorCodes>();
+            }
+            catch (DbUpdateException e)
+            {
+                if (e.ValueAlreadyExistsException())
                 {
-                    await context.SaveChangesAsync();
-                    return new Result<ProductsErrorCodes>();
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.AlreadyExists);
                 }
-                catch (DbUpdateException e)
-                {
-                    if (e.ValueAlreadyExistsException())
-                    {
-                        return new Result<ProductsErrorCodes>(ProductsErrorCodes.AlreadyExists);
-                    }
 
-                    throw;
-                }
+                throw;
             }
         }
 
@@ -59,119 +55,107 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             var entity = ToEntity(product);
 
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            context.Update(entity);
+
+            try
             {
-                context.Update(entity);
+                await context.SaveChangesAsync();
+                return new Result<ProductsErrorCodes>();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                if (e.Message.Contains(DoesNotExistException))
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
-                try
-                {
-                    await context.SaveChangesAsync();
-                    return new Result<ProductsErrorCodes>();
-                }
-                catch (DbUpdateConcurrencyException e)
-                {
-                    if (e.Message.Contains(DoesNotExistException))
-                        return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                    throw;
-                }
+                throw;
             }
         }
 
         public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, byte[] timestamp)
         {
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            var entity = new ProductEntity() { ProductId = productId, Timestamp = timestamp };
+
+            context.Attach(entity);
+            context.Products.Remove(entity);
+
+            try
             {
-                var entity = new ProductEntity() { ProductId = productId, Timestamp = timestamp };
+                await context.SaveChangesAsync();
+                return new Result<ProductsErrorCodes>();
+            }
+            catch (DbUpdateConcurrencyException e)
+            {
+                if (e.Message.Contains(DoesNotExistException))
+                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
-                context.Attach(entity);
-                context.Products.Remove(entity);
-
-                try
-                {
-                    await context.SaveChangesAsync();
-                    return new Result<ProductsErrorCodes>();
-                }
-                catch (DbUpdateConcurrencyException e)
-                {
-                    if (e.Message.Contains(DoesNotExistException))
-                        return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                    throw;
-                }
+                throw;
             }
         }
 
         public async Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var entity = await context.Products.FindAsync(productId);
+            await using var context = _contextFactory.CreateDataContext();
+            var entity = await context.Products.FindAsync(productId);
 
-                if (entity == null)
-                    return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+            if (entity == null)
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
-                return new Result<Product, ProductsErrorCodes>(ToModel(entity));
-            }
+            return new Result<Product, ProductsErrorCodes>(ToModel(entity));
         }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var entities = await context.Products
-                    .Where(x => x.UnderlyingMdsCode == mdsCode)
-                    .ToListAsync();
+            await using var context = _contextFactory.CreateDataContext();
+            var entities = await context.Products
+                .Where(x => x.UnderlyingMdsCode == mdsCode)
+                .ToListAsync();
 
-                return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
-            }
+            return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
         }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
             bool? isStarted = null, bool? isDiscontinued = null)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context.Products.AsNoTracking();
 
-                if (mdsCodes != null && mdsCodes.Any())
-                    query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
+            if (mdsCodes != null && mdsCodes.Any())
+                query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
 
-                if (productIds != null && productIds.Any())
-                    query = query.Where(x => productIds.Contains(x.ProductId));
+            if (productIds != null && productIds.Any())
+                query = query.Where(x => productIds.Contains(x.ProductId));
 
-                if (isStarted.HasValue)
-                    query = query.Where(x => x.IsStarted == isStarted.Value);
+            if (isStarted.HasValue)
+                query = query.Where(x => x.IsStarted == isStarted.Value);
                 
-                if (isDiscontinued.HasValue)
-                    query = query.Where(x => x.IsDiscontinued == isDiscontinued.Value);
+            if (isDiscontinued.HasValue)
+                query = query.Where(x => x.IsDiscontinued == isDiscontinued.Value);
 
-                var entities = await query
-                    .OrderBy(u => u.Name)
-                    .ToListAsync();
+            var entities = await query
+                .OrderBy(u => u.Name)
+                .ToListAsync();
 
-                return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
-            }
+            return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
         }
 
         public async Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes,
             string[] productIds)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context.Products.AsNoTracking();
 
-                if (mdsCodes != null && mdsCodes.Any())
-                    query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
+            if (mdsCodes != null && mdsCodes.Any())
+                query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
 
-                if (productIds != null && productIds.Any())
-                    query = query.Where(x => productIds.Contains(x.ProductId));
+            if (productIds != null && productIds.Any())
+                query = query.Where(x => productIds.Contains(x.ProductId));
 
-                var counter = await query.CountAsync();
+            var counter = await query.CountAsync();
 
-                return new Result<ProductsCounter, ProductsErrorCodes>(new ProductsCounter(counter, mdsCodes,
-                    productIds));
-            }
+            return new Result<ProductsCounter, ProductsErrorCodes>(new ProductsCounter(counter, mdsCodes,
+                productIds));
         }
 
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
@@ -185,31 +169,29 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return new Result<List<Product>, ProductsErrorCodes>(new List<Product>());
             }
 
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context.Products.AsNoTracking();
 
-                if (mdsCodes != null && mdsCodes.Any())
-                    query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
+            if (mdsCodes != null && mdsCodes.Any())
+                query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
 
-                if (productIds != null && productIds.Any())
-                    query = query.Where(x => productIds.Contains(x.ProductId));
+            if (productIds != null && productIds.Any())
+                query = query.Where(x => productIds.Contains(x.ProductId));
 
-                if (isStarted.HasValue)
-                    query = query.Where(x => x.IsStarted == isStarted.Value);
+            if (isStarted.HasValue)
+                query = query.Where(x => x.IsStarted == isStarted.Value);
 
-                if (isDiscontinued.HasValue)
-                    query = query.Where(x => x.IsDiscontinued == isDiscontinued.Value);
+            if (isDiscontinued.HasValue)
+                query = query.Where(x => x.IsDiscontinued == isDiscontinued.Value);
 
 
-                var entities = await query
-                    .OrderBy(u => u.Name)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync();
+            var entities = await query
+                .OrderBy(u => u.Name)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
 
-                return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
-            }
+            return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
         }
 
         public async Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
@@ -244,7 +226,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
             catch (DbUpdateConcurrencyException e)
             {
-                _log.WriteError(nameof(ProductsRepository), nameof(UpdateBatchAsync), e);
+                _logger.LogError(e, "Failed to batch update products");
 
                 if (e.Message.Contains(DoesNotExistException))
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
@@ -280,35 +262,31 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         public async Task<Dictionary<string, string>> GetProductAssetTypeMapAsync(IEnumerable<string> productIds = null)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.AsNoTracking();
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context.Products.AsNoTracking();
 
-                if (productIds != null && productIds.Any())
-                    query = query.Where(x => productIds.Contains(x.ProductId));
+            if (productIds != null && productIds.Any())
+                query = query.Where(x => productIds.Contains(x.ProductId));
 
-                var result = await query.ToDictionaryAsync(k => k.ProductId, v => v.AssetTypeId);
+            var result = await query.ToDictionaryAsync(k => k.ProductId, v => v.AssetTypeId);
 
-                return result;
-            }
+            return result;
         }
 
         public async Task<IReadOnlyList<Product>> GetByProductsIdsAsync(IEnumerable<string> productIds = null, bool startedOnly = true)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context
-                    .Products
-                    .AsNoTracking()
-                    .Where(x => !startedOnly || x.IsStarted);
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context
+                .Products
+                .AsNoTracking()
+                .Where(x => !startedOnly || x.IsStarted);
 
-                if (productIds != null && productIds.Any())
-                    query = query.Where(x => productIds.Contains(x.ProductId));
+            if (productIds != null && productIds.Any())
+                query = query.Where(x => productIds.Contains(x.ProductId));
 
-                var result = await query.ToListAsync();
+            var result = await query.ToListAsync();
 
-                return result.Select(ToModel).ToList();
-            }
+            return result.Select(ToModel).ToList();
         }
 
         public async Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds,
@@ -317,67 +295,61 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             skip = Math.Max(0, skip);
             take = take < 0 ? 20 : Math.Min(take, 100);
 
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.Products.Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted);
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context.Products.Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted);
 
-                var total = await query.CountAsync();
-                var products = await query
-                    .OrderBy(u => u.Name)
-                    .Skip(skip)
-                    .Take(take)
-                    .ToListAsync();
+            var total = await query.CountAsync();
+            var products = await query
+                .OrderBy(u => u.Name)
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
 
-                return new PaginatedResponse<Product>(products.Select(ToModel).ToList(), skip, products.Count, total);
-            }
+            return new PaginatedResponse<Product>(products.Select(ToModel).ToList(), skip, products.Count, total);
         }
 
         public async Task<IReadOnlyList<Product>> GetByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var products = await context.Products
-                    .Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted)
-                    .ToListAsync();
+            await using var context = _contextFactory.CreateDataContext();
+            var products = await context.Products
+                .Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted)
+                .ToListAsync();
 
-                return products.Select(ToModel).ToList();
-            }
+            return products.Select(ToModel).ToList();
         }
 
         public async Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value)
         {
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            var product = await context.Products.FindAsync(id);
+
+            if (product == null)
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+            product.IsSuspended = value;
+            context.Products.Update(product);
+
+            var saved = false;
+            while (!saved)
             {
-                var product = await context.Products.FindAsync(id);
-
-                if (product == null)
-                    return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                product.IsSuspended = value;
-                context.Products.Update(product);
-
-                var saved = false;
-                while (!saved)
+                try
                 {
-                    try
+                    await context.SaveChangesAsync();
+                    saved = true;
+                }
+                catch (DbUpdateConcurrencyException ex)
+                {
+                    foreach (var entry in ex.Entries)
                     {
-                        await context.SaveChangesAsync();
-                        saved = true;
-                    }
-                    catch (DbUpdateConcurrencyException ex)
-                    {
-                        foreach (var entry in ex.Entries)
-                        {
-                            var databaseValues = await entry.GetDatabaseValuesAsync();
+                        var databaseValues = await entry.GetDatabaseValuesAsync();
 
-                            // Refresh original values to bypass next concurrency check
-                            entry.OriginalValues.SetValues(databaseValues);
-                        }
+                        // Refresh original values to bypass next concurrency check
+                        entry.OriginalValues.SetValues(databaseValues);
                     }
                 }
-
-                return new Result<Product, ProductsErrorCodes>(ToModel(product));
             }
+
+            return new Result<Product, ProductsErrorCodes>(ToModel(product));
         }
 
         private static ProductEntity ToEntity(Product product)
@@ -433,7 +405,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         private static Product ToModel(ProductEntity product)
         {
-            var result = new Product()
+            var result = new Product
             {
                 ProductId = product.ProductId,
                 AssetType = product.AssetTypeId,
@@ -484,23 +456,21 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         public async Task<(bool result, string id)> IsinExists(string isin, bool? isDiscontinued = null)
         {
-            using (var context = _contextFactory.CreateDataContext())
+            await using var context = _contextFactory.CreateDataContext();
+            var filteredQuery = context.Products
+                .Where(p => p.IsinLong == isin || p.IsinShort == isin);
+
+            if (isDiscontinued.HasValue)
             {
-                var filteredQuery = context.Products
-                    .Where(p => p.IsinLong == isin || p.IsinShort == isin);
-
-                if (isDiscontinued.HasValue)
-                {
-                    filteredQuery = filteredQuery
-                        .Where(x => x.IsDiscontinued == isDiscontinued.Value);
-                }
-
-                var id = await filteredQuery
-                    .Select(p => p.ProductId)
-                    .FirstOrDefaultAsync();
-
-                return (!string.IsNullOrWhiteSpace(id), id);
+                filteredQuery = filteredQuery
+                    .Where(x => x.IsDiscontinued == isDiscontinued.Value);
             }
+
+            var id = await filteredQuery
+                .Select(p => p.ProductId)
+                .FirstOrDefaultAsync();
+
+            return (!string.IsNullOrWhiteSpace(id), id);
         }
     }
 }

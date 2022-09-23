@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using JetBrains.Annotations;
-using Lykke.Common.Log;
 using Lykke.Common.MsSql;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
@@ -11,18 +9,19 @@ using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
     public class ClientProfilesRepository : IClientProfilesRepository
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
-        private readonly ILog _log;
+        private readonly ILogger<ClientProfilesRepository> _logger;
 
-        public ClientProfilesRepository(MsSqlContextFactory<AssetDbContext> contextFactory, ILog log)
+        public ClientProfilesRepository(MsSqlContextFactory<AssetDbContext> contextFactory, ILogger<ClientProfilesRepository> logger)
         {
             _contextFactory = contextFactory;
-            _log = log;
+            _logger = logger;
         }
 
         [ItemCanBeNull]
@@ -97,7 +96,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             if (currentDefault == null)
             {
                 existingEntity.IsDefault = true;
-                _log.Warning($"Tried to update ClientProfile with Id {model.Id} IsAvailable to false but it was not updated cause there will be no default");
+                _logger.LogWarning("Tried to update ClientProfile with Id {ClientProfileId} IsAvailable to false but it was not updated cause there will be no default", model.Id);
             }
             else if (model.IsDefault)
             {

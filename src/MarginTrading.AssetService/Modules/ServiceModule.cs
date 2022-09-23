@@ -7,6 +7,7 @@ using Autofac.Extensions.DependencyInjection;
 using Common.Log;
 using Lykke.Common.Chaos;
 using Lykke.SettingsReader;
+using Lykke.Snow.Common.Startup;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Handlers;
@@ -22,6 +23,7 @@ using MarginTrading.AssetService.Settings.ServiceSettings;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 using Module = Autofac.Module;
 using SqlRepos = MarginTrading.AssetService.SqlRepositories.Repositories;
 
@@ -30,22 +32,22 @@ namespace MarginTrading.AssetService.Modules
     public class ServiceModule : Module
     {
         private readonly IReloadingManager<AssetServiceSettings> _settings;
-        private readonly ILog _log;
         // NOTE: you can remove it if you don't need to use IServiceCollection extensions to register service specific dependencies
         private readonly IServiceCollection _services;
 
-        public ServiceModule(IReloadingManager<AssetServiceSettings> settings, ILog log)
+        public ServiceModule(IReloadingManager<AssetServiceSettings> settings)
         {
             _settings = settings;
-            _log = log;
-
             _services = new ServiceCollection();
         }
 
         protected override void Load(ContainerBuilder builder)
         {
-            builder.RegisterInstance(_log).As<ILog>().SingleInstance();
-
+            // still required for some middlewares
+            builder.Register(ctx => new LykkeLoggerAdapter<ServiceModule>(ctx.Resolve<ILogger<ServiceModule>>()))
+                .As<ILog>()
+                .SingleInstance();
+            
             builder.RegisterInstance(_settings.CurrentValue.TradingInstrumentDefaults).AsSelf().SingleInstance();
  
             builder.RegisterInstance(_settings.CurrentValue.LegalEntityDefaults).AsSelf().SingleInstance(); 

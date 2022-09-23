@@ -4,11 +4,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Lykke.Common;
 using MarginTrading.AssetService.Core.Services;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -19,18 +18,18 @@ namespace MarginTrading.AssetService.Services
 
     public class ShutdownManager : IShutdownManager
     {
-        private readonly ILog _log;
+        private readonly ILogger<ShutdownManager> _logger;
         private readonly IEnumerable<IStopable> _items;
         private readonly IEnumerable<IStartStop> _stopables;
 
-        public ShutdownManager(ILog log, IEnumerable<IStopable> items, IEnumerable<IStartStop> stopables)
+        public ShutdownManager(IEnumerable<IStopable> items, IEnumerable<IStartStop> stopables, ILogger<ShutdownManager> logger)
         {
-            _log = log;
             _items = items;
             _stopables = stopables;
+            _logger = logger;
         }
 
-        public async Task StopAsync()
+        public void Stop()
         {
             var allItems = _items.Concat(_stopables).Distinct();
             foreach (var item in allItems)
@@ -41,11 +40,9 @@ namespace MarginTrading.AssetService.Services
                 }
                 catch (Exception ex)
                 {
-                    _log.WriteWarning(nameof(StopAsync), null, $"Unable to stop {item.GetType().Name}", ex);
+                    _logger.LogWarning(ex, "Unable to stop {ComponentName}", item.GetType().Name);
                 }
             }
-
-            await Task.CompletedTask;
         }
     }
 }

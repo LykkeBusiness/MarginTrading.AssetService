@@ -4,12 +4,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings.Rates;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 
 namespace MarginTrading.AssetService.Services
@@ -20,20 +20,20 @@ namespace MarginTrading.AssetService.Services
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ICurrenciesRepository _currenciesRepository;
         private readonly DefaultRateSettings _defaultRateSettings;
-        private readonly ILog _log;
+        private readonly ILogger<RateSettingsService> _logger;
 
         public RateSettingsService(
             IProductsRepository productsRepository,
             IUnderlyingsCache underlyingsCache,
             ICurrenciesRepository currenciesRepository,
             DefaultRateSettings defaultRateSettings,
-            ILog log)
+            ILogger<RateSettingsService> logger)
         {
             _productsRepository = productsRepository;
             _underlyingsCache = underlyingsCache;
             _currenciesRepository = currenciesRepository;
             _defaultRateSettings = defaultRateSettings;
-            _log = log;
+            _logger = logger;
         }
 
         #region Overnight Swaps
@@ -67,9 +67,7 @@ namespace MarginTrading.AssetService.Services
                 products.TryGetValue(assetPairId, out var product);
                 if (product == null)
                 {
-                    _log.WriteWarning(nameof(RateSettingsService), nameof(GetOvernightSwapRatesAsync),
-                        $"Missing product with id: {assetPairId} , default values will be used to create OvernightSwapRate");
-
+                    _logger.LogWarning("Missing product with id: {AssetPairId} , default values will be used to create OvernightSwapRate", assetPairId);
                     result.Add(OvernightSwapRate.FromDefault(_defaultRateSettings.DefaultOvernightSwapSettings, assetPairId));
                     continue;
                 }

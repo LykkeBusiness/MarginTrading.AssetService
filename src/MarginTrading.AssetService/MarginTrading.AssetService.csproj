@@ -9,9 +9,6 @@
     <AspNetCoreModuleName>AspNetCoreModuleV2</AspNetCoreModuleName>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
   <PropertyGroup>
     <NoWarn>1701;1702;1705;CA2007</NoWarn>
     <UserSecretsId>F7428201-B7F7-4571-9ABD-71ADEBF71654</UserSecretsId>
@@ -41,9 +38,9 @@
     <Content Update="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MarginTrading.AssetService.Tests" />
   </ItemGroup>
   <Target Name="CopySerilogConfig" AfterTargets="AfterBuild">
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(OutDir)" />
@@ -54,7 +51,7 @@
   <ItemGroup>
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="3.1.1" />
     <PackageReference Include="LykkeBiz.Logs" Version="9.1.0" />
-    <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.0.0" />
+    <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.2.0" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.2.0" />
     <PackageReference Include="LykkeBiz.Messaging.RabbitMq" Version="3.0.1" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />

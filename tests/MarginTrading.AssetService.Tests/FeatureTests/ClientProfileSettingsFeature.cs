@@ -1,17 +1,18 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Autofac;
 using Common;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
+using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Tests.Common;
 using MarginTrading.AssetService.Tests.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -113,20 +114,22 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 }
             });
 
-            var client = await TestBootstrapper.CreateTestClientWithInMemoryDb(builder =>
+            var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
             {
-                builder.RegisterInstance(_brokerSettingsApiMock.Object).As<IBrokerSettingsApi>().SingleInstance();
-                builder.RegisterInstance(_regulationsApiMock.Object).As<IRegulationsApi>().SingleInstance();
-                builder.RegisterInstance(_regulatoryTypesApiMock.Object).As<IRegulatoryTypesApi>().SingleInstance();
-                builder.RegisterInstance(_regulatorySettingsApiMock.Object).As<IRegulatorySettingsApi>().SingleInstance();
-                builder.RegisterInstance(_regulatoryProfilesApiMock.Object).As<IRegulatoryProfilesApi>().SingleInstance();
-                builder.RegisterInstance(_underlyingCategoriesApiMock.Object).As<IUnderlyingCategoriesApi>().SingleInstance();
-                builder.RegisterInstance(_underlyingCategoriesCacheMock.Object).As<IUnderlyingCategoriesCache>().SingleInstance();
+                services.AddSingleton(_brokerSettingsApiMock.Object);
+                services.AddSingleton(_regulationsApiMock.Object);
+                services.AddSingleton(_regulatoryTypesApiMock.Object);
+                services.AddSingleton(_regulatorySettingsApiMock.Object);
+                services.AddSingleton(_regulatoryProfilesApiMock.Object);
+                services.AddSingleton(_underlyingCategoriesApiMock.Object);
+                services.AddSingleton(_underlyingCategoriesCacheMock.Object);
             });
 
-            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, true);
+            var createClientProfileResponse = await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, ClientProfileId, true);
+            Assert.Equal(ClientProfilesErrorCodesContract.None, createClientProfileResponse.ErrorCode);
 
-            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, AssetTypeId, UnderlyingCategoryId);
+            var createAssetTypeResponse = await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, AssetTypeId, UnderlyingCategoryId);
+            Assert.Equal(ClientProfilesErrorCodesContract.None, createAssetTypeResponse.ErrorCode);
 
             var updateClientProfileSettingsRequest = new UpdateClientProfileSettingsRequest
             {
@@ -138,10 +141,11 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             await client.PutAsync($"/api/client-profile-settings/profile/{ClientProfileId}/type/{AssetTypeId}",
                 updateClientProfileSettingsRequest.ToJsonStringContent());
 
-            await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, SecondAssetTypeId,
-                UnderlyingCategoryId, AssetTypeId);
+            var createAssetTypeResponse2 = await TestRecordsCreator.CreateAssetTypeAsync(client, RegulatoryTypeId, SecondAssetTypeId, UnderlyingCategoryId, AssetTypeId);
+            Assert.Equal(ClientProfilesErrorCodesContract.None, createAssetTypeResponse2.ErrorCode);
 
-            await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, SecondClientProfileId, false, ClientProfileId);
+            var createClientProfileResponse2 = await TestRecordsCreator.CreateClientProfileAsync(client, RegulatoryProfileId, SecondClientProfileId, false, ClientProfileId);
+            Assert.Equal(ClientProfilesErrorCodesContract.None, createClientProfileResponse2.ErrorCode);
 
             //Get all client profile settings for this regulation
             var getClientProfileSettingsRequest = await client.GetAsync($"/api/client-profile-settings");

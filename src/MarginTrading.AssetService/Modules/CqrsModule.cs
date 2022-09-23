@@ -4,7 +4,6 @@
 using System;
 using Autofac;
 using BookKeeper.Client.Workflow.Events;
-using Common.Log;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Cqrs.Configuration.BoundedContext;
@@ -13,6 +12,7 @@ using Lykke.Cqrs.Configuration.Saga;
 using Lykke.Cqrs.Middleware.Logging;
 using Lykke.Messaging.Serialization;
 using Lykke.Snow.Common.Correlation.Cqrs;
+using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
@@ -34,6 +34,7 @@ using MarginTrading.AssetService.Workflow.MarketSettings;
 using MarginTrading.AssetService.Workflow.ProductCategories;
 using MarginTrading.AssetService.Workflow.Products;
 using MarginTrading.AssetService.Workflow.TickFormulas;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Modules
 {
@@ -43,15 +44,13 @@ namespace MarginTrading.AssetService.Modules
         private const string DefaultPipeline = "commands";
         private const string DefaultEventPipeline = "events";
         private readonly CqrsSettings _settings;
-        private readonly ILog _log;
         private readonly string _instanceId;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsModule(CqrsSettings settings, ILog log, string instanceId)
+        public CqrsModule(CqrsSettings settings, string instanceId)
         {
             _settings = settings;
-            _log = log;
             _instanceId = instanceId;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
@@ -88,8 +87,10 @@ namespace MarginTrading.AssetService.Modules
                 Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
             };
 
+            var log = new LykkeLoggerAdapter<CqrsModule>(ctx.Resolve<ILogger<CqrsModule>>());
+
             var engine = new RabbitMqCqrsEngine(
-                _log,
+                log,
                 ctx.Resolve<IDependencyResolver>(),
                 new DefaultEndpointProvider(),
                 rabbitMqSettings.Endpoint.ToString(),
@@ -100,8 +101,8 @@ namespace MarginTrading.AssetService.Modules
                 RegisterDefaultRouting(),
                 RegisterStartProductsSaga(),
                 RegisterContext(),
-                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
-                Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
+                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(log)),
+                Register.EventInterceptors(new DefaultEventLoggingInterceptor(log)));
 
             var correlationManager = ctx.Resolve<CqrsCorrelationManager>();
             engine.SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);

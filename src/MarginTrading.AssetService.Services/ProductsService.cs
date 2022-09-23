@@ -1,8 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Products;
@@ -10,6 +8,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Validations.Products;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -18,7 +17,7 @@ namespace MarginTrading.AssetService.Services
         private readonly ProductAddOrUpdateValidationAndEnrichment _addOrUpdateValidationAndEnrichment;
         private readonly IProductsRepository _repository;
         private readonly IAuditService _auditService;
-        private readonly ILog _log;
+        private readonly ILogger<ProductsService> _logger;
         private readonly ICqrsEntityChangedSender _entityChangedSender;
 
         public ProductsService(
@@ -26,12 +25,12 @@ namespace MarginTrading.AssetService.Services
             IProductsRepository repository,
             ICqrsEntityChangedSender entityChangedSender,
             IAuditService auditService,
-            ILog log)
+            ILogger<ProductsService> logger)
         {
             _addOrUpdateValidationAndEnrichment = addOrUpdateValidationAndEnrichment;
             _repository = repository;
             _auditService = auditService;
-            _log = log;
+            _logger = logger;
             _entityChangedSender = entityChangedSender;
         }
 
@@ -212,13 +211,11 @@ namespace MarginTrading.AssetService.Services
         {
             if (!productIds.Any())
             {
-                _log.WriteWarning(nameof(ProductsService), nameof(DiscontinueBatchAsync),
-                    "Received empty list of product ids to discontinue");
+                _logger.LogWarning("Received empty list of product ids to discontinue");
                 return new Result<ProductsErrorCodes>();
             }
 
-            _log.WriteInfo(nameof(ProductsService), nameof(DiscontinueBatchAsync),
-                $"Trying to discontinue products: {string.Join(',', productIds)}");
+            _logger.LogInformation("Trying to discontinue products: {Products}", string.Join(',', productIds));
             var existing = (await _repository.GetAllAsync(null, productIds)).Value.ToHashSet();
             var updated = new HashSet<Product>();
 
@@ -227,8 +224,7 @@ namespace MarginTrading.AssetService.Services
                 var existingProduct = existing.FirstOrDefault(p => p.ProductId == productId);
                 if (existingProduct == null)
                 {
-                    _log.WriteError(nameof(ProductsService), nameof(DiscontinueBatchAsync),
-                        new Exception($"Product to discontinue is not found: {productId}"));
+                    _logger.LogError("Product to discontinue is not found: {ProductId}", productId);
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
                 }
 

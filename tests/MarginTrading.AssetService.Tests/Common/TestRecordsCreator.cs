@@ -13,12 +13,13 @@ using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Tests.Extensions;
+using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.Tests.Common
 {
     public class TestRecordsCreator
     {
-        public static async Task CreateAssetTypeAsync(
+        public static async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> CreateAssetTypeAsync(
             HttpClient client,
             string regulatoryTypeId,
             string id,
@@ -34,11 +35,14 @@ namespace MarginTrading.AssetService.Tests.Common
                 UnderlyingCategoryId = underlyingCategoryId,
             };
 
-            await client.PostAsync($"/api/asset-types", request.ToJsonStringContent());
+            var response = await client.PostAsync($"/api/asset-types", request.ToJsonStringContent());
+            response.EnsureSuccessStatusCode();
+            
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ErrorCodeResponse<ClientProfilesErrorCodesContract>>(content);
         }
 
-        public static async Task CreateClientProfileAsync(HttpClient client, string regulatoryProfileId, string id,
-            bool isDefault, string clientProfileTemplateId = null)
+        public static async Task<ErrorCodeResponse<ClientProfilesErrorCodesContract>> CreateClientProfileAsync(HttpClient client, string regulatoryProfileId, string id, bool isDefault, string clientProfileTemplateId = null)
         {
             var request = new AddClientProfileRequest
             {
@@ -49,7 +53,11 @@ namespace MarginTrading.AssetService.Tests.Common
                 Id = id,
             };
 
-            await client.PostAsync($"/api/client-profiles", request.ToJsonStringContent());
+            var response = await client.PostAsync($"/api/client-profiles", request.ToJsonStringContent());
+            response.EnsureSuccessStatusCode();
+            
+            var content = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<ErrorCodeResponse<ClientProfilesErrorCodesContract>>(content);
         }
 
         public static async Task<ProductCategoriesErrorCodesContract> CreateCategoryAsync(HttpClient client, string category)

@@ -4,15 +4,14 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
-using Lykke.SettingsReader.ReloadingManager;
 using MarginTrading.AssetService.Services.Mapping;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging.Abstractions;
 using SqlRepos = MarginTrading.AssetService.SqlRepositories.Repositories;
 
 namespace MarginTrading.AssetService.Migration
 {
-    class Program
+    internal static class Program
     {
         static async Task Main(string[] args)
         {
@@ -43,12 +42,10 @@ namespace MarginTrading.AssetService.Migration
             }
 
             var convertService = new ConvertService();
-            var azureRm = ConstantReloadingManager.From(azureConnStr);
-            var fakeLogger = new AggregateLogger();
 
             var tradingRoutesRepos = new ITradingRoutesRepository[]
             {
-                new SqlRepos.TradingRoutesRepository(convertService, sqlConnStr, fakeLogger),
+                new SqlRepos.TradingRoutesRepository(convertService, sqlConnStr, new NullLogger<SqlRepos.TradingRoutesRepository>())
             };
 
             if (option == "2")

@@ -1,43 +1,60 @@
 ﻿using System;
 using System.Net.Http;
-using System.Threading.Tasks;
-using Autofac;
-using Autofac.Extensions.DependencyInjection;
-using MarginTrading.AssetService.Controllers;
+using Lykke.Common.MsSql;
+using Lykke.Cqrs;
+using Lykke.Snow.Mdm.Contracts.Api;
+using MarginTrading.AssetService.SqlRepositories;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc.ApplicationParts;
-using Microsoft.AspNetCore.TestHost;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+using Moq;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace MarginTrading.AssetService.Tests.Common
 {
-    public class TestBootstrapper
+    public static class TestBootstrapper
     {
-        public static async Task<HttpClient> CreateTestClientWithInMemoryDb(Action<ContainerBuilder> registerDependenciesAction = null)
+        private const string EnvironmentName = "test";
+        private const string AppSettingsFileName = "appsettings.test.json";
+        
+        public static HttpClient CreateTestClientWithInMemoryDb(Action<IServiceCollection> mockDependencies = null)
         {
-            System.Environment.SetEnvironmentVariable("SettingsUrl", "appsettings.test.json");
-
-            var hostBuilder = new HostBuilder()
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory());
-                
-            hostBuilder = registerDependenciesAction == null ? hostBuilder : hostBuilder.ConfigureContainer(registerDependenciesAction);
-            hostBuilder = hostBuilder.ConfigureWebHost(webHost =>
+            var application = new WebApplicationFactory<Program>()
+                .WithWebHostBuilder(builder =>
                 {
-                    webHost.UseTestServer();
-                    webHost.UseStartup<TestsStartup>();
-                    webHost.ConfigureServices(x =>
-                    {
-                        var assembly = typeof(ClientProfilesController).Assembly;
-                        x.AddControllers().PartManager.ApplicationParts.Add(new AssemblyPart(assembly));
-                    });
+                    builder
+                        .UseSetting("SettingsUrl", AppSettingsFileName)
+                        .UseEnvironment(EnvironmentName)
+                        .ConfigureServices(services =>
+                        {
+                            // register mocked cqrs engine
+                            services.AddSingleton(new Mock<ICqrsEngine>().Object);
+
+                            // register in-memory database
+                            var options = new DbContextOptionsBuilder<AssetDbContext>()
+                                .UseInMemoryDatabase(databaseName: $"TestDb{Guid.NewGuid().ToString()}")
+                                .Options;
+                            var contextFactory =
+                                new MsSqlContextFactory<AssetDbContext>(_ => new AssetDbContext(options), options);
+                            services.AddSingleton(contextFactory);
+                            services.AddSingleton<Lykke.Common.MsSql.IDbContextFactory<AssetDbContext>>(contextFactory);
+
+                            // mocking remote services with defaults
+                            services.AddSingleton(new Mock<IUnderlyingsApi>().Object);
+                            services.AddSingleton(new Mock<IRegulatoryTypesApi>().Object);
+                            services.AddSingleton(new Mock<IRegulationsApi>().Object);
+                            services.AddSingleton(new Mock<IRegulatoryProfilesApi>().Object);
+                            services.AddSingleton(new Mock<IRegulatorySettingsApi>().Object);
+                            services.AddSingleton(new Mock<IBrokerSettingsApi>().Object);
+                            services.AddSingleton(new Mock<IUnderlyingCategoriesApi>().Object);
+
+                            mockDependencies?.Invoke(services);
+                        });
                 });
-
-            var host = await hostBuilder.StartAsync();
-
-            var client = host.GetTestClient();
+            
+            var client = application.CreateDefaultClient();
             client.DefaultRequestHeaders.Add("api-key", "margintrading");
 
             return client;

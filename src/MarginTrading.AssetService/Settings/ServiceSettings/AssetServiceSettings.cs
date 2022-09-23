@@ -32,9 +32,6 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
         public RequestLoggerSettings RequestLoggerSettings { get; set; }
         
         [Optional]
-        public bool UseSerilog { get; set; }
-
-        [Optional]
         public PlatformSettings Platform { get; set; } = new PlatformSettings();
         
         [Optional]

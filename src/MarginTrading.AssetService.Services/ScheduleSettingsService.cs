@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Domain;
@@ -12,6 +11,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -21,20 +21,20 @@ namespace MarginTrading.AssetService.Services
         private readonly IMarketSettingsRepository _marketSettingsRepository;
         private readonly PlatformSettings _platformSettings;
         private readonly string _brokerId;
-        private readonly ILog _log;
+        private readonly ILogger<ScheduleSettingsService> _logger;
 
         public ScheduleSettingsService(
             IBrokerSettingsApi brokerSettingsApi,
             IMarketSettingsRepository marketSettingsRepository,
             PlatformSettings platformSettings,
             string brokerId,
-            ILog log)
+            ILogger<ScheduleSettingsService> logger)
         {
             _brokerSettingsApi = brokerSettingsApi;
             _marketSettingsRepository = marketSettingsRepository;
             _platformSettings = platformSettings;
             _brokerId = brokerId;
-            _log = log;
+            _logger = logger;
         }
 
         public async Task<IReadOnlyList<IScheduleSettings>> GetFilteredAsync(string marketId = null)
@@ -74,8 +74,7 @@ namespace MarginTrading.AssetService.Services
 
             if (result.ErrorCode != BrokerSettingsErrorCodesContract.None)
             {
-                _log?.WriteErrorAsync(nameof(ScheduleSettingsService), nameof(GetBrokerScheduleAsync),
-                    $"Schedule is missing for brokerId assigned to AssetService:{_brokerId}", null);
+                _logger.LogError("Schedule is missing for brokerId assigned to AssetService:{BrokerId}", _brokerId);
                 throw new BrokerSettingsDoNotExistException();
             }
 

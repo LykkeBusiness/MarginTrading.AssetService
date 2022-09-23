@@ -1,13 +1,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using BookKeeper.Client.Workflow.Events;
-using Common;
-using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Workflow.Products
 {
@@ -16,25 +15,22 @@ namespace MarginTrading.AssetService.Workflow.Products
         private readonly IProductsRepository _productsRepository;
         private readonly IMarketDayOffService _marketDayOffService;
         private readonly CqrsContextNamesSettings _contextNames;
-        private readonly ILog _log;
+        private readonly ILogger<StartProductsSaga> _logger;
 
         public StartProductsSaga(IProductsRepository productsRepository,
             IMarketDayOffService marketDayOffService,
-            CqrsContextNamesSettings _contextNames,
-            ILog log)
+            CqrsContextNamesSettings contextNames,
+            ILogger<StartProductsSaga> logger)
         {
             _productsRepository = productsRepository;
             _marketDayOffService = marketDayOffService;
-            this._contextNames = _contextNames;
-            _log = log;
+            _contextNames = contextNames;
+            _logger = logger;
         }
 
         [UsedImplicitly]
         public async Task Handle(EodProcessFinishedEvent e, ICommandSender sender)
         {
-            _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle),
-                $"EodProcessFinishedEvent received: {e.ToJson()}");
-
             var productsResult = await _productsRepository.GetAllAsync(null, null, isStarted: false);
 
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())
@@ -43,23 +39,16 @@ namespace MarginTrading.AssetService.Workflow.Products
                 var markets = products.Select(x => x.Market).Distinct().ToArray();
                 var marketInfos = await _marketDayOffService.GetMarketsInfo(markets, null);
 
-                foreach (var product in products)
-                {
-                    _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle),
-                        $"Product {product.ProductId}, startDate: {product.StartDate}, next trading day: {marketInfos[product.Market].NextTradingDayStart}, will start: {product.StartDate < marketInfos[product.Market].NextTradingDayStart.Date.AddDays(1)}");
-                }
-
                 var productsToStart = productsResult.Value
                     .Where(x => x.StartDate < marketInfos[x.Market].NextTradingDayStart.Date.AddDays(1))
                     .ToList();
 
-                _log.WriteInfo(nameof(StartProductsSaga), nameof(Handle),
-                    $"Found {productsToStart.Count} products that need to be started. Ids are: {string.Concat(',', productsToStart.Select(x => x.ProductId))}"
-                );
-
+                var productsIdsString = string.Concat(',', productsToStart.Select(x => x.ProductId));
+                _logger.LogInformation("Found {ProductsCount} products that need to be started. Ids are: {ProductsIdsString}", productsToStart.Count, productsIdsString);
+                
                 foreach (var product in productsToStart)
                 {
-                    sender.SendCommand(new StartProductCommand()
+                    sender.SendCommand(new StartProductCommand
                     {
                         ProductId = product.ProductId,
                         OperationId = e.OperationId,

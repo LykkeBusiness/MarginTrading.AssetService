@@ -21,7 +21,6 @@ namespace MarginTrading.AssetService.Tests
         private readonly ICqrsMessageSender _cqrsMessageSender;
         private readonly IConvertService _convertService;
         private readonly CorrelationContextAccessor _correlationContextAccessor;
-        private readonly IIdentityGenerator _identityGenerator;
 
         public CurrenciesServiceTests()
         {
@@ -31,7 +30,6 @@ namespace MarginTrading.AssetService.Tests
             _cqrsMessageSender = new Mock<ICqrsMessageSender>().Object;
             _convertService = new Mock<IConvertService>().Object;
             _correlationContextAccessor = new Mock<CorrelationContextAccessor>().Object;
-            _identityGenerator = new Mock<IIdentityGenerator>().Object;
         }
 
         private static DbContextOptions<T> CreateNewContextOptions<T>(string databaseName) where T : DbContext
@@ -52,7 +50,8 @@ namespace MarginTrading.AssetService.Tests
             // InMemory database and the new service provider.
             var builder = new DbContextOptionsBuilder<T>();
             builder.UseInMemoryDatabase(databaseName: databaseName)
-                   .UseInternalServiceProvider(serviceProvider);
+                   .UseInternalServiceProvider(serviceProvider)
+                   .EnableSensitiveDataLogging();
 
             return builder.Options;
         }
@@ -71,9 +70,24 @@ namespace MarginTrading.AssetService.Tests
             const string productId = "testProductId";
 
             var currency = CreateCurrency(currencyId);
-            var product = new ProductEntity { ProductId = productId, TradingCurrencyId = currencyId };
+            var product = new ProductEntity
+            {
+                ProductId = productId, 
+                TradingCurrencyId = currencyId, 
+                AssetTypeId = "testAssetTypeId",
+                CategoryId = "testCategoryId", 
+                ForceId = "testForceId",
+                IsinLong = "testIsinLong",
+                IsinShort = "testIsinShort",
+                MarketId = "testMarketId",
+                Name = "testName",
+                PublicationRic = "testPublicationRic",
+                StartDate = DateTime.UtcNow,
+                TickFormulaId = "testTickFormulaId",
+                UnderlyingMdsCode = "testUnderlyingMdsCode"
+            };
 
-            using (var db = _contextFactory.CreateDataContext())
+            await using (var db = _contextFactory.CreateDataContext())
             {
                 await db.Currencies.AddAsync(currency);
                 await db.Products.AddAsync(product);
@@ -85,14 +99,13 @@ namespace MarginTrading.AssetService.Tests
 
             // Act
             const string userName = "admin";
-            string correlationId = Guid.NewGuid().ToString("N");
             var result = await service.DeleteAsync(currencyId, userName);
 
             // Assert
             Assert.True(result.IsFailed);
             Assert.Equal(Core.Domain.CurrenciesErrorCodes.CannotDeleteCurrencyWithAttachedProducts, result.Error);
 
-            using (var db = _contextFactory.CreateDataContext())
+            await using (var db = _contextFactory.CreateDataContext())
             {
                 Assert.True(await db.Currencies.AnyAsync(x => x.Id == currencyId));
                 Assert.True(await db.Products.AnyAsync(x => x.ProductId == productId));
@@ -106,7 +119,7 @@ namespace MarginTrading.AssetService.Tests
             const string currencyId = "testCurrencyId";
             var currency = CreateCurrency(currencyId);
 
-            using (var db = _contextFactory.CreateDataContext())
+            await using (var db = _contextFactory.CreateDataContext())
             {
                 await db.Currencies.AddAsync(currency);
                 await db.SaveChangesAsync();
@@ -117,13 +130,12 @@ namespace MarginTrading.AssetService.Tests
 
             // Act
             const string userName = "admin";
-            string correlationId = Guid.NewGuid().ToString("N");
             var result = await service.DeleteAsync(currencyId, userName);
 
             // Assert
             Assert.True(result.IsSuccess);
 
-            using (var db = _contextFactory.CreateDataContext())
+            await using (var db = _contextFactory.CreateDataContext())
             {
                 Assert.True(await db.Currencies.AllAsync(x => x.Id != currencyId));
             }

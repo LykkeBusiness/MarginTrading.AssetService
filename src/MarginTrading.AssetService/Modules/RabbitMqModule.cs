@@ -1,5 +1,4 @@
 ﻿using Autofac;
-using Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
@@ -18,12 +17,10 @@ namespace MarginTrading.AssetService.Modules
     public class RabbitMqModule : Module
     {
         private readonly AssetServiceSettings _settings;
-        private readonly ILog _log;
 
-        public RabbitMqModule(IReloadingManager<AssetServiceSettings> settings, ILog log)
+        public RabbitMqModule(IReloadingManager<AssetServiceSettings> settings)
         {
             _settings = settings.CurrentValue;
-            _log = log;
         }
 
         protected override void Load(ContainerBuilder builder)
@@ -35,7 +32,10 @@ namespace MarginTrading.AssetService.Modules
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);
             
             builder.Register(x => new UnderlyingChangedSubscriber(x.Resolve<UnderlyingChangedHandler>(),
-                    underlyingChangedSubScr, _log, x.Resolve<RabbitMqCorrelationManager>(), x.Resolve<ILoggerFactory>()))
+                    underlyingChangedSubScr,
+                    x.Resolve<RabbitMqCorrelationManager>(),
+                    x.Resolve<ILoggerFactory>(),
+                    x.Resolve<ILogger<UnderlyingChangedSubscriber>>()))
                 .As<IStartStop>()
                 .SingleInstance();
             
@@ -44,7 +44,10 @@ namespace MarginTrading.AssetService.Modules
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);
 
             builder.Register(x => new BrokerSettingsChangedSubscriber(x.Resolve<BrokerSettingsChangedHandler>(),
-                    brokerSettingsSubsc, _log, x.Resolve<RabbitMqCorrelationManager>(), x.Resolve<ILoggerFactory>()))
+                    brokerSettingsSubsc,
+                    x.Resolve<RabbitMqCorrelationManager>(),
+                    x.Resolve<ILoggerFactory>(),
+                    x.Resolve<ILogger<BrokerSettingsChangedSubscriber>>()))
                 .As<IStartStop>()
                 .SingleInstance();
         }
@@ -54,8 +57,8 @@ namespace MarginTrading.AssetService.Modules
             IRabbitMqPublishStrategy rabbitMqPublishStrategy = null,
             IRabbitMqSerializer<T> serializer = null)
         {
-            rabbitMqPublishStrategy = rabbitMqPublishStrategy ?? new DefaultFanoutPublishStrategy(settings);
-            serializer = serializer ?? new JsonMessageSerializer<T>();
+            rabbitMqPublishStrategy ??= new DefaultFanoutPublishStrategy(settings);
+            serializer ??= new JsonMessageSerializer<T>();
 
             builder.Register(x =>
                     new RabbitMqPublisher<T>(x.Resolve<ILoggerFactory>(), settings)

@@ -1,6 +1,5 @@
 using System.Linq;
 using System.Threading.Tasks;
-using Autofac;
 using Common;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
@@ -9,6 +8,7 @@ using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using MarginTrading.AssetService.Tests.Common;
 using MarginTrading.AssetService.Tests.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using Xunit;
 
@@ -22,7 +22,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         [Fact]
         public async Task ProductCategoriesWorkflow()
         {
-            using var client = await TestBootstrapper.CreateTestClientWithInMemoryDb();
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb();
 
             await TestRecordsCreator.CreateCategoryAsync(client, "stocks/Germany/Dax 30");
 
@@ -66,10 +66,10 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))
                 .ReturnsAsync(true);
 
-            using var client = await TestBootstrapper.CreateTestClientWithInMemoryDb(builder =>
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
             {
-                builder.RegisterInstance(_underlyingsCacheMock.Object).As<IUnderlyingsCache>().SingleInstance();
-                builder.RegisterInstance(_assetTypesRepositoryMock.Object).As<IAssetTypesRepository>().SingleInstance();
+                services.AddSingleton(_underlyingsCacheMock.Object);
+                services.AddSingleton(_assetTypesRepositoryMock.Object);
             });
 
             var category = "stocks";
@@ -108,7 +108,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         [Fact]
         public async Task ProductCategories_CannotDeleteNonLeafCategory_Workflow()
         {
-            using var client = await TestBootstrapper.CreateTestClientWithInMemoryDb();
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb();
 
             var notLeafCategory = "stocks";
             var category = "stocks/germany";
@@ -157,10 +157,10 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))
                 .ReturnsAsync(true);
 
-            using var client = await TestBootstrapper.CreateTestClientWithInMemoryDb(builder =>
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
             {
-                builder.RegisterInstance(_underlyingsCacheMock.Object).As<IUnderlyingsCache>().SingleInstance();
-                builder.RegisterInstance(_assetTypesRepositoryMock.Object).As<IAssetTypesRepository>().SingleInstance();
+                services.AddSingleton(_underlyingsCacheMock.Object);
+                services.AddSingleton(_assetTypesRepositoryMock.Object);
             });
 
             var categoryWithProduct = "stocks/germany";

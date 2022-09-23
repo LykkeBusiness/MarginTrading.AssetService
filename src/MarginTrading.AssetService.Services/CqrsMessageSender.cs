@@ -3,11 +3,11 @@
 
 using System;
 using System.Threading.Tasks;
-using Common.Log;
 using JetBrains.Annotations;
 using Lykke.Cqrs;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -16,20 +16,20 @@ namespace MarginTrading.AssetService.Services
     {
         private readonly ICqrsEngine _cqrsEngine;
         private readonly CqrsContextNamesSettings _contextNames;
-        private readonly ILog _log;
+        private readonly ILogger<CqrsMessageSender> _logger;
 
         public CqrsMessageSender(
             ICqrsEngine cqrsEngine,
             CqrsContextNamesSettings contextNames,
             IConvertService convertService,
-            ILog log)
+            ILogger<CqrsMessageSender> logger)
         {
             _cqrsEngine = cqrsEngine;
             _contextNames = contextNames;
-            _log = log;
+            _logger = logger;
         }
 
-        public async Task SendEvent<TEvent>(TEvent @event)
+        public Task SendEvent<TEvent>(TEvent @event)
         {
             try
             {
@@ -37,8 +37,10 @@ namespace MarginTrading.AssetService.Services
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(CqrsMessageSender), nameof(TEvent), ex);
+                _logger.LogError(ex, "Failed to publish event {EventName}", typeof(TEvent).Name);
             }
+            
+            return Task.CompletedTask;
         }
     }
 }

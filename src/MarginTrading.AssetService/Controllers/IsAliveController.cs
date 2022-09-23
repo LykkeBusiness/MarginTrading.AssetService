@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Linq;
 using System.Net;
 using Lykke.Common.Api.Contract.Responses;
@@ -29,12 +30,12 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(ErrorResponse), (int)HttpStatusCode.InternalServerError)]
         public IActionResult Get()
         {
-            var healthViloationMessage = _healthService.GetHealthViolationMessage();
-            if (healthViloationMessage != null)
+            var healthViolationMessage = _healthService.GetHealthViolationMessage();
+            if (healthViolationMessage != null)
             {
                 return StatusCode(
                     (int)HttpStatusCode.InternalServerError,
-                    ErrorResponse.Create($"Service is unhealthy: {healthViloationMessage}"));
+                    ErrorResponse.Create($"Service is unhealthy: {healthViolationMessage}"));
             }
 
             // NOTE: Feel free to extend IsAliveResponse, to display job-specific indicators
@@ -42,12 +43,7 @@ namespace MarginTrading.AssetService.Controllers
             {
                 Name = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName,
                 Version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion,
-                Env = Program.EnvInfo,
-//#$if DEBUG
-                IsDebug = true,
-//#$else
-                //$#$//IsDebug = false,
-//#$endif
+                Env = Environment.GetEnvironmentVariable("ENV_INFO"),
                 IssueIndicators = _healthService.GetHealthIssues()
                     .Select(i => new IsAliveResponse.IssueIndicator
                     {

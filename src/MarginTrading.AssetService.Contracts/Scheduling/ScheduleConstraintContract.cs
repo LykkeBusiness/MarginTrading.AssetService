@@ -6,7 +6,7 @@ using System;
 namespace MarginTrading.AssetService.Contracts.Scheduling
 {
     /// <summary>
-    /// 3 cases are valid: {Time}, {Date & Time}, {DayOfWeek & Time}
+    /// 3 cases are valid: {Time}, {DateTime}, {DayOfWeekTime}
     /// </summary>
     public class ScheduleConstraintContract
     {

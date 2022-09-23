@@ -1,22 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Core</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Core</RootNamespace>
     <Version>2.10.5</Version>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>8.0</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;CS0612</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="7.5.0" />
-    <PackageReference Include="AutoMapper" Version="7.0.0" />
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
-    <PackageReference Include="Lykke.SlackNotifications" Version="2.0.0" />
     <PackageReference Include="Lykke.Snow.Audit" Version="1.2.0" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.43.3" />
+    <PackageReference Include="Lykke.Snow.Common" Version="2.4.0" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Common.Log;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Requests;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Services;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services.Caches
 {
@@ -14,17 +14,17 @@ namespace MarginTrading.AssetService.Services.Caches
     {
         private readonly IUnderlyingsApi _underlyingsApi;
         private readonly IConvertService _convertService;
-        private readonly ILog _log;
+        private readonly ILogger<UnderlyingsCache> _logger;
 
         private Dictionary<string, UnderlyingsCacheModel> _cache = new Dictionary<string, UnderlyingsCacheModel>();
         private HashSet<string> _isins = new HashSet<string>();
         private readonly ReaderWriterLockSlim _lockSlim = new ReaderWriterLockSlim();
 
-        public UnderlyingsCache(IUnderlyingsApi underlyingsApi, IConvertService convertService, ILog log)
+        public UnderlyingsCache(IUnderlyingsApi underlyingsApi, IConvertService convertService, ILogger<UnderlyingsCache> logger)
         {
             _underlyingsApi = underlyingsApi;
             _convertService = convertService;
-            _log = log;
+            _logger = logger;
         }
 
         public void Start()
@@ -32,14 +32,19 @@ namespace MarginTrading.AssetService.Services.Caches
             _lockSlim.EnterWriteLock();
             try
             {
-                _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), "Underlyings Cache init started.");
+                _logger.LogInformation("Underlyings cache init started");
 
                 var response = _underlyingsApi.GetAllAsync(new GetUnderlyingsRequestV2 { MdsCodes = null, Take = 0, Skip = 0 }).GetAwaiter().GetResult();
 
-                _log.WriteInfo(nameof(UnderlyingsCache), nameof(Start), $"{response.Underlyings.Count} underlyings read.");
+                _logger.LogInformation("{UnderlyingCount} underlyings read", response?.Underlyings?.Count ?? 0);
 
-                _cache = response.Underlyings.ToDictionary(u => u.MdsCode,
-                    v => _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(v));
+                if (response?.Underlyings != null)
+                {
+                    _cache = response.Underlyings.ToDictionary(
+                        u => u.MdsCode,
+                        v => _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(v));
+                }
+                
                 InitIsinsUnsafely();
             }
             finally
@@ -55,7 +60,7 @@ namespace MarginTrading.AssetService.Services.Caches
             {
                 var isInCache = _cache.TryGetValue(mdsCode, out var result);
                 if (!isInCache)
-                    _log.WriteWarning(nameof(UnderlyingsCache), nameof(GetByMdsCode), $"Cannot find underlying in cache by mdsCode: {mdsCode}");
+                    _logger.LogWarning("Cannot find underlying in cache by mdsCode: {MdsCode}", mdsCode);
 
                 return result;
             }

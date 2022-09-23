@@ -6,7 +6,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
@@ -22,16 +21,15 @@ using Newtonsoft.Json.Converters;
 
 namespace MarginTrading.AssetService.Services
 {
-    public class RabbitMqService : IRabbitMqService, IDisposable
+    public sealed class RabbitMqService : IRabbitMqService, IDisposable
     {
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
             Converters = {new StringEnumConverter()}
         };
 
-        private readonly ILog _logger;
-        private RabbitMqCorrelationManager _correlationManager;
-        private ILoggerFactory _loggerFactory;
+        private readonly RabbitMqCorrelationManager _correlationManager;
+        private readonly ILoggerFactory _loggerFactory;
 
         private readonly ConcurrentDictionary<string, IStartStop> _subscribers =
             new ConcurrentDictionary<string, IStartStop>();
@@ -40,11 +38,8 @@ namespace MarginTrading.AssetService.Services
             new ConcurrentDictionary<RabbitMqSubscriptionSettings, Lazy<IStartStop>>(
                 new SubscriptionSettingsEqualityComparer());
 
-        public RabbitMqService(ILog logger,
-            RabbitMqCorrelationManager correlationManager,
-            ILoggerFactory loggerFactory)
+        public RabbitMqService(RabbitMqCorrelationManager correlationManager, ILoggerFactory loggerFactory)
         {
-            _logger = logger;
             _correlationManager = correlationManager;
             _loggerFactory = loggerFactory;
         }

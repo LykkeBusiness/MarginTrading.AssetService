@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Log;
-using Lykke.Common;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.RabbitMqBroker.Subscriber.Deserializers;
@@ -15,27 +13,27 @@ using IStartStop = Lykke.RabbitMqBroker.IStartStop;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
 {
-    public class UnderlyingChangedSubscriber : IStartStop
+    public sealed class UnderlyingChangedSubscriber : IStartStop
     {
         private readonly UnderlyingChangedHandler _handler;
         private readonly RabbitMqSubscriptionSettings _settings;
-        private readonly ILog _log;
+        private readonly ILogger<UnderlyingChangedSubscriber> _logger;
         private RabbitMqSubscriber<UnderlyingChangedEvent> _subscriber;
-        private RabbitMqCorrelationManager _correlationManager;
-        private ILoggerFactory _loggerFactory;
+        private readonly RabbitMqCorrelationManager _correlationManager;
+        private readonly ILoggerFactory _loggerFactory;
 
         public UnderlyingChangedSubscriber(
             UnderlyingChangedHandler handler,
             RabbitMqSubscriptionSettings settings,
-            ILog log,
             RabbitMqCorrelationManager correlationManager,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ILogger<UnderlyingChangedSubscriber> logger)
         {
             _handler = handler;
             _settings = settings;
-            _log = log;
             _correlationManager = correlationManager;
             _loggerFactory = loggerFactory;
+            _logger = logger;
         }
 
         public void Start()
@@ -76,8 +74,8 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
         {
             await _handler.Handle(message);
 
-            _log.WriteInfo(nameof(UnderlyingChangedSubscriber), nameof(ProcessMessageAsync),
-                $"Handled event {nameof(UnderlyingChangedEvent)}. Event created at: {message.Timestamp.ToShortTimeString()}");
+            _logger.LogInformation("Handled event {EventName}. Event created at: {Timestamp}",
+                nameof(UnderlyingChangedEvent), message.Timestamp.ToShortTimeString());
         }
     }
 }

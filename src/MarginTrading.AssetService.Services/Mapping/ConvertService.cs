@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
+using AutoMapper.Extensions.EnumMapping;
 using JetBrains.Annotations;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Audit.Abstractions;
@@ -15,6 +16,7 @@ using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.Currencies;
+using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
@@ -28,6 +30,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Domain.Rates;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
@@ -48,22 +51,20 @@ namespace MarginTrading.AssetService.Services.Mapping
         {
             return new MapperConfiguration(cfg =>
             {
-                cfg.CreateMap<HashSet<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
-                cfg.CreateMap<string, HashSet<string>>().ConvertUsing(JsonConvert.DeserializeObject<HashSet<string>>);
-                cfg.CreateMap<List<string>, string>().ConvertUsing(JsonConvert.SerializeObject);
-                cfg.CreateMap<string, List<string>>().ConvertUsing(JsonConvert.DeserializeObject<List<string>>);
+                cfg.CreateMap<HashSet<string>, string>().ConvertUsing(s => JsonConvert.SerializeObject(s));
+                cfg.CreateMap<string, HashSet<string>>().ConvertUsing(h => JsonConvert.DeserializeObject<HashSet<string>>(h));
+                cfg.CreateMap<List<string>, string>().ConvertUsing(l => JsonConvert.SerializeObject(l));
+                cfg.CreateMap<string, List<string>>().ConvertUsing(s => JsonConvert.DeserializeObject<List<string>>(s));
                 cfg.CreateMap<ScheduleConstraint, ScheduleConstraintContract>().ReverseMap();
-                cfg.CreateMap<ScheduleConstraint, string>().ConvertUsing(JsonConvert.SerializeObject);
-                cfg.CreateMap<string, ScheduleConstraint>().ConvertUsing(JsonConvert.DeserializeObject<ScheduleConstraint>);
-                cfg.CreateMap<bool?, string>().ConstructUsing(x => x?.ToString() ?? "");
-                cfg.CreateMap<string, bool?>().ConstructUsing(x => bool.TryParse(x, out var parsed) ? parsed : (bool?)null);
+                cfg.CreateMap<ScheduleConstraint, string>().ConvertUsing(sc => JsonConvert.SerializeObject(sc));
+                cfg.CreateMap<string, ScheduleConstraint>().ConvertUsing(s => JsonConvert.DeserializeObject<ScheduleConstraint>(s));
+                cfg.CreateMap<bool?, string>().ConstructUsing((b, ctx) => b?.ToString() ?? "");
+                cfg.CreateMap<string, bool?>().ConvertUsing<NullBooleanTypeConverter>();
                 cfg.CreateMap<TimeSpan?, string>().ConstructUsing(x => JsonConvert.SerializeObject(x));
-                cfg.CreateMap<string, TimeSpan?>().ConstructUsing(x => TimeSpan.TryParse(x, out var parsed) ? parsed : (TimeSpan?)null);
-                cfg.CreateMap<FreezeInfo, string>().ConvertUsing(JsonConvert.SerializeObject);
-                cfg.CreateMap<string, FreezeInfo>().ConvertUsing(s =>
-                    string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
-                cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s =>
-                    string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
+                cfg.CreateMap<string, TimeSpan?>().ConvertUsing<NullTimespanTypeConverter>();
+                cfg.CreateMap<FreezeInfo, string>().ConvertUsing(fi => JsonConvert.SerializeObject(fi));
+                cfg.CreateMap<string, FreezeInfo>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
+                cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
 
                 //Client profile Settings
                 cfg.CreateMap<ClientProfileSettings, ClientProfileSettingsContract>().ReverseMap();
@@ -90,7 +91,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<AddProductRequest, Product>()
                     //For new products, the default value for the IsSuspended flag should be true.
                     //see https://lykke-snow.atlassian.net/browse/LT-2875
-                    .ForMember(p => p.IsSuspended, o => o.UseValue(true))
+                    .ForMember(p => p.IsSuspended, o => o.MapFrom(src => true))
                     .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
                 cfg.CreateMap<UpdateProductRequest, Product>()
                     .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
@@ -99,8 +100,14 @@ namespace MarginTrading.AssetService.Services.Mapping
                     .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))
                     .ForMember(dest => dest.MaintenanceLeverage, opt => opt.MapFrom(x => (decimal) x.MaintenanceLeverage))
                     .ForMember(dest => dest.MarginRatePercent, opt => opt.MapFrom(x => x.MarginRate.Value));
-                
+                cfg.CreateMap<MatchingEngineMode, MatchingEngineModeContract>().ConvertUsingEnumMapping();
+                cfg.CreateMap<FreezeInfo, FreezeInfoContract>();
+                cfg.CreateMap<FreezeReason, FreezeReasonContract>().ConvertUsingEnumMapping();
+                cfg.CreateMap<IAssetPair, AssetPairContract>();
+                    
+
                 //ProductCategories
+                cfg.CreateMap<ProductCategory, ProductCategoryContract>();
                 cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();
 
                 //MarketSettings
@@ -110,7 +117,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                     .ForMember(dest => dest.Close, opt => opt.MapFrom(x => x.MarketSchedule.Close))
                     .ForMember(dest => dest.Timezone, opt => opt.MapFrom(x => x.MarketSchedule.TimeZoneId));
                 cfg.CreateMap<MarketSettingsContract, MarketSettings>()
-                    .ForMember(dest => dest.MarketSchedule, opt => opt.ResolveUsing<MarketScheduleResolver>());
+                    .ForMember(dest => dest.MarketSchedule, opt => opt.MapFrom<MarketScheduleResolver>());
 
                 cfg.CreateMap<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>();
                 cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()

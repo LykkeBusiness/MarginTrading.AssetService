@@ -5,12 +5,11 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using JetBrains.Annotations;
 using MarginTrading.AssetService.Core.Helpers;
-using MarginTrading.AssetService.Services;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Middleware
 {
@@ -19,17 +18,15 @@ namespace MarginTrading.AssetService.Middleware
     {
         private readonly RequestDelegate _next;
         private readonly RequestLoggerSettings _settings;
-        private readonly ILog _log;
-        private readonly ILog _requestsLog;
+        private readonly ILogger<RequestsLoggingMiddleware> _logger;
 
         private const int MaxStorageFieldLength = 2000;
 
-        public RequestsLoggingMiddleware(RequestDelegate next, RequestLoggerSettings settings, ILog log)
+        public RequestsLoggingMiddleware(RequestDelegate next, RequestLoggerSettings settings, ILogger<RequestsLoggingMiddleware> logger)
         {
             _next = next;
             _settings = settings;
-            _log = log;
-            _requestsLog = LogLocator.RequestsLog;
+            _logger = logger;
         }
 
         [UsedImplicitly]
@@ -60,13 +57,13 @@ namespace MarginTrading.AssetService.Middleware
                             info = info.Substring(0, MaxStorageFieldLength);
                         }
 
-                        await _requestsLog.WriteInfoAsync("MIDDLEWARE", "RequestsLoggingMiddleware", requestContext, info);
+                        _logger.LogInformation("MIDDLEWARE: {Info}, Context: {Context}", info, requestContext);
                     }
                 }
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync("MIDDLEWARE", "RequestsLoggingMiddleware", requestContext, ex);
+                _logger.LogError(ex, "MIDDLEWARE: Failed to log request, Context: {Context}", requestContext); ;
             }
             finally
             {

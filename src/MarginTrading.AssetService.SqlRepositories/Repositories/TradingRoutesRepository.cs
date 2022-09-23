@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Dapper;
 using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Domain;
@@ -15,6 +14,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
@@ -44,103 +44,88 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         private readonly IConvertService _convertService;
         private readonly string _connectionString;
-        private readonly ILog _log;
+        private readonly ILogger<TradingRoutesRepository> _logger;
         
-        public TradingRoutesRepository(IConvertService convertService, string connectionString, ILog log)
+        public TradingRoutesRepository(IConvertService convertService, string connectionString, ILogger<TradingRoutesRepository> logger)
         {
             _convertService = convertService;
-            _log = log;
             _connectionString = connectionString;
-            
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
-                catch (Exception ex)
-                {
-                    _log?.WriteErrorAsync(nameof(TradingRoutesRepository), "CreateTableIfDoesntExists", null, ex);
-                    throw;
-                }
-            }
-        }
+            _logger = logger;
 
-        public async Task<IReadOnlyList<ITradingRoute>> GetAsync()
-        {
-            using (var conn = new SqlConnection(_connectionString))
+            using var conn = new SqlConnection(_connectionString);
+            try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
+            catch (Exception ex)
             {
-                var objects = await conn.QueryAsync<TradingRouteEntity>($"SELECT * FROM {TableName}");
-                
-                return objects.Select(_convertService.Convert<TradingRouteEntity, TradingRoute>).ToList();
+                _logger.LogError(ex, "Could not create {TableName} table", TableName);
+                throw;
             }
         }
 
         public async Task<PaginatedResponse<ITradingRoute>> GetByPagesAsync(int? skip = null, int? take = null)
         {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
-                var gridReader = await conn.QueryMultipleAsync(
-                    $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
-                var tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();
-                var totalCount = await gridReader.ReadSingleAsync<int>();
+            await using var conn = new SqlConnection(_connectionString);
+            var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+            var gridReader = await conn.QueryMultipleAsync(
+                $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
+            var tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();
+            var totalCount = await gridReader.ReadSingleAsync<int>();
                 
-                return new PaginatedResponse<ITradingRoute>(
-                    contents: tradingRoutes, 
-                    start: skip ?? 0, 
-                    size: tradingRoutes.Count, 
-                    totalSize: totalCount
-                );
-            }
+            return new PaginatedResponse<ITradingRoute>(
+                contents: tradingRoutes, 
+                start: skip ?? 0, 
+                size: tradingRoutes.Count, 
+                totalSize: totalCount
+            );
+        }
+        
+        public async Task<IReadOnlyList<ITradingRoute>> GetAsync()
+        {
+            await using var conn = new SqlConnection(_connectionString);
+            var objects = await conn.QueryAsync<TradingRouteEntity>($"SELECT * FROM {TableName}");
+                
+            return objects.Select(_convertService.Convert<TradingRouteEntity, TradingRoute>).ToList();
         }
 
         public async Task<ITradingRoute> GetAsync(string routeId)
         {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                var objects = await conn.QueryAsync<TradingRouteEntity>(
-                    $"SELECT * FROM {TableName} WHERE Id=@id", new {id = routeId});
+            await using var conn = new SqlConnection(_connectionString);
+            var objects = await conn.QueryAsync<TradingRouteEntity>(
+                $"SELECT * FROM {TableName} WHERE Id=@id", new {id = routeId});
                 
-                return objects.Select(_convertService.Convert<TradingRouteEntity, TradingRoute>).FirstOrDefault();
-            }
+            return objects.Select(_convertService.Convert<TradingRouteEntity, TradingRoute>).FirstOrDefault();
         }
 
         public async Task<bool> TryInsertAsync(ITradingRoute tradingRoute)
         {
-            using (var conn = new SqlConnection(_connectionString))
+            await using var conn = new SqlConnection(_connectionString);
+            try
             {
-                try
-                {
-                    await conn.ExecuteAsync(
-                        $"insert into {TableName} ({GetColumns}) values ({GetFields})",
-                        _convertService.Convert<ITradingRoute, TradingRouteEntity>(tradingRoute));
-                }
-                catch (Exception ex)
-                {
-                    _log?.WriteWarningAsync(nameof(TradingRoutesRepository), nameof(TryInsertAsync),
-                        $"Failed to insert a trading route with Id {tradingRoute.Id}", ex);
-                    return false;
-                }
-
-                return true;
+                await conn.ExecuteAsync(
+                    $"insert into {TableName} ({GetColumns}) values ({GetFields})",
+                    _convertService.Convert<ITradingRoute, TradingRouteEntity>(tradingRoute));
             }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to insert a trading route with Id {TradingRouteId}", tradingRoute.Id);
+                return false;
+            }
+
+            return true;
         }
 
         public async Task UpdateAsync(ITradingRoute tradingRoute)
         {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                await conn.ExecuteAsync(
-                    $"update {TableName} set {GetUpdateClause} where Id=@Id", 
-                    _convertService.Convert<ITradingRoute, TradingRouteEntity>(tradingRoute));
-            }
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.ExecuteAsync(
+                $"update {TableName} set {GetUpdateClause} where Id=@Id", 
+                _convertService.Convert<ITradingRoute, TradingRouteEntity>(tradingRoute));
         }
 
         public async Task DeleteAsync(string routeId)
         {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                await conn.ExecuteAsync(
-                    $"DELETE {TableName} WHERE Id=@Id", new { Id = routeId});
-            }
+            await using var conn = new SqlConnection(_connectionString);
+            await conn.ExecuteAsync(
+                $"DELETE {TableName} WHERE Id=@Id", new { Id = routeId});
         }
     }
 }

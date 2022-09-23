@@ -72,10 +72,4 @@
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
     <ProjectReference Include="..\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
   </ItemGroup>
-  <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
-    <ItemGroup>
-      <DocFile Include="$(OutputPath)$(AssemblyName).xml" />
-    </ItemGroup>
-    <Copy SourceFiles="@(DocFile)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
-  </Target>
 </Project>

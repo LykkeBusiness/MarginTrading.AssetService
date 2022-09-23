@@ -53,7 +53,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             }
         }
 
-        private async Task UpdateUnderlyingsCache(UnderlyingChangedEvent e, UnderlyingsCacheModel model)
+        private Task UpdateUnderlyingsCache(UnderlyingChangedEvent e, UnderlyingsCacheModel model)
         {
             if (e.OldValue.MdsCode != e.NewValue.MdsCode)
             {
@@ -63,6 +63,8 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             {
                 _underlyingsCache.AddOrUpdateByMdsCode(model);
             }
+            
+            return Task.CompletedTask;
         }
 
         private async Task HandleMdsCodeChanged(UnderlyingChangedEvent e)

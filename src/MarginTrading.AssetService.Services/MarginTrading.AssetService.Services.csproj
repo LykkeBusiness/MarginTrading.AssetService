@@ -5,6 +5,7 @@
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
     <Version>2.10.5</Version>
     <LangVersion>8.0</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;CS0612;CS0618</NoWarn>
@@ -12,7 +13,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="2.0.1" />
-    <PackageReference Include="Lykke.Snow.Common" Version="2.3.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="2.4.0" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="3.20.0" />
     <PackageReference Include="LykkeBiz.Common" Version="8.1.0" />
     <PackageReference Include="LykkeBiz.Cqrs" Version="11.1.0" />

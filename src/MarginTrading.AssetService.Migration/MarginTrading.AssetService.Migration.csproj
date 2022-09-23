@@ -4,6 +4,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
     <Version>2.10.5</Version>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />

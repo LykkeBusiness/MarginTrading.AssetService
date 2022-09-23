@@ -5,6 +5,7 @@
     <RootNamespace>MarginTrading.AssetService.Core</RootNamespace>
     <Version>2.10.5</Version>
     <LangVersion>8.0</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;CS0612</NoWarn>
@@ -14,7 +15,7 @@
     <PackageReference Include="Dapper" Version="2.0.30" />
     <PackageReference Include="Lykke.SettingsReader" Version="5.3.0" />
     <PackageReference Include="Lykke.Snow.Audit" Version="1.2.0" />
-    <PackageReference Include="Lykke.Snow.Common" Version="2.3.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="2.4.0" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
   </ItemGroup>
   <ItemGroup>

@@ -1,3 +1,4 @@
+using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
 using Lykke.Snow.Common.Correlation;
@@ -23,7 +24,7 @@ namespace MarginTrading.AssetService.Startup
 #if DEBUG
             app.UseLykkeMiddleware(Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName, ex => ex.ToString());
 #else
-            app.UseLykkeMiddleware(ServiceName, ex => new ErrorResponse {ErrorMessage = ex.Message});
+            app.UseLykkeMiddleware("Asset Service", ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif
             app.UseRefitExceptionHandler();
             app.UseRouting();

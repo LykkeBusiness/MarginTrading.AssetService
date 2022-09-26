@@ -4,7 +4,7 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
-using AutoMapper.Extensions.EnumMapping;
+
 using JetBrains.Annotations;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Audit.Abstractions;
@@ -13,22 +13,14 @@ using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
-using MarginTrading.AssetService.Contracts.ClientProfiles;
-using MarginTrading.AssetService.Contracts.ClientProfileSettings;
-using MarginTrading.AssetService.Contracts.Currencies;
-using MarginTrading.AssetService.Contracts.Enums;
-using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
-using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.Rates;
 using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
-using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Domain.Rates;
-using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using Newtonsoft.Json;
 using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
@@ -44,6 +36,11 @@ namespace MarginTrading.AssetService.Services.Mapping
         public ConvertService()
         {
             _mapper = CreateMapper();
+        }
+        
+        public void AssertConfigurationIsValid()
+        {
+            _mapper.ConfigurationProvider.AssertConfigurationIsValid();
         }
 
         private static IMapper CreateMapper()
@@ -65,16 +62,6 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<string, FreezeInfo>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
                 cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
 
-                //Client profile Settings
-                cfg.CreateMap<ClientProfileSettings, ClientProfileSettingsContract>().ReverseMap();
-                cfg.CreateMap<UpdateClientProfileSettingsRequest, ClientProfileSettings>()
-                    .ForMember(x => x.RegulatoryProfileId, opt => opt.Ignore())
-                    .ForMember(x => x.RegulatoryTypeId, opt => opt.Ignore());
-                cfg.CreateMap<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>();
-
-                //Client profiles
-                cfg.CreateMap<ClientProfile, ClientProfileContract>().ReverseMap();
-                
                 //Asset types
                 cfg.CreateMap<AssetType, AssetTypeContract>();
                 cfg.CreateMap<AddAssetTypeRequest, AssetTypeWithTemplate>();
@@ -85,26 +72,6 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<IAuditModel<AuditDataType>, AuditContract>();
                 cfg.CreateMap<GetAuditLogsRequest, AuditTrailFilter<AuditDataType>>();
                 
-                //Products
-                cfg.CreateMap<Product, ProductContract>().ReverseMap();
-                cfg.CreateMap<AddProductRequest, Product>()
-                    //For new products, the default value for the IsSuspended flag should be true.
-                    //see https://lykke-snow.atlassian.net/browse/LT-2875
-                    .ForMember(p => p.IsSuspended, o => o.MapFrom(src => true))
-                    .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
-                cfg.CreateMap<UpdateProductRequest, Product>()
-                    .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
-                cfg.CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
-                cfg.CreateMap<ITradingInstrument, TradingInstrumentContract>()
-                    .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))
-                    .ForMember(dest => dest.MaintenanceLeverage, opt => opt.MapFrom(x => (decimal) x.MaintenanceLeverage))
-                    .ForMember(dest => dest.MarginRatePercent, opt => opt.MapFrom(x => x.MarginRate.Value));
-                cfg.CreateMap<MatchingEngineMode, MatchingEngineModeContract>().ConvertUsingEnumMapping();
-                cfg.CreateMap<FreezeInfo, FreezeInfoContract>();
-                cfg.CreateMap<FreezeReason, FreezeReasonContract>().ConvertUsingEnumMapping();
-                cfg.CreateMap<IAssetPair, AssetPairContract>();
-                    
-
                 //ProductCategories
                 cfg.CreateMap<ProductCategory, ProductCategoryContract>();
                 cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();
@@ -122,13 +89,6 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
 
-                
-                //Currencies
-                cfg.CreateMap<AddCurrencyRequest, Currency>();
-                cfg.CreateMap<UpdateCurrencyRequest, Currency>();
-                cfg.CreateMap<CurrenciesErrorCodes, CurrenciesErrorCodesContract>();
-                cfg.CreateMap<Currency, CurrencyContract>().ReverseMap();
-
                 //Tick formula
                 cfg.CreateMap<ITickFormula, TickFormulaContract>().ReverseMap();
                 cfg.CreateMap<TickFormula, TickFormulaContract>().ReverseMap();
@@ -144,6 +104,10 @@ namespace MarginTrading.AssetService.Services.Mapping
                 
                 //Overnight swaps
                 cfg.CreateMap<OvernightSwapRate, OvernightSwapRateContract>();
+                
+                cfg.AddProfile<TradingConditionsProfile>();
+                cfg.AddProfile<ProductsProfile>();
+                cfg.AddProfile<CurrenciesProfile>();
             }).CreateMapper();
         }
 

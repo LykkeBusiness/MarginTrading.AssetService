@@ -31,7 +31,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 Id = model.Id,
                 RegulatoryProfileId = model.RegulatoryProfileId,
-                IsDefault = model.IsDefault,
+                IsDefault = model.IsDefault
             };
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();

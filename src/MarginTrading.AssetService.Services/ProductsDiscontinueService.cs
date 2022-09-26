@@ -30,16 +30,15 @@ namespace MarginTrading.AssetService.Services
             if (existing.IsFailed) return (null, null, false);
 
             var result = await _repository.ChangeSuspendFlagAsync(productId, isSuspended);
-            if (result.IsSuccess)
-            {
-                var product = result.Value;
+            if (!result.IsSuccess) 
+                return (null, null, false);
+            
+            var product = result.Value;
 
-                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
 
-                return (existing.Value, result.Value, true);
-            }
+            return (existing.Value, result.Value, true);
 
-            return (null, null, false);
         }
     }
 }

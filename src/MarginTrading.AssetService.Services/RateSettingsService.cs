@@ -80,13 +80,11 @@ namespace MarginTrading.AssetService.Services
                 var tradingCurrencyId = productTradingCurrencyMap[productId];
                 var tradingCurrency = tradingCurrencies[tradingCurrencyId];
 
-                var rate = new OvernightSwapRate
-                {
-                    AssetPairId = productId,
-                    VariableRateQuote = tradingCurrency.InterestRateMdsCode,
-                    RepoSurchargePercent = underlying?.RepoSurchargePercent ?? _defaultRateSettings.DefaultOvernightSwapSettings.RepoSurchargePercent,
-                    VariableRateBase = baseCurrency?.InterestRateMdsCode,
-                };
+                var rate = new OvernightSwapRate(productId,
+                    underlying?.RepoSurchargePercent ??
+                    _defaultRateSettings.DefaultOvernightSwapSettings.RepoSurchargePercent,
+                    baseCurrency?.InterestRateMdsCode,
+                    tradingCurrency.InterestRateMdsCode);
 
                 result.Add(rate);
             }

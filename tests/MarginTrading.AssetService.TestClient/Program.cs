@@ -241,7 +241,7 @@ namespace MarginTrading.AssetService.TestClient
                 MatchingEngineId = "m1",
                 Asset = "BTC",
                 RiskSystemLimitType = "11",
-                RiskSystemMetricType = "11",
+                RiskSystemMetricType = "11"
             };
 
             var tradingRouteApiClient = clientGenerator.Generate<ITradingRoutesApi>();

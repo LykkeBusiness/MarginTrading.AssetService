@@ -45,12 +45,12 @@ namespace MarginTrading.AssetService.Services
 
             var result = await _repository.InsertAsync(product);
 
-            if (result.IsSuccess)
-            {
-                await _auditService.CreateAuditRecord(AuditEventType.Creation, username, product);
+            if (!result.IsSuccess) 
+                return result;
+            
+            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, product);
                 
-                await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product, username);
-            }
+            await _entityChangedSender.SendEntityCreatedEvent<Product, ProductContract, ProductChangedEvent>(product, username);
 
             return result;
         }
@@ -59,51 +59,51 @@ namespace MarginTrading.AssetService.Services
         {
             var existing = await _repository.GetByIdAsync(product.ProductId);
 
-            if (existing.IsSuccess)
-            {
-                var validationResult =
-                    await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, existing.Value);
-                if (validationResult.IsFailed) return validationResult.ToResultWithoutValue();
+            if (!existing.IsSuccess) 
+                return existing.ToResultWithoutValue();
+            
+            var validationResult =
+                await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, existing.Value);
+            
+            if (validationResult.IsFailed) 
+                return validationResult.ToResultWithoutValue();
 
-                product = validationResult.Value;
+            product = validationResult.Value;
 
-                var result = await _repository.UpdateAsync(product);
+            var result = await _repository.UpdateAsync(product);
 
-                if (result.IsSuccess)
-                {
-                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
-                    
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product, username);
-                }
-
+            if (!result.IsSuccess) 
                 return result;
-            }
+                
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
+                    
+            await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product, username);
 
-            return existing.ToResultWithoutValue();
+            return result;
+
         }
 
         public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, string username)
         {
             var existing = await _repository.GetByIdAsync(productId);
 
-            if (existing.IsSuccess)
-            {
-                if (existing.Value.IsStarted)
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
+            if (!existing.IsSuccess) 
+                return existing.ToResultWithoutValue();
+            
+            if (existing.Value.IsStarted)
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
 
-                var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
+            var result = await _repository.DeleteAsync(productId, existing.Value.Timestamp);
 
-                if (result.IsSuccess)
-                {
-                    await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing.Value);
-                    
-                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, username);
-                }
-
+            if (!result.IsSuccess) 
                 return result;
-            }
+                
+            await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing.Value);
+                    
+            await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, username);
 
-            return existing.ToResultWithoutValue();
+            return result;
+
         }
 
         public async Task<Result<Product, ProductsErrorCodes>> ChangeFrozenStatus(string productId, bool isFrozen,
@@ -130,12 +130,12 @@ namespace MarginTrading.AssetService.Services
             var result =
                 await _repository.ChangeFrozenStatus(productId, isFrozen, existing.Value.Timestamp, freezeInfo);
 
-            if (result.IsSuccess)
-            {
-                await _auditService.CreateAuditRecord(AuditEventType.Edition, userName, result.Value, existing.Value);
+            if (!result.IsSuccess) 
+                return result;
+            
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, userName, result.Value, existing.Value);
                 
-                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, result.Value, userName);
-            }
+            await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, result.Value, userName);
 
             return result;
         }
@@ -167,16 +167,17 @@ namespace MarginTrading.AssetService.Services
 
             var result = await _repository.UpdateBatchAsync(products);
 
-            if (result.IsSuccess)
-            {
-                foreach (var product in products)
-                {
-                    var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
+            if (!result.IsSuccess) 
+                return result;
 
-                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existingProduct);
-                    
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existingProduct, product, username);
-                }
+            foreach (var product in products)
+            {
+                var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
+
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existingProduct);
+
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(
+                    existingProduct, product, username);
             }
 
             return result;
@@ -194,14 +195,14 @@ namespace MarginTrading.AssetService.Services
 
             var result = await _repository.DeleteBatchAsync(withTimestamps);
 
-            if (result.IsSuccess)
+            if (!result.IsSuccess) 
+                return result;
+            
+            foreach (var product in existing.Value)
             {
-                foreach (var product in existing.Value)
-                {
-                    await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, product);
+                await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, product);
                     
-                    await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(product, username);
-                }
+                await _entityChangedSender.SendEntityDeletedEvent<Product, ProductContract, ProductChangedEvent>(product, username);
             }
 
             return result;
@@ -270,12 +271,12 @@ namespace MarginTrading.AssetService.Services
 
                 var result = await _repository.UpdateAsync(product);
 
-                if (result.IsSuccess)
-                {
-                    await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, oldProduct);
+                if (!result.IsSuccess)
+                    continue;
+                
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, oldProduct);
                     
-                    await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
-                }
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
             }
 
             return new Result<ProductsErrorCodes>();
@@ -297,12 +298,12 @@ namespace MarginTrading.AssetService.Services
 
             var result = await _repository.UpdateAsync(product);
 
-            if (result.IsSuccess)
-            {
-                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, oldProduct);
+            if (!result.IsSuccess) 
+                return result;
+            
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, oldProduct);
                 
-                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
-            }
+            await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
 
             return result;
         }

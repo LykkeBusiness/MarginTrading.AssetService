@@ -1,5 +1,4 @@
 ﻿using Lykke.RabbitMqBroker;
-using Lykke.RabbitMqBroker.Subscriber;
 
 namespace MarginTrading.AssetService.Settings.ServiceSettings
 {
@@ -22,7 +21,7 @@ namespace MarginTrading.AssetService.Settings.ServiceSettings
                 ExchangeName = subscriptionSettings.ExchangeName,
                 QueueName = subscriptionSettings.QueueName,
                 ConnectionString = subscriptionSettings.ConnectionString,
-                DeadLetterExchangeName = subscriptionSettings.DeadLetterExchangeName,
+                DeadLetterExchangeName = subscriptionSettings.DeadLetterExchangeName
             };
         }
     }

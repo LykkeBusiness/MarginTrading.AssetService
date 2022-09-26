@@ -166,7 +166,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Accuracy = 2,
                 Id = currency.Id,
                 InterestRateMdsCode = currency.InterestRateMdsCode,
-                Timestamp = currency.Timestamp,
+                Timestamp = currency.Timestamp
             };
         }
         
@@ -177,7 +177,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 Accuracy = entity.Accuracy,
                 Id = entity.Id,
                 Timestamp = entity.Timestamp,
-                InterestRateMdsCode = entity.InterestRateMdsCode,
+                InterestRateMdsCode = entity.InterestRateMdsCode
             };
         }
     }

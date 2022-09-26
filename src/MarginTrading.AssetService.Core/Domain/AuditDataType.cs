@@ -10,6 +10,6 @@ namespace MarginTrading.AssetService.Core.Domain
         Product,
         MarketSettings,
         ProductCategory,
-        TickFormula,
+        TickFormula
     }
 }

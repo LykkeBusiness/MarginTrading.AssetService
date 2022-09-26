@@ -125,7 +125,7 @@ namespace MarginTrading.AssetService.Tests
 
             var request = new TickFormula
             {
-                Id = Id,
+                Id = Id
             };
 
             var sut = CreateSutInstance();

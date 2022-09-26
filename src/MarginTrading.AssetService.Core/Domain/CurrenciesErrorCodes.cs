@@ -5,6 +5,6 @@ namespace MarginTrading.AssetService.Core.Domain
         None,
         AlreadyExists,
         DoesNotExist,
-        CannotDeleteCurrencyWithAttachedProducts,
+        CannotDeleteCurrencyWithAttachedProducts
     }
 }

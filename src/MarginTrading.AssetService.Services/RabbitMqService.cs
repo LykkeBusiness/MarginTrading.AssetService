@@ -69,7 +69,7 @@ namespace MarginTrading.AssetService.Services
             {
                 ConnectionString = connectionString,
                 ExchangeName = exchangeName,
-                IsDurable = isDurable,
+                IsDurable = isDurable
             };
 
             return (IMessageProducer<TMessage>) _producers.GetOrAdd(subscriptionSettings, CreateProducer).Value;
@@ -99,7 +99,7 @@ namespace MarginTrading.AssetService.Services
                 QueueName =
                     $"{exchangeName}.{PlatformServices.Default.Application.ApplicationName}",
                 ExchangeName = exchangeName,
-                IsDurable = isDurable,
+                IsDurable = isDurable
             };
 
             var rabbitMqSubscriber = new RabbitMqSubscriber<TMessage>(

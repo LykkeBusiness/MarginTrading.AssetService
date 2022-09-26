@@ -26,7 +26,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 Id = model.Id,
                 RegulatoryTypeId = model.RegulatoryTypeId,
-                UnderlyingCategoryId = model.UnderlyingCategoryId,
+                UnderlyingCategoryId = model.UnderlyingCategoryId
             };
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
@@ -111,7 +111,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     {
                         Id = r.Id,
                         RegulatoryTypeId = r.RegulatoryTypeId,
-                        UnderlyingCategoryId = r.UnderlyingCategoryId,
+                        UnderlyingCategoryId = r.UnderlyingCategoryId
                     })
                     .ToListAsync();
 
@@ -144,7 +144,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     Id = entity.Id,
                     RegulatoryTypeId = entity.RegulatoryTypeId,
-                    UnderlyingCategoryId = entity.UnderlyingCategoryId,
+                    UnderlyingCategoryId = entity.UnderlyingCategoryId
                 };
             }
         }

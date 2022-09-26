@@ -69,17 +69,17 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 });
 
             _regulatorySettingsApiMock.Setup(x => x.GetRegulatorySettingsByIdsAsync(It.IsAny<string>(), It.IsAny<string>()))
-                .ReturnsAsync(new GetRegulatorySettingsByIdsResponse()
+                .ReturnsAsync(new GetRegulatorySettingsByIdsResponse
                 {
-                    RegulatorySettings = new RegulatorySettingsContract()
+                    RegulatorySettings = new RegulatorySettingsContract
                     {
                         IsAvailable = true,
-                        MarginMinPercent = MarginMinPercent,
+                        MarginMinPercent = MarginMinPercent
                     }
                 });
 
             _regulatorySettingsApiMock.Setup(x => x.GetRegulatorySettingsByRegulationAsync(It.IsAny<string>()))
-                .ReturnsAsync(new GetRegulatorySettingsResponse()
+                .ReturnsAsync(new GetRegulatorySettingsResponse
                 {
                     RegulatorySettings = new List<RegulatorySettingsContract>
                     {

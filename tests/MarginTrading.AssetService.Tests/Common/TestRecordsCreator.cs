@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Tests.Common
                 Username = "asdasd",
                 AssetTypeTemplateId = assetTypeTemplateId,
                 Id = id,
-                UnderlyingCategoryId = underlyingCategoryId,
+                UnderlyingCategoryId = underlyingCategoryId
             };
 
             var response = await client.PostAsync($"/api/asset-types", request.ToJsonStringContent());
@@ -50,7 +50,7 @@ namespace MarginTrading.AssetService.Tests.Common
                 Username = "asdasd",
                 IsDefault = isDefault,
                 ClientProfileTemplateId = clientProfileTemplateId,
-                Id = id,
+                Id = id
             };
 
             var response = await client.PostAsync($"/api/client-profiles", request.ToJsonStringContent());
@@ -62,10 +62,10 @@ namespace MarginTrading.AssetService.Tests.Common
 
         public static async Task<ProductCategoriesErrorCodesContract> CreateCategoryAsync(HttpClient client, string category)
         {
-            var request = new AddProductCategoryRequest()
+            var request = new AddProductCategoryRequest
             {
                 Category = category,
-                UserName = "user",
+                UserName = "user"
             };
 
             var response = await client.PostAsync("/api/product-categories", request.ToJsonStringContent());
@@ -77,11 +77,11 @@ namespace MarginTrading.AssetService.Tests.Common
 
         public static async Task CreateCurrencyAsync(HttpClient client, string id)
         {
-            var request = new AddCurrencyRequest()
+            var request = new AddCurrencyRequest
             {
                 Id = id,
                 InterestRateMdsCode = id,
-                UserName = "username",
+                UserName = "username"
             };
 
             await client.PostAsync("/api/currencies", request.ToJsonStringContent());
@@ -106,18 +106,18 @@ namespace MarginTrading.AssetService.Tests.Common
 
         public static async Task CreateTickFormula(HttpClient client, string id)
         {
-            var request = new AddTickFormulaRequest()
+            var request = new AddTickFormulaRequest
             {
                 Id = id,
                 Username = "username",
-                PdlLadders = new List<decimal>()
+                PdlLadders = new List<decimal>
                 {
                     {new decimal(0)}, {1}
                 },
-                PdlTicks = new List<decimal>()
+                PdlTicks = new List<decimal>
                 {
                     {new decimal(0.1)}, {1}
-                },
+                }
             };
 
             await client.PostAsync("/api/tick-formulas", request.ToJsonStringContent());
@@ -126,7 +126,7 @@ namespace MarginTrading.AssetService.Tests.Common
         public static async Task<ErrorCodeResponse<ProductsErrorCodesContract>> CreateProductAsync(HttpClient client,
             string productId, string category)
         {
-            var request = new AddProductRequest()
+            var request = new AddProductRequest
             {
                 ProductId = productId,
                 Category = category,
@@ -155,7 +155,7 @@ namespace MarginTrading.AssetService.Tests.Common
                 UnderlyingMdsCode = "mds-code",
                 MinOrderDistancePercent = new decimal(1.0),
                 MinOrderEntryInterval = new decimal(1.0),
-                MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId),
+                MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId)
             };
 
             var response = await client.PostAsync("/api/products", request.ToJsonStringContent());

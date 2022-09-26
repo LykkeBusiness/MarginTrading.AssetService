@@ -20,7 +20,7 @@ namespace MarginTrading.AssetService.Services
             var validationResult = await _validation.ValidateAllAsync(category);
 
             if (validationResult.IsFailed)
-                return new Result<ProductCategoryName, ProductCategoriesErrorCodes>(validationResult.Error.Value);
+                return new Result<ProductCategoryName, ProductCategoriesErrorCodes>(validationResult.Error!.Value);
 
             var name = new ProductCategoryName(category, validationResult.Value);
             return new Result<ProductCategoryName, ProductCategoriesErrorCodes>(name);

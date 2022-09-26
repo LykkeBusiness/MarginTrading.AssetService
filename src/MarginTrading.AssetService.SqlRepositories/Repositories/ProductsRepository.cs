@@ -75,7 +75,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public async Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, byte[] timestamp)
         {
             await using var context = _contextFactory.CreateDataContext();
-            var entity = new ProductEntity() { ProductId = productId, Timestamp = timestamp };
+            var entity = new ProductEntity { ProductId = productId, Timestamp = timestamp };
 
             context.Attach(entity);
             context.Products.Remove(entity);
@@ -240,7 +240,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             await using var context = _contextFactory.CreateDataContext();
             var entities = productIdsWithTimestamps.Select(kvp =>
-                    new ProductEntity() { ProductId = kvp.Key, Timestamp = kvp.Value })
+                    new ProductEntity { ProductId = kvp.Key, Timestamp = kvp.Value })
                 .ToArray();
 
             context.AttachRange(entities);
@@ -354,7 +354,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         private static ProductEntity ToEntity(Product product)
         {
-            var result = new ProductEntity()
+            var result = new ProductEntity
             {
                 ProductId = product.ProductId,
                 AssetTypeId = product.AssetType,
@@ -397,7 +397,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 HedgeCost = product.HedgeCost,
                 EnforceMargin = product.EnforceMargin,
                 Margin = product.Margin,
-                IsTradingDisabled = product.IsTradingDisabled,
+                IsTradingDisabled = product.IsTradingDisabled
             };
 
             return result;
@@ -448,7 +448,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 HedgeCost = product.HedgeCost,
                 EnforceMargin = product.EnforceMargin,
                 Margin = product.Margin,
-                IsTradingDisabled = product.IsTradingDisabled,
+                IsTradingDisabled = product.IsTradingDisabled
             };
 
             return result;

@@ -71,7 +71,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             var result = await _productCategoriesService.GetAllAsync();
 
-            var response = new GetProductCategoriesResponse()
+            var response = new GetProductCategoriesResponse
             {
                 ProductCategories = result.Value
                     .Select(p => _convertService.Convert<ProductCategory, ProductCategoryContract>(p))
@@ -114,9 +114,9 @@ namespace MarginTrading.AssetService.Controllers
 
             var errorMessages = await _productCategoriesService.Validate(pairs);
             
-            var response = new ValidateProductCategoriesResponse()
+            var response = new ValidateProductCategoriesResponse
             {
-                ErrorMessages = errorMessages,
+                ErrorMessages = errorMessages
             };
 
             return response;

@@ -65,7 +65,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     ExecutionFeesCap = entity.ExecutionFeesCap,
                     FinancingFeesRate = entity.FinancingFeesRate,
                     RegulatoryProfileId = entity.ClientProfile.RegulatoryProfileId,
-                    RegulatoryTypeId = entity.AssetType.RegulatoryTypeId,
+                    RegulatoryTypeId = entity.AssetType.RegulatoryTypeId
                 };
             }
         }
@@ -97,7 +97,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                         ExecutionFeesCap = x.ExecutionFeesCap,
                         FinancingFeesRate = x.FinancingFeesRate,
                         RegulatoryProfileId = x.ClientProfile.RegulatoryProfileId,
-                        RegulatoryTypeId = x.AssetType.RegulatoryTypeId,
+                        RegulatoryTypeId = x.AssetType.RegulatoryTypeId
                     })
                     .ToListAsync();
 
@@ -129,7 +129,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                         ExecutionFeesCap = x.ExecutionFeesCap,
                         FinancingFeesRate = x.FinancingFeesRate,
                         RegulatoryProfileId = x.ClientProfile.RegulatoryProfileId,
-                        RegulatoryTypeId = x.AssetType.RegulatoryTypeId,
+                        RegulatoryTypeId = x.AssetType.RegulatoryTypeId
                     })
                     .ToListAsync();
 

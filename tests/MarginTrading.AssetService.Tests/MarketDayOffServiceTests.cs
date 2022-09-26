@@ -138,11 +138,11 @@ namespace MarginTrading.AssetService.Tests
                 "Market2.1",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Saturday,
+                    DayOfWeek = DayOfWeek.Saturday
                 },
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Monday,
+                    DayOfWeek = DayOfWeek.Monday
                 });
             
             AddSettings(
@@ -164,7 +164,7 @@ namespace MarginTrading.AssetService.Tests
                 "Market2.3",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Saturday,
+                    DayOfWeek = DayOfWeek.Saturday
                 },
                 new ScheduleConstraint
                 {
@@ -204,11 +204,11 @@ namespace MarginTrading.AssetService.Tests
                 "Market2.6",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Wednesday,
+                    DayOfWeek = DayOfWeek.Wednesday
                 },
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Thursday,
+                    DayOfWeek = DayOfWeek.Thursday
                 });
             
             AddSettings(
@@ -252,7 +252,7 @@ namespace MarginTrading.AssetService.Tests
                 "Market4.1",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Saturday,
+                    DayOfWeek = DayOfWeek.Saturday
                 },
                 new ScheduleConstraint
                 {
@@ -276,7 +276,7 @@ namespace MarginTrading.AssetService.Tests
                 "Market4.2",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Saturday,
+                    DayOfWeek = DayOfWeek.Saturday
                 },
                 new ScheduleConstraint
                 {
@@ -288,11 +288,11 @@ namespace MarginTrading.AssetService.Tests
                 "Market4.2",
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("22:00:00"),
+                    Time = TimeSpan.Parse("22:00:00")
                 },
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("06:00:00"),
+                    Time = TimeSpan.Parse("06:00:00")
                 });
             
             AddSettings(
@@ -300,7 +300,7 @@ namespace MarginTrading.AssetService.Tests
                 "Market4.3",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Wednesday,
+                    DayOfWeek = DayOfWeek.Wednesday
                 },
                 new ScheduleConstraint
                 {
@@ -312,11 +312,11 @@ namespace MarginTrading.AssetService.Tests
                 "Market4.3",
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("22:00:00"),
+                    Time = TimeSpan.Parse("22:00:00")
                 },
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("12:00:00"),
+                    Time = TimeSpan.Parse("12:00:00")
                 });
 
             return repoData;
@@ -331,11 +331,11 @@ namespace MarginTrading.AssetService.Tests
                 "PlatformScheduleMarketId",
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("22:00:00"),
+                    Time = TimeSpan.Parse("22:00:00")
                 },
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("06:00:00"),
+                    Time = TimeSpan.Parse("06:00:00")
                 });
 
             AddSettings(
@@ -355,7 +355,7 @@ namespace MarginTrading.AssetService.Tests
                 "Market5.2",
                 new ScheduleConstraint
                 {
-                    DayOfWeek = DayOfWeek.Saturday,
+                    DayOfWeek = DayOfWeek.Saturday
                 },
                 new ScheduleConstraint
                 {
@@ -367,11 +367,11 @@ namespace MarginTrading.AssetService.Tests
                 "Market5.2",
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("17:00:00"),
+                    Time = TimeSpan.Parse("17:00:00")
                 },
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("23:00:00"),
+                    Time = TimeSpan.Parse("23:00:00")
                 });
             
             AddSettings(
@@ -379,11 +379,11 @@ namespace MarginTrading.AssetService.Tests
                 "Market5.3",
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("05:00:00"),
+                    Time = TimeSpan.Parse("05:00:00")
                 },
                 new ScheduleConstraint
                 {
-                    Time = TimeSpan.Parse("21:00:00"),
+                    Time = TimeSpan.Parse("21:00:00")
                 });
             
             AddSettings(
@@ -391,7 +391,7 @@ namespace MarginTrading.AssetService.Tests
                 "Market6.1",
                 new ScheduleConstraint
                 {
-                    Date = DateTime.Parse("2019-10-12"),
+                    Date = DateTime.Parse("2019-10-12")
                 },
                 new ScheduleConstraint
                 {

@@ -71,7 +71,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             publisher.PublishEvent(new AssetPairChangedEvent
             {
                 OperationId = command.OperationId,
-                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair)
             });
 
             publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
@@ -107,7 +107,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             publisher.PublishEvent(new AssetPairChangedEvent
             {
                 OperationId = command.OperationId,
-                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair)
             });
 
             publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
@@ -159,7 +159,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
             publisher.PublishEvent(new AssetPairChangedEvent
             {
                 OperationId = command.OperationId,
-                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair),
+                AssetPair = _convertService.Convert<IAssetPair, AssetPairContract>(assetPair)
             });
 
             publisher.PublishEvent(CreateProductChangedEvent(updateResult.OldValue,
@@ -173,7 +173,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
         private ProductChangedEvent CreateProductChangedEvent(Product oldValue, Product newValue, string username,
             string correlationId)
         {
-            return new ProductChangedEvent()
+            return new ProductChangedEvent
             {
                 Username = username,
                 ChangeType = ChangeType.Edition,
@@ -181,7 +181,7 @@ namespace MarginTrading.AssetService.Workflow.AssetPairFlags
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
                 OldValue = _convertService.Convert<Product, ProductContract>(oldValue),
-                NewValue = _convertService.Convert<Product, ProductContract>(newValue),
+                NewValue = _convertService.Convert<Product, ProductContract>(newValue)
             };
         }
     }

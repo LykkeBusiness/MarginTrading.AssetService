@@ -138,7 +138,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 Id = model.Id,
                 OperationName = model.OperationName,
-                Data = model.Data.ToJson(),
+                Data = model.Data.ToJson()
             };
         }
     }

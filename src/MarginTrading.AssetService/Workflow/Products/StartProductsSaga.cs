@@ -51,7 +51,7 @@ namespace MarginTrading.AssetService.Workflow.Products
                     sender.SendCommand(new StartProductCommand
                     {
                         ProductId = product.ProductId,
-                        OperationId = e.OperationId,
+                        OperationId = e.OperationId
                     }, _contextNames.AssetService);
                 }
             }

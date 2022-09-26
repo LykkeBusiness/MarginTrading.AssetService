@@ -6,7 +6,6 @@ using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using MarginTrading.AssetService.SqlRepositories.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
@@ -52,7 +51,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = new ProductCategoryEntity() {Id = id, Timestamp = timestamp};
+                var entity = new ProductCategoryEntity {Id = id, Timestamp = timestamp};
 
                 context.Attach(entity);
                 context.ProductCategories.Remove(entity);
@@ -129,25 +128,25 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             if (entity == null) return null;
         
-            return new ProductCategory()
+            return new ProductCategory
             {
                 Id = entity.Id,
                 LocalizationToken = entity.LocalizationToken,
                 Timestamp = entity.Timestamp,
                 ParentId = entity.ParentId,
                 Parent = ToModel(entity.Parent),
-                IsLeaf = entity.Children.Count == 0,
+                IsLeaf = entity.Children.Count == 0
             };
         }
 
         private ProductCategoryEntity ToEntity(ProductCategory category)
         {
-            return new ProductCategoryEntity()
+            return new ProductCategoryEntity
             {
                 Id = category.Id,
                 LocalizationToken = category.LocalizationToken,
                 Timestamp = category.Timestamp,
-                ParentId = category.ParentId,
+                ParentId = category.ParentId
             };
         }
     }

@@ -48,7 +48,7 @@ namespace MarginTrading.AssetService.Workflow.Products
                 {
                     await _auditService.CreateAuditRecord(AuditEventType.Edition, Username, product, existing.Value);
                     
-                    publisher.PublishEvent(new ProductChangedEvent()
+                    publisher.PublishEvent(new ProductChangedEvent
                     {
                         Username = Username,
                         ChangeType = ChangeType.Edition,
@@ -56,7 +56,7 @@ namespace MarginTrading.AssetService.Workflow.Products
                         EventId = Guid.NewGuid().ToString(),
                         Timestamp = DateTime.UtcNow,
                         OldValue = _convertService.Convert<Product, ProductContract>(existing.Value),
-                        NewValue = _convertService.Convert<Product, ProductContract>(product),
+                        NewValue = _convertService.Convert<Product, ProductContract>(product)
                     });
                 }
                 else

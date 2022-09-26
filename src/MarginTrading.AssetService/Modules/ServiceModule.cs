@@ -75,7 +75,7 @@ namespace MarginTrading.AssetService.Modules
                     new NamedParameter("settingsChangedConnectionString",
                         _settings.CurrentValue.SettingsChangedRabbitMqSettings.ConnectionString),
                     new NamedParameter("settingsChangedExchangeName",
-                        _settings.CurrentValue.SettingsChangedRabbitMqSettings.ExchangeName),
+                        _settings.CurrentValue.SettingsChangedRabbitMqSettings.ExchangeName)
                 })
                 .SingleInstance();
             
@@ -142,7 +142,7 @@ namespace MarginTrading.AssetService.Modules
                 .AsImplementedInterfaces()
                 .SingleInstance();
             
-            builder.RegisterAssemblyTypes(typeof(MarginTrading.AssetService.Services.AssemblyDummy).Assembly)
+            builder.RegisterAssemblyTypes(typeof(AssemblyDummy).Assembly)
                 .Where(t => t.Name.EndsWith("Validation"))
                 .AsSelf();
 

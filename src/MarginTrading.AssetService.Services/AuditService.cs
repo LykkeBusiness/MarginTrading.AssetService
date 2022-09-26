@@ -49,7 +49,9 @@ namespace MarginTrading.AssetService.Services
             {
                 if (_logger.IsEnabled(LogLevel.Debug))
                 {
-                    _logger.LogDebug($"Audit model is null for eventType [{eventType}], object [{current?.ToJson()}, original [{original?.ToJson()}]");
+                    _logger.LogDebug(
+                        "Audit model is null for eventType [{EventType}], object [{CurrentJson}, original [{OriginalJson}]",
+                        eventType, current?.ToJson(), original?.ToJson());
                 }
                 else
                 {

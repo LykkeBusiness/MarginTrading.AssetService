@@ -23,6 +23,6 @@ namespace MarginTrading.AssetService.Core.Domain
         InconsistentWorkingCalendar,
         InvalidHalfWorkingDayString,
         WinterOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay,
-        SummerOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay,
+        SummerOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay
     }
 }

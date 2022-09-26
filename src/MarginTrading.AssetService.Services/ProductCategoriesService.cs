@@ -43,13 +43,14 @@ namespace MarginTrading.AssetService.Services
         {
             var categoryNameResult = await _productCategoryStringService.Create(category);
             if (categoryNameResult.IsFailed)
-                return new Result<ProductCategory, ProductCategoriesErrorCodes>(categoryNameResult.Error.Value);
+                return new Result<ProductCategory, ProductCategoriesErrorCodes>(categoryNameResult.Error!.Value);
 
             var categoryName = categoryNameResult.Value;
 
             // early exit if the category already exists
             var existingCategory = await GetByIdAsync(categoryName.NormalizedName);
-            if (existingCategory.IsSuccess) return existingCategory;
+            if (existingCategory.IsSuccess) 
+                return existingCategory;
 
             // check all the nodes in the hierarchy and create missing ones
             var categories = categoryName.Nodes;
@@ -66,18 +67,16 @@ namespace MarginTrading.AssetService.Services
                     var parentHasProducts =
                         await _productCategoriesRepository.CategoryHasProducts(productCategory.ParentId);
                     if (parentHasProducts)
-                        return new Result<ProductCategory, ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
-                            .ParentHasAttachedProducts);
+                        return new Result<ProductCategory, ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.ParentHasAttachedProducts);
                 }
 
                 var result = await _productCategoriesRepository.InsertAsync(productCategory);
-                if (result.IsSuccess)
-                {
-                    await _auditService.CreateAuditRecord(AuditEventType.Creation, username, productCategory);
+                if (!result.IsSuccess)
+                    continue;
+                
+                await _auditService.CreateAuditRecord(AuditEventType.Creation, username, productCategory);
 
-                    await PublishProductCategoryChangedEvent(null, productCategory, username, ChangeType.Creation,
-                        categoryName.GetOriginalNodeName(productCategory.Id));
-                }
+                await PublishProductCategoryChangedEvent(null, productCategory, username, ChangeType.Creation, categoryName.GetOriginalNodeName(productCategory.Id));
             }
 
             // return newly created leaf
@@ -89,29 +88,29 @@ namespace MarginTrading.AssetService.Services
         {
             var category = await _productCategoriesRepository.GetByIdAsync(id);
 
-            if (category.IsSuccess)
+            if (!category.IsSuccess) 
+                return category.ToResultWithoutValue();
+            
+            // if category has children, deny the delete request
+            if (!category.Value.IsLeaf)
             {
-                // if category has children, deny the delete request
-                if (!category.Value.IsLeaf)
-                {
-                    return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
-                        .CannotDeleteNonLeafCategory);
-                }
-
-                // if category has attached products, deny the delete request
-                var hasProducts = await _productCategoriesRepository.CategoryHasProducts(id);
-                if (hasProducts)
-                    return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
-                        .CannotDeleteCategoryWithAttachedProducts);
-
-                var deleteResult = await _productCategoriesRepository.DeleteAsync(id, category.Value.Timestamp);
-                if (deleteResult.IsSuccess)
-                {
-                    await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, category.Value);
-                    
-                    await PublishProductCategoryChangedEvent(category.Value, null, username, ChangeType.Deletion);
-                }
+                return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
+                    .CannotDeleteNonLeafCategory);
             }
+
+            // if category has attached products, deny the delete request
+            var hasProducts = await _productCategoriesRepository.CategoryHasProducts(id);
+            if (hasProducts)
+                return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes
+                    .CannotDeleteCategoryWithAttachedProducts);
+
+            var deleteResult = await _productCategoriesRepository.DeleteAsync(id, category.Value.Timestamp);
+            if (!deleteResult.IsSuccess)
+                return category.ToResultWithoutValue();
+                
+            await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, category.Value);
+                    
+            await PublishProductCategoryChangedEvent(category.Value, null, username, ChangeType.Deletion);
 
             return category.ToResultWithoutValue();
         }
@@ -140,7 +139,7 @@ namespace MarginTrading.AssetService.Services
             {
                 return categoryNameValidations
                     .Where(kvp => kvp.Value.IsFailed)
-                    .Select((kvp) => $"Category \"{kvp.Key}\" is not a valid category")
+                    .Select(kvp => $"Category \"{kvp.Key}\" is not a valid category")
                     .ToList();
             }
 
@@ -150,25 +149,20 @@ namespace MarginTrading.AssetService.Services
 
             var leafHelper = new CategoryLeafHelper(allNodes);
 
-            var errorMessages = new List<string>();
-
             // product must be in a leaf category validation
-            foreach (var pair in pairs)
-            {
-                var categoryName = pair.Category;
-                var normalizedCategoryName = categoryNameValidations[categoryName].Value.NormalizedName;
-                if (!leafHelper.IsLeaf(normalizedCategoryName))
-                    errorMessages.Add(
-                        $"Product {pair.ProductId} cannot be attached to a category {categoryName} because it is not a leaf category");
-            }
 
-            return errorMessages;
+            return (from pair in pairs
+                    let categoryName = pair.Category
+                    let normalizedCategoryName = categoryNameValidations[categoryName].Value.NormalizedName
+                    where !leafHelper.IsLeaf(normalizedCategoryName)
+                    select $"Product {pair.ProductId} cannot be attached to a category {categoryName} because it is not a leaf category")
+                .ToList();
         }
 
         private async Task PublishProductCategoryChangedEvent(ProductCategory oldCategory, ProductCategory newCategory,
             string username, ChangeType changeType, string originalCategoryName = null)
         {
-            await _cqrsMessageSender.SendEvent(new ProductCategoryChangedEvent()
+            await _cqrsMessageSender.SendEvent(new ProductCategoryChangedEvent
             {
                 Username = username,
                 ChangeType = changeType,
@@ -177,7 +171,7 @@ namespace MarginTrading.AssetService.Services
                 Timestamp = DateTime.UtcNow,
                 OldValue = _convertService.Convert<ProductCategory, ProductCategoryContract>(oldCategory),
                 NewValue = _convertService.Convert<ProductCategory, ProductCategoryContract>(newCategory),
-                OriginalCategoryName = originalCategoryName,
+                OriginalCategoryName = originalCategoryName
             });
         }
     }

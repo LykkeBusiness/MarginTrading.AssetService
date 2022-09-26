@@ -48,7 +48,7 @@ namespace MarginTrading.AssetService.Services
                 Route = route,
                 SettingsType = _convertService.Convert<SettingsChangedSourceType, SettingsTypeContract>(sourceType),
                 Timestamp = _systemClock.UtcNow.DateTime,
-                ChangedEntityId = changedEntityId,
+                ChangedEntityId = changedEntityId
             };
 
             try

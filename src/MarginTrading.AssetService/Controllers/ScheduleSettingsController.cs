@@ -136,7 +136,7 @@ namespace MarginTrading.AssetService.Controllers
             
             var info = await _marketDayOffService.GetMarketsInfo(marketIds, date);
 
-            return info.ToDictionary(k => k.Key, v => new TradingDayInfoContract()
+            return info.ToDictionary(k => k.Key, v => new TradingDayInfoContract
             {
                 IsTradingEnabled = v.Value.IsTradingEnabled,
                 LastTradingDay = v.Value.LastTradingDay,

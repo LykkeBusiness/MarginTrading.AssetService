@@ -146,7 +146,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             {
                 MdsCode = currency.InterestRateMdsCode,
                 Currency = currency.Id,
-                Name = currency.InterestRateMdsCode,
+                Name = currency.InterestRateMdsCode
             });
         }
 

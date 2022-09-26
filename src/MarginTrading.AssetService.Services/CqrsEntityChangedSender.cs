@@ -39,7 +39,7 @@ namespace MarginTrading.AssetService.Services
             where TEvent : EntityChangedEvent<TContract>, new()
             where TModel : class
         {
-            await _messageSender.SendEvent(new TEvent()
+            await _messageSender.SendEvent(new TEvent
             {
                 Username = username,
                 ChangeType = changeType,
@@ -47,7 +47,7 @@ namespace MarginTrading.AssetService.Services
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
                 OldValue = _convertService.Convert<TModel, TContract>(oldValue),
-                NewValue = _convertService.Convert<TModel, TContract>(newValue),
+                NewValue = _convertService.Convert<TModel, TContract>(newValue)
             });
         }
     }

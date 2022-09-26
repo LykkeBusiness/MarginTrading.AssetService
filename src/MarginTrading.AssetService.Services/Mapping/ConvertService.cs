@@ -28,7 +28,6 @@ using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Newtonsoft.Json;
 using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;

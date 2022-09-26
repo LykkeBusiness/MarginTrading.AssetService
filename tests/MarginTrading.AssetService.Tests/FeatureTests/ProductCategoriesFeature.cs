@@ -35,9 +35,9 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             Assert.False(categories.First(c => c.Id == "stocks.germany").IsLeaf);
             Assert.False(categories.First(c => c.Id == "stocks").IsLeaf);
 
-            var deleteRequest = new DeleteProductCategoryRequest()
+            var deleteRequest = new DeleteProductCategoryRequest
             {
-                UserName = "user",
+                UserName = "user"
             };
 
             var leafCategoryId = "stocks.germany.dax_30";
@@ -57,10 +57,10 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         public async Task ProductCategories_CannotDeleteCategoryWithAttachedProducts_Workflow()
         {
             _underlyingsCacheMock.Setup(x => x.GetByMdsCode(It.IsAny<string>()))
-                .Returns(new UnderlyingsCacheModel()
+                .Returns(new UnderlyingsCacheModel
                 {
                     MdsCode = "mds-code",
-                    TradingCurrency = "EUR",
+                    TradingCurrency = "EUR"
                 });
 
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))
@@ -86,9 +86,9 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
 
             Assert.Single(categories);
 
-            var deleteRequest = new DeleteProductCategoryRequest()
+            var deleteRequest = new DeleteProductCategoryRequest
             {
-                UserName = "username",
+                UserName = "username"
             };
 
             var deleteCategoryResponse =
@@ -123,9 +123,9 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                 x => { Assert.Equal("stocks", x.Id); },
                 x1 => { Assert.Equal("stocks.germany", x1.Id); });
 
-            var deleteRequest = new DeleteProductCategoryRequest()
+            var deleteRequest = new DeleteProductCategoryRequest
             {
-                UserName = "username",
+                UserName = "username"
             };
 
             var deleteCategoryResponse =
@@ -148,10 +148,10 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         public async Task ProductCategories_ParentHasAttachedProducts_Workflow()
         {
             _underlyingsCacheMock.Setup(x => x.GetByMdsCode(It.IsAny<string>()))
-                .Returns(new UnderlyingsCacheModel()
+                .Returns(new UnderlyingsCacheModel
                 {
                     MdsCode = "mds-code",
-                    TradingCurrency = "EUR",
+                    TradingCurrency = "EUR"
                 });
 
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))

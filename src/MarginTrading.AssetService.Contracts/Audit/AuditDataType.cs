@@ -9,6 +9,6 @@
         Product,
         MarketSettings,
         ProductCategory,
-        TickFormula,
+        TickFormula
     }
 }

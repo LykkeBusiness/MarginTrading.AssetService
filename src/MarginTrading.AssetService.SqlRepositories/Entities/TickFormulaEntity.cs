@@ -15,7 +15,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
             {
                 Id = model.Id,
                 PdlLadders = model.PdlLadders,
-                PdlTicks = model.PdlTicks,
+                PdlTicks = model.PdlTicks
             };
         }
     }

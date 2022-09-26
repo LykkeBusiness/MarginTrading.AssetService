@@ -33,7 +33,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
                 UserName = model.UserName,
                 Timestamp = model.Timestamp,
                 DataType = model.DataType,
-                DataDiff = model.DataDiff,
+                DataDiff = model.DataDiff
             };
         }
     }

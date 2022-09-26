@@ -168,12 +168,12 @@ namespace MarginTrading.AssetService.Services
                     {
                         Calendar = new Calendar(),
                         MarketHours = new MarketHours(),
-                        DividendsFactor = new DividendsFactor(),
+                        DividendsFactor = new DividendsFactor()
                     },
                     InterestRates = new List<InterestRate>(),
                     DividendsFactor = new DividendsFactor(),
                     AvailableClientProfiles = new List<ClientProfile>()
-                },
+                }
             };
             return asset;
         }

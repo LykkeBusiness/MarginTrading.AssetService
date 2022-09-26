@@ -32,11 +32,11 @@ namespace MarginTrading.AssetService.Tests.UnitTests
             var originalName = "Stocks/Germany/Dax 30";
             var normalizedName = "stocks.germany.dax_30";
 
-            var expectedValues = new Dictionary<string, (string OriginalName, string ParentId, bool IsLeaf)>()
+            var expectedValues = new Dictionary<string, (string OriginalName, string ParentId, bool IsLeaf)>
             {
                 {"stocks", ("Stocks", null, false)},
                 {"stocks.germany", ("Germany", "stocks", false)},
-                {"stocks.germany.dax_30", ("Dax 30", "stocks.germany", true)},
+                {"stocks.germany.dax_30", ("Dax 30", "stocks.germany", true)}
             };
 
             var productCategoryName = new ProductCategoryName(originalName, normalizedName);
@@ -62,11 +62,11 @@ namespace MarginTrading.AssetService.Tests.UnitTests
             var originalName = "stocks.germany.dax_30";
             var normalizedName = "stocks.germany.dax_30";
 
-            var expectedValues = new Dictionary<string, (string OriginalName, string ParentId, bool IsLeaf)>()
+            var expectedValues = new Dictionary<string, (string OriginalName, string ParentId, bool IsLeaf)>
             {
                 {"stocks", ("Stocks", null, false)},
                 {"stocks.germany", ("Germany", "stocks", false)},
-                {"stocks.germany.dax_30", ("Dax 30", "stocks.germany", true)},
+                {"stocks.germany.dax_30", ("Dax 30", "stocks.germany", true)}
             };
 
             var productCategoryName = new ProductCategoryName(originalName, normalizedName);

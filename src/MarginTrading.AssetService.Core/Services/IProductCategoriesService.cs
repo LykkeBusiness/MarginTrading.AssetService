@@ -19,7 +19,6 @@ namespace MarginTrading.AssetService.Core.Services
         /// </summary>
         /// <param name="category">Raw category string, e.g. "Stocks/Germany/DAX 30"</param>
         /// <param name="username"></param>
-        /// <param name="correlationId"></param>
         /// <returns>Category leaf</returns>
         Task<Result<ProductCategory, ProductCategoriesErrorCodes>> GetOrCreate(string category, string username);
 

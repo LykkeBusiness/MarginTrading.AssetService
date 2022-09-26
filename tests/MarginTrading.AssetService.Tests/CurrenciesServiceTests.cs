@@ -25,7 +25,7 @@ namespace MarginTrading.AssetService.Tests
         public CurrenciesServiceTests()
         {
             var dbOptions = CreateNewContextOptions<AssetDbContext>(databaseName: "nova");
-            _contextFactory = new MsSqlContextFactory<AssetDbContext>((options) => new AssetDbContext(options), dbOptions);
+            _contextFactory = new MsSqlContextFactory<AssetDbContext>(options => new AssetDbContext(options), dbOptions);
             _auditService = new Mock<IAuditService>().Object;
             _cqrsMessageSender = new Mock<ICqrsMessageSender>().Object;
             _convertService = new Mock<IConvertService>().Object;

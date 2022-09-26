@@ -28,7 +28,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
                 OnBehalfFee = model.OnBehalfFee,
                 AssetTypeId = model.AssetTypeId,
                 ClientProfileId = model.ClientProfileId,
-                FinancingFeesRate = model.FinancingFeesRate,
+                FinancingFeesRate = model.FinancingFeesRate
             };
         }
     }

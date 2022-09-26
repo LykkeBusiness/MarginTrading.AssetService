@@ -26,12 +26,12 @@ namespace MarginTrading.AssetService.Tests.UnitTests
         [Fact]
         public async Task OneProductInParentCategory()
         {
-            var pairs = new List<ProductAndCategoryPair>()
+            var pairs = new List<ProductAndCategoryPair>
             {
-                new ProductAndCategoryPair()
+                new ProductAndCategoryPair
                 {
                     Category = "stocks",
-                    ProductId = "product1",
+                    ProductId = "product1"
                 }
             };
             
@@ -45,12 +45,12 @@ namespace MarginTrading.AssetService.Tests.UnitTests
         [Fact]
         public async Task OneProductInChildCategory()
         {
-            var pairs = new List<ProductAndCategoryPair>()
+            var pairs = new List<ProductAndCategoryPair>
             {
-                new ProductAndCategoryPair()
+                new ProductAndCategoryPair
                 {
                     Category = "stocks/Germany",
-                    ProductId = "product1",
+                    ProductId = "product1"
                 }
             };
             
@@ -64,12 +64,12 @@ namespace MarginTrading.AssetService.Tests.UnitTests
         [Fact]
         public async Task OneProductInChildNormalizedCategory()
         {
-            var pairs = new List<ProductAndCategoryPair>()
+            var pairs = new List<ProductAndCategoryPair>
             {
-                new ProductAndCategoryPair()
+                new ProductAndCategoryPair
                 {
                     Category = "stocks.germany.dax_30",
-                    ProductId = "product1",
+                    ProductId = "product1"
                 }
             };
             
@@ -83,12 +83,12 @@ namespace MarginTrading.AssetService.Tests.UnitTests
         [Fact]
         public async Task InvalidCategoryName()
         {
-            var pairs = new List<ProductAndCategoryPair>()
+            var pairs = new List<ProductAndCategoryPair>
             {
-                new ProductAndCategoryPair()
+                new ProductAndCategoryPair
                 {
                     Category = " ",
-                    ProductId = "product1",
+                    ProductId = "product1"
                 }
             };
             
@@ -104,17 +104,17 @@ namespace MarginTrading.AssetService.Tests.UnitTests
         [Fact]
         public async Task ProductMustBeCreatedInLeafCategory()
         {
-            var pairs = new List<ProductAndCategoryPair>()
+            var pairs = new List<ProductAndCategoryPair>
             {
-                new ProductAndCategoryPair()
+                new ProductAndCategoryPair
                 {
                     Category = "stocks/Germany",
-                    ProductId = "product1",
+                    ProductId = "product1"
                 },
-                new ProductAndCategoryPair()
+                new ProductAndCategoryPair
                 {
                     Category = "stocks",
-                    ProductId = "product2",
+                    ProductId = "product2"
                 }
             };
             

@@ -5,6 +5,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         None,
         AlreadyExists,
         DoesNotExist,
-        CannotDeleteCurrencyWithAttachedProducts,
+        CannotDeleteCurrencyWithAttachedProducts
     }
 }

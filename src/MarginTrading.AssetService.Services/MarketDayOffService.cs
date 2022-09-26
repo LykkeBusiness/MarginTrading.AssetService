@@ -82,7 +82,7 @@ namespace MarginTrading.AssetService.Services
             return GetTradingDayInfo(rawPlatformSchedule, brokerSettings, currentDateTime);
         }
 
-        private TradingDayInfo GetTradingDayInfo(IEnumerable<ScheduleSettings> scheduleSettings, 
+        private static TradingDayInfo GetTradingDayInfo(IEnumerable<ScheduleSettings> scheduleSettings, 
             BrokerSettingsContract brokerSettings, 
             DateTime currentDateTime)
         {
@@ -112,27 +112,29 @@ namespace MarginTrading.AssetService.Services
         {
             return intervals
                 .Where(x => IsBetween(currentDateTime, x.Start, x.End))
-                .OrderByDescending(x => x.Schedule.Rank)
-                .FirstOrDefault();
+                .MaxBy(x => x.Schedule.Rank);
         }
 
-        private static DateTime GetPreviousTradingDay(List<CompiledScheduleTimeInterval>
-            compiledSchedule, CompiledScheduleTimeInterval currentInterval, DateTime currentDateTime)
+        private static DateTime GetPreviousTradingDay(List<CompiledScheduleTimeInterval> compiledSchedule,
+            CompiledScheduleTimeInterval currentInterval,
+            DateTime currentDateTime)
         {
             if (currentInterval.Enabled())
                 return currentDateTime.Date;
-            
+
             var timestampBeforeCurrentIntervalStart = currentInterval.Start.AddTicks(-1);
 
             // search for the interval just before the current interval started
             var previousInterval = compiledSchedule
                 .Where(x => IsBetween(timestampBeforeCurrentIntervalStart, x.Start, x.End))
-                .OrderByDescending(x => x.Schedule.Rank)
-                .FirstOrDefault();
+                .MaxBy(x => x.Schedule.Rank);
 
             // if trading was enabled, then at that moment was the last trading day
             if (previousInterval.Enabled())
                 return timestampBeforeCurrentIntervalStart.Date;
+
+            if (previousInterval == null)
+                throw new InvalidOperationException("No previous interval found");
 
             // if no, there was one more disabled interval and we should go next
             return GetPreviousTradingDay(compiledSchedule, previousInterval, previousInterval.Start);
@@ -143,9 +145,11 @@ namespace MarginTrading.AssetService.Services
         {
             // search for the interval right after the current interval finished
             var ordered = compiledSchedule
-                .Where(x => x.End > (currentInterval?.End ?? currentDateTime)
-                            || currentInterval != null && x.Schedule.Rank > currentInterval.Schedule.Rank &&
-                            x.End > currentInterval.End)
+                .Where(x => 
+                    x.End > (currentInterval?.End ?? currentDateTime) || 
+                    currentInterval != null && 
+                    x.Schedule.Rank > currentInterval.Schedule.Rank && 
+                    x.End > currentInterval.End)
                 .OrderBy(x => x.Start)
                 .ThenByDescending(x => x.Schedule.Rank)
                 .ToList();
@@ -158,10 +162,9 @@ namespace MarginTrading.AssetService.Services
                 {
                     return currentInterval.End;
                 }
-                else // means no any intervals (current or any in the future)
-                {
-                    return currentDateTime.Date.AddDays(1); 
-                }
+
+                // means no any intervals (current or any in the future)
+                return currentDateTime.Date.AddDays(1);
             }
 
             var stateIsChangedToEnabled = nextInterval.Schedule.IsTradeEnabled != currentInterval.Enabled() && nextInterval.Enabled();

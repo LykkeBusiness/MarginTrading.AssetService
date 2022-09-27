@@ -3,10 +3,13 @@ using AutoMapper.Extensions.EnumMapping;
 
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.Enums;
+using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
+
+using Asset = MarginTrading.AssetService.Core.Domain.Asset;
 
 namespace MarginTrading.AssetService.Services.Mapping
 {
@@ -33,6 +36,7 @@ namespace MarginTrading.AssetService.Services.Mapping
             CreateMap<FreezeInfo, FreezeInfoContract>();
             CreateMap<FreezeReason, FreezeReasonContract>().ConvertUsingEnumMapping();
             CreateMap<IAssetPair, AssetPairContract>();
+            CreateMap<Asset, AssetContract>();
         }
     }
 }

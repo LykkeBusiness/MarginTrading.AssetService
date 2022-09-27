@@ -16,7 +16,6 @@ using MarginTrading.AssetService.Contracts.Audit;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Rates;
-using MarginTrading.AssetService.Contracts.Scheduling;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
@@ -51,8 +50,6 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<string, HashSet<string>>().ConvertUsing(h => JsonConvert.DeserializeObject<HashSet<string>>(h));
                 cfg.CreateMap<List<string>, string>().ConvertUsing(l => JsonConvert.SerializeObject(l));
                 cfg.CreateMap<string, List<string>>().ConvertUsing(s => JsonConvert.DeserializeObject<List<string>>(s));
-                cfg.CreateMap<ScheduleConstraint, ScheduleConstraintContract>().ReverseMap();
-                cfg.CreateMap<ScheduleConstraint, string>().ConvertUsing(sc => JsonConvert.SerializeObject(sc));
                 cfg.CreateMap<string, ScheduleConstraint>().ConvertUsing(s => JsonConvert.DeserializeObject<ScheduleConstraint>(s));
                 cfg.CreateMap<bool?, string>().ConstructUsing((b, ctx) => b?.ToString() ?? "");
                 cfg.CreateMap<string, bool?>().ConvertUsing<NullBooleanTypeConverter>();
@@ -108,6 +105,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.AddProfile<TradingConditionsProfile>();
                 cfg.AddProfile<ProductsProfile>();
                 cfg.AddProfile<CurrenciesProfile>();
+                cfg.AddProfile<ScheduleProfile>();
             }).CreateMapper();
         }
 

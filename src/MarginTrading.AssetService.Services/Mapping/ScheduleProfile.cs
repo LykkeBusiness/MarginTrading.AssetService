@@ -12,6 +12,7 @@ namespace MarginTrading.AssetService.Services.Mapping
         public ScheduleProfile()
         {
             CreateMap<ScheduleSettings, ScheduleSettingsContract>();
+            CreateMap<ScheduleSettings, CompiledScheduleSettingsContract>();
             CreateMap<ScheduleConstraint, ScheduleConstraintContract>().ReverseMap();
             CreateMap<ScheduleConstraint, string>().ConvertUsing(sc => JsonConvert.SerializeObject(sc));
         }

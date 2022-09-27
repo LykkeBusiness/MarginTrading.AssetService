@@ -8,12 +8,10 @@ using AutoMapper;
 using JetBrains.Annotations;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Audit.Abstractions;
-using Lykke.Snow.Common.WorkingDays;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
-using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Rates;
 using MarginTrading.AssetService.Contracts.TickFormula;
@@ -73,19 +71,6 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<ProductCategory, ProductCategoryContract>();
                 cfg.CreateMap<ProductAndCategoryPairContract, ProductAndCategoryPair>();
 
-                //MarketSettings
-                cfg.CreateMap<MarketSchedule, MarketScheduleContract>();
-                cfg.CreateMap<MarketSettings, MarketSettingsContract>()
-                    .ForMember(dest => dest.Open, opt => opt.MapFrom(x => x.MarketSchedule.Open))
-                    .ForMember(dest => dest.Close, opt => opt.MapFrom(x => x.MarketSchedule.Close))
-                    .ForMember(dest => dest.Timezone, opt => opt.MapFrom(x => x.MarketSchedule.TimeZoneId));
-                cfg.CreateMap<MarketSettingsContract, MarketSettings>()
-                    .ForMember(dest => dest.MarketSchedule, opt => opt.MapFrom<MarketScheduleResolver>());
-
-                cfg.CreateMap<AddMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>();
-                cfg.CreateMap<UpdateMarketSettingsRequest, MarketSettingsCreateOrUpdateDto>()
-                    .ForMember(x => x.Id, opt => opt.Ignore());
-
                 //Tick formula
                 cfg.CreateMap<ITickFormula, TickFormulaContract>().ReverseMap();
                 cfg.CreateMap<TickFormula, TickFormulaContract>().ReverseMap();
@@ -106,6 +91,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.AddProfile<ProductsProfile>();
                 cfg.AddProfile<CurrenciesProfile>();
                 cfg.AddProfile<ScheduleProfile>();
+                cfg.AddProfile<MarketProfile>();
             }).CreateMapper();
         }
 

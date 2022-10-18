@@ -19,8 +19,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
         private readonly ILogger<ProductsRepository> _logger;
 
-        private const string DoesNotExistException =
-            "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
+        private const string ConcurrencyExceptionMessagePart = "The database operation was expected to affect";
 
         public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory, ILogger<ProductsRepository> logger)
         {
@@ -65,7 +64,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
             catch (DbUpdateConcurrencyException e)
             {
-                if (e.Message.Contains(DoesNotExistException))
+                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
                 throw;
@@ -87,7 +86,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
             catch (DbUpdateConcurrencyException e)
             {
-                if (e.Message.Contains(DoesNotExistException))
+                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
                 throw;
@@ -228,7 +227,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 _logger.LogError(e, "Failed to batch update products");
 
-                if (e.Message.Contains(DoesNotExistException))
+                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
                 throw;
@@ -239,11 +238,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             Dictionary<string, byte[]> productIdsWithTimestamps)
         {
             await using var context = _contextFactory.CreateDataContext();
-            var entities = productIdsWithTimestamps.Select(kvp =>
-                    new ProductEntity { ProductId = kvp.Key, Timestamp = kvp.Value })
+            var entities = productIdsWithTimestamps
+                .Select(kvp => new ProductEntity { ProductId = kvp.Key, Timestamp = kvp.Value })
                 .ToArray();
-
-            context.AttachRange(entities);
+            
             context.Products.RemoveRange(entities);
 
             try
@@ -253,7 +251,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
             catch (DbUpdateConcurrencyException e)
             {
-                if (e.Message.Contains(DoesNotExistException))
+                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
                 throw;

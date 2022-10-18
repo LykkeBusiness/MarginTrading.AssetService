@@ -16,8 +16,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
     public class MarketSettingsRepository : IMarketSettingsRepository
     {
-        private const string DoesNotExistException =
-            "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
         private const int ForeignKeyConstraintViolation = 547;
 
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
@@ -101,12 +99,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     await context.SaveChangesAsync();
                     return new Result<MarketSettingsErrorCodes>();
                 }
-                catch (DbUpdateConcurrencyException e)
+                catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
                 {
-                    if (e.Message.Contains(DoesNotExistException))
-                        return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
-
-                    throw;
+                    return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
                 }
             }
         }
@@ -125,12 +120,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     await context.SaveChangesAsync();
                     return new Result<MarketSettingsErrorCodes>();
                 }
-                catch (DbUpdateConcurrencyException e)
+                catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
                 {
-                    if (e.Message.Contains(DoesNotExistException))
-                        return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
-
-                    throw;
+                    return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
                 }
                 catch (DbUpdateException e)
                 {

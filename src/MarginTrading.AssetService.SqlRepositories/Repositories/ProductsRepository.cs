@@ -19,8 +19,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
         private readonly ILogger<ProductsRepository> _logger;
 
-        private const string ConcurrencyExceptionMessagePart = "The database operation was expected to affect";
-
         public ProductsRepository(MsSqlContextFactory<AssetDbContext> contextFactory, ILogger<ProductsRepository> logger)
         {
             _contextFactory = contextFactory;
@@ -62,12 +60,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 await context.SaveChangesAsync();
                 return new Result<ProductsErrorCodes>();
             }
-            catch (DbUpdateConcurrencyException e)
+            catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
             {
-                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                throw;
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
             }
         }
 
@@ -84,12 +79,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 await context.SaveChangesAsync();
                 return new Result<ProductsErrorCodes>();
             }
-            catch (DbUpdateConcurrencyException e)
+            catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
             {
-                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                throw;
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
             }
         }
 
@@ -223,14 +215,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 await context.SaveChangesAsync();
                 return new Result<ProductsErrorCodes>();
             }
-            catch (DbUpdateConcurrencyException e)
+            catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
             {
                 _logger.LogError(e, "Failed to batch update products");
-
-                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                throw;
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
             }
         }
 
@@ -249,12 +237,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 await context.SaveChangesAsync();
                 return new Result<ProductsErrorCodes>();
             }
-            catch (DbUpdateConcurrencyException e)
+            catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
             {
-                if (e.Message.Contains(ConcurrencyExceptionMessagePart, StringComparison.InvariantCultureIgnoreCase))
-                    return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
-
-                throw;
+                return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
             }
         }
 

@@ -14,9 +14,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
 
-        private const string DoesNotExistException =
-            "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
-
         public ProductCategoriesRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
         {
             _contextFactory = contextFactory;
@@ -61,12 +58,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     await context.SaveChangesAsync();
                     return new Result<ProductCategoriesErrorCodes>();
                 }
-                catch (DbUpdateConcurrencyException e)
+                catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
                 {
-                    if (e.Message.Contains(DoesNotExistException))
-                        return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.DoesNotExist);
-
-                    throw;
+                    return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.DoesNotExist);
                 }
             }
         }

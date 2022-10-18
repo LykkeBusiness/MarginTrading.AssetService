@@ -58,7 +58,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
 
                 //Asset types
-                cfg.CreateMap<AssetType, AssetTypeContract>();
+                cfg.CreateMap<AssetType, AssetTypeContract>().ReverseMap();
                 cfg.CreateMap<AddAssetTypeRequest, AssetTypeWithTemplate>();
                 cfg.CreateMap<UpdateAssetTypeRequest, AssetType>()
                     .ForMember(x => x.Id, opt => opt.Ignore());

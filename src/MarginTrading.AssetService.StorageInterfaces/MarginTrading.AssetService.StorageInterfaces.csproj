@@ -10,6 +10,6 @@
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.0.9" />
+    <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.1.0" />
   </ItemGroup>
 </Project>

@@ -9,6 +9,6 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
     {
         Task InsertAsync(IAuditModel<AuditDataType> model);
 
-        Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int? skip, int? take);
+        Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int skip, int take);
     }
 }

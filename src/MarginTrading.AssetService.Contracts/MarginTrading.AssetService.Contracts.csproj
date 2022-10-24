@@ -7,7 +7,6 @@
     <Company>Lykke</Company>
     <Description>Contracts package for MarginTrading.AssetService API</Description>
     <PackageId>Lykke.MarginTrading.AssetService.Contracts</PackageId>
-    <PackageIconUrl>https://avatars3.githubusercontent.com/u/14153330?v=3&amp;s=200</PackageIconUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Lykke</PackageTags>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

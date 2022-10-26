@@ -18,6 +18,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         CannotChangeStartDateFromPastToFuture,
         LongIsinNotUnique,
         ShortIsinNotUnique,
-        CannotChangeDiscontinuedProduct,
+        CannotChangeDiscontinuedProduct
     }
 }

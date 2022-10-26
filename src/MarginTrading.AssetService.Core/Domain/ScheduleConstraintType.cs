@@ -8,6 +8,6 @@ namespace MarginTrading.AssetService.Core.Domain
         Invalid = 0,
         Daily = 1,
         Single = 2,
-        Weekly = 3,
+        Weekly = 3
     }
 }

@@ -80,7 +80,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 {
                     Comment = product.FreezeInfo.Comment,
                     Reason = (FreezeReason)product.FreezeInfo.Reason,
-                    UnfreezeDate = product.FreezeInfo.UnfreezeDate,
+                    UnfreezeDate = product.FreezeInfo.UnfreezeDate
                 },
                 assetType:product.AssetType,
                 isTradingDisabled: product.IsTradingDisabled

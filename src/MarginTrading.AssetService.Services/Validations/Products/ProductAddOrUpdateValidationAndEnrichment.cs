@@ -83,14 +83,12 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             return value;
         }
 
-        private async Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,
+        private Task<Result<Product, ProductsErrorCodes>> UnderlyingMustExist(Product value, string userName,
             Product existing = null)
         {
             var underlying = _underlyingsCache.GetByMdsCode(value.UnderlyingMdsCode);
             if (underlying == null)
-            {
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.UnderlyingDoesNotExist);
-            }
 
             value.TradingCurrency = underlying.TradingCurrency;
 
@@ -177,7 +175,7 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             return new Result<Product, ProductsErrorCodes>(value);
         }
 
-        private async Task<Result<Product, ProductsErrorCodes>> SetExistingFields(Product value,
+        private Task<Result<Product, ProductsErrorCodes>> SetExistingFields(Product value,
             string userName, Product existing = null)
         {
             if (existing != null)

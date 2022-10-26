@@ -131,7 +131,7 @@ namespace MarginTrading.AssetService.Services
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
                 OldMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(oldSettings),
-                NewMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(newSettings),
+                NewMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(newSettings)
             });
         }
         

@@ -1,4 +1,3 @@
-using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -35,6 +35,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
                         p => JsonConvert.SerializeObject(p),
                         p => JsonConvert.DeserializeObject<MarketSchedule>(p, new MarketScheduleConverter()));
             });
+            builder.Navigation(x => x.MarketSchedule).IsRequired();
             
             builder.Property(x => x.Name).IsRequired();
             builder.Property(x => x.Dividends871M);

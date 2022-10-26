@@ -6,7 +6,6 @@ using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using MarginTrading.AssetService.SqlRepositories.Extensions;
 using Microsoft.EntityFrameworkCore;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
@@ -14,9 +13,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     public class ProductCategoriesRepository : IProductCategoriesRepository
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
-
-        private const string DoesNotExistException =
-            "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
 
         public ProductCategoriesRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
         {
@@ -52,7 +48,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             using (var context = _contextFactory.CreateDataContext())
             {
-                var entity = new ProductCategoryEntity() {Id = id, Timestamp = timestamp};
+                var entity = new ProductCategoryEntity {Id = id, Timestamp = timestamp};
 
                 context.Attach(entity);
                 context.ProductCategories.Remove(entity);
@@ -62,12 +58,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     await context.SaveChangesAsync();
                     return new Result<ProductCategoriesErrorCodes>();
                 }
-                catch (DbUpdateConcurrencyException e)
+                catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
                 {
-                    if (e.Message.Contains(DoesNotExistException))
-                        return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.DoesNotExist);
-
-                    throw;
+                    return new Result<ProductCategoriesErrorCodes>(ProductCategoriesErrorCodes.DoesNotExist);
                 }
             }
         }
@@ -129,25 +122,25 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             if (entity == null) return null;
         
-            return new ProductCategory()
+            return new ProductCategory
             {
                 Id = entity.Id,
                 LocalizationToken = entity.LocalizationToken,
                 Timestamp = entity.Timestamp,
                 ParentId = entity.ParentId,
                 Parent = ToModel(entity.Parent),
-                IsLeaf = entity.Children.Count == 0,
+                IsLeaf = entity.Children.Count == 0
             };
         }
 
         private ProductCategoryEntity ToEntity(ProductCategory category)
         {
-            return new ProductCategoryEntity()
+            return new ProductCategoryEntity
             {
                 Id = category.Id,
                 LocalizationToken = category.LocalizationToken,
                 Timestamp = category.Timestamp,
-                ParentId = category.ParentId,
+                ParentId = category.ParentId
             };
         }
     }

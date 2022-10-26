@@ -21,6 +21,6 @@
         RegulationConstraintViolation,
         CannotDeleteAssetTypeAssignedToAnyProduct,
         NonDefaultUpdateForbidden,
-        UnderlyingCategoryDoesNotExist,
+        UnderlyingCategoryDoesNotExist
     }
 }

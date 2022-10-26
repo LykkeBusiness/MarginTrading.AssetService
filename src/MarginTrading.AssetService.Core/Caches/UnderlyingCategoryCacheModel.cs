@@ -9,7 +9,7 @@
             => new UnderlyingCategoryCacheModel
             {
                 Id = id,
-                FinancingFeesFormula = financingFeesFormula,
+                FinancingFeesFormula = financingFeesFormula
             };
     }
 }

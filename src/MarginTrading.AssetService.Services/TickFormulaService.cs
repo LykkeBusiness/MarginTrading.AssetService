@@ -93,17 +93,17 @@ namespace MarginTrading.AssetService.Services
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.CannotDeleteTickFormulaAssignedToAnyProduct);
             }
             var result = await _tickFormulaRepository.DeleteAsync(id);
-            if (result.IsSuccess)
-            {
-                await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing.ToDomainModel());
+            if (!result.IsSuccess) 
+                return result;
+            
+            await _auditService.CreateAuditRecord(AuditEventType.Deletion, username, existing.ToDomainModel());
                 
-                await _entityChangedSender.SendEntityDeletedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(existing, username);
-            }
+            await _entityChangedSender.SendEntityDeletedEvent<ITickFormula, TickFormulaContract, TickFormulaChangedEvent>(existing, username);
 
             return result;
         }
 
-        private void SetDefaultLadderAndTicksIfNeeded(ITickFormula model)
+        private static void SetDefaultLadderAndTicksIfNeeded(ITickFormula model)
         {
             if (model.PdlTicks != null && model.PdlTicks.Any() ||
                 model.PdlLadders != null && model.PdlLadders.Any())
@@ -132,10 +132,9 @@ namespace MarginTrading.AssetService.Services
                 return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes
                     .PdlLaddersMustBeInAscendingOrderWithoutDuplicates);
 
-            if (!model.PdlTicks.IsAscendingSorted())
-                return new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlTicksMustBeInAscendingOrder);
-
-            return new Result<TickFormulaErrorCodes>();
+            return !model.PdlTicks.IsAscendingSorted()
+                ? new Result<TickFormulaErrorCodes>(TickFormulaErrorCodes.PdlTicksMustBeInAscendingOrder)
+                : new Result<TickFormulaErrorCodes>();
         }
     }
 }

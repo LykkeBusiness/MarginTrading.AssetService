@@ -5,7 +5,6 @@ using Lykke.Common.MsSql;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
-using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,8 +13,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
     public class CurrenciesRepository : ICurrenciesRepository
     {
         private readonly MsSqlContextFactory<AssetDbContext> _contextFactory;
-        private const string DoesNotExistException =
-            "Database operation expected to affect 1 row(s) but actually affected 0 row(s).";
 
         public CurrenciesRepository(MsSqlContextFactory<AssetDbContext> contextFactory)
         {
@@ -58,19 +55,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     await context.SaveChangesAsync();
                     return new Result<CurrenciesErrorCodes>();
                 }
-                catch (DbUpdateConcurrencyException e)
+                catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
                 {
-                    if(e.Message.Contains(DoesNotExistException)) 
-                        return new Result<CurrenciesErrorCodes>(CurrenciesErrorCodes.DoesNotExist);
-
-                    throw;
+                    return new Result<CurrenciesErrorCodes>(CurrenciesErrorCodes.DoesNotExist);
                 }
             }
         }
         
         public async Task<Result<CurrenciesErrorCodes>> DeleteAsync(string id, byte[] timestamp)
         {
-            var entity = new CurrencyEntity() {Id = id, Timestamp = timestamp};
+            var entity = new CurrencyEntity {Id = id, Timestamp = timestamp};
             
             using (var context = _contextFactory.CreateDataContext())
             {
@@ -82,12 +76,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     await context.SaveChangesAsync();
                     return new Result<CurrenciesErrorCodes>();
                 }
-                catch (DbUpdateConcurrencyException e)
+                catch (DbUpdateConcurrencyException e) when (e.IsMissingDataException())
                 {
-                    if(e.Message.Contains(DoesNotExistException)) 
-                        return new Result<CurrenciesErrorCodes>(CurrenciesErrorCodes.DoesNotExist);
-                    
-                    throw;
+                    return new Result<CurrenciesErrorCodes>(CurrenciesErrorCodes.DoesNotExist);
                 }
             }
         }
@@ -150,8 +141,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 var query = context.Currencies.AsNoTracking();
 
-                if(ids!=null && ids.Any())
-                    query= query.Where(c => ids.Contains(c.Id));
+                if (ids != null && ids.Any())
+                    query = query.Where(c => ids.Contains(c.Id));
 
                 var result = await query.ToListAsync();
 
@@ -161,24 +152,24 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         private CurrencyEntity ToEntity(Currency currency)
         {
-            return new CurrencyEntity()
+            return new CurrencyEntity
             {
                 // required but with default = 2, FE will not change it right now, it is required for backward compatibility with existing model
                 Accuracy = 2,
                 Id = currency.Id,
                 InterestRateMdsCode = currency.InterestRateMdsCode,
-                Timestamp = currency.Timestamp,
+                Timestamp = currency.Timestamp
             };
         }
         
         private Currency ToModel(CurrencyEntity entity)
         {
-            return new  Currency()
+            return new  Currency
             {
                 Accuracy = entity.Accuracy,
                 Id = entity.Id,
                 Timestamp = entity.Timestamp,
-                InterestRateMdsCode = entity.InterestRateMdsCode,
+                InterestRateMdsCode = entity.InterestRateMdsCode
             };
         }
     }

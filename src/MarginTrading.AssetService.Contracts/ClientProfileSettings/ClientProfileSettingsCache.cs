@@ -26,7 +26,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
 
         public void Start()
         {
-            _logger?.LogDebug("Starting client profile settings cache ...");
+            _logger?.LogInformation("Starting client profile settings cache ...");
             
             _lockSlim.EnterWriteLock();
             try
@@ -38,7 +38,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
 
                 _cache = response.ClientProfileSettings.ToDictionary(GetKey, x => x);
                 
-                _logger?.LogDebug("Client profile settings cache has been started. Items: {count}", _cache.Count);
+                _logger?.LogInformation("Client profile settings cache has been started. Items: {Count}", _cache.Count);
             }
             finally
             {

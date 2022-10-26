@@ -184,9 +184,9 @@ namespace MarginTrading.AssetService.Controllers
             
             if (!request.IsFrozen && request.FreezeInfo != null)
             {
-                return new ChangeProductFrozenStatusResponse()
+                return new ChangeProductFrozenStatusResponse
                 {
-                    ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct,
+                    ErrorCode = ProductsErrorCodesContract.CanOnlySetFreezeInfoForFrozenProduct
                 }; 
             }
             

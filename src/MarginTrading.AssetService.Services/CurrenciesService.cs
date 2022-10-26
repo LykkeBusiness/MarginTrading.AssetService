@@ -103,7 +103,7 @@ namespace MarginTrading.AssetService.Services
 
         private async Task PublishCurrencyChangedEvent(Currency oldCurrency, Currency newCurrency, string username, ChangeType changeType)
         {
-            await _cqrsMessageSender.SendEvent(new CurrencyChangedEvent()
+            await _cqrsMessageSender.SendEvent(new CurrencyChangedEvent
             {
                 Username = username,
                 ChangeType = changeType,
@@ -111,7 +111,7 @@ namespace MarginTrading.AssetService.Services
                 EventId = Guid.NewGuid().ToString(),
                 Timestamp = DateTime.UtcNow,
                 OldValue = _convertService.Convert<Currency, CurrencyContract>(oldCurrency),
-                NewValue = _convertService.Convert<Currency, CurrencyContract>(newCurrency),
+                NewValue = _convertService.Convert<Currency, CurrencyContract>(newCurrency)
             });
         }
     }

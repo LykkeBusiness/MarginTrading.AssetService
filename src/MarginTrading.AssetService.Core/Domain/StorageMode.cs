@@ -6,6 +6,6 @@ namespace MarginTrading.AssetService.Core.Domain
     public enum StorageMode
     {
         SqlServer = 0,
-        Azure = 1,
+        Azure = 1
     }
 }

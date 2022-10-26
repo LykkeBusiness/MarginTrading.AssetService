@@ -31,51 +31,49 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int? skip, int? take)
+        public async Task<PaginatedResponse<IAuditModel<AuditDataType>>> GetAll(AuditTrailFilter<AuditDataType> filter, int skip, int take)
         {
-            using (var context = _contextFactory.CreateDataContext())
-            {
-                var query = context.AuditTrail.AsNoTracking();
+            await using var context = _contextFactory.CreateDataContext();
+            var query = context.AuditTrail.AsNoTracking();
 
-                if (!string.IsNullOrEmpty(filter.UserName))
-                    query = query.Where(x => x.UserName.ToLower().Contains(filter.UserName.ToLower()));
+            if (!string.IsNullOrEmpty(filter.UserName))
+                query = query.Where(x => x.UserName.ToLower().Contains(filter.UserName.ToLower()));
 
-                if (!string.IsNullOrEmpty(filter.CorrelationId))
-                    query = query.Where(x => x.CorrelationId == filter.CorrelationId);
+            if (!string.IsNullOrEmpty(filter.CorrelationId))
+                query = query.Where(x => x.CorrelationId == filter.CorrelationId);
 
-                if (!string.IsNullOrEmpty(filter.ReferenceId))
-                    query = query.Where(x => x.DataReference.ToLower().Contains(filter.ReferenceId.ToLower()));
+            if (!string.IsNullOrEmpty(filter.ReferenceId))
+                query = query.Where(x => x.DataReference.ToLower().Contains(filter.ReferenceId.ToLower()));
 
-                if (filter.DataTypes != null && filter.DataTypes.Any())
-                    query = query.Where(x => filter.DataTypes.Contains(x.DataType));
+            if (filter.DataTypes != null && filter.DataTypes.Any())
+                query = query.Where(x => filter.DataTypes.Contains(x.DataType));
 
-                if (filter.ActionType.HasValue)
-                    query = query.Where(x => x.Type == filter.ActionType.Value);
+            if (filter.ActionType.HasValue)
+                query = query.Where(x => x.Type == filter.ActionType.Value);
 
-                if (filter.StartDateTime.HasValue)
-                    query = query.Where(x => x.Timestamp >= filter.StartDateTime.Value);
+            if (filter.StartDateTime.HasValue)
+                query = query.Where(x => x.Timestamp >= filter.StartDateTime.Value);
 
-                if (filter.EndDateTime.HasValue)
-                    query = query.Where(x => x.Timestamp <= filter.EndDateTime.Value);
+            if (filter.EndDateTime.HasValue)
+                query = query.Where(x => x.Timestamp <= filter.EndDateTime.Value);
 
-                var total = await query.CountAsync();
+            var total = await query.CountAsync();
 
-                query = query.OrderByDescending(x => x.Timestamp);
+            query = query
+                .OrderByDescending(x => x.Timestamp)
+                .Skip(skip)
+                .Take(take);
+            
+            var contents = await query.ToListAsync();
 
-                if (skip.HasValue && take.HasValue)
-                    query = query.Skip(skip.Value).Take(take.Value);
+            var result = new PaginatedResponse<IAuditModel<AuditDataType>>(
+                contents: contents,
+                start: skip,
+                size: contents.Count,
+                totalSize: total
+            );
 
-                var contents = await query.ToListAsync();
-
-                var result = new PaginatedResponse<IAuditModel<AuditDataType>>(
-                    contents: contents,
-                    start: skip ?? 0,
-                    size: contents.Count,
-                    totalSize: total
-                );
-
-                return result;
-            }
+            return result;
         }
     }
 }

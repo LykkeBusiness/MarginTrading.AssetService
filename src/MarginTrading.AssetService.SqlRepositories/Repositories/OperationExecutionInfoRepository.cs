@@ -6,7 +6,6 @@ using Microsoft.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using Dapper;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -14,6 +13,7 @@ using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -39,26 +39,24 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             DataType.GetProperties().Select(x => "[" + x.Name + "]=@" + x.Name));
 
         private readonly string _connectionString;
-        private readonly ILog _log;
+        private readonly ILogger<OperationExecutionInfoRepository> _logger;
         private readonly ISystemClock _systemClock;
 
         public OperationExecutionInfoRepository( 
             string connectionString, 
-            ILog log,
-            ISystemClock systemClock)
+            ISystemClock systemClock,
+            ILogger<OperationExecutionInfoRepository> logger)
         {
             _connectionString = connectionString;
-            _log = log;
             _systemClock = systemClock;
-            
-            using (var conn = new SqlConnection(_connectionString))
+            _logger = logger;
+
+            using var conn = new SqlConnection(_connectionString);
+            try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
+            catch (Exception ex)
             {
-                try { conn.CreateTableIfDoesntExists(CreateTableScript, TableName); }
-                catch (Exception ex)
-                {
-                    _log?.WriteErrorAsync(nameof(OperationExecutionInfoRepository), "CreateTableIfDoesntExists", null, ex);
-                    throw;
-                }
+                _logger.LogError(ex, "Could not create table {TableName}", TableName);
+                throw;
             }
         }
         
@@ -67,62 +65,57 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         {
             try
             {
-                using (var conn = new SqlConnection(_connectionString))
+                await using var conn = new SqlConnection(_connectionString);
+                var operationInfo = await conn.QueryFirstOrDefaultAsync<OperationExecutionInfoEntity>(
+                    $"SELECT * FROM {TableName} WHERE Id=@operationId and OperationName=@operationName",
+                    new {operationId, operationName});
+
+                if (operationInfo == null)
                 {
-                    var operationInfo = await conn.QueryFirstOrDefaultAsync<OperationExecutionInfoEntity>(
-                        $"SELECT * FROM {TableName} WHERE Id=@operationId and OperationName=@operationName",
-                        new {operationId, operationName});
+                    var entity = Convert(factory());
+                    entity.LastModified = _systemClock.UtcNow.UtcDateTime;
 
-                    if (operationInfo == null)
-                    {
-                        var entity = Convert(factory());
-                        entity.LastModified = _systemClock.UtcNow.UtcDateTime;
+                    await conn.ExecuteAsync(
+                        $"insert into {TableName} ({GetColumns}) values ({GetFields})", entity);
 
-                        await conn.ExecuteAsync(
-                            $"insert into {TableName} ({GetColumns}) values ({GetFields})", entity);
-
-                        return Convert<TData>(entity);
-                    }
-
-                    return Convert<TData>(operationInfo);
+                    return Convert<TData>(entity);
                 }
+
+                return Convert<TData>(operationInfo);
             }
             catch (Exception ex)
             {
-                await _log.WriteErrorAsync(nameof(OperationExecutionInfoRepository), nameof(GetOrAddAsync), ex);
+                _logger.LogError(ex, "Could not get or add operation execution info for {OperationName} {OperationId}",
+                    operationName, operationId);
                 throw;
             }
         }
 
         public async Task<IOperationExecutionInfo<TData>> GetAsync<TData>(string operationName, string id) where TData : class
         {
-            using (var conn = new SqlConnection(_connectionString))
-            {
-                var operationInfo = await conn.QuerySingleOrDefaultAsync<OperationExecutionInfoEntity>(
-                    $"SELECT * FROM {TableName} WHERE Id = @id and OperationName=@operationName",
-                    new {id, operationName});
+            await using var conn = new SqlConnection(_connectionString);
+            var operationInfo = await conn.QuerySingleOrDefaultAsync<OperationExecutionInfoEntity>(
+                $"SELECT * FROM {TableName} WHERE Id = @id and OperationName=@operationName",
+                new {id, operationName});
 
-                return operationInfo == null ? null : Convert<TData>(operationInfo);
-            }
+            return operationInfo == null ? null : Convert<TData>(operationInfo);
         }
 
         public async Task Save<TData>(IOperationExecutionInfo<TData> executionInfo) where TData : class
         {
             var entity = Convert(executionInfo);
             entity.LastModified = _systemClock.UtcNow.UtcDateTime;
-            
-            using (var conn = new SqlConnection(_connectionString))
+
+            await using var conn = new SqlConnection(_connectionString);
+            try
             {
-                try
-                {
-                    await conn.ExecuteAsync(
-                        $"insert into {TableName} ({GetColumns}) values ({GetFields})", entity);
-                }
-                catch (SqlException)
-                {
-                    await conn.ExecuteAsync(
-                        $"update {TableName} set {GetUpdateClause} where Id=@Id and OperationName=@OperationName", entity);
-                }
+                await conn.ExecuteAsync(
+                    $"insert into {TableName} ({GetColumns}) values ({GetFields})", entity);
+            }
+            catch (SqlException)
+            {
+                await conn.ExecuteAsync(
+                    $"update {TableName} set {GetUpdateClause} where Id=@Id and OperationName=@OperationName", entity);
             }
         }
         
@@ -145,7 +138,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 Id = model.Id,
                 OperationName = model.OperationName,
-                Data = model.Data.ToJson(),
+                Data = model.Data.ToJson()
             };
         }
     }

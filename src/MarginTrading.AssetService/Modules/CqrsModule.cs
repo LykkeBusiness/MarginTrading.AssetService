@@ -2,21 +2,18 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using Autofac;
 using BookKeeper.Client.Workflow.Events;
-using Common.Log;
 using Lykke.Cqrs;
 using Lykke.Cqrs.Configuration;
 using Lykke.Cqrs.Configuration.BoundedContext;
 using Lykke.Cqrs.Configuration.Routing;
 using Lykke.Cqrs.Configuration.Saga;
 using Lykke.Cqrs.Middleware.Logging;
-using Lykke.Messaging;
-using Lykke.Messaging.Contract;
-using Lykke.Messaging.RabbitMq;
 using Lykke.Messaging.Serialization;
 using Lykke.Snow.Common.Correlation.Cqrs;
+using Lykke.Snow.Common.Startup;
+using Lykke.Snow.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
@@ -37,6 +34,7 @@ using MarginTrading.AssetService.Workflow.MarketSettings;
 using MarginTrading.AssetService.Workflow.ProductCategories;
 using MarginTrading.AssetService.Workflow.Products;
 using MarginTrading.AssetService.Workflow.TickFormulas;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Modules
 {
@@ -46,15 +44,13 @@ namespace MarginTrading.AssetService.Modules
         private const string DefaultPipeline = "commands";
         private const string DefaultEventPipeline = "events";
         private readonly CqrsSettings _settings;
-        private readonly ILog _log;
         private readonly string _instanceId;
         private readonly long _defaultRetryDelayMs;
         private readonly CqrsContextNamesSettings _contextNames;
 
-        public CqrsModule(CqrsSettings settings, ILog log, string instanceId)
+        public CqrsModule(CqrsSettings settings, string instanceId)
         {
             _settings = settings;
-            _log = log;
             _instanceId = instanceId;
             _defaultRetryDelayMs = (long) _settings.RetryDelay.TotalMilliseconds;
             _contextNames = _settings.ContextNames;
@@ -67,52 +63,46 @@ namespace MarginTrading.AssetService.Modules
             
             builder.RegisterInstance(_contextNames).AsSelf().SingleInstance();
 
-            var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory
-            {
-                Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
-            };
-            var messagingEngine = new MessagingEngine(_log,
-                new TransportResolver(new Dictionary<string, TransportInfo>
-                {
-                    {
-                        "RabbitMq",
-                        new TransportInfo(rabbitMqSettings.Endpoint.ToString(), rabbitMqSettings.UserName,
-                            rabbitMqSettings.Password, "None", "RabbitMq")
-                    }
-                }),
-                new RabbitMqTransportFactory());
-
             // Sagas & command handlers
             builder.RegisterAssemblyTypes(GetType().Assembly)
                 .Where(t => t.Name.EndsWith("Saga") || t.Name.EndsWith("CommandsHandler") ||
                             t.Name.EndsWith("Projection"))
                 .AsSelf();
 
-            builder.Register(ctx => CreateEngine(ctx, messagingEngine))
+            builder.Register(CreateEngine)
                 .As<ICqrsEngine>()
                 .SingleInstance()
                 .AutoActivate();
         }
 
-        private CqrsEngine CreateEngine(IComponentContext ctx, IMessagingEngine messagingEngine)
+        private CqrsEngine CreateEngine(IComponentContext ctx)
         {
             var rabbitMqConventionEndpointResolver = new RabbitMqConventionEndpointResolver(
                 "RabbitMq",
                 SerializationFormat.MessagePack,
                 environment: _settings.EnvironmentName);
+            
+            var rabbitMqSettings = new RabbitMQ.Client.ConnectionFactory
+            {
+                Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
+            };
 
-            var engine = new CqrsEngine(
-                _log,
+            var log = new LykkeLoggerAdapter<CqrsModule>(ctx.Resolve<ILogger<CqrsModule>>());
+
+            var engine = new RabbitMqCqrsEngine(
+                log,
                 ctx.Resolve<IDependencyResolver>(),
-                messagingEngine,
                 new DefaultEndpointProvider(),
+                rabbitMqSettings.Endpoint.ToString(),
+                rabbitMqSettings.UserName,
+                rabbitMqSettings.Password,
                 true,
                 Register.DefaultEndpointResolver(rabbitMqConventionEndpointResolver),
                 RegisterDefaultRouting(),
                 RegisterStartProductsSaga(),
                 RegisterContext(),
-                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(_log)),
-                Register.EventInterceptors(new DefaultEventLoggingInterceptor(_log)));
+                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(log)),
+                Register.EventInterceptors(new DefaultEventLoggingInterceptor(log)));
 
             var correlationManager = ctx.Resolve<CqrsCorrelationManager>();
             engine.SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);

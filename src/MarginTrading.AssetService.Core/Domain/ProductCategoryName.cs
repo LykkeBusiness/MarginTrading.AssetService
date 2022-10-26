@@ -35,12 +35,12 @@ namespace MarginTrading.AssetService.Core.Domain
             for (var i = 0; i < normalizedNames.Length; i++)
             {
                 currentId = i == 0 ? normalizedNames[0] : string.Join('.', currentId, normalizedNames[i]);
-                var productCategory = new ProductCategory()
+                var productCategory = new ProductCategory
                 {
                     Id = currentId,
                     LocalizationToken = $"categoryName.{currentId}",
                     ParentId = parentId,
-                    IsLeaf = i == normalizedNames.Length - 1,
+                    IsLeaf = i == normalizedNames.Length - 1
                 };
 
                 Nodes.Add(productCategory);

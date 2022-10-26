@@ -1,0 +1,42 @@
+using Lykke.Common.Api.Contract.Responses;
+using Lykke.Common.ApiLibrary.Middleware;
+using Lykke.HttpClientGenerator;
+using Lykke.Snow.Common.Correlation;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.Hosting;
+
+namespace MarginTrading.AssetService.Startup
+{
+    public static class ApplicationConfiguration
+    {
+        public static WebApplication Configure(this WebApplication app)
+        {
+            if (app.Environment.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
+            }
+
+            app.UseCorrelation();
+#if DEBUG
+            app.UseLykkeMiddleware(
+                Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName,
+                ex => ex.ToString());
+#else
+            app.UseLykkeMiddleware("Asset Service", ex => new ErrorResponse {ErrorMessage = ex.Message});
+#endif
+            app.UseRefitExceptionHandler();
+            app.UseRouting();
+            app.UseAuthentication();
+            app.UseAuthorization();
+            app.ConfigureSwagger();
+            app.MapControllers();
+            app.RegisterHooks();
+
+            return app;
+        }
+    }
+}

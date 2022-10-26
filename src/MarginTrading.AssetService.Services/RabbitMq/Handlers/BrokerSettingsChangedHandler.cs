@@ -1,34 +1,33 @@
 ﻿using System.Threading.Tasks;
-using Common.Log;
-using Lykke.Common.Log;
+using Common;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Core.Handlers;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 {
     public class BrokerSettingsChangedHandler
     {
         private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
-        private readonly ILog _log;
+        private readonly ILogger<BrokerSettingsChangedHandler> _logger;
 
-        public BrokerSettingsChangedHandler(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater,
-            ILog log)
+        public BrokerSettingsChangedHandler(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, ILogger<BrokerSettingsChangedHandler> logger)
         {
             _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
-            _log = log;
+            _logger = logger;
         }
 
         public async Task Handle(BrokerSettingsChangedEvent e)
         {
             if (NeedToInvalidateCache(e))
             {
-                _log.Info("Invalidating cache for all legacy assets", context:e);
+                _logger.LogInformation("Invalidating cache for all legacy assets, context: {Context}", e.ToJson());
                 await _legacyAssetsCacheUpdater.UpdateAll(e.Timestamp);
 
             }
             else
             {
-                _log.Info("Cache invalidation not required", context: e);
+                _logger.LogInformation("Cache invalidation not required, context: {Context}", e.ToJson());
             }
         }
 

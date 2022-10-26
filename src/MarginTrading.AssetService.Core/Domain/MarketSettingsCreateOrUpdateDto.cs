@@ -12,8 +12,6 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public string Name { get; set; }
 
-        public string NormalizedName { get; set; }
-
         public decimal? DividendsLong { get; set; }
 
         public decimal? DividendsShort { get; set; }

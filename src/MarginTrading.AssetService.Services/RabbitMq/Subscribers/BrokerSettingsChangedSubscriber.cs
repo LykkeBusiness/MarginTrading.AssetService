@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Common.Log;
-using Lykke.Common;
-using Lykke.Common.Log;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.RabbitMqBroker.Subscriber.Deserializers;
@@ -16,27 +13,27 @@ using IStartStop = Lykke.RabbitMqBroker.IStartStop;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
 {
-    public class BrokerSettingsChangedSubscriber : IStartStop
+    public sealed class BrokerSettingsChangedSubscriber : IStartStop
     {
         private readonly BrokerSettingsChangedHandler _handler;
         private readonly RabbitMqSubscriptionSettings _settings;
-        private readonly ILog _log;
+        private readonly ILogger<BrokerSettingsChangedSubscriber> _logger;
         private RabbitMqSubscriber<BrokerSettingsChangedEvent> _subscriber;
-        private RabbitMqCorrelationManager _correlationManager;
-        private ILoggerFactory _loggerFactory;
+        private readonly RabbitMqCorrelationManager _correlationManager;
+        private readonly ILoggerFactory _loggerFactory;
 
         public BrokerSettingsChangedSubscriber(
             BrokerSettingsChangedHandler handler,
             RabbitMqSubscriptionSettings settings,
-            ILog log,
             RabbitMqCorrelationManager correlationManager,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ILogger<BrokerSettingsChangedSubscriber> logger)
         {
             _handler = handler;
             _settings = settings;
-            _log = log;
             _correlationManager = correlationManager;
             _loggerFactory = loggerFactory;
+            _logger = logger;
         }
 
         public void Start()
@@ -77,7 +74,8 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
         {
             await _handler.Handle(message);
 
-            _log.Info($"Handled event {nameof(BrokerSettingsChangedEvent)}. Event created at: {message.Timestamp.ToShortTimeString()}");
+            _logger.LogInformation("Handled event {EventName}. Event created at: {Timestamp}",
+                nameof(BrokerSettingsChangedEvent), message.Timestamp.ToShortTimeString());
         }
     }
 }

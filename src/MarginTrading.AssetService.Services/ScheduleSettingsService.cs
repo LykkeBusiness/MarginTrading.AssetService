@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Common.Log;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Core.Domain;
@@ -12,6 +11,7 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -21,20 +21,20 @@ namespace MarginTrading.AssetService.Services
         private readonly IMarketSettingsRepository _marketSettingsRepository;
         private readonly PlatformSettings _platformSettings;
         private readonly string _brokerId;
-        private readonly ILog _log;
+        private readonly ILogger<ScheduleSettingsService> _logger;
 
         public ScheduleSettingsService(
             IBrokerSettingsApi brokerSettingsApi,
             IMarketSettingsRepository marketSettingsRepository,
             PlatformSettings platformSettings,
             string brokerId,
-            ILog log)
+            ILogger<ScheduleSettingsService> logger)
         {
             _brokerSettingsApi = brokerSettingsApi;
             _marketSettingsRepository = marketSettingsRepository;
             _platformSettings = platformSettings;
             _brokerId = brokerId;
-            _log = log;
+            _logger = logger;
         }
 
         public async Task<IReadOnlyList<IScheduleSettings>> GetFilteredAsync(string marketId = null)
@@ -72,17 +72,14 @@ namespace MarginTrading.AssetService.Services
             // Note: broker schedule is already UTC adjusted
             var result = await _brokerSettingsApi.GetScheduleInfoByIdAsync(_brokerId);
 
-            if (result.ErrorCode != BrokerSettingsErrorCodesContract.None)
-            {
-                _log?.WriteErrorAsync(nameof(ScheduleSettingsService), nameof(GetBrokerScheduleAsync),
-                    $"Schedule is missing for brokerId assigned to AssetService:{_brokerId}", null);
-                throw new BrokerSettingsDoNotExistException();
-            }
-
-            return result.BrokerSettingsSchedule;
+            if (result.ErrorCode == BrokerSettingsErrorCodesContract.None) 
+                return result.BrokerSettingsSchedule;
+            
+            _logger.LogError("Schedule is missing for brokerId assigned to AssetService:{BrokerId}", _brokerId);
+            throw new BrokerSettingsDoNotExistException();
         }
 
-        private List<ScheduleSettings> MapMarketSchedule(MarketSettings marketSettings, List<DayOfWeek> platformWeekends)
+        private static List<ScheduleSettings> MapMarketSchedule(MarketSettings marketSettings, List<DayOfWeek> platformWeekends)
         {
             var result = MarketScheduleExtensions.MapHolidays(marketSettings.Id,
                 marketSettings.Name,
@@ -111,30 +108,29 @@ namespace MarginTrading.AssetService.Services
 
         private IReadOnlyList<ScheduleSettings> MapPlatformSchedule(BrokerSettingsScheduleContract brokerSchedule)
         {
-            var assetPairRegex = ".*";
+            const string assetPairRegex = ".*";
             var platformId = _platformSettings.PlatformMarketId;
-            var marketName = platformId;
-            
+
             var result = MarketScheduleExtensions.MapHolidays(platformId, 
-                marketName, 
+                platformId, 
                 brokerSchedule.Holidays, 
                 assetPairRegex);
 
             result.AddRange(MarketScheduleExtensions.MapWeekends(platformId, 
-                marketName,
+                platformId,
                 brokerSchedule.Weekends,
                 assetPairRegex));
             
             result.Add(
                 MarketScheduleExtensions.GetSingleSessionScheduleSettings(platformId, 
-                    marketName, 
+                    platformId, 
                     assetPairRegex, 
                     brokerSchedule.Open, 
                     brokerSchedule.Close));
             
             result.AddRange(
                 brokerSchedule.PlatformSchedule.HalfWorkingDays.GetScheduleSettings(platformId,
-                    marketName,
+                    platformId,
                     assetPairRegex));
 
             return result;

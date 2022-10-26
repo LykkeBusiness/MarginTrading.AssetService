@@ -4,14 +4,13 @@
 using System;
 using System.Threading.Tasks;
 using Common;
-using Common.Log;
 using JetBrains.Annotations;
-using Lykke.RabbitMqBroker.Publisher;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Messages;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -19,7 +18,7 @@ namespace MarginTrading.AssetService.Services
     public class EventSender : IEventSender
     {
         private readonly IConvertService _convertService;
-        private readonly ILog _log;
+        private readonly ILogger<EventSender> _logger;
         private readonly ISystemClock _systemClock;
 
         private readonly Lykke.RabbitMqBroker.Publisher.IMessageProducer<SettingsChangedEvent> _settingsChangedMessageProducer;
@@ -27,14 +26,14 @@ namespace MarginTrading.AssetService.Services
         public EventSender(
             IRabbitMqService rabbitMqService,
             IConvertService convertService,
-            ILog log,
             ISystemClock systemClock,
             string settingsChangedConnectionString,
-            string settingsChangedExchangeName)
+            string settingsChangedExchangeName,
+            ILogger<EventSender> logger)
         {
             _convertService = convertService;
-            _log = log;
             _systemClock = systemClock;
+            _logger = logger;
 
             _settingsChangedMessageProducer =
                 rabbitMqService.GetProducer(settingsChangedConnectionString, settingsChangedExchangeName, true,
@@ -49,7 +48,7 @@ namespace MarginTrading.AssetService.Services
                 Route = route,
                 SettingsType = _convertService.Convert<SettingsChangedSourceType, SettingsTypeContract>(sourceType),
                 Timestamp = _systemClock.UtcNow.DateTime,
-                ChangedEntityId = changedEntityId,
+                ChangedEntityId = changedEntityId
             };
 
             try
@@ -58,7 +57,7 @@ namespace MarginTrading.AssetService.Services
             }
             catch (Exception ex)
             {
-                _log.WriteError(nameof(EventSender), message.ToJson(), ex);
+                _logger.LogError(ex, "Failed to send event on settings changed, message: {MessageJson}", message.ToJson());
             }
         }
     }

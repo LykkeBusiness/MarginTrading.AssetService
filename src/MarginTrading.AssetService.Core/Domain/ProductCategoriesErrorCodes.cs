@@ -8,6 +8,6 @@ namespace MarginTrading.AssetService.Core.Domain
         CannotDeleteNonLeafCategory,
         ParentHasAttachedProducts,
         CannotDeleteCategoryWithAttachedProducts,
-        CategoryStringIsNotValid,
+        CategoryStringIsNotValid
     }
 }

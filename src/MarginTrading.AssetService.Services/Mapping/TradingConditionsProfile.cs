@@ -4,6 +4,7 @@ using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.ClientProfileSettings;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.Services.Mapping
 {
@@ -20,6 +21,8 @@ namespace MarginTrading.AssetService.Services.Mapping
                 .ForMember(dest => dest.ClientProfileId, opt => opt.Ignore())
                 .ForMember(dest => dest.AssetTypeId, opt => opt.Ignore());
             CreateMap<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>();
+            CreateMap<ITradingCondition, TradingConditionContract>();
+            CreateMap<ClientProfileSettingsContract, ClientProfileSettings>();
         }
     }
 }

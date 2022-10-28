@@ -2,9 +2,11 @@ using AutoMapper;
 
 using Lykke.Snow.Common.WorkingDays;
 
+using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.Market;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Interfaces;
 
 namespace MarginTrading.AssetService.Services.Mapping
 {
@@ -25,6 +27,10 @@ namespace MarginTrading.AssetService.Services.Mapping
                 .ForMember(x => x.Id, opt => opt.Ignore());
 
             CreateMap<Market, MarketContract>();
+
+            CreateMap<MarketSettingsErrorCodes, MarketSettingsErrorCodesContract>();
+
+            CreateMap<IMarket, MarketContract>();
         }
     }
 }

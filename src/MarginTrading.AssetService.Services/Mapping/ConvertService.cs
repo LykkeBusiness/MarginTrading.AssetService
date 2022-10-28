@@ -12,14 +12,22 @@ using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Audit;
+using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.ProductCategories;
+using MarginTrading.AssetService.Contracts.Rates;
+using MarginTrading.AssetService.Contracts.Routes;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Domain.Rates;
+using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.SqlRepositories.Entities;
+
 using Newtonsoft.Json;
 using AuditContract = MarginTrading.AssetService.Contracts.Audit.AuditContract;
 using AuditDataType = MarginTrading.AssetService.Core.Domain.AuditDataType;
+using TickFormula = MarginTrading.AssetService.Core.Domain.TickFormula;
 
 namespace MarginTrading.AssetService.Services.Mapping
 {
@@ -54,13 +62,19 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<FreezeInfo, string>().ConvertUsing(fi => JsonConvert.SerializeObject(fi));
                 cfg.CreateMap<string, FreezeInfo>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfo() : JsonConvert.DeserializeObject<FreezeInfo>(s));
                 cfg.CreateMap<string, FreezeInfoContract>().ConvertUsing(s => string.IsNullOrEmpty(s) ? new FreezeInfoContract() : JsonConvert.DeserializeObject<FreezeInfoContract>(s));
+                cfg.CreateMap<SettingsChangedSourceType, SettingsTypeContract>();
+                cfg.CreateMap<TradingRouteEntity, TradingRoute>();
+                cfg.CreateMap<ITradingRoute, TradingRouteEntity>();
+                cfg.CreateMap<OvernightSwapRate, OvernightSwapRateContract>();
+                cfg.CreateMap<ITradingRoute, MatchingEngineRouteContract>();
+                cfg.CreateMap<MatchingEngineRouteContract, TradingRoute>();
 
                 //Asset types
                 cfg.CreateMap<AssetType, AssetTypeContract>().ReverseMap();
                 cfg.CreateMap<AddAssetTypeRequest, AssetTypeWithTemplate>();
                 cfg.CreateMap<UpdateAssetTypeRequest, AssetType>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
-                
+
                 //Audit
                 cfg.CreateMap<IAuditModel<AuditDataType>, AuditContract>();
                 cfg.CreateMap<GetAuditLogsRequest, AuditTrailFilter<AuditDataType>>();
@@ -78,6 +92,7 @@ namespace MarginTrading.AssetService.Services.Mapping
                     .ForMember(x => x.Id, opt => opt.Ignore());
                 cfg.CreateMap<UpdateTickFormulaRequest, TickFormula>()
                     .ForMember(x => x.Id, opt => opt.Ignore());
+                cfg.CreateMap<TickFormulaErrorCodes, TickFormulaErrorCodesContract>();
 
                 //Underlying
                 cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>();

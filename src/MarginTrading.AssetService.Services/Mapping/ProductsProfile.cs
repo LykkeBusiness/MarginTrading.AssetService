@@ -2,8 +2,11 @@ using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
 
 using MarginTrading.AssetService.Contracts.AssetPair;
+using MarginTrading.AssetService.Contracts.AssetTypes;
 using MarginTrading.AssetService.Contracts.Enums;
+using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
+using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Domain;
@@ -37,6 +40,14 @@ namespace MarginTrading.AssetService.Services.Mapping
             CreateMap<FreezeReason, FreezeReasonContract>().ConvertUsingEnumMapping();
             CreateMap<IAssetPair, AssetPairContract>();
             CreateMap<Asset, AssetContract>();
+            CreateMap<IAsset, AssetContract>();
+            CreateMap<ProductCategoriesErrorCodes, ProductCategoriesErrorCodesContract>();
+            CreateMap<ProductsErrorCodes, ProductsErrorCodesContract>();
+            CreateMap<ProductFreezeInfoContract, ProductFreezeInfo>();
+            CreateMap<AssetTypeContract, AssetType>();
+            CreateMap<ProductCategoryContract, ProductCategory>()
+                .ForMember(dest => dest.Timestamp, opt => opt.Ignore())
+                .ForMember(dest => dest.Parent, opt => opt.Ignore());
         }
     }
 }

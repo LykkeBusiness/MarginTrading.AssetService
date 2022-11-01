@@ -9,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AsyncFriendlyStackTrace" Version="1.6.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.1.0" />
-    <PackageReference Include="LykkeBiz.HttpClientGenerator" Version="4.3.0" />
+    <PackageReference Include="LykkeBiz.HttpClientGenerator" Version="5.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
   <ItemGroup>

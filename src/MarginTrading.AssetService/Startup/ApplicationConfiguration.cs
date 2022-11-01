@@ -24,7 +24,7 @@ namespace MarginTrading.AssetService.Startup
 #if DEBUG
             app.UseLykkeMiddleware(
                 Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName,
-                ex => ex.ToString());
+                ex => ex.ToString(), false);
 #else
             app.UseLykkeMiddleware("Asset Service", ex => new ErrorResponse {ErrorMessage = ex.Message});
 #endif

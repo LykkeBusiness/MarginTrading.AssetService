@@ -22,11 +22,11 @@ jobs:
 
     steps:
       - run: |
-        echo "Branches: ${{ github.event.inputs.branches }}"
-        echo "Configuration: ${{ github.event.inputs.configuration }}"
-        echo "Event name: ${{ github.event_name }}"
-        echo "Event ref: ${{ github.event.ref }}"
-        echo "Environment: ${{ github.event.environment }}"
+          echo "Branches: ${{ github.event.inputs.branches }}"
+          echo "Configuration: ${{ github.event.inputs.configuration }}"
+          echo "Event name: ${{ github.event_name }}"
+          echo "Event ref: ${{ github.event.ref }}"
+          echo "Environment: ${{ github.event.environment }}"
 
       - uses: actions/checkout@v3
 

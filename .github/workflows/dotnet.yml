@@ -36,7 +36,7 @@ jobs:
           dotnet-version: 6.0.x
 
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore --source https://api.nuget.org/v3/index.json --source https://nuget-lykkecloud.azurewebsites.net/nuget
 
       - name: Build
         run: dotnet build --configuration Release --no-restore

@@ -50,7 +50,7 @@
   </Target>
   <ItemGroup>
     <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.2.4" />
-    <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.2.0" />
+    <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.2.0" />
     <PackageReference Include="LykkeBiz.Messaging.RabbitMq" Version="3.0.1" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />

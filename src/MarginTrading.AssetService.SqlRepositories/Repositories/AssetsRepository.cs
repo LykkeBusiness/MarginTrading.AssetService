@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
@@ -78,8 +79,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public async Task<PaginatedResponse<IAsset>> GetByPagesAsync(int? skip = null, int? take = null)
         {
             //Used raw SQL cause EF does not support Union after select from different tables yet
-            skip ??= 0;
-            take = PaginationHelper.GetTake(take);
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
 
             using (var context = _contextFactory.CreateDataContext())
             using (var command = context.Database.GetDbConnection().CreateCommand())

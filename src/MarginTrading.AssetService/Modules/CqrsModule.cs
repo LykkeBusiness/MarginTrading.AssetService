@@ -107,7 +107,6 @@ namespace MarginTrading.AssetService.Modules
             var correlationManager = ctx.Resolve<CqrsCorrelationManager>();
             engine.SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);
             engine.SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
-            engine.StartPublishers();
 
             return engine;
         }

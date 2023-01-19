@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Lykke.Cqrs;
 using Lykke.RabbitMqBroker;
 using MarginTrading.AssetService.Core.Caches;
@@ -21,32 +22,30 @@ namespace MarginTrading.AssetService.Services
     public class StartupManager : IStartupManager
     {
         private readonly ILogger<StartupManager> _logger;
-        private readonly ICqrsEngine _cqrsEngine;
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ILegacyAssetsCache _legacyAssetsCache;
         private readonly IEnumerable<IStartStop> _starables;
+        private readonly ICqrsEngine _cqrsEngine;
 
         public StartupManager(
-            ICqrsEngine cqrsEngine,
             IUnderlyingsCache underlyingsCache,
             ILegacyAssetsCache legacyAssetsCache,
             IEnumerable<IStartStop> starables,
-            ILogger<StartupManager> logger)
+            ILogger<StartupManager> logger,
+            ICqrsEngine cqrsEngine)
         {
-            _cqrsEngine = cqrsEngine;
             _underlyingsCache = underlyingsCache;
             _legacyAssetsCache = legacyAssetsCache;
             _starables = starables;
             _logger = logger;
+            _cqrsEngine = cqrsEngine;
         }
 
         public void Start()
         {
             _underlyingsCache.Start();
             _legacyAssetsCache.Start();
-            _cqrsEngine.StartSubscribers();
-            _cqrsEngine.StartProcesses();
-            _cqrsEngine.StartPublishers();
+            _cqrsEngine.StartAll();
             StartStartables();
         }
 

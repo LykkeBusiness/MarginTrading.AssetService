@@ -68,10 +68,12 @@ namespace MarginTrading.AssetService.Services
                 .ToDictionary(x => x.ProductId, v => v);
             
             var brokerSettingsResponse =  await _brokerSettingsApi.GetByIdAsync(_brokerId);
-            if (brokerSettingsResponse.ErrorCode != BrokerSettingsErrorCodesContract.None)
+            if (!(brokerSettingsResponse is { ErrorCode: BrokerSettingsErrorCodesContract.None }))
             {
-                throw new InvalidOperationException($"Unexpected error code {brokerSettingsResponse.ErrorCode}, " +
-                                                    $"while retrieving settings for broker id {_brokerId}");
+                var message = brokerSettingsResponse == null
+                    ? "Broker settings response is null"
+                    : $"Broker settings response error code: {brokerSettingsResponse.ErrorCode} while getting broker settings by id: {_brokerId}";
+                throw new InvalidOperationException(message);
             }
 
             var productTradingCurrencyMap = products.ToDictionary(x => x.Key, v => v.Value.TradingCurrency);

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
@@ -88,7 +89,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<PaginatedResponseContract<AssetContract>> ListByPages(
             [FromQuery] int? skip = null, [FromQuery] int? take = null)
         {
-            ApiValidationHelper.ValidatePagingParams(skip, take);
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var data = await _assetsRepository.GetByPagesAsync(skip, take);
             

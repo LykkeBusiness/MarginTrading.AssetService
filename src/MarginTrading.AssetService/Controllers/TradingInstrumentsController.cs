@@ -5,13 +5,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Middleware;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -59,7 +59,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<PaginatedResponseContract<TradingInstrumentContract>> ListByPages(string tradingConditionId, 
             int? skip = null, int? take = null)
         {
-            ApiValidationHelper.ValidatePagingParams(skip, take);
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var data = await _tradingInstrumentsService.GetByPagesAsync(tradingConditionId, skip, take);
             

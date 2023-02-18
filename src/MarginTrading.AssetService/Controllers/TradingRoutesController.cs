@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.Enums;
@@ -13,7 +14,6 @@ using MarginTrading.AssetService.Contracts.Routes;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
-using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Middleware;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
@@ -73,7 +73,7 @@ namespace MarginTrading.AssetService.Controllers
         [Route("by-pages")]
         public async Task<PaginatedResponseContract<MatchingEngineRouteContract>> ListByPages(int? skip = null, int? take = null)
         {
-            ApiValidationHelper.ValidatePagingParams(skip, take);
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var data = await _tradingRoutesRepository.GetByPagesAsync(skip, take);
             

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Common.MsSql;
+using Lykke.Snow.Common;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
@@ -152,8 +153,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
             string[] productIds, bool? isStarted = null, bool? isDiscontinued = null, int skip = default, int take = 20)
         {
-            skip = Math.Max(0, skip);
-            take = take < 0 ? 20 : Math.Min(take, 100);
+
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
 
             if (take == 0)
             {
@@ -275,8 +276,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public async Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds,
             int skip = default, int take = 20)
         {
-            skip = Math.Max(0, skip);
-            take = take < 0 ? 20 : Math.Min(take, 100);
+
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
 
             await using var context = _contextFactory.CreateDataContext();
             var query = context.Products.Where(p => assetTypeIds.Contains(p.AssetTypeId) && p.IsStarted);

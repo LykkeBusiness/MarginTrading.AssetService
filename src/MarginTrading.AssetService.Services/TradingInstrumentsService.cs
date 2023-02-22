@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
@@ -47,8 +48,8 @@ namespace MarginTrading.AssetService.Services
         public async Task<PaginatedResponse<ITradingInstrument>> GetByPagesAsync(string tradingConditionId = null,
             int? skip = null, int? take = null)
         {
-            skip ??= 0;
-            take = PaginationHelper.GetTake(take);
+
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
 
             var activeAssetTypesIds = string.IsNullOrEmpty(tradingConditionId) 
                 ? await _clientProfileSettingsRepository.GetActiveAssetTypeIdsAsync()

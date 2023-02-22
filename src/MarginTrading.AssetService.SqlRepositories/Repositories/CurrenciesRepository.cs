@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
+using Lykke.Snow.Common;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
@@ -114,6 +115,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         
         public async Task<Result<List<Currency>, CurrenciesErrorCodes>> GetByPageAsync(int skip, int take)
         {
+
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
+
             using (var context = _contextFactory.CreateDataContext())
             {
                 var entities = await context.Currencies

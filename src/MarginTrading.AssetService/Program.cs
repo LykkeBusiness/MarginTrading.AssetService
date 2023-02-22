@@ -2,7 +2,7 @@
 // See the LICENSE file in the project root for more information.
 
 using System.Threading.Tasks;
-using Lykke.Logs.Serilog;
+
 using MarginTrading.AssetService.Startup;
 using Microsoft.AspNetCore.Builder;
 
@@ -12,7 +12,7 @@ namespace MarginTrading.AssetService
     {
         public static async Task Main(string[] args)
         {
-            await StartupLoggingWrapper.HandleStartupException(async () =>
+            await StartupWrapper.StartAsync(async () =>
             {
                 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,7 +28,7 @@ namespace MarginTrading.AssetService
                 await app
                     .Configure()
                     .RunAsync();
-            }, "asset");
+            });
         }
     }
 }

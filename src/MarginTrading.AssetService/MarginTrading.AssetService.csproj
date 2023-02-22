@@ -49,12 +49,13 @@
     <Copy SourceFiles="appsettings.Serilog.json" DestinationFolder="$(PublishDir)" />
   </Target>
   <ItemGroup>
+    <PackageReference Include="Lykke.Common" Version="7.6.0" />
     <PackageReference Include="LykkeBiz.Common.ApiLibrary" Version="4.2.4" />
     <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.2.0" />
     <PackageReference Include="LykkeBiz.Messaging.RabbitMq" Version="3.1.0" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
-    <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.0.1" />
+    <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.6.0" />
     <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />

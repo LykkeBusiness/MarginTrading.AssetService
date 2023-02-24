@@ -18,11 +18,17 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
     {
         private readonly Mock<IUnderlyingsCache> _underlyingsCacheMock = new Mock<IUnderlyingsCache>();
         private readonly Mock<IAssetTypesRepository> _assetTypesRepositoryMock = new Mock<IAssetTypesRepository>();
+        private readonly Mock<ILegacyAssetsCache> _legacyAssetsCacheMock = new Mock<ILegacyAssetsCache>();
 
         [Fact]
         public async Task ProductCategoriesWorkflow()
         {
-            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb();
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
+            {
+                services.AddSingleton(_underlyingsCacheMock.Object);
+                services.AddSingleton(_assetTypesRepositoryMock.Object);
+                services.AddSingleton(_legacyAssetsCacheMock.Object);
+            });
 
             await TestRecordsCreator.CreateCategoryAsync(client, "stocks/Germany/Dax 30");
 
@@ -62,14 +68,15 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
                     MdsCode = "mds-code",
                     TradingCurrency = "EUR"
                 });
-
+            
             _assetTypesRepositoryMock.Setup(x => x.ExistsAsync(It.IsAny<string>()))
                 .ReturnsAsync(true);
-
+            
             using var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
             {
                 services.AddSingleton(_underlyingsCacheMock.Object);
                 services.AddSingleton(_assetTypesRepositoryMock.Object);
+                services.AddSingleton(_legacyAssetsCacheMock.Object);
             });
 
             var category = "stocks";
@@ -108,7 +115,12 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
         [Fact]
         public async Task ProductCategories_CannotDeleteNonLeafCategory_Workflow()
         {
-            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb();
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
+            {
+                services.AddSingleton(_underlyingsCacheMock.Object);
+                services.AddSingleton(_assetTypesRepositoryMock.Object);
+                services.AddSingleton(_legacyAssetsCacheMock.Object);
+            });
 
             var notLeafCategory = "stocks";
             var category = "stocks/germany";
@@ -161,6 +173,7 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             {
                 services.AddSingleton(_underlyingsCacheMock.Object);
                 services.AddSingleton(_assetTypesRepositoryMock.Object);
+                services.AddSingleton(_legacyAssetsCacheMock.Object);
             });
 
             var categoryWithProduct = "stocks/germany";

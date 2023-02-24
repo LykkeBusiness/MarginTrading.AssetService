@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.Currencies;
@@ -112,9 +113,9 @@ namespace MarginTrading.AssetService.Controllers
         [ProducesResponseType(typeof(GetCurrenciesResponse), (int) HttpStatusCode.OK)]
         public async Task<GetCurrenciesResponse> GetAllAsync([FromQuery] int skip = 0, [FromQuery] int take = 0)
         {
-            skip = Math.Max(0, skip);
-            take = take < 0 ? 20 : Math.Min(take, 100);
             
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
+
             // if take == 0 return all rows
             var result = take == 0
                 ? await _currenciesService.GetAllAsync()

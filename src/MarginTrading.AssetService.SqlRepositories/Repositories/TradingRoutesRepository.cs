@@ -15,6 +15,7 @@ using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Logging;
+using Lykke.Snow.Common;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
@@ -63,8 +64,10 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
         public async Task<PaginatedResponse<ITradingRoute>> GetByPagesAsync(int? skip = null, int? take = null)
         {
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
+
             await using var conn = new SqlConnection(_connectionString);
-            var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {PaginationHelper.GetTake(take)} ROWS ONLY";
+            var paginationClause = $" ORDER BY [Oid] OFFSET {skip ?? 0} ROWS FETCH NEXT {take} ROWS ONLY";
             var gridReader = await conn.QueryMultipleAsync(
                 $"SELECT * FROM {TableName} {paginationClause}; SELECT COUNT(*) FROM {TableName}");
             var tradingRoutes = (await gridReader.ReadAsync<TradingRouteEntity>()).ToList();

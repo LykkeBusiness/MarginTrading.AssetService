@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Audit.Abstractions;
+using Lykke.Snow.Common;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
@@ -58,6 +59,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 query = query.Where(x => x.Timestamp <= filter.EndDateTime.Value);
 
             var total = await query.CountAsync();
+
+            (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
 
             query = query
                 .OrderByDescending(x => x.Timestamp)

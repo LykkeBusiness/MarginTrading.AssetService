@@ -180,7 +180,8 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<LegacyAssetCache>()
                 .As<ILegacyAssetsCache>()
-                .SingleInstance();
+                .SingleInstance()
+                .IfNotRegistered(typeof(ILegacyAssetsCache));
 
             builder.RegisterType<LegacyAssetsCacheUpdater>()
                 .As<ILegacyAssetsCacheUpdater>()

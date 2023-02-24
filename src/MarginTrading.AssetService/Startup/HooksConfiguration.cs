@@ -27,7 +27,7 @@ namespace MarginTrading.AssetService.Startup
             catch (Exception ex)
             {
                 log?.LogCritical(ex, "Error on startup");
-                throw;
+                app.StopAsync().GetAwaiter().GetResult();
             }
         }
 

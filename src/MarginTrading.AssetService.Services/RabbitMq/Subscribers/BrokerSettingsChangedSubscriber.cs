@@ -18,7 +18,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
         private readonly BrokerSettingsChangedHandler _handler;
         private readonly RabbitMqSubscriptionSettings _settings;
         private readonly ILogger<BrokerSettingsChangedSubscriber> _logger;
-        private RabbitMqSubscriber<BrokerSettingsChangedEvent> _subscriber;
+        private RabbitMqPullingSubscriber<BrokerSettingsChangedEvent> _subscriber;
         private readonly RabbitMqCorrelationManager _correlationManager;
         private readonly ILoggerFactory _loggerFactory;
 
@@ -38,8 +38,8 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Subscribers
 
         public void Start()
         {
-            _subscriber = new RabbitMqSubscriber<BrokerSettingsChangedEvent>(
-                    _loggerFactory.CreateLogger<RabbitMqSubscriber<BrokerSettingsChangedEvent>>(),
+            _subscriber = new RabbitMqPullingSubscriber<BrokerSettingsChangedEvent>(
+                    _loggerFactory.CreateLogger<RabbitMqPullingSubscriber<BrokerSettingsChangedEvent>>(),
                     _settings)
                 .SetMessageDeserializer(new MessagePackMessageDeserializer<BrokerSettingsChangedEvent>())
                 .SetMessageReadStrategy(new MessageReadQueueStrategy())

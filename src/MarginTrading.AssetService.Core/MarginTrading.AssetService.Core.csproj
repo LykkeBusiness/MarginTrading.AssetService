@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Core</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Core</RootNamespace>
-    <Version>2.10.5</Version>
+    <Version>2.17.1</Version>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">

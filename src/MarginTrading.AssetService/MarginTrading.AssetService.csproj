@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
     <OutputType>Exe</OutputType>
-    <Version>2.10.5</Version>
+    <Version>2.17.1</Version>
     <AssemblyName>MarginTrading.AssetService</AssemblyName>
     <RootNamespace>MarginTrading.AssetService</RootNamespace>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
@@ -55,8 +55,8 @@
     <PackageReference Include="LykkeBiz.Logs.Serilog" Version="3.3.1" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.2.0" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
-    <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
     <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.6.0" />
+    <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.5.1" />

@@ -12,6 +12,7 @@ using Lykke.Cqrs.Configuration.Saga;
 using Lykke.Cqrs.Middleware.Logging;
 using Lykke.Messaging.Serialization;
 using Lykke.Snow.Common.Correlation.Cqrs;
+using Lykke.Snow.Common.Startup;
 using Lykke.Snow.Cqrs;
 using MarginTrading.AssetService.Contracts.AssetPair;
 using MarginTrading.AssetService.Contracts.AssetTypes;
@@ -86,9 +87,11 @@ namespace MarginTrading.AssetService.Modules
             };
 
             var loggerFactory = ctx.Resolve<ILoggerFactory>();
+            
+            var log = new LykkeLoggerAdapter<CqrsModule>(ctx.Resolve<ILogger<CqrsModule>>());
 
             var engine = new RabbitMqCqrsEngine(
-                loggerFactory,
+                log,
                 ctx.Resolve<IDependencyResolver>(),
                 new DefaultEndpointProvider(),
                 rabbitMqSettings.Endpoint.ToString(),
@@ -99,8 +102,8 @@ namespace MarginTrading.AssetService.Modules
                 RegisterDefaultRouting(),
                 RegisterStartProductsSaga(),
                 RegisterContext(),
-                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(loggerFactory)),
-                Register.EventInterceptors(new DefaultEventLoggingInterceptor(loggerFactory)));
+                Register.CommandInterceptors(new DefaultCommandLoggingInterceptor(log)),
+                Register.EventInterceptors(new DefaultEventLoggingInterceptor(log)));
 
             var correlationManager = ctx.Resolve<CqrsCorrelationManager>();
             engine.SetWriteHeadersFunc(correlationManager.BuildCorrelationHeadersIfExists);

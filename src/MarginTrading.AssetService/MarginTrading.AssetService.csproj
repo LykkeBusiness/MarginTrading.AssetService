@@ -55,7 +55,7 @@
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.2.0" />
     <PackageReference Include="Lykke.Service.Session" Version="1.0.33" />
     <PackageReference Include="Lykke.Snow.Common.Startup" Version="3.6.0" />
-    <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="2.1.0" />
+    <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.21.0" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="5.5.1" />

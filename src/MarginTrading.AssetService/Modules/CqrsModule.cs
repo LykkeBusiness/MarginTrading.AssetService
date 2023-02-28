@@ -86,8 +86,6 @@ namespace MarginTrading.AssetService.Modules
                 Uri = new Uri(_settings.ConnectionString, UriKind.Absolute)
             };
 
-            var loggerFactory = ctx.Resolve<ILoggerFactory>();
-            
             var log = new LykkeLoggerAdapter<CqrsModule>(ctx.Resolve<ILogger<CqrsModule>>());
 
             var engine = new RabbitMqCqrsEngine(

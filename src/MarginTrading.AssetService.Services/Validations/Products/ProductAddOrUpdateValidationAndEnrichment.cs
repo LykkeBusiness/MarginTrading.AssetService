@@ -47,6 +47,18 @@ namespace MarginTrading.AssetService.Services.Validations.Products
             AddValidation(AssetTypeMustExist);
             AddValidation(SetCategoryIdAsync);
             AddValidation(SetExistingFields);
+            AddValidation(ContractSizeCannotBeUpdatedForStarted);
+        }
+
+        private Task<Result<Product, ProductsErrorCodes>> ContractSizeCannotBeUpdatedForStarted(Product value, string userName,
+            Product existing = null)
+        {
+            if (existing != null && existing.IsStarted && existing.ContractSize != value.ContractSize)
+            {
+                return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.CannotUpdateContractSizeForStarted);
+            }
+
+            return new Result<Product, ProductsErrorCodes>(value);
         }
 
         private async Task<Result<Product, ProductsErrorCodes>> LongIsinMustBeUniqueAcrossAllIsins(Product value, string userName,

@@ -17,7 +17,7 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public string Comments { get; set; }
 
-        public int ContractSize { get; set; }
+        public ContractSize ContractSize { get; set; }
 
         public string IsinLong { get; set; }
 

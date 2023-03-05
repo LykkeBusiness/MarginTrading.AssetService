@@ -108,7 +108,7 @@ namespace MarginTrading.AssetService.Core.Domain
                 new JsonSerializerSettings
                 {
                     NullValueHandling = NullValueHandling.Include,
-                    Converters = new List<JsonConverter> { new DateOnlyAuditConverter() }
+                    Converters = new List<JsonConverter> { new DateOnlyAuditConverter(), new ContractSizeConverter() }
                 });
     }
 }

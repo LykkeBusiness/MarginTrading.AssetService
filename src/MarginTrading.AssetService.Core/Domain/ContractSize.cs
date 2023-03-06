@@ -21,7 +21,7 @@ namespace MarginTrading.AssetService.Core.Domain
             if (value < 1)
             {
                 throw new ArgumentOutOfRangeException(nameof(value),
-                    "Contract size must be greater than or equal to 1.");
+                    $"Value {value} is invalid. Contract size must be greater than or equal to 1.");
             }
 
             _value = (uint)value;

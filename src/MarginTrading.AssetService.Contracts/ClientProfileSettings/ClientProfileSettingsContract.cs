@@ -64,6 +64,7 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
         [Key(10)]
         public string RegulatoryTypeId { get; set; }
 
+        [Key(11)]
         public bool ExcludeSpreadFromProductCosts { get; set; }
     }
 }

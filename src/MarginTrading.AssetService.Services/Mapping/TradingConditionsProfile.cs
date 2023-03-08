@@ -19,7 +19,8 @@ namespace MarginTrading.AssetService.Services.Mapping
                 .ForMember(x => x.RegulatoryProfileId, opt => opt.Ignore())
                 .ForMember(x => x.RegulatoryTypeId, opt => opt.Ignore())
                 .ForMember(dest => dest.ClientProfileId, opt => opt.Ignore())
-                .ForMember(dest => dest.AssetTypeId, opt => opt.Ignore());
+                .ForMember(dest => dest.AssetTypeId, opt => opt.Ignore())
+                .ForMember(dest => dest.ExcludeSpreadFromProductCosts, opt => opt.Ignore());
             CreateMap<CheckRegulationConstraintViolationRequest, RegulatorySettingsDto>();
             CreateMap<ITradingCondition, TradingConditionContract>();
             CreateMap<ClientProfileSettingsContract, ClientProfileSettings>();

@@ -26,7 +26,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             {
                 Id = model.Id,
                 RegulatoryTypeId = model.RegulatoryTypeId,
-                UnderlyingCategoryId = model.UnderlyingCategoryId
+                UnderlyingCategoryId = model.UnderlyingCategoryId,
+                ExcludeSpreadFromProductCosts = model.ExcludeSpreadFromProductCosts
             };
 
             var clientProfileSettingsEntities = clientProfileSettingsToAdd.Select(ClientProfileSettingsEntity.Create).ToArray();
@@ -65,6 +66,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
                 existingEntity.RegulatoryTypeId = model.RegulatoryTypeId;
                 existingEntity.UnderlyingCategoryId = model.UnderlyingCategoryId;
+                existingEntity.ExcludeSpreadFromProductCosts = model.ExcludeSpreadFromProductCosts;
 
                 try
                 {
@@ -111,7 +113,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     {
                         Id = r.Id,
                         RegulatoryTypeId = r.RegulatoryTypeId,
-                        UnderlyingCategoryId = r.UnderlyingCategoryId
+                        UnderlyingCategoryId = r.UnderlyingCategoryId,
+                        ExcludeSpreadFromProductCosts = r.ExcludeSpreadFromProductCosts
                     })
                     .ToListAsync();
 
@@ -144,7 +147,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     Id = entity.Id,
                     RegulatoryTypeId = entity.RegulatoryTypeId,
-                    UnderlyingCategoryId = entity.UnderlyingCategoryId
+                    UnderlyingCategoryId = entity.UnderlyingCategoryId,
+                    ExcludeSpreadFromProductCosts = entity.ExcludeSpreadFromProductCosts
                 };
             }
         }

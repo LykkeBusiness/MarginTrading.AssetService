@@ -15,6 +15,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal FinancingFeesRate { get; set; }
         public decimal OnBehalfFee { get; set; }
         public bool IsAvailable { get; set; }
+        public bool ExcludeSpreadFromProductCosts { get; set; }
         public AuditDataType GetAuditDataType() => AuditDataType.ClientProfileSettings;
         public string GetAuditReference() => $"ClientProfileId:{ClientProfileId},AssetTypeId:{AssetTypeId}";
     }

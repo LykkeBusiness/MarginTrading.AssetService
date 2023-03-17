@@ -25,9 +25,8 @@ namespace MarginTrading.AssetService.Workflow.AssetTypes
             if (e.ChangeType != ChangeType.Edition)
                 return;
 
-            if (e.OldValue.UnderlyingCategoryId != e.NewValue.UnderlyingCategoryId)
-                await _legacyAssetsCacheUpdater.HandleAssetTypeUpdated(
-                    _convertService.Convert<AssetTypeContract, AssetType>(e.NewValue), e.Timestamp);
+            await _legacyAssetsCacheUpdater.HandleAssetTypeUpdated(
+                _convertService.Convert<AssetTypeContract, AssetType>(e.NewValue), e.Timestamp);
         }
     }
 }

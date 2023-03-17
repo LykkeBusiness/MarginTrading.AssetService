@@ -3,6 +3,10 @@
 
 using System;
 
+using Lykke.Snow.Common.TradingDays;
+
+using Newtonsoft.Json;
+
 namespace MarginTrading.AssetService.Contracts.Scheduling
 {
     /// <summary>
@@ -13,7 +17,8 @@ namespace MarginTrading.AssetService.Contracts.Scheduling
         /// <summary>
         /// Trading day that was active last: current if enabled, interval.Start.Date if disabled
         /// </summary>
-        public DateTime LastTradingDay { get; set; }
+        [JsonConverter(typeof(TradingDayConverter))]
+        public TradingDay LastTradingDay { get; set; }
         
         /// <summary>
         /// Is trading enabled currently

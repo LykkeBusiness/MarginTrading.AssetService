@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Lykke.Snow.Common.TradingDays;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -87,7 +89,10 @@ namespace MarginTrading.AssetService.Tests
             
             brokerSettingsMock.Verify();
             Assert.Equal(isTradingEnabled, info.IsTradingEnabled);
-            Assert.Equal(DateTime.Parse(lastTradingDay), info.LastTradingDay);
+            
+            TradingDay.TryParse(lastTradingDay, out var lastTradingDayParsed);
+            Assert.Equal(lastTradingDayParsed, info.LastTradingDay);
+            
             Assert.Equal(DateTime.Parse(nextTradingDay).Date, info.NextTradingDayStart.Date);
             Assert.Equal(DateTime.Parse(nextTradingDay).TimeOfDay, info.NextTradingDayStart.TimeOfDay);
         }

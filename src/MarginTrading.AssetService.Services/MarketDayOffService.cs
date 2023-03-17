@@ -96,15 +96,7 @@ namespace MarginTrading.AssetService.Services
             var isBusinessDay = !brokerSettings.Weekends.Contains(currentDateTime.DayOfWeek)
                                 && !brokerSettings.Holidays.Select(x => x.Date).Contains(currentDateTime.Date);
 
-            var result = new TradingDayInfo
-            {
-                IsTradingEnabled = isEnabled,
-                LastTradingDay = lastTradingDay,
-                NextTradingDayStart = nextTradingDay,
-                IsBusinessDay = isBusinessDay
-            };
-
-            return result;
+            return new TradingDayInfo(currentDateTime, isEnabled, lastTradingDay, isBusinessDay, nextTradingDay);
         }
 
         private static CompiledScheduleTimeInterval GetCurrentInterval(

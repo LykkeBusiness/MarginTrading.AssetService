@@ -53,12 +53,10 @@ namespace MarginTrading.AssetService.Core.Domain
                     "Last trading day cannot be greater than timestamp date");
             }
             
-            // it appeared we can have next trading day start the same calendar
-            // day as last trading day, therefore checking only for less than
-            if (new TradingDay(nextTradingDayStart) < lastTradingDay)
+            if (new TradingDay(nextTradingDayStart) <= lastTradingDay)
             {
                 throw new ArgumentOutOfRangeException(nameof(nextTradingDayStart),
-                    "Next trading day start cannot be less than last trading day");
+                    "Next trading day start cannot be less than or equal to last trading day");
             }
 
             if (nextTradingDayStart <= timestamp)

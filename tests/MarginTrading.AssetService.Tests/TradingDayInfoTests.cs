@@ -83,7 +83,27 @@ namespace MarginTrading.AssetService.Tests
             TradingDay lastTradingDay = new TradingDay(timestamp);
             bool isBusinessDay = true;
             DateTime nextTradingDayStart = timestamp.AddDays(-1);
-        
+
+            // Act and Assert
+            Assert.Throws<ArgumentOutOfRangeException>(() => new TradingDayInfo(
+                timestamp,
+                isTradingEnabled,
+                lastTradingDay,
+                isBusinessDay,
+                nextTradingDayStart));
+        }
+
+        // It is not viable to have next trading day start the same calendar day as last trading day
+        [Fact]
+        public void Constructor_InvalidNextTradingDayStartEqualLastTradingDay_ThrowsArgumentOutOfRangeException()
+        {
+            // Arrange
+            DateTime timestamp = DateTime.Now;
+            bool isTradingEnabled = false;
+            TradingDay lastTradingDay = new TradingDay(timestamp);
+            bool isBusinessDay = true;
+            DateTime nextTradingDayStart = timestamp;
+
             // Act and Assert
             Assert.Throws<ArgumentOutOfRangeException>(() => new TradingDayInfo(
                 timestamp,

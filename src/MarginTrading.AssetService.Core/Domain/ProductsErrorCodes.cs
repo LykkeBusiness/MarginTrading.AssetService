@@ -19,6 +19,6 @@ namespace MarginTrading.AssetService.Core.Domain
         LongIsinNotUnique,
         ShortIsinNotUnique,
         CannotChangeDiscontinuedProduct,
-        CannotUpdateContractSizeForStarted
+        CannotUpdateContractSizeForStarted,
     }
 }

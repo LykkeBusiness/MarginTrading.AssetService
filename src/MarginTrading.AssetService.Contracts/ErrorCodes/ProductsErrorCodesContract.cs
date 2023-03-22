@@ -19,6 +19,6 @@ namespace MarginTrading.AssetService.Contracts.ErrorCodes
         LongIsinNotUnique,
         ShortIsinNotUnique,
         CannotChangeDiscontinuedProduct,
-        CannotUpdateContractSizeForStarted
+        CannotUpdateContractSizeForStarted,
     }
 }

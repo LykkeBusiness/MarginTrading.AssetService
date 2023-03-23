@@ -35,6 +35,15 @@ namespace MarginTrading.AssetService.Core.Domain
         /// </summary>
         public DateTime NextTradingDayStart { get; }
 
+        /// <summary>
+        /// Creates new instance of <see cref="TradingDayInfo"/>
+        /// </summary>
+        /// <param name="timestamp"></param>
+        /// <param name="isTradingEnabled"></param>
+        /// <param name="lastTradingDay"></param>
+        /// <param name="isBusinessDay"></param>
+        /// <param name="nextTradingDayStart"></param>
+        /// <exception cref="ArgumentOutOfRangeException"></exception>
         public TradingDayInfo(DateTime timestamp,
             bool isTradingEnabled,
             TradingDay lastTradingDay,

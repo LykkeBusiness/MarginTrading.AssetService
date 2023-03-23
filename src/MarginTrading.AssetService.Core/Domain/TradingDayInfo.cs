@@ -62,10 +62,14 @@ namespace MarginTrading.AssetService.Core.Domain
                     "Last trading day cannot be greater than timestamp date");
             }
             
-            if (new TradingDay(nextTradingDayStart) <= lastTradingDay)
+            // TradingDayInfo is used not only for trading day schedule,
+            // but also for markets schedule inside the trading day.
+            // In the latter case, the next trading day start can be equal to
+            // the last trading day, therefore "<" but not "<=" comparison is used.
+            if (new TradingDay(nextTradingDayStart) < lastTradingDay)
             {
                 throw new ArgumentOutOfRangeException(nameof(nextTradingDayStart),
-                    "Next trading day start cannot be less than or equal to last trading day");
+                    "Next trading day start cannot be less than last trading day");
             }
 
             if (nextTradingDayStart <= timestamp)

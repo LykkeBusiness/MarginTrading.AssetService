@@ -15,6 +15,8 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 using Xunit;
 
@@ -82,7 +84,7 @@ namespace MarginTrading.AssetService.Tests
                         }
                     });
             
-            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings(), brokerId, brokerSettingsMock.Object);
+            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings(), brokerId, brokerSettingsMock.Object, new NullLogger<MarketDayOffService>());
 
             var info = (await service.GetMarketsInfo(new[] {marketId}, null))[marketId];
             

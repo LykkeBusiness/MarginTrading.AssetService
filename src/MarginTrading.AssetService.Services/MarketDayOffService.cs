@@ -12,6 +12,7 @@ using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -22,19 +23,22 @@ namespace MarginTrading.AssetService.Services
         private readonly PlatformSettings _platformSettings;
         private readonly IBrokerSettingsApi _brokerSettingsApi;
         private readonly string _brokerId;
+        private readonly ILogger<MarketDayOffService> _logger;
 
         public MarketDayOffService(
             IScheduleSettingsService scheduleSettingsService,
             ISystemClock systemClock,
             PlatformSettings platformSettings, 
             string brokerId, 
-            IBrokerSettingsApi brokerSettingsApi)
+            IBrokerSettingsApi brokerSettingsApi,
+            ILogger<MarketDayOffService> logger)
         {
             _scheduleSettingsService = scheduleSettingsService;
             _systemClock = systemClock;
             _platformSettings = platformSettings;
             _brokerId = brokerId;
             _brokerSettingsApi = brokerSettingsApi;
+            _logger = logger;
         }
 
         public async Task<Dictionary<string, TradingDayInfo>> GetMarketsInfo(string[] marketIds, DateTime? dateTime)
@@ -82,7 +86,7 @@ namespace MarginTrading.AssetService.Services
             return GetTradingDayInfo(rawPlatformSchedule, brokerSettings, currentDateTime);
         }
 
-        private static TradingDayInfo GetTradingDayInfo(IEnumerable<ScheduleSettings> scheduleSettings, 
+        private TradingDayInfo GetTradingDayInfo(IEnumerable<ScheduleSettings> scheduleSettings, 
             BrokerSettingsContract brokerSettings, 
             DateTime currentDateTime)
         {
@@ -96,7 +100,21 @@ namespace MarginTrading.AssetService.Services
             var isBusinessDay = !brokerSettings.Weekends.Contains(currentDateTime.DayOfWeek)
                                 && !brokerSettings.Holidays.Select(x => x.Date).Contains(currentDateTime.Date);
 
-            return new TradingDayInfo(currentDateTime, isEnabled, lastTradingDay, isBusinessDay, nextTradingDay);
+            try
+            {
+                var tradingDayInfo = new TradingDayInfo(currentDateTime, isEnabled, lastTradingDay, isBusinessDay, nextTradingDay);
+                return tradingDayInfo;
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                var markets = compiledSchedule.Select(x => x.Schedule.MarketId).Distinct();
+                var marketsList = string.Join(',', markets);
+
+                _logger.LogError(e,
+                    "Couldn't create TradingDayInfo object. BrokerId: {BrokerId}, Markets: {MarketsList}, LastTradingDay: {LastTradingDay}, NextTradingDay: {NextTradingDay}",
+                    brokerSettings.BrokerId, marketsList, lastTradingDay, nextTradingDay);
+                throw;
+            }
         }
 
         private static CompiledScheduleTimeInterval GetCurrentInterval(

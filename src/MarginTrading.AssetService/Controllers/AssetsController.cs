@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.Extensions;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -144,6 +145,25 @@ namespace MarginTrading.AssetService.Controllers
             }
 
             return result;
+        }
+
+        /// <summary>
+        /// Get legacy asset precision by id
+        /// </summary>
+        [HttpGet]
+        [Route("legacy/{assetId}/precision")]
+        public async Task<GetAssetPrecisionResponse> GetLegacyAssetPrecisionById(string assetId, decimal price, bool startedOnly = true)
+        {
+            var asset = await GetLegacyAssetById(assetId, startedOnly);
+
+            if (asset == null)
+                return null;
+
+            var precisionInfo = asset.TickFormulaDetails.GetPrecisionInfo(price);
+            return new GetAssetPrecisionResponse
+            {
+                Precision = precisionInfo.precision
+            };
         }
 
         /// <summary>

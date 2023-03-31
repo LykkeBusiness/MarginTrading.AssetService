@@ -14,7 +14,7 @@ namespace MarginTrading.AssetService.Tests.Contracts
         [InlineData(1.1, 1)]
         [InlineData(1.12, 2)]
         [InlineData(1.123, 3)]
-        public void Test_Decimal_GetPrecision(decimal value, int expectedPrecision)
+        public void Test_Decimal_GetPrecision(decimal value, uint expectedPrecision)
         {
             // Act
             var actualPrecision = value.GetPrecision();
@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Tests.Contracts
         [InlineData(50.1, 50, 100, 2)]
         [InlineData(100, 100, 500, 1)]
         [InlineData(100.1, 100, 500, 1)]
-        public void Test_TickFormula_GetPrecisionInfo(decimal price, decimal minPrice, decimal maxPrice, int precision)
+        public void Test_TickFormula_GetPrecisionInfo(decimal price, decimal minPrice, decimal maxPrice, uint precision)
         {
             // Arrange
             var tickFormula = new TickFormula
@@ -74,7 +74,7 @@ namespace MarginTrading.AssetService.Tests.Contracts
             // Assert
             Assert.Equal(decimal.MinValue, info.minPrice);
             Assert.Equal(0.001M, info.maxPrice);
-            Assert.Equal(3, info.precision);
+            Assert.Equal((uint)3, info.precision);
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace MarginTrading.AssetService.Tests.Contracts
             // Assert
             Assert.Equal(500, info.minPrice);
             Assert.Equal(decimal.MaxValue, info.maxPrice);
-            Assert.Equal(1, info.precision);
+            Assert.Equal((uint)1, info.precision);
         }
     }
 }

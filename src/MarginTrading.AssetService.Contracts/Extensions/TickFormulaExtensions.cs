@@ -5,7 +5,7 @@ namespace MarginTrading.AssetService.Contracts.Extensions
 {
     public static class TickFormulaExtensions
     {
-        public static (decimal minPrice, decimal maxPrice, int precision) GetPrecisionInfo(this LegacyAsset.TickFormula formula,
+        public static (decimal minPrice, decimal maxPrice, uint precision) GetPrecisionInfo(this LegacyAsset.TickFormula formula,
             decimal price)
         {
             var minValue = decimal.MinValue;
@@ -35,7 +35,7 @@ namespace MarginTrading.AssetService.Contracts.Extensions
                 .Values.Last().GetPrecision());
         }
         
-        public static int GetPrecision(this decimal number)
+        public static uint GetPrecision(this decimal number)
         {
             return BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
         }

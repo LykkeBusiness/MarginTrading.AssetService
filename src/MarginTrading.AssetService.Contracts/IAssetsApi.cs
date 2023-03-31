@@ -58,7 +58,14 @@ namespace MarginTrading.AssetService.Contracts
         /// Get legacy asset by id
         /// </summary>
         [Get("/api/assets/legacy/{assetId}")]
-        Task<Asset> GetLegacyAssetById(string assetId, bool startedOnly = true);        
+        Task<Asset> GetLegacyAssetById(string assetId, bool startedOnly = true);
+
+        /// <summary>
+        /// Get legacy asset precision by id
+        /// </summary>
+        [Get("/api/assets/legacy/{assetId}/precision")]
+        Task<GetAssetPrecisionResponse> GetLegacyAssetPrecisionById(string assetId, decimal price,
+            bool startedOnly = true);        
         
         [Post("/api/assets/legacy/search")]
         Task<IEnumerable<Asset>> SearchLegacyAssets(SearchLegacyAssetsRequest request);

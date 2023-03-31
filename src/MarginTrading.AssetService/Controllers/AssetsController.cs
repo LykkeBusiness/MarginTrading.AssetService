@@ -148,25 +148,6 @@ namespace MarginTrading.AssetService.Controllers
         }
 
         /// <summary>
-        /// Get legacy asset precision by id
-        /// </summary>
-        [HttpGet]
-        [Route("legacy/{assetId}/precision")]
-        public async Task<GetAssetPrecisionResponse> GetLegacyAssetPrecisionById(string assetId, decimal price, bool startedOnly = true)
-        {
-            var asset = await GetLegacyAssetById(assetId, startedOnly);
-
-            if (asset == null)
-                return null;
-
-            var precisionInfo = asset.TickFormulaDetails.GetPrecisionInfo(price);
-            return new GetAssetPrecisionResponse
-            {
-                Precision = precisionInfo.precision
-            };
-        }
-
-        /// <summary>
         /// Performs search and returns list of asset ids
         /// </summary>
         [HttpPost("/api/assets/legacy/search")]

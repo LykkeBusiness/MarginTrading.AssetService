@@ -17,6 +17,7 @@ namespace MarginTrading.AssetService.Contracts.Products
         [MaxLength(100)]
         public string Comments { get; set; }
         
+        [Range(1, int.MaxValue)]
         public int ContractSize { get; set; }
 
         [Required]

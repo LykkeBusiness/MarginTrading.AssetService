@@ -18,6 +18,7 @@ namespace MarginTrading.AssetService.Core.Domain
         CannotChangeStartDateFromPastToFuture,
         LongIsinNotUnique,
         ShortIsinNotUnique,
-        CannotChangeDiscontinuedProduct
+        CannotChangeDiscontinuedProduct,
+        CannotUpdateContractSizeForStarted,
     }
 }

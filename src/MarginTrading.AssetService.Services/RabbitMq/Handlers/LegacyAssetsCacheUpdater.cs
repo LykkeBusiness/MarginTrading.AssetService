@@ -136,10 +136,10 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             await Handle(underlying, filter, LegacyAssetExtensions.SetAssetFieldsFromUnderlying, timestamp);
         }
 
-        public async Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp)
+        public Task HandleAssetTypeUpdated(AssetType assetType, DateTime timestamp)
         {
             Func<Asset, bool> filter = x => x.Underlying.AssetType == assetType.Id;
-            await Handle(assetType, filter, LegacyAssetExtensions.SetAssetFieldsFromAssetType, timestamp);
+            return Handle(filter, timestamp);
         }
 
         public Task UpdateAll(DateTime timestamp)

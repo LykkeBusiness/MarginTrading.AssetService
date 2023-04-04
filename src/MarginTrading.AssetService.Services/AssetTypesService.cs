@@ -173,7 +173,7 @@ namespace MarginTrading.AssetService.Services
                 throw new CannotDeleteAssetTypeAssignedToAnyProductException();
 
             var clientProfileSettings = await
-                _clientProfileSettingsRepository.GetAllAsync(id, null);
+                _clientProfileSettingsRepository.GetAllAsync(null, id);
 
             await _assetTypesRepository.DeleteAsync(id);
 

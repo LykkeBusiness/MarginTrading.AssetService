@@ -19,7 +19,8 @@ namespace MarginTrading.AssetService.Services.Extensions
                 ExecutionFeesFloor = source.ExecutionFeesFloor,
                 ExecutionFeesRate = new ExecutionFeeRate(source.ExecutionFeesRate),
                 FinancingFeesRate = new FinancingFeeRate(source.FinancingFeesRate),
-                OnBehalfFee = source.OnBehalfFee
+                OnBehalfFee = source.OnBehalfFee,
+                ExcludeSpreadFromProductCosts = source.ExcludeSpreadFromProductCosts
             };
         }
     }

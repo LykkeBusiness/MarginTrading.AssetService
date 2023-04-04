@@ -21,5 +21,7 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         public decimal FinancingFeesRate { get; set; }
         
         public decimal OnBehalfFee { get; set; }
+
+        public bool ExcludeSpreadFromProductCosts { get; set; }
     }
 }

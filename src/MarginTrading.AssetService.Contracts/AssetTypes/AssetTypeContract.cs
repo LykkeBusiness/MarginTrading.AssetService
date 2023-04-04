@@ -23,5 +23,8 @@ namespace MarginTrading.AssetService.Contracts.AssetTypes
         /// </summary>
         [Key(2)] 
         public string UnderlyingCategoryId { get; set; }
+        
+        [Key(3)]
+        public bool ExcludeSpreadFromProductCosts { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.Common;
+using MarginTrading.AssetService.Contracts.Extensions;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Interfaces;

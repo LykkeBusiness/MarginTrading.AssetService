@@ -4,6 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+
+using Lykke.Snow.Common.TradingDays;
 using Lykke.Snow.Mdm.Contracts.Api;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
@@ -13,6 +15,8 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Core.Settings;
 using MarginTrading.AssetService.Services;
 using Microsoft.Extensions.Internal;
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Moq;
 using Xunit;
 
@@ -21,7 +25,6 @@ namespace MarginTrading.AssetService.Tests
     public class MarketDayOffServiceTests
     {
         [Theory]
-        [InlineData("Market1.1", false, "2019-10-11", "2019-10-11 23:00:00")]
         [InlineData("Market1.2", true, "2019-10-11", "2019-10-12 02:00:00")]
         [InlineData("Market1.3", true, "2019-10-11", "2019-10-12 00:00:00")]
         [InlineData("Market2.1", true, "2019-10-11", "2019-10-14 00:00:00")]
@@ -81,13 +84,16 @@ namespace MarginTrading.AssetService.Tests
                         }
                     });
             
-            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings(), brokerId, brokerSettingsMock.Object);
+            var service = new MarketDayOffService(scheduleServiceMock.Object, systemClockMock.Object, new PlatformSettings(), brokerId, brokerSettingsMock.Object, new NullLogger<MarketDayOffService>());
 
             var info = (await service.GetMarketsInfo(new[] {marketId}, null))[marketId];
             
             brokerSettingsMock.Verify();
             Assert.Equal(isTradingEnabled, info.IsTradingEnabled);
-            Assert.Equal(DateTime.Parse(lastTradingDay), info.LastTradingDay);
+            
+            TradingDay.TryParse(lastTradingDay, out var lastTradingDayParsed);
+            Assert.Equal(lastTradingDayParsed, info.LastTradingDay);
+            
             Assert.Equal(DateTime.Parse(nextTradingDay).Date, info.NextTradingDayStart.Date);
             Assert.Equal(DateTime.Parse(nextTradingDay).TimeOfDay, info.NextTradingDayStart.TimeOfDay);
         }

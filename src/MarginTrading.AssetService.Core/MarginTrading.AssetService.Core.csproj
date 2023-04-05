@@ -15,7 +15,7 @@
     <PackageReference Include="Lykke.Snow.Audit" Version="1.2.0" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
     <PackageReference Include="LykkeBiz.SettingsReader" Version="6.0.4" />
-    <PackageReference Include="Lykke.Snow.Common" Version="1.56.0" />
+    <PackageReference Include="Lykke.Snow.Common" Version="1.58.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />

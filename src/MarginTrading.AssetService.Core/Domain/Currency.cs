@@ -2,8 +2,10 @@ using Lykke.Snow.Audit.Abstractions;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
-    public class Currency : IAuditableObject<AuditDataType>
+    public sealed class Currency : IAuditableObject<AuditDataType>
     {
+        public static readonly ContractSize DefaultContractSize = 1;
+        
         public string Id { get; set; }
         
         public string InterestRateMdsCode  { get; set; }
@@ -15,5 +17,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public AuditDataType GetAuditDataType() => AuditDataType.Currency;
 
         public string GetAuditReference() => Id;
+
+        public ContractSize ContractSize => DefaultContractSize;
     }
 }

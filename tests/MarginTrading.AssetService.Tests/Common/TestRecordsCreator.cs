@@ -15,6 +15,8 @@ using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Tests.Extensions;
 using Newtonsoft.Json;
 
+using Xunit;
+
 namespace MarginTrading.AssetService.Tests.Common
 {
     public class TestRecordsCreator
@@ -84,7 +86,12 @@ namespace MarginTrading.AssetService.Tests.Common
                 UserName = "username"
             };
 
-            await client.PostAsync("/api/currencies", request.ToJsonStringContent());
+            var response = await client.PostAsync("/api/currencies", request.ToJsonStringContent());
+            response.EnsureSuccessStatusCode();
+            
+            var result = (await response.Content.ReadAsStringAsync())
+                .DeserializeJson<ErrorCodeResponse<CurrenciesErrorCodesContract>>();
+            Assert.Equal(CurrenciesErrorCodesContract.None, result.ErrorCode);
         }
 
         public static async Task CreateMarketSettings(HttpClient client, string id)
@@ -124,14 +131,14 @@ namespace MarginTrading.AssetService.Tests.Common
         }
 
         public static async Task<ErrorCodeResponse<ProductsErrorCodesContract>> CreateProductAsync(HttpClient client,
-            string productId, string category)
+            string productId, string category, int contractSize = 1)
         {
             var request = new AddProductRequest
             {
                 ProductId = productId,
                 Category = category,
                 AssetType = "asset-type",
-                ContractSize = 1,
+                ContractSize = contractSize,
                 Comments = "comments",
                 Issuer = "issuer",
                 Keywords = "keywords",
@@ -155,13 +162,15 @@ namespace MarginTrading.AssetService.Tests.Common
                 UnderlyingMdsCode = "mds-code",
                 MinOrderDistancePercent = new decimal(1.0),
                 MinOrderEntryInterval = new decimal(1.0),
-                MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId)
+                MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId),
             };
 
             var response = await client.PostAsync("/api/products", request.ToJsonStringContent());
+            response.EnsureSuccessStatusCode();
 
             var result = (await response.Content.ReadAsStringAsync())
                 .DeserializeJson<ErrorCodeResponse<ProductsErrorCodesContract>>();
+            Assert.Equal(ProductsErrorCodesContract.None, result.ErrorCode);
 
             return result;
         }

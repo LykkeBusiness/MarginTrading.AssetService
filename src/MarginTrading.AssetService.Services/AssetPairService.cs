@@ -46,7 +46,7 @@ namespace MarginTrading.AssetService.Services
             var assetPairs = products
                 .Where(x => !onlyStarted || x.IsStarted)
                 .Select(x => AssetPair.CreateFromProduct(x, _defaultLegalEntitySettings.DefaultLegalEntity)).ToList();
-
+            
             assetPairs.AddRange(currencies.Value
                 .Where(x => !x.Id.Equals(settlementCurrency,
                     StringComparison.InvariantCultureIgnoreCase)).Select(x =>

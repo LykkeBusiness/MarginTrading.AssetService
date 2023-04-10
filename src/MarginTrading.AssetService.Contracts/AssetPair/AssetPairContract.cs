@@ -67,5 +67,8 @@ namespace MarginTrading.AssetService.Contracts.AssetPair
         
         [Key(16)]
         public bool IsTradingDisabled { get; set; }
+        
+        [Key(17)]
+        public int ContractSize { get; set; }
     }
 }

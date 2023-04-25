@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-    <Version>2.18.1</Version>
+    <Version>2.18.2</Version>
     <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -10,6 +10,6 @@
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.1.0" />
+    <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.2.1" />
   </ItemGroup>
 </Project>

@@ -14,8 +14,6 @@ using Microsoft.Extensions.Logging.Abstractions;
 
 using Xunit;
 
-using DateOnly = Lykke.Snow.Common.Types.DateOnly;
-
 namespace MarginTrading.AssetService.Tests
 {
     /// <summary>

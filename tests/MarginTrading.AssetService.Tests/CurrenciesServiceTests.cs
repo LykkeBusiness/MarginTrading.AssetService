@@ -60,7 +60,7 @@ namespace MarginTrading.AssetService.Tests
                 MarketId = "testMarketId",
                 Name = "testName",
                 PublicationRic = "testPublicationRic",
-                StartDate = DateTime.UtcNow,
+                StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
                 TickFormulaId = "testTickFormulaId",
                 UnderlyingMdsCode = "testUnderlyingMdsCode"
             };

@@ -1,3 +1,5 @@
+using System;
+
 using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
 
@@ -20,7 +22,20 @@ namespace MarginTrading.AssetService.Services.Mapping
     {
         public ProductsProfile()
         {
-            CreateMap<Product, ProductContract>().ReverseMap();
+            // TODO: public contract should be also updated DateTime -> DateOnly 
+            CreateMap<Product, ProductContract>()
+                .ForMember(dest => dest.StartDate,
+                    opt => opt.MapFrom(x =>
+                        x.StartDate.HasValue
+                            ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                            : DateTime.MinValue))
+                .ReverseMap()
+                .ForMember(dest => dest.StartDate,
+                    opt => opt.MapFrom(x =>
+                        x.StartDate != DateTime.MinValue
+                            ? DateOnly.FromDateTime(x.StartDate)
+                            : (DateOnly?)null));
+            
             // todo: mapping should work without MemberList.None option
             CreateMap<AddProductRequest, Product>(MemberList.None)
                 //For new products, the default value for the IsSuspended flag should be true.

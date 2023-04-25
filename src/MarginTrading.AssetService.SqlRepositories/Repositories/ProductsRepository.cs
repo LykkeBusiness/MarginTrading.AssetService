@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -373,7 +372,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 FreezeInfo = product.FreezeInfo.ToJson(),
                 IsDiscontinued = product.IsDiscontinued,
                 Timestamp = product.Timestamp,
-                StartDate = product.StartDate.Value,
+                StartDate = product.StartDate,
                 IsStarted = product.IsStarted,
                 Dividends871M = product.Dividends871M,
                 DividendsLong = product.DividendsLong,

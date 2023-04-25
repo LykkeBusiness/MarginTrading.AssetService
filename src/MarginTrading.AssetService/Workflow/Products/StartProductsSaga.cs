@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using BookKeeper.Client.Workflow.Events;
@@ -40,7 +41,11 @@ namespace MarginTrading.AssetService.Workflow.Products
                 var marketInfos = await _marketDayOffService.GetMarketsInfo(markets, null);
 
                 var productsToStart = productsResult.Value
-                    .Where(x => x.StartDate < marketInfos[x.Market].NextTradingDayStart.Date.AddDays(1))
+                    .Where(x =>
+                    {
+                        var marketNextTradingDayStart = marketInfos[x.Market].NextTradingDayStart;
+                        return x.StartDate < DateOnly.FromDateTime(marketNextTradingDayStart.AddDays(1));
+                    })
                     .ToList();
 
                 var productsIdsString = string.Concat(',', productsToStart.Select(x => x.ProductId));

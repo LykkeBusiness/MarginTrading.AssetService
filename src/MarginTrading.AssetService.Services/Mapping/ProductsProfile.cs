@@ -41,10 +41,18 @@ namespace MarginTrading.AssetService.Services.Mapping
                 //For new products, the default value for the IsSuspended flag should be true.
                 //see https://lykke-snow.atlassian.net/browse/LT-2875
                 .ForMember(p => p.IsSuspended, o => o.MapFrom(src => true))
-                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
+                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()))
+                .ForMember(p => p.StartDate,
+                    opt => opt.MapFrom(x =>
+                        x.StartDate.HasValue ? DateOnly.FromDateTime(x.StartDate.Value) : (DateOnly?)null));
+            
             // todo: mapping should work without MemberList.None option
             CreateMap<UpdateProductRequest, Product>(MemberList.None)
-                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
+                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()))
+                .ForMember(p => p.StartDate,
+                    opt => opt.MapFrom(x =>
+                        x.StartDate.HasValue ? DateOnly.FromDateTime(x.StartDate.Value) : (DateOnly?)null));
+            
             CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
             CreateMap<ITradingInstrument, TradingInstrumentContract>()
                 .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))

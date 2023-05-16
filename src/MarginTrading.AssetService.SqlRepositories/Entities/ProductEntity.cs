@@ -37,8 +37,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public int MaxPositionSize { get; set; }
 
         public decimal MinOrderDistancePercent { get; set; }
-        
-        public decimal MinOrderEntryInterval { get; set; }
 
         public string Name { get; set; }
         
@@ -51,8 +49,6 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public string SettlementCurrency { get; set; }
 
         public bool ShortPosition { get; set; }
-
-        public string Tags { get; set; }
 
         public string TickFormulaId { get; set; }
         

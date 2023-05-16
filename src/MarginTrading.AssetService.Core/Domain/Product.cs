@@ -37,8 +37,6 @@ namespace MarginTrading.AssetService.Core.Domain
 
         public decimal MinOrderDistancePercent { get; set; }
 
-        public decimal MinOrderEntryInterval { get; set; }
-
         public string Name { get; set; }
 
         public string NewsId { get; set; }
@@ -50,8 +48,6 @@ namespace MarginTrading.AssetService.Core.Domain
         public string SettlementCurrency { get; set; }
 
         public bool ShortPosition { get; set; }
-
-        public string Tags { get; set; }
 
         public string TickFormula { get; set; }
 

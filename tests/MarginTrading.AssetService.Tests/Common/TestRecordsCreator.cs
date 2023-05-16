@@ -145,7 +145,6 @@ namespace MarginTrading.AssetService.Tests.Common
                 Market = "market",
                 Name = productId,
                 Parity = 10,
-                Tags = "tags",
                 ForceId = "forceId",
                 IsinLong = "IsinLong1234",
                 IsinShort = "IsinShort123",
@@ -161,7 +160,6 @@ namespace MarginTrading.AssetService.Tests.Common
                 OvernightMarginMultiplier = new decimal(1.0),
                 UnderlyingMdsCode = "mds-code",
                 MinOrderDistancePercent = new decimal(1.0),
-                MinOrderEntryInterval = new decimal(1.0),
                 MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId),
             };
 

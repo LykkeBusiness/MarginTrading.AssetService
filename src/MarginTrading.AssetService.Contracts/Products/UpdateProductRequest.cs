@@ -55,9 +55,6 @@ namespace MarginTrading.AssetService.Contracts.Products
         public decimal MinOrderDistancePercent { get; set; }
         
         [Required]
-        public decimal MinOrderEntryInterval { get; set; }
-        
-        [Required]
         [MaxLength(100)]
         public string Name { get; set; }
         
@@ -76,9 +73,6 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [Required]
         public bool ShortPosition { get; set; }
-
-        [MaxLength(100)]
-        public string Tags { get; set; }
 
         [Required]
         [MaxLength(100)]

@@ -63,9 +63,6 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         [JsonProperty("minOrderDistancePercent")]
         public decimal MinOrderDistancePercent { get; set; }
 
-        [JsonProperty("minOrderEntryInterval")]
-        public decimal MinOrderEntryInterval { get; set; }
-
         [JsonProperty("minOrderSize")]
         public int MinOrderSize { get; set; }
 
@@ -86,9 +83,6 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
 
         [JsonProperty("shortPosition")]
         public bool ShortPosition { get; set; }
-
-        [JsonProperty("tags")]
-        public string Tags { get; set; }
 
         [JsonProperty("tickFormula")]
         public string TickFormulaName { get; set; }

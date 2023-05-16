@@ -50,9 +50,6 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(13)]
         public decimal MinOrderDistancePercent { get; set; }
-        
-        [MessagePack.Key(14)]
-        public decimal MinOrderEntryInterval { get; set; }
 
         [MessagePack.Key(15)]
         public string Name { get; set; }
@@ -71,9 +68,6 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(20)]
         public bool ShortPosition { get; set; }
-
-        [MessagePack.Key(21)]
-        public string Tags { get; set; }
 
         [MessagePack.Key(22)]
         public string TickFormula { get; set; }

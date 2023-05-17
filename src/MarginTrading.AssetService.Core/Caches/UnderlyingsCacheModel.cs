@@ -23,6 +23,6 @@ namespace MarginTrading.AssetService.Core.Caches
         public string IndexName { get; set; }
         public string EmirType { get; set; }
         
-        public DateOnly StartDate { get; set; }
+        public DateOnly? StartDate { get; set; }
     }
 }

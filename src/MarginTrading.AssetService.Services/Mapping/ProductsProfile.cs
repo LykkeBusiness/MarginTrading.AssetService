@@ -42,16 +42,12 @@ namespace MarginTrading.AssetService.Services.Mapping
                 //see https://lykke-snow.atlassian.net/browse/LT-2875
                 .ForMember(p => p.IsSuspended, o => o.MapFrom(src => true))
                 .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()))
-                .ForMember(p => p.StartDate,
-                    opt => opt.MapFrom(x =>
-                        x.StartDate.HasValue ? DateOnly.FromDateTime(x.StartDate.Value) : (DateOnly?)null));
+                .ForMember(p => p.StartDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()));
             
             // todo: mapping should work without MemberList.None option
             CreateMap<UpdateProductRequest, Product>(MemberList.None)
                 .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()))
-                .ForMember(p => p.StartDate,
-                    opt => opt.MapFrom(x =>
-                        x.StartDate.HasValue ? DateOnly.FromDateTime(x.StartDate.Value) : (DateOnly?)null));
+                .ForMember(p => p.StartDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()));
             
             CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
             CreateMap<ITradingInstrument, TradingInstrumentContract>()

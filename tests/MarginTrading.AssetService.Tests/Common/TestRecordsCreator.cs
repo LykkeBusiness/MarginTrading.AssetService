@@ -131,7 +131,7 @@ namespace MarginTrading.AssetService.Tests.Common
         }
 
         public static async Task<ErrorCodeResponse<ProductsErrorCodesContract>> CreateProductAsync(HttpClient client,
-            string productId, string category, int contractSize = 1)
+            string productId, string category, int contractSize = 1, bool started = true)
         {
             var request = new AddProductRequest
             {
@@ -163,6 +163,7 @@ namespace MarginTrading.AssetService.Tests.Common
                 MinOrderDistancePercent = new decimal(1.0),
                 MinOrderEntryInterval = new decimal(1.0),
                 MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId),
+                StartDate = started ? DateTime.UtcNow.AddDays(-1) : DateTime.UtcNow.AddDays(1)
             };
 
             var response = await client.PostAsync("/api/products", request.ToJsonStringContent());

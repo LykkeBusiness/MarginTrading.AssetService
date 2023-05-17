@@ -42,7 +42,7 @@ namespace MarginTrading.AssetService.Services.Caches
                 {
                     _cache = response.Underlyings.ToDictionary(
                         u => u.MdsCode,
-                        v => _convertService.Convert<UnderlyingContract, UnderlyingsCacheModel>(v));
+                        v => _convertService.Convert<UnderlyingApiContract, UnderlyingsCacheModel>(v));
                 }
                 
                 InitIsinsUnsafely();

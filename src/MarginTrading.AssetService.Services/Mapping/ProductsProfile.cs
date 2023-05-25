@@ -1,3 +1,5 @@
+using System;
+
 using AutoMapper;
 using AutoMapper.Extensions.EnumMapping;
 
@@ -20,16 +22,33 @@ namespace MarginTrading.AssetService.Services.Mapping
     {
         public ProductsProfile()
         {
-            CreateMap<Product, ProductContract>().ReverseMap();
+            // TODO: public contract should be also updated DateTime -> DateOnly 
+            CreateMap<Product, ProductContract>()
+                .ForMember(dest => dest.StartDate,
+                    opt => opt.MapFrom(x =>
+                        x.StartDate.HasValue
+                            ? x.StartDate.Value.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
+                            : DateTime.MinValue))
+                .ReverseMap()
+                .ForMember(dest => dest.StartDate,
+                    opt => opt.MapFrom(x =>
+                        x.StartDate != DateTime.MinValue
+                            ? DateOnly.FromDateTime(x.StartDate)
+                            : (DateOnly?)null));
+            
             // todo: mapping should work without MemberList.None option
             CreateMap<AddProductRequest, Product>(MemberList.None)
                 //For new products, the default value for the IsSuspended flag should be true.
                 //see https://lykke-snow.atlassian.net/browse/LT-2875
                 .ForMember(p => p.IsSuspended, o => o.MapFrom(src => true))
-                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
+                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()))
+                .ForMember(p => p.StartDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()));
+            
             // todo: mapping should work without MemberList.None option
             CreateMap<UpdateProductRequest, Product>(MemberList.None)
-                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()));
+                .ForMember(p => p.Name, o => o.MapFrom(x => x.Name.Trim()))
+                .ForMember(p => p.StartDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()));
+            
             CreateMap<ProductFreezeInfo, ProductFreezeInfoContract>().ReverseMap();
             CreateMap<ITradingInstrument, TradingInstrumentContract>()
                 .ForMember(dest => dest.InitLeverage, opt => opt.MapFrom(x => (decimal) x.InitLeverage))

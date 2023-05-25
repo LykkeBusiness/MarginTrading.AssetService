@@ -95,7 +95,12 @@ namespace MarginTrading.AssetService.Services.Mapping
                 cfg.CreateMap<TickFormulaErrorCodes, TickFormulaErrorCodesContract>();
 
                 //Underlying
-                cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>();
+                cfg.CreateMap<UnderlyingApiContract, UnderlyingsCacheModel>();
+                cfg.CreateMap<UnderlyingContract, UnderlyingsCacheModel>()
+                    .ForMember(dest => dest.ExpiryDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()))
+                    .ForMember(dest => dest.MaturityDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()))
+                    .ForMember(dest => dest.LastTradingDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()))
+                    .ForMember(dest => dest.StartDate, opt => opt.ConvertUsing(new DateOnlyValueConverter()));
                 
                 cfg.AddProfile<TradingConditionsProfile>();
                 cfg.AddProfile<ProductsProfile>();

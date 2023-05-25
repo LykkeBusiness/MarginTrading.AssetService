@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using Lykke.Snow.Audit.Abstractions;
 using Lykke.Snow.Common.Converters;
-using Lykke.Snow.Common.Types;
 using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.Core.Domain

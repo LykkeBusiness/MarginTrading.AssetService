@@ -18,7 +18,6 @@
     <PackageReference Include="LykkeBiz.Cqrs" Version="11.1.0" />
     <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>

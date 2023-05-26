@@ -1,5 +1,3 @@
-# To get started with Dependabot version updates, you'll need to specify which
-# package ecosystems to update and where the package manifests are located.
 # Please see the documentation for all configuration options:
 # https://docs.github.com/github/administering-a-repository/configuration-options-for-dependency-updates
 
@@ -9,9 +7,14 @@ registries:
     type: nuget-feed
     url: https://nuget-lykkecloud.azurewebsites.net/nuget
 updates:
-  - package-ecosystem: "NuGet" # See documentation for possible values
-    directory: "/" # Location of package manifests
+  - package-ecosystem: "nuget"
+    directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+    registries:
+      - lykke
     assignees: 
       - "tarurar"
+    allow:
+      - dependency-name: "Lykke.*"
+      - dependency-name: "LykkeBiz.*"

@@ -3,6 +3,8 @@
 
 using System.Threading.Tasks;
 
+using Lykke.Snow.Common.Startup;
+
 using MarginTrading.AssetService.Startup;
 using Microsoft.AspNetCore.Builder;
 
@@ -22,6 +24,8 @@ namespace MarginTrading.AssetService
                     settingsManager.CurrentValue.MarginTradingAssetServiceClient);
 
                 builder.ConfigureHost(configuration, settingsManager);
+
+                await settingsManager.CurrentValue.ValidateSettings();
 
                 var app = builder.Build();
 

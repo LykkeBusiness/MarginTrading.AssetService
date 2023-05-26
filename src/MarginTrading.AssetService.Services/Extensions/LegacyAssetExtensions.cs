@@ -32,11 +32,9 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.NewsId = product.NewsId;
             asset.ContractSize = product.ContractSize;
             asset.MinOrderDistancePercent = product.MinOrderDistancePercent;
-            asset.MinOrderEntryInterval = product.MinOrderEntryInterval;
             asset.MinOrderSize = product.MinOrderSize;
             asset.Parity = product.Parity;
             asset.PublicationRic = product.PublicationRic;
-            asset.Tags = product.Tags;
             asset.TickFormulaName = product.TickFormula;
             asset.Parity = product.Parity;
             asset.OvernightMarginMultiplier = product.OvernightMarginMultiplier;

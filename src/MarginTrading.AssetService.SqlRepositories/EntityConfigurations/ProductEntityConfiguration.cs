@@ -55,7 +55,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.Keywords).HasMaxLength(MaxLength);
             builder.Property(x => x.PublicationRic).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.SettlementCurrency).HasMaxLength(MaxLength);
-            builder.Property(x => x.Tags).HasMaxLength(MaxLength);
             builder.Property(x => x.UnderlyingMdsCode).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.ForceId).HasMaxLength(MaxLength).IsRequired();
             builder.Property(x => x.TradingCurrencyId).HasMaxLength(100).IsRequired();
@@ -68,7 +67,6 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
             builder.Property(x => x.Parity).IsRequired();
 
             builder.Property(x => x.MinOrderDistancePercent).HasColumnType(DbDecimal).IsRequired();
-            builder.Property(x => x.MinOrderEntryInterval).HasColumnType(DbDecimal).IsRequired();
             builder.Property(x => x.OvernightMarginMultiplier).HasColumnType(DbDecimal).IsRequired();
 
             builder.Property(x => x.ShortPosition).IsRequired();

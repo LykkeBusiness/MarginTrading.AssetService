@@ -25,8 +25,11 @@ namespace MarginTrading.AssetService
 
                 builder.ConfigureHost(configuration, settingsManager);
 
-                await settingsManager.CurrentValue.ValidateSettings();
-
+                if (builder.Environment.EnvironmentName != "test")
+                {
+                    await settingsManager.CurrentValue.ValidateSettings();
+                }
+                
                 var app = builder.Build();
 
                 await app

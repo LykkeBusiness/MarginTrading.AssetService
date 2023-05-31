@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Startup
                         settings.Nested(x => x.MarginTradingAssetService);
 
                     var isTestEnv = ctx.HostingEnvironment.IsEnvironment("test");
-                    settings.CurrentValue.ValidateSettings(checkDependencies: !isTestEnv);
+                    settings.CurrentValue.ValidateSettings(checkDependencies: !isTestEnv).GetAwaiter().GetResult();
 
                     cBuilder.RegisterModule(new ServiceModule(assetSettings));
                     if (!isTestEnv)

@@ -37,7 +37,8 @@ namespace MarginTrading.AssetService.Contracts.Extensions
         
         public static uint GetPrecision(this decimal number)
         {
-            return BitConverter.GetBytes(decimal.GetBits(number)[3])[2];
+            var g29 = decimal.Parse(number.ToString("G29"));
+            return BitConverter.GetBytes(decimal.GetBits(g29)[3])[2];
         }
     }
 }

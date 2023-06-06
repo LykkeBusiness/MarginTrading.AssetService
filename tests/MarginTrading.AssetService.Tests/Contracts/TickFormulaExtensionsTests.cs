@@ -10,13 +10,15 @@ namespace MarginTrading.AssetService.Tests.Contracts
     public class TickFormulaExtensionsTests
     {
         [Theory]
-        [InlineData(1, 0)]
-        [InlineData(1.1, 1)]
-        [InlineData(1.12, 2)]
-        [InlineData(1.123, 3)]
-        public void Test_Decimal_GetPrecision(decimal value, uint expectedPrecision)
+        [InlineData("1", 0)]
+        [InlineData("1.0", 0)]
+        [InlineData("1.1", 1)]
+        [InlineData("1.12", 2)]
+        [InlineData("1.123", 3)]
+        public void Test_Decimal_GetPrecision(string valueAsString, uint expectedPrecision)
         {
             // Act
+            var value = decimal.Parse(valueAsString);
             var actualPrecision = value.GetPrecision();
 
             // Assert

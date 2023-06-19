@@ -37,7 +37,7 @@ namespace MarginTrading.AssetService.TestClient
                 }
 
                 Console.WriteLine(str);
-                Console.WriteLine(e.ToAsyncString());
+                Console.WriteLine(e.ToString());
             }
         }
 

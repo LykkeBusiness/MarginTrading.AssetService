@@ -3,10 +3,14 @@
 
 using System;
 
+using JetBrains.Annotations;
+
 namespace MarginTrading.AssetService.Contracts.Products
 {
     public class GetProductsRequest
     {
+        [CanBeNull] public string MdsCodeFilter { get; set; }
+        
         public string[] MdsCodes { get; set; } = Array.Empty<string>();
 
         public string[] ProductIds { get; set; } = Array.Empty<string>();

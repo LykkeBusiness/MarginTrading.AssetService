@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.Workflow.Products
         [UsedImplicitly]
         public async Task Handle(EodProcessFinishedEvent e, ICommandSender sender)
         {
-            var productsResult = await _productsRepository.GetAllAsync(null, null, isStarted: false);
+            var productsResult = await _productsRepository.GetAllAsync(null, null, null, isStarted: false);
 
             if (productsResult.IsSuccess && productsResult.Value != null && productsResult.Value.Any())
             {

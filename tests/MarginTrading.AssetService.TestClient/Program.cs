@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using AsyncFriendlyStackTrace;
 using JetBrains.Annotations;
 using Lykke.HttpClientGenerator;
 using MarginTrading.AssetService.Contracts;
@@ -37,7 +36,7 @@ namespace MarginTrading.AssetService.TestClient
                 }
 
                 Console.WriteLine(str);
-                Console.WriteLine(e.ToAsyncString());
+                Console.WriteLine(e.ToString());
             }
         }
 

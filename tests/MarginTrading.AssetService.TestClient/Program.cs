@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using AsyncFriendlyStackTrace;
 using JetBrains.Annotations;
 using Lykke.HttpClientGenerator;
 using MarginTrading.AssetService.Contracts;

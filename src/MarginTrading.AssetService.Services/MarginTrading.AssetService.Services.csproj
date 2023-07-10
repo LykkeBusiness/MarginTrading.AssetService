@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
-    <Version>2.18.2</Version>
+    <Version>2.19.3</Version>
     <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
@@ -13,6 +13,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="11.0.1" />
     <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="2.0.1" />
+    <PackageReference Include="Lykke.Snow.Common" Version="2.7.3" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="4.2.0" />
     <PackageReference Include="LykkeBiz.Common" Version="8.1.0" />
     <PackageReference Include="LykkeBiz.Cqrs" Version="11.1.0" />

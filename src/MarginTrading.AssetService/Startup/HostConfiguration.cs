@@ -7,6 +7,7 @@ using Autofac.Extensions.DependencyInjection;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Serilog;
+using Lykke.Snow.Common.Startup;
 
 using MarginTrading.AssetService.Modules;
 using MarginTrading.AssetService.Settings;
@@ -32,8 +33,11 @@ namespace MarginTrading.AssetService.Startup
                     var assetSettings =
                         settings.Nested(x => x.MarginTradingAssetService);
 
+                    var isTestEnv = ctx.HostingEnvironment.IsEnvironment("test");
+                    settings.CurrentValue.ValidateSettings(checkDependencies: !isTestEnv).GetAwaiter().GetResult();
+
                     cBuilder.RegisterModule(new ServiceModule(assetSettings));
-                    if (!ctx.HostingEnvironment.IsEnvironment("test"))
+                    if (!isTestEnv)
                     {
                         cBuilder.RegisterModule(new ClientsModule(settings));
                         cBuilder.RegisterModule(new MsSqlModule(assetSettings));

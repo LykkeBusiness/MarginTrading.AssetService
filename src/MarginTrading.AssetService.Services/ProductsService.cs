@@ -159,7 +159,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<ProductsErrorCodes>> UpdateBatchAsync(List<Product> products, string username)
         {
-            var existing = await _repository.GetAllAsync(null, null, products.Select(p => p.ProductId).ToArray());
+            var existing = await _repository.GetAllAsync(mdsCodeFilter: null, mdsCodes: null, products.Select(p => p.ProductId).ToArray());
             foreach (var product in products)
             {
                 var existingProduct = existing.Value.FirstOrDefault(p => p.ProductId == product.ProductId);
@@ -189,7 +189,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<ProductsErrorCodes>> DeleteBatchAsync(List<string> productIds, string username)
         {
-            var existing = await _repository.GetAllAsync(null, null, productIds.ToArray());
+            var existing = await _repository.GetAllAsync(mdsCodeFilter: null, mdsCodes: null, productIds.ToArray());
 
             if (existing.Value.Any(x => x.IsStarted))
                 return new Result<ProductsErrorCodes>(ProductsErrorCodes.CannotDeleteStartedProduct);
@@ -221,7 +221,7 @@ namespace MarginTrading.AssetService.Services
             }
 
             _logger.LogInformation("Trying to discontinue products: {Products}", string.Join(',', productIds));
-            var existing = (await _repository.GetAllAsync(null, null, productIds)).Value.ToHashSet();
+            var existing = (await _repository.GetAllAsync(mdsCodeFilter: null, mdsCodes: null, productIds)).Value.ToHashSet();
             var updated = new HashSet<Product>();
 
             foreach (var productId in productIds)

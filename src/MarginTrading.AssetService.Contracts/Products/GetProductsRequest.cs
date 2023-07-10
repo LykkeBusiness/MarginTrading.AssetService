@@ -9,8 +9,10 @@ namespace MarginTrading.AssetService.Contracts.Products
 {
     public class GetProductsRequest
     {
+        // Product's mds code contains 'MdsCodeFilter'
         [CanBeNull] public string MdsCodeFilter { get; set; }
         
+        // It requires full match of product's mds code from 'MdsCodes' list
         public string[] MdsCodes { get; set; } = Array.Empty<string>();
 
         public string[] ProductIds { get; set; } = Array.Empty<string>();

@@ -37,8 +37,18 @@ namespace MarginTrading.AssetService.Contracts.Extensions
         
         public static uint GetPrecision(this decimal number)
         {
-            var g29 = decimal.Parse(number.ToString("G29"));
-            return BitConverter.GetBytes(decimal.GetBits(g29)[3])[2];
+            if (number % 1 == 0)
+            {
+                return 0;
+            }
+
+            var normalized = RemoveTrailingZeros(number);
+            return BitConverter.GetBytes(decimal.GetBits(normalized)[3])[2];
+        }
+
+        private static decimal RemoveTrailingZeros(decimal number)
+        {
+            return number / 1.000000000000000000000000000000000m;   
         }
     }
 }

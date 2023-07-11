@@ -106,11 +106,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             return new Result<List<Product>, ProductsErrorCodes>(entities.Select(ToModel).ToList());
         }
 
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(string[] mdsCodes, string[] productIds,
+        public async Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(
+            string mdsCodeFilter,
+            string[] mdsCodes, string[] productIds,
             bool? isStarted = null, bool? isDiscontinued = null)
         {
             await using var context = _contextFactory.CreateDataContext();
             var query = context.Products.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(mdsCodeFilter))
+                query = query.Where(x => x.UnderlyingMdsCode.Contains(mdsCodeFilter));
 
             if (mdsCodes != null && mdsCodes.Any())
                 query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));
@@ -149,7 +154,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 productIds));
         }
 
-        public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(string[] mdsCodes,
+        public async Task<Result<List<Product>, ProductsErrorCodes>> GetByPageAsync(
+            string mdsCodeFilter, string[] mdsCodes,
             string[] productIds, bool? isStarted = null, bool? isDiscontinued = null, int skip = default, int take = 20)
         {
 
@@ -162,6 +168,9 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             await using var context = _contextFactory.CreateDataContext();
             var query = context.Products.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(mdsCodeFilter))
+                query = query.Where(x => x.UnderlyingMdsCode.Contains(mdsCodeFilter));
 
             if (mdsCodes != null && mdsCodes.Any())
                 query = query.Where(x => mdsCodes.Contains(x.UnderlyingMdsCode));

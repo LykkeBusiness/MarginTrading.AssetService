@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.TickFormula;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Services;

@@ -1,8 +1,10 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.ProductCategories;
 using MarginTrading.AssetService.Core.Domain;

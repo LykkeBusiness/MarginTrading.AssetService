@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts.Audit;
-using MarginTrading.AssetService.Contracts.Common;
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts
@@ -15,6 +17,6 @@ namespace MarginTrading.AssetService.Contracts
         /// <param name="take"></param>
         /// <returns></returns>
         [Get("/api/audit")]
-        Task<PaginatedResponseContract<AuditContract>> GetAuditTrailAsync([Query] GetAuditLogsRequest request, int? skip = null, int? take = null);
+        Task<PaginatedResponse<AuditContract>> GetAuditTrailAsync([Query] GetAuditLogsRequest request, int? skip = null, int? take = null);
     }
 }

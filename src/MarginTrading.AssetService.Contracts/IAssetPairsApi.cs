@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts.AssetPair;
-using MarginTrading.AssetService.Contracts.Common;
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts
@@ -28,7 +30,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
         /// </summary>
         [Get("/api/assetPairs/by-pages")]
-        Task<PaginatedResponseContract<AssetPairContract>> ListByPages(
+        Task<PaginatedResponse<AssetPairContract>> ListByPages(
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
     }
 }

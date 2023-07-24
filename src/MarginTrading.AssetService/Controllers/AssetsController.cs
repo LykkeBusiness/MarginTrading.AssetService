@@ -4,10 +4,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
 using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Common;
-using MarginTrading.AssetService.Contracts.Extensions;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -87,14 +87,14 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("by-pages")]
-        public async Task<PaginatedResponseContract<AssetContract>> ListByPages(
+        public async Task<PaginatedResponse<AssetContract>> ListByPages(
             [FromQuery] int? skip = null, [FromQuery] int? take = null)
         {
             (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var data = await _assetsRepository.GetByPagesAsync(skip, take);
             
-            return new PaginatedResponseContract<AssetContract>(
+            return new PaginatedResponse<AssetContract>(
                 contents: data.Contents.Select(x => _convertService.Convert<IAsset, AssetContract>(x)).ToList(),
                 start: data.Start,
                 size: data.Size,

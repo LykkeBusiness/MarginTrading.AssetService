@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MarginTrading.AssetService.Contracts.Common;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts.Routes;
 using Refit;
 
@@ -26,7 +28,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Get the list of trading routes, with optional pagination
         /// </summary>
         [Get("/api/routes/by-pages")]
-        Task<PaginatedResponseContract<MatchingEngineRouteContract>> ListByPages(
+        Task<PaginatedResponse<MatchingEngineRouteContract>> ListByPages(
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
 
         /// <summary>

@@ -2,6 +2,9 @@
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.ClientProfiles;
 using MarginTrading.AssetService.Contracts.Common;

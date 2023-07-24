@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+
 using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Routes;
 using MarginTrading.AssetService.Core.Domain;
@@ -71,13 +71,13 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("by-pages")]
-        public async Task<PaginatedResponseContract<MatchingEngineRouteContract>> ListByPages(int? skip = null, int? take = null)
+        public async Task<Lykke.Contracts.Responses.PaginatedResponse<MatchingEngineRouteContract>> ListByPages(int? skip = null, int? take = null)
         {
             (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var data = await _tradingRoutesRepository.GetByPagesAsync(skip, take);
             
-            return new PaginatedResponseContract<MatchingEngineRouteContract>(
+            return new Lykke.Contracts.Responses.PaginatedResponse<MatchingEngineRouteContract>(
                 contents: data.Contents.Select(x => _convertService.Convert<ITradingRoute, MatchingEngineRouteContract>(x)).ToList(),
                 start: data.Start,
                 size: data.Size,

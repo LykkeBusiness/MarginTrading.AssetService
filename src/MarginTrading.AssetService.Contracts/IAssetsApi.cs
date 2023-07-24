@@ -4,7 +4,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MarginTrading.AssetService.Contracts.Common;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using Refit;
 
@@ -38,7 +40,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Get the list of assets with optional pagination
         /// </summary>
         [Get("/api/assets/by-pages")]
-        Task<PaginatedResponseContract<AssetContract>> ListByPages(
+        Task<PaginatedResponse<AssetContract>> ListByPages(
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
 
         /// <summary>

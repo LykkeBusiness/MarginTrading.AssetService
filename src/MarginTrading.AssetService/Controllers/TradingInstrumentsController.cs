@@ -5,9 +5,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
 using Lykke.Snow.Common;
 using MarginTrading.AssetService.Contracts;
-using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.TradingConditions;
 using MarginTrading.AssetService.Core.Interfaces;
@@ -56,14 +57,14 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("by-pages")]
-        public async Task<PaginatedResponseContract<TradingInstrumentContract>> ListByPages(string tradingConditionId, 
+        public async Task<PaginatedResponse<TradingInstrumentContract>> ListByPages(string tradingConditionId, 
             int? skip = null, int? take = null)
         {
             (skip, take) = PaginationUtils.ValidateSkipAndTake(skip, take);
             
             var data = await _tradingInstrumentsService.GetByPagesAsync(tradingConditionId, skip, take);
             
-            return new PaginatedResponseContract<TradingInstrumentContract>(
+            return new PaginatedResponse<TradingInstrumentContract>(
                 contents: data.Contents.Select(x => _convertService.Convert<ITradingInstrument, TradingInstrumentContract>(x)).ToList(),
                 start: data.Start,
                 size: data.Size,

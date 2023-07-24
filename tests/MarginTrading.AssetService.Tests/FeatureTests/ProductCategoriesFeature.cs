@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Common;
 
+using Lykke.Contracts.Responses;
 using Lykke.Snow.Mdm.Contracts.Models.Responses;
 
 using MarginTrading.AssetService.Contracts.ErrorCodes;

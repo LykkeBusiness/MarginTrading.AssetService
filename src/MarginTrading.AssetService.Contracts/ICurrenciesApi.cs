@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
-using MarginTrading.AssetService.Contracts.Common;
+
+using Lykke.Contracts.Responses;
 using MarginTrading.AssetService.Contracts.Currencies;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using Refit;

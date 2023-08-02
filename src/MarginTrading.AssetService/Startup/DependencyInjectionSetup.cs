@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+
+using Lykke.HttpClientGenerator.Infrastructure;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
 using Lykke.Snow.Common.Correlation.Http;
@@ -59,6 +61,8 @@ namespace MarginTrading.AssetService.Startup
 
             services.AddApplicationInsightsTelemetry();
 
+            services.AddTransient<IValidationApiExceptionHandler, DefaultValidationApiExceptionHandler>();
+            
             return services;
         }
     }

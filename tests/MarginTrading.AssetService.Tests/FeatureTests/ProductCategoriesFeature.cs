@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using Common;
 
@@ -6,6 +7,7 @@ using Lykke.Snow.Mdm.Contracts.Models.Responses;
 
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 using MarginTrading.AssetService.Contracts.ProductCategories;
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using MarginTrading.AssetService.Tests.Common;
@@ -198,6 +200,30 @@ namespace MarginTrading.AssetService.Tests.FeatureTests
             Assert.Collection(categories,
                 x => { Assert.Equal("stocks", x.Id); },
                 x1 => { Assert.Equal("stocks.germany", x1.Id); });
+        }
+
+        [Theory]
+        [InlineData(null, false)]
+        [InlineData(0.1, false)]
+        [InlineData(0.01, false)]
+        [InlineData(100.0, false)]
+        [InlineData(-1.0, true)]
+        [InlineData(0.001, true)]
+        [InlineData(0.0099999, true)]
+        public async Task MaxPositionNotional_Validation_BadRequestIfNeeded(double? maxPositionNotional, bool badRequest)
+        {
+            var request = TestRecordsCreator.MakeAddProductRequest("product1", "category");
+            request.MaxPositionNotional = (decimal?)maxPositionNotional;
+
+            using var client = TestBootstrapper.CreateTestClientWithInMemoryDb(services =>
+            {
+                services.AddSingleton(_underlyingsCacheMock.Object);
+                services.AddSingleton(_assetTypesRepositoryMock.Object);
+                services.AddSingleton(_legacyAssetsCacheMock.Object);
+            });
+
+            var response = await client.PostAsync("/api/products", request.ToJsonStringContent());
+            Assert.Equal(response.StatusCode == HttpStatusCode.BadRequest, badRequest);
         }
     }
 }

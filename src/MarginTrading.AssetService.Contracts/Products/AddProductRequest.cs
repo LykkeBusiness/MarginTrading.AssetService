@@ -119,5 +119,8 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [Range(0.01, 100)]
         public decimal? Margin { get; set; }
+
+        [Range(0.01, double.MaxValue)]
+        public decimal? MaxPositionNotional { get; set; }
     }
 }

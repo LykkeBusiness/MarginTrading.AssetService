@@ -133,7 +133,21 @@ namespace MarginTrading.AssetService.Tests.Common
         public static async Task<ErrorCodeResponse<ProductsErrorCodesContract>> CreateProductAsync(HttpClient client,
             string productId, string category, int contractSize = 1, bool started = true)
         {
-            var request = new AddProductRequest
+            var request = MakeAddProductRequest(productId, category, contractSize, started);
+
+            var response = await client.PostAsync("/api/products", request.ToJsonStringContent());
+            response.EnsureSuccessStatusCode();
+
+            var result = (await response.Content.ReadAsStringAsync())
+                .DeserializeJson<ErrorCodeResponse<ProductsErrorCodesContract>>();
+            Assert.Equal(ProductsErrorCodesContract.None, result.ErrorCode);
+
+            return result;
+        }
+
+        public static AddProductRequest MakeAddProductRequest(string productId, string category, int contractSize = 1, bool started = true)
+        {
+            return new AddProductRequest
             {
                 ProductId = productId,
                 Category = category,
@@ -163,15 +177,6 @@ namespace MarginTrading.AssetService.Tests.Common
                 MarketMakerAssetAccountId = nameof(AddProductRequest.MarketMakerAssetAccountId),
                 StartDate = started ? DateTime.UtcNow.AddDays(-1) : DateTime.UtcNow.AddDays(1)
             };
-
-            var response = await client.PostAsync("/api/products", request.ToJsonStringContent());
-            response.EnsureSuccessStatusCode();
-
-            var result = (await response.Content.ReadAsStringAsync())
-                .DeserializeJson<ErrorCodeResponse<ProductsErrorCodesContract>>();
-            Assert.Equal(ProductsErrorCodesContract.None, result.ErrorCode);
-
-            return result;
         }
     }
 }

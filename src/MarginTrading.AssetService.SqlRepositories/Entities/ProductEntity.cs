@@ -92,6 +92,8 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public bool EnforceMargin { get; set; }
 
         public decimal? Margin { get; set; }
+        
+        public decimal? MaxPositionNotional { get; set; }
 
         public bool IsTradingDisabled { get; set; }
     }

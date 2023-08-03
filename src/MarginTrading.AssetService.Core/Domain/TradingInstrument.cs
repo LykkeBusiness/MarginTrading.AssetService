@@ -30,7 +30,8 @@ namespace MarginTrading.AssetService.Core.Domain
             decimal spread,
             Leverage initLeverage,
             Leverage maintenanceLeverage,
-            MarginRate marginRate)
+            MarginRate marginRate,
+            decimal? maxPositionNotional)
         {
             TradingConditionId = tradingConditionId;
             Instrument = instrument;
@@ -54,6 +55,7 @@ namespace MarginTrading.AssetService.Core.Domain
             InitLeverage = initLeverage;
             MaintenanceLeverage = maintenanceLeverage;
             MarginRate = marginRate;
+            MaxPositionNotional = maxPositionNotional;
         }
 
         public string TradingConditionId { get; }
@@ -88,6 +90,8 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal HedgeCost { get; }
         public decimal Spread { get; }
 
+        public decimal? MaxPositionNotional { get; }
+
         public static TradingInstrument CreateFromProduct(Product product, 
             string profileId, 
             decimal profileMargin,
@@ -116,7 +120,8 @@ namespace MarginTrading.AssetService.Core.Domain
                 spread: spread,
                 initLeverage: leverage,
                 maintenanceLeverage: leverage,
-                marginRate: marginRate
+                marginRate: marginRate,
+                maxPositionNotional: product.MaxPositionNotional
             );
         }
     }

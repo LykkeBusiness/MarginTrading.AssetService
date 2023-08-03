@@ -36,5 +36,7 @@ namespace MarginTrading.AssetService.Contracts.TradingConditions
         public decimal InitLeverage { get; set; }
         public decimal MaintenanceLeverage { get; set; }
         public decimal MarginRatePercent { get; set; }
+
+        public decimal? MaxPositionNotional { get; set; }
     }
 }

@@ -45,6 +45,7 @@ namespace MarginTrading.AssetService.Services.Extensions
             asset.Underlying.HedgeCost = product.HedgeCost;
             asset.EnforceMargin = product.EnforceMargin;
             asset.Margin = product.Margin;
+            asset.MaxPositionNotional = product.MaxPositionNotional;
         }
 
         public static void SetAssetFieldsFromUnderlying(this Asset asset, UnderlyingsCacheModel underlying)

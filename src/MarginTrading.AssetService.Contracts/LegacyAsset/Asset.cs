@@ -132,5 +132,8 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         
         [JsonProperty("margin")]
         public decimal? Margin { get; set; }
+        
+        [JsonProperty("maxPositionNotional")]
+        public decimal? MaxPositionNotional { get; set; }
     }
 }

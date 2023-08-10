@@ -33,6 +33,11 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 
         private static bool NeedToInvalidateCache(BrokerSettingsChangedEvent e)
         {
+            if (e.ChangeType != ChangeType.Edition)
+            {
+                return false;
+            }
+
             //invalidating cache only if fields related to assets changed
             //see CronutAssetExtensions.SetDividendFactorFields for details
             return !e.NewValue.Dividends871MPercent.Equals(e.OldValue.Dividends871MPercent)

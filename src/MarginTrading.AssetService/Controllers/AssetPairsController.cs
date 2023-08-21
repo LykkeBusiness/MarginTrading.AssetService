@@ -4,9 +4,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+
+using Lykke.Contracts.Responses;
+
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.AssetPair;
-using MarginTrading.AssetService.Contracts.Common;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Middleware;
@@ -54,14 +56,14 @@ namespace MarginTrading.AssetService.Controllers
         /// <param name="take"></param>
         [HttpGet]
         [Route("by-pages")]
-        public async Task<PaginatedResponseContract<AssetPairContract>> ListByPages([FromQuery] int? skip = null, [FromQuery] int? take = null)
+        public async Task<PaginatedResponse<AssetPairContract>> ListByPages([FromQuery] int? skip = null, [FromQuery] int? take = null)
         {
             //Some filters are ignored because they are not relevant anymore
 
             var data = await _assetPairsService.GetAllIncludingFxParisWithFilterAsync();
             var count = data.Count;
             //Just proxy of get all without actual pagination, done this way to avoid breaking changes
-            return new PaginatedResponseContract<AssetPairContract>(
+            return new PaginatedResponse<AssetPairContract>(
                 contents: data.Select(x => _convertService.Convert<IAssetPair, AssetPairContract>(x)).ToList(),
                 start: 0,
                 size: count,

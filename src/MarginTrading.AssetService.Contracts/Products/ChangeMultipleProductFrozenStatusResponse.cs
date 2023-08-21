@@ -1,5 +1,6 @@
 using System.Collections.Generic;
-using MarginTrading.AssetService.Contracts.Common;
+
+using Lykke.Contracts.Responses;
 using MarginTrading.AssetService.Contracts.ErrorCodes;
 
 namespace MarginTrading.AssetService.Contracts.Products

@@ -387,6 +387,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 HedgeCost = product.HedgeCost,
                 EnforceMargin = product.EnforceMargin,
                 Margin = product.Margin,
+                MaxPositionNotional = product.MaxPositionNotional,
                 IsTradingDisabled = product.IsTradingDisabled
             };
 
@@ -436,6 +437,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 HedgeCost = product.HedgeCost,
                 EnforceMargin = product.EnforceMargin,
                 Margin = product.Margin,
+                MaxPositionNotional = product.MaxPositionNotional,
                 IsTradingDisabled = product.IsTradingDisabled
             };
 

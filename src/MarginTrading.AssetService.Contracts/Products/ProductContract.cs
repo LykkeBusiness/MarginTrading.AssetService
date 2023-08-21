@@ -127,5 +127,8 @@ namespace MarginTrading.AssetService.Contracts.Products
 
         [MessagePack.Key(40)]
         public bool IsTradingDisabled { get; set; }
+
+        [MessagePack.Key(41)]
+        public decimal? MaxPositionNotional { get; set; }
     }
 }

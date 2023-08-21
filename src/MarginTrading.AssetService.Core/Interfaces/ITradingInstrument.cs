@@ -54,5 +54,7 @@ namespace MarginTrading.AssetService.Core.Interfaces
         decimal HedgeCost { get; }
         
         decimal Spread { get; }
+
+        decimal? MaxPositionNotional { get; }
     }
 }

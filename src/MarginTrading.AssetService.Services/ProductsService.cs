@@ -222,7 +222,7 @@ namespace MarginTrading.AssetService.Services
 
             _logger.LogInformation("Trying to discontinue products: {Products}", string.Join(',', productIds));
             var existing = (await _repository.GetAllAsync(mdsCodeFilter: null, mdsCodes: null, productIds)).Value.ToHashSet();
-            var updated = new HashSet<Product>();
+            var toUpdate = new HashSet<Product>();
 
             foreach (var productId in productIds)
             {
@@ -233,30 +233,26 @@ namespace MarginTrading.AssetService.Services
                     return new Result<ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
                 }
 
-                if (existingProduct.IsDiscontinued)
-                    continue;
-
-                var productToUpdate = existingProduct.ShallowCopy();
-                productToUpdate.IsDiscontinued = true;
-
-                updated.Add(productToUpdate);
+                if (!existingProduct.IsDiscontinued)
+                {
+                    toUpdate.Add(existingProduct.ShallowCopy());
+                }
             }
 
-            var result = await _repository.UpdateBatchAsync(updated.ToList());
+            await _repository.MarkAsDiscontinuedSkipping404ValidationAsync(
+                toUpdate.Select(x => x.ProductId));
 
-            if (!result.IsSuccess)
-                return result;
-
-            foreach (var updatedProduct in updated)
+            foreach (var product in toUpdate)
             {
-                var existingProduct = existing.FirstOrDefault(p => p.ProductId == updatedProduct.ProductId);
+                product.IsDiscontinued = true;
+                var existingProduct = existing.FirstOrDefault(p => p.ProductId == product.ProductId);
 
-                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, updatedProduct, existingProduct);
+                await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existingProduct);
                 
-                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existingProduct, updatedProduct, username);
+                await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existingProduct, product, username);
             }
 
-            return result;
+            return new Result<ProductsErrorCodes>(ProductsErrorCodes.None);
         }
 
         public Task<Result<ProductsCounter, ProductsErrorCodes>> GetAllCountAsync(string[] mdsCodes,

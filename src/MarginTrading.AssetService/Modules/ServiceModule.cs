@@ -69,21 +69,13 @@ namespace MarginTrading.AssetService.Modules
 
             builder.RegisterType<ShutdownManager>().As<IShutdownManager>();
 
-            builder.RegisterType<EventSender>().As<IEventSender>()
-                .WithParameters(new[]
-                {
-                    new NamedParameter("settingsChangedConnectionString",
-                        _settings.CurrentValue.SettingsChangedRabbitMqSettings.ConnectionString),
-                    new NamedParameter("settingsChangedExchangeName",
-                        _settings.CurrentValue.SettingsChangedRabbitMqSettings.ExchangeName)
-                })
+            builder.RegisterType<SettingsChangedEventSender>()
+                .As<ISettingsChangedEventSender>()
                 .SingleInstance();
             
             builder.RegisterType<SystemClock>().As<ISystemClock>().SingleInstance();
             
             builder.RegisterType<ConvertService>().As<IConvertService>().SingleInstance();
-            
-            builder.RegisterType<RabbitMqService>().As<IRabbitMqService>().SingleInstance();
             
             builder.RegisterType<MaintenanceModeService>().As<IMaintenanceModeService>().SingleInstance();
 

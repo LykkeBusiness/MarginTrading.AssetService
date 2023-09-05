@@ -6,8 +6,8 @@ using MarginTrading.AssetService.Core.Domain;
 
 namespace MarginTrading.AssetService.Core.Services
 {
-    public interface IEventSender
+    public interface ISettingsChangedEventSender
     {
-        Task SendSettingsChangedEvent(string route, SettingsChangedSourceType sourceType, string changedEntityId = null);
+        Task Send(string route, SettingsChangedSourceType sourceType, string changedEntityId = null);
     }
 }

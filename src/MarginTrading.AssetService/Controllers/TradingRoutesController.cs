@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Controllers
         private readonly ITradingConditionsService _tradingConditionsService;
         private readonly IAssetPairService _assetPairsService;
         private readonly IConvertService _convertService;
-        private readonly IEventSender _eventSender;
+        private readonly ISettingsChangedEventSender _settingsChangedEventSender;
         
         private const string AnyValue = "*";
         
@@ -44,14 +44,14 @@ namespace MarginTrading.AssetService.Controllers
             ITradingConditionsService tradingConditionsService,
             IAssetPairService assetPairsService,
             IConvertService convertService,
-            IEventSender eventSender)
+            ISettingsChangedEventSender settingsChangedEventSender)
         {
             _assetsRepository = assetsRepository;
             _tradingRoutesRepository = tradingRoutesRepository;
             _tradingConditionsService = tradingConditionsService;
             _assetPairsService = assetPairsService;
             _convertService = convertService;
-            _eventSender = eventSender;
+            _settingsChangedEventSender = settingsChangedEventSender;
         }
         
         /// <summary>
@@ -100,7 +100,7 @@ namespace MarginTrading.AssetService.Controllers
                 throw new ArgumentException($"Trading route with id {route.Id} already exists", nameof(route.Id));
             }
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+            await _settingsChangedEventSender.Send($"{Request.Path}", 
                 SettingsChangedSourceType.TradingRoute, route.Id);
 
             return route;
@@ -133,7 +133,7 @@ namespace MarginTrading.AssetService.Controllers
             await _tradingRoutesRepository.UpdateAsync(
                 _convertService.Convert<MatchingEngineRouteContract, TradingRoute>(route));
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+            await _settingsChangedEventSender.Send($"{Request.Path}", 
                 SettingsChangedSourceType.TradingRoute, routeId);
             
             return route;
@@ -148,7 +148,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             await _tradingRoutesRepository.DeleteAsync(routeId);
 
-            await _eventSender.SendSettingsChangedEvent($"{Request.Path}", 
+            await _settingsChangedEventSender.Send($"{Request.Path}", 
                 SettingsChangedSourceType.TradingRoute, routeId);
         }
 

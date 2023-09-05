@@ -15,45 +15,39 @@ using Microsoft.Extensions.Logging;
 namespace MarginTrading.AssetService.Services
 {
     [UsedImplicitly]
-    public class EventSender : IEventSender
+    public class SettingsChangedEventSender : ISettingsChangedEventSender
     {
-        private readonly IConvertService _convertService;
-        private readonly ILogger<EventSender> _logger;
+        private readonly IConvertService _converter;
+        private readonly ILogger<SettingsChangedEventSender> _logger;
         private readonly ISystemClock _systemClock;
+        private readonly IMessageProducer<SettingsChangedEvent> _settingsChangedProducer;
 
-        private readonly Lykke.RabbitMqBroker.Publisher.IMessageProducer<SettingsChangedEvent> _settingsChangedMessageProducer;
-
-        public EventSender(
-            IRabbitMqService rabbitMqService,
-            IConvertService convertService,
+        public SettingsChangedEventSender(
+            IConvertService converter,
             ISystemClock systemClock,
-            string settingsChangedConnectionString,
-            string settingsChangedExchangeName,
-            ILogger<EventSender> logger)
+            IMessageProducer<SettingsChangedEvent> settingsChangedProducer,
+            ILogger<SettingsChangedEventSender> logger)
         {
-            _convertService = convertService;
+            _converter = converter;
             _systemClock = systemClock;
             _logger = logger;
-
-            _settingsChangedMessageProducer =
-                rabbitMqService.GetProducer(settingsChangedConnectionString, settingsChangedExchangeName, true,
-                    rabbitMqService.GetJsonSerializer<SettingsChangedEvent>());
+            _settingsChangedProducer = settingsChangedProducer;
         }
-        
-        public async Task SendSettingsChangedEvent(string route, SettingsChangedSourceType sourceType,
+
+        public async Task Send(string route, SettingsChangedSourceType sourceType,
             string changedEntityId = null)
         {
             var message = new SettingsChangedEvent
             {
                 Route = route,
-                SettingsType = _convertService.Convert<SettingsChangedSourceType, SettingsTypeContract>(sourceType),
+                SettingsType = _converter.Convert<SettingsChangedSourceType, SettingsTypeContract>(sourceType),
                 Timestamp = _systemClock.UtcNow.DateTime,
                 ChangedEntityId = changedEntityId
             };
 
             try
             {
-                await _settingsChangedMessageProducer.ProduceAsync(message);
+                await _settingsChangedProducer.ProduceAsync(message);
             }
             catch (Exception ex)
             {

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -221,34 +222,30 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     var entry = ex.Entries.FirstOrDefault();
 
-                    if (entry.Entity is ProductEntity)
+                    var proposedValues = entry.CurrentValues;
+                    var databaseValues = entry.GetDatabaseValues();
+
+                    foreach (var property in proposedValues.Properties)
                     {
-                        var proposedValues = entry.CurrentValues;
-                        var databaseValues = entry.GetDatabaseValues();
-
-                        foreach (var property in proposedValues.Properties)
+                        var proposedValue = proposedValues[property];
+                        var databaseValue = databaseValues[property];
+                        
+                        var updatedFields = new HashSet<string>()
                         {
-                            var proposedValue = proposedValues[property];
-                            var databaseValue = databaseValues[property];
-                            
-                            var updatedFields = new HashSet<string>()
-                            {
-                                nameof(ProductEntity.IsFrozen),
-                                nameof(ProductEntity.FreezeInfo)
-                            };
+                            nameof(ProductEntity.IsFrozen),
+                            nameof(ProductEntity.FreezeInfo)
+                        };
 
-                            // Leave updated columns within this method as they are 
-                            // while we set the rest of the properties to the database values.
-                            if(updatedFields.Contains(property.Name))
-                                continue;
+                        // Leave updated columns within this method as they are 
+                        // while we set the rest of the properties to the database values.
+                        if(updatedFields.Contains(property.Name))
+                            continue;
 
-                            proposedValues[property] = databaseValue;
-                        }
-
-                        // Refresh original values to bypass next concurrency check
-                        entry.OriginalValues.SetValues(databaseValues);
+                        proposedValues[property] = databaseValue;
                     }
 
+                    // Refresh original values to bypass next concurrency check
+                    entry.OriginalValues.SetValues(databaseValues);
                 }
             }
             
@@ -363,7 +360,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
             product.IsSuspended = value;
-
+            
             var saved = false;
             while (!saved)
             {
@@ -377,25 +374,22 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 {
                     var entry = ex.Entries.FirstOrDefault();
 
-                    if (entry.Entity is ProductEntity)
+                    var proposedValues = entry.CurrentValues;
+                    var databaseValues = entry.GetDatabaseValues();
+
+                    foreach (var property in proposedValues.Properties)
                     {
-                        var proposedValues = entry.CurrentValues;
-                        var databaseValues = entry.GetDatabaseValues();
+                        var proposedValue = proposedValues[property];
+                        var databaseValue = databaseValues[property];
 
-                        foreach (var property in proposedValues.Properties)
-                        {
-                            var proposedValue = proposedValues[property];
-                            var databaseValue = databaseValues[property];
+                        if(property.Name == nameof(ProductEntity.IsSuspended))
+                            continue;
 
-                            if(property.Name == nameof(ProductEntity.IsSuspended))
-                                continue;
-
-                            proposedValues[property] = databaseValue;
-                        }
-
-                        // Refresh original values to bypass next concurrency check
-                        entry.OriginalValues.SetValues(databaseValues);
+                        proposedValues[property] = databaseValue;
                     }
+
+                    // Refresh original values to bypass next concurrency check
+                    entry.OriginalValues.SetValues(databaseValues);
                 }
             }
             

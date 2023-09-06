@@ -312,12 +312,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             return products.Select(ToModel).ToList();
         }
 
-        public async Task MarkAsDiscontinuedSkipping404ValidationAsync(IEnumerable<string> productIds)
+        public async Task MarkAsDiscontinuedAsync(IEnumerable<string> productIds)
         {
             await using var context = _contextFactory.CreateDataContext();
             var items = productIds
-                .Select((x, i) => new SqlParameter($"@p{i}", x))
-                .ToList();
+                .Select((x, i) => new SqlParameter($"@p{i}", x));
             var sql =
                 $"UPDATE [dbo].[Products] SET IsDiscontinued = 1 WHERE ProductId IN ({string.Join(", ", items.Select(x => x.ParameterName))})"; 
             await context.Database.ExecuteSqlRawAsync(sql, items);

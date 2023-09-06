@@ -32,7 +32,7 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task<PaginatedResponse<Product>> GetPagedByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds,
             int skip = default, int take = 20);
         Task<IReadOnlyList<Product>> GetByAssetTypeIdsAsync(IEnumerable<string> assetTypeIds);
-        Task MarkAsDiscontinuedSkipping404ValidationAsync(IEnumerable<string> productIds);
+        Task MarkAsDiscontinuedAsync(IEnumerable<string> productIds);
         Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value);
         Task<Result<List<Product>, ProductsErrorCodes>> GetByUnderlyingMdsCodeAsync(string mdsCode);
         Task<(bool result, string id)> IsinExists(string isin, bool? isDiscontinued = null);

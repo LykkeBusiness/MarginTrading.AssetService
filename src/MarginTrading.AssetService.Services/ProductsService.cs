@@ -239,7 +239,7 @@ namespace MarginTrading.AssetService.Services
                 }
             }
 
-            await _repository.MarkAsDiscontinuedSkipping404ValidationAsync(
+            await _repository.MarkAsDiscontinuedAsync(
                 toUpdate.Select(x => x.ProductId));
 
             foreach (var product in toUpdate)

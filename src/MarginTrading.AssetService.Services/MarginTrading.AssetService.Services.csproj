@@ -3,7 +3,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
-    <Version>2.19.3</Version>
+    <Version>2.21.3</Version>
     <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>

@@ -207,8 +207,51 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             entity.IsFrozen = isFrozen;
             entity.FreezeInfo = JsonConvert.SerializeObject(freezeInfo);
 
-            await context.SaveChangesAsync();
+            var saved = false;
 
+            while(!saved)
+            {
+                try
+                {
+                    await context.SaveChangesAsync();
+
+                    saved = true;
+                }
+                catch(DbUpdateConcurrencyException ex)
+                {
+                    var entry = ex.Entries.FirstOrDefault();
+
+                    if (entry.Entity is ProductEntity)
+                    {
+                        var proposedValues = entry.CurrentValues;
+                        var databaseValues = entry.GetDatabaseValues();
+
+                        foreach (var property in proposedValues.Properties)
+                        {
+                            var proposedValue = proposedValues[property];
+                            var databaseValue = databaseValues[property];
+                            
+                            var updatedFields = new HashSet<string>()
+                            {
+                                nameof(ProductEntity.IsFrozen),
+                                nameof(ProductEntity.FreezeInfo)
+                            };
+
+                            // Leave updated columns within this method as they are 
+                            // while we set the rest of the properties to the database values.
+                            if(updatedFields.Contains(property.Name))
+                                continue;
+
+                            proposedValues[property] = databaseValue;
+                        }
+
+                        // Refresh original values to bypass next concurrency check
+                        entry.OriginalValues.SetValues(databaseValues);
+                    }
+
+                }
+            }
+            
             return new Result<Product, ProductsErrorCodes>(ToModel(entity));
         }
 
@@ -313,13 +356,13 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public async Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value)
         {
             await using var context = _contextFactory.CreateDataContext();
+
             var product = await context.Products.FindAsync(id);
 
             if (product == null)
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
 
             product.IsSuspended = value;
-            context.Products.Update(product);
 
             var saved = false;
             while (!saved)
@@ -327,20 +370,35 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 try
                 {
                     await context.SaveChangesAsync();
+
                     saved = true;
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
-                    foreach (var entry in ex.Entries)
+                    var entry = ex.Entries.FirstOrDefault();
+
+                    if (entry.Entity is ProductEntity)
                     {
-                        var databaseValues = await entry.GetDatabaseValuesAsync();
+                        var proposedValues = entry.CurrentValues;
+                        var databaseValues = entry.GetDatabaseValues();
+
+                        foreach (var property in proposedValues.Properties)
+                        {
+                            var proposedValue = proposedValues[property];
+                            var databaseValue = databaseValues[property];
+
+                            if(property.Name == nameof(ProductEntity.IsSuspended))
+                                continue;
+
+                            proposedValues[property] = databaseValue;
+                        }
 
                         // Refresh original values to bypass next concurrency check
                         entry.OriginalValues.SetValues(databaseValues);
                     }
                 }
             }
-
+            
             return new Result<Product, ProductsErrorCodes>(ToModel(product));
         }
 

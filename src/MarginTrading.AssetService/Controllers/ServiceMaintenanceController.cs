@@ -20,14 +20,14 @@ namespace MarginTrading.AssetService.Controllers
     public class ServiceMaintenanceController : Controller, IServiceMaintenanceApi
     {
         private readonly IMaintenanceModeService _maintenanceModeService;
-        private readonly IEventSender _eventSender;
+        private readonly ISettingsChangedEventSender _settingsChangedEventSender;
 
         public ServiceMaintenanceController(
             IMaintenanceModeService maintenanceModeService,
-            IEventSender eventSender)
+            ISettingsChangedEventSender settingsChangedEventSender)
         {
             _maintenanceModeService = maintenanceModeService;
-            _eventSender = eventSender;
+            _settingsChangedEventSender = settingsChangedEventSender;
         }
         
         /// <summary>
@@ -52,7 +52,7 @@ namespace MarginTrading.AssetService.Controllers
         {
             _maintenanceModeService.SetMode(enabled);
             
-            _eventSender.SendSettingsChangedEvent($"{Request.Path}", SettingsChangedSourceType.ServiceMaintenance);
+            _settingsChangedEventSender.Send($"{Request.Path}", SettingsChangedSourceType.ServiceMaintenance);
             
             return Task.FromResult(true);
         }

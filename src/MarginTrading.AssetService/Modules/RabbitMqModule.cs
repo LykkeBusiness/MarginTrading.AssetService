@@ -1,4 +1,6 @@
-﻿using Autofac;
+﻿using System.Text;
+
+using Autofac;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
@@ -6,17 +8,27 @@ using Lykke.RabbitMqBroker.Publisher.Strategies;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation.RabbitMq;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
+using MarginTrading.AssetService.Contracts.Messages;
 using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
 using MarginTrading.AssetService.Services.RabbitMq.Subscribers;
 using MarginTrading.AssetService.Settings.ServiceSettings;
+
 using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace MarginTrading.AssetService.Modules
 {
     public class RabbitMqModule : Module
     {
         private readonly AssetServiceSettings _settings;
+        
+        private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
+        {
+            Converters = {new StringEnumConverter()}
+        };
 
         public RabbitMqModule(IReloadingManager<AssetServiceSettings> settings)
         {
@@ -26,6 +38,7 @@ namespace MarginTrading.AssetService.Modules
         protected override void Load(ContainerBuilder builder)
         {
             AddRabbitPublisher<AssetUpsertedEvent>(builder, _settings.LegacyAssetUpdatedRabbitPublisherSettings);
+            AddRabbitPublisher<SettingsChangedEvent>(builder, _settings.SettingsChangedRabbitMqSettings);
 
             var underlyingChangedSubScr = _settings.UnderlyingChangedRabbitSubscriptionSettings
                 .AppendToQueueName($"{_settings.BrokerId}:{_settings.InstanceId}")
@@ -58,7 +71,7 @@ namespace MarginTrading.AssetService.Modules
             IRabbitMqSerializer<T> serializer = null)
         {
             rabbitMqPublishStrategy ??= new DefaultFanoutPublishStrategy(settings);
-            serializer ??= new JsonMessageSerializer<T>();
+            serializer ??= new JsonMessageSerializer<T>(Encoding.UTF8, JsonSerializerSettings);
 
             builder.Register(x =>
                     new RabbitMqPublisher<T>(x.Resolve<ILoggerFactory>(), settings)

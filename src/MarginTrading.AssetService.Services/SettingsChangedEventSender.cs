@@ -3,8 +3,11 @@
 
 using System;
 using System.Threading.Tasks;
+
 using Common;
+
 using JetBrains.Annotations;
+
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.Messages;
 using MarginTrading.AssetService.Core.Domain;
@@ -20,12 +23,12 @@ namespace MarginTrading.AssetService.Services
         private readonly IConvertService _converter;
         private readonly ILogger<SettingsChangedEventSender> _logger;
         private readonly ISystemClock _systemClock;
-        private readonly IMessageProducer<SettingsChangedEvent> _settingsChangedProducer;
+        private readonly Lykke.RabbitMqBroker.Publisher.IMessageProducer<SettingsChangedEvent> _settingsChangedProducer;
 
         public SettingsChangedEventSender(
             IConvertService converter,
             ISystemClock systemClock,
-            IMessageProducer<SettingsChangedEvent> settingsChangedProducer,
+            Lykke.RabbitMqBroker.Publisher.IMessageProducer<SettingsChangedEvent> settingsChangedProducer,
             ILogger<SettingsChangedEventSender> logger)
         {
             _converter = converter;

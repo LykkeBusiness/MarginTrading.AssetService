@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Common;
 using Lykke.Common.MsSql;
@@ -329,6 +331,12 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             if (product == null)
                 return new Result<Product, ProductsErrorCodes>(ProductsErrorCodes.DoesNotExist);
+
+            _logger.LogInformation(@$"🚩 Product {id} is read from the database. 
+                IsSuspended: {product.IsSuspended} - IsFrozen: {product.IsFrozen}
+                Now stopping the thread for 15 seconds to simulate concurrency....");
+                
+            Thread.Sleep(TimeSpan.FromSeconds(15));
 
             product.IsSuspended = value;
             context.Products.Update(product);

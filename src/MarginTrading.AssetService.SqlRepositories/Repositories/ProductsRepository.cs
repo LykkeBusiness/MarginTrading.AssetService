@@ -220,14 +220,15 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 }
                 catch(DbUpdateConcurrencyException ex)
                 {
+                    // https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations
                     var entry = ex.Entries.FirstOrDefault();
 
-                    var proposedValues = entry.CurrentValues;
+                    var attemptedValues = entry.CurrentValues;
                     var databaseValues = entry.GetDatabaseValues();
 
-                    foreach (var property in proposedValues.Properties)
+                    foreach (var property in attemptedValues.Properties)
                     {
-                        var proposedValue = proposedValues[property];
+                        var attemptedValue = attemptedValues[property];
                         var databaseValue = databaseValues[property];
                         
                         var updatedFields = new HashSet<string>()
@@ -240,8 +241,11 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                         // while we set the rest of the properties to the database values.
                         if(updatedFields.Contains(property.Name))
                             continue;
-
-                        proposedValues[property] = databaseValue;
+                        
+                        // Here we update our attempted values with the values 
+                        // That's been updated by another thread/process so that 
+                        // we can merge the changes without overriding them with stale values.
+                        attemptedValues[property] = databaseValue;
                     }
 
                     // Refresh original values to bypass next concurrency check
@@ -372,20 +376,26 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
+                    // https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations
                     var entry = ex.Entries.FirstOrDefault();
 
-                    var proposedValues = entry.CurrentValues;
+                    var attemptedValues = entry.CurrentValues;
                     var databaseValues = entry.GetDatabaseValues();
 
-                    foreach (var property in proposedValues.Properties)
+                    foreach (var property in attemptedValues.Properties)
                     {
-                        var proposedValue = proposedValues[property];
+                        var proposedValue = attemptedValues[property];
                         var databaseValue = databaseValues[property];
 
+                        // Leave updated columns within this method as they are 
+                        // while we set the rest of the properties to the database values.
                         if(property.Name == nameof(ProductEntity.IsSuspended))
                             continue;
 
-                        proposedValues[property] = databaseValue;
+                        // Here we update our attempted values with the values 
+                        // That's been updated by another thread/process so that 
+                        // we can merge the changes without overriding them with stale values.
+                        attemptedValues[property] = databaseValue;
                     }
 
                     // Refresh original values to bypass next concurrency check

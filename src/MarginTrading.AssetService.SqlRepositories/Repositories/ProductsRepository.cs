@@ -211,8 +211,51 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             entity.IsFrozen = isFrozen;
             entity.FreezeInfo = JsonConvert.SerializeObject(freezeInfo);
 
-            await context.SaveChangesAsync();
+            var saved = false;
 
+            while(!saved)
+            {
+                try
+                {
+                    await context.SaveChangesAsync();
+
+                    saved = true;
+                }
+                catch(DbUpdateConcurrencyException ex)
+                {
+                    // https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations
+                    var entry = ex.Entries.FirstOrDefault();
+
+                    var attemptedValues = entry.CurrentValues;
+                    var databaseValues = entry.GetDatabaseValues();
+
+                    foreach (var property in attemptedValues.Properties)
+                    {
+                        var attemptedValue = attemptedValues[property];
+                        var databaseValue = databaseValues[property];
+                        
+                        var updatedFields = new HashSet<string>()
+                        {
+                            nameof(ProductEntity.IsFrozen),
+                            nameof(ProductEntity.FreezeInfo)
+                        };
+
+                        // Leave updated columns within this method as they are 
+                        // while we set the rest of the properties to the database values.
+                        if(updatedFields.Contains(property.Name))
+                            continue;
+                        
+                        // Here we update our attempted values with the values 
+                        // That's been updated by another thread/process so that 
+                        // we can merge the changes without overriding them with stale values.
+                        attemptedValues[property] = databaseValue;
+                    }
+
+                    // Refresh original values to bypass next concurrency check
+                    entry.OriginalValues.SetValues(databaseValues);
+                }
+            }
+            
             return new Result<Product, ProductsErrorCodes>(ToModel(entity));
         }
 
@@ -327,6 +370,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
         public async Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value)
         {
             await using var context = _contextFactory.CreateDataContext();
+
             var product = await context.Products.FindAsync(id);
 
             if (product == null)
@@ -339,28 +383,45 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             Thread.Sleep(TimeSpan.FromSeconds(15));
 
             product.IsSuspended = value;
-            context.Products.Update(product);
-
+            
             var saved = false;
             while (!saved)
             {
                 try
                 {
                     await context.SaveChangesAsync();
+
                     saved = true;
                 }
                 catch (DbUpdateConcurrencyException ex)
                 {
-                    foreach (var entry in ex.Entries)
-                    {
-                        var databaseValues = await entry.GetDatabaseValuesAsync();
+                    // https://learn.microsoft.com/en-us/ef/core/saving/concurrency?tabs=data-annotations
+                    var entry = ex.Entries.FirstOrDefault();
 
-                        // Refresh original values to bypass next concurrency check
-                        entry.OriginalValues.SetValues(databaseValues);
+                    var attemptedValues = entry.CurrentValues;
+                    var databaseValues = entry.GetDatabaseValues();
+
+                    foreach (var property in attemptedValues.Properties)
+                    {
+                        var proposedValue = attemptedValues[property];
+                        var databaseValue = databaseValues[property];
+
+                        // Leave updated columns within this method as they are 
+                        // while we set the rest of the properties to the database values.
+                        if(property.Name == nameof(ProductEntity.IsSuspended))
+                            continue;
+
+                        // Here we update our attempted values with the values 
+                        // That's been updated by another thread/process so that 
+                        // we can merge the changes without overriding them with stale values.
+                        attemptedValues[property] = databaseValue;
                     }
+
+                    // Refresh original values to bypass next concurrency check
+                    entry.OriginalValues.SetValues(databaseValues);
                 }
             }
-
+            
             return new Result<Product, ProductsErrorCodes>(ToModel(product));
         }
 

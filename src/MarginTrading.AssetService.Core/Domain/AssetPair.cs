@@ -73,32 +73,67 @@ namespace MarginTrading.AssetService.Core.Domain
         public bool IsTradingDisabled { get; }
         public ContractSize ContractSize { get; }
 
-        public static IAssetPair CreateFromProduct(Product product, string legalEntity) =>
-            new AssetPair(
-                id: product.ProductId,
-                name: product.Name,
-                baseAssetId: product.ProductId,
-                quoteAssetId: product.TradingCurrency,
-                accuracy: AssetPairConstants.Accuracy,
-                marketId: product.Market,
-                legalEntity: legalEntity,
-                basePairId: AssetPairConstants.BasePairId,
-                matchingEngineMode: AssetPairConstants.MatchingEngineMode,
-                stpMultiplierMarkupBid: AssetPairConstants.StpMultiplierMarkupBid,
-                stpMultiplierMarkupAsk: AssetPairConstants.StpMultiplierMarkupAsk,
-                isSuspended: product.IsSuspended,
-                isFrozen: product.IsFrozen,
-                isDiscontinued: product.IsDiscontinued,
-                freezeInfo: new FreezeInfo
-                {
-                    Comment = product.FreezeInfo.Comment,
-                    Reason = (FreezeReason)product.FreezeInfo.Reason,
-                    UnfreezeDate = product.FreezeInfo.UnfreezeDate
-                },
-                assetType: product.AssetType,
-                isTradingDisabled: product.IsTradingDisabled,
-                contractSize: product.ContractSize
-            );
+        public static IAssetPair CreateFromProduct(Product product, string legalEntity) 
+        {
+            // TODO: remove. added for testing purpoeses
+            if (product.FreezeInfo == null)
+            {
+                return new AssetPair(
+                    id: product.ProductId,
+                    name: product.Name,
+                    baseAssetId: product.ProductId,
+                    quoteAssetId: product.TradingCurrency,
+                    accuracy: AssetPairConstants.Accuracy,
+                    marketId: product.Market,
+                    legalEntity: legalEntity,
+                    basePairId: AssetPairConstants.BasePairId,
+                    matchingEngineMode: AssetPairConstants.MatchingEngineMode,
+                    stpMultiplierMarkupBid: AssetPairConstants.StpMultiplierMarkupBid,
+                    stpMultiplierMarkupAsk: AssetPairConstants.StpMultiplierMarkupAsk,
+                    isSuspended: product.IsSuspended,
+                    isFrozen: product.IsFrozen,
+                    isDiscontinued: product.IsDiscontinued,
+                    freezeInfo: new FreezeInfo
+                    {
+                        Comment = "test-debug",
+                        Reason = FreezeReason.Manual,
+                        UnfreezeDate = DateTime.UtcNow.AddDays(1)
+                    },
+                    assetType: product.AssetType,
+                    isTradingDisabled: product.IsTradingDisabled,
+                    contractSize: product.ContractSize
+                );
+            }
+            else
+            {
+                return new AssetPair(
+                    id: product.ProductId,
+                    name: product.Name,
+                    baseAssetId: product.ProductId,
+                    quoteAssetId: product.TradingCurrency,
+                    accuracy: AssetPairConstants.Accuracy,
+                    marketId: product.Market,
+                    legalEntity: legalEntity,
+                    basePairId: AssetPairConstants.BasePairId,
+                    matchingEngineMode: AssetPairConstants.MatchingEngineMode,
+                    stpMultiplierMarkupBid: AssetPairConstants.StpMultiplierMarkupBid,
+                    stpMultiplierMarkupAsk: AssetPairConstants.StpMultiplierMarkupAsk,
+                    isSuspended: product.IsSuspended,
+                    isFrozen: product.IsFrozen,
+                    isDiscontinued: product.IsDiscontinued,
+                    freezeInfo: new FreezeInfo
+                    {
+                        Comment = product.FreezeInfo.Comment,
+                        Reason = (FreezeReason)product.FreezeInfo.Reason,
+                        UnfreezeDate = product.FreezeInfo.UnfreezeDate
+                    },
+                    assetType: product.AssetType,
+                    isTradingDisabled: product.IsTradingDisabled,
+                    contractSize: product.ContractSize
+                );
+            }
+        }
+        
 
         public static IAssetPair CreateFromCurrency(Currency currency, string legalEntity, string baseCurrencyId)
         {

@@ -10,7 +10,6 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
 {
     /// <summary>
     /// Client profile settings cache
-    /// Uses as key - client profile id + asset type id
     /// </summary>
     public class ClientProfileSettingsCache : BaseCache<ClientProfileSettingsContract>, IClientProfileSettingsCache
     {
@@ -45,6 +44,9 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             }
         }
 
+        public bool TryGetValue(string clientProfileId, string assetTypeId, out ClientProfileSettingsContract result) =>
+            TryGetValue(GetKey(clientProfileId, assetTypeId), out result);
+
         public IReadOnlyList<ClientProfileSettingsContract> GetByAssetType(string assetType, bool availableOnly = false)
         {
             if (string.IsNullOrEmpty(assetType))
@@ -68,9 +70,9 @@ namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
             }
         }
 
-        protected override string GetKey(ClientProfileSettingsContract clientProfileSettings)
-        {
-            return $"{clientProfileSettings.ClientProfileId}_{clientProfileSettings.AssetTypeId}";
-        }
+        protected override string GetKey(ClientProfileSettingsContract clientProfileSettings) =>
+            GetKey(clientProfileSettings.ClientProfileId, clientProfileSettings.AssetTypeId);
+
+        private static string GetKey(string clientProfileId, string assetTypeId) => $"{clientProfileId}_{assetTypeId}";
     }
 }

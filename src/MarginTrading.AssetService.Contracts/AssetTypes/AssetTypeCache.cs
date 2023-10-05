@@ -9,6 +9,10 @@ using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Contracts.AssetTypes
 {
+    /// <summary>
+    /// Asset types cache
+    /// Uses as key - asset type id
+    /// </summary>
     public class AssetTypeCache : BaseCache<AssetTypeContract>, IAssetTypeCache
     {
         private readonly IAssetTypesApi _assetTypesApi;

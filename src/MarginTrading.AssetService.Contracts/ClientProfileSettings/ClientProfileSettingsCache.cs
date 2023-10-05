@@ -8,6 +8,10 @@ using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Contracts.ClientProfileSettings
 {
+    /// <summary>
+    /// Client profile settings cache
+    /// Uses as key - client profile id + asset type id
+    /// </summary>
     public class ClientProfileSettingsCache : BaseCache<ClientProfileSettingsContract>, IClientProfileSettingsCache
     {
         private readonly IClientProfileSettingsApi _clientProfileSettingsApi;

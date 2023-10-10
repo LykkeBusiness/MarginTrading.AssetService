@@ -8,6 +8,8 @@ using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
+
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -308,6 +310,16 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 .ToListAsync();
 
             return products.Select(ToModel).ToList();
+        }
+
+        public async Task MarkAsDiscontinuedAsync(IEnumerable<string> productIds)
+        {
+            await using var context = _contextFactory.CreateDataContext();
+            var items = productIds
+                .Select((x, i) => new SqlParameter($"@p{i}", x));
+            var sql =
+                $"UPDATE [dbo].[Products] SET IsDiscontinued = 1 WHERE ProductId IN ({string.Join(", ", items.Select(x => x.ParameterName))})"; 
+            await context.Database.ExecuteSqlRawAsync(sql, items);
         }
 
         public async Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value)

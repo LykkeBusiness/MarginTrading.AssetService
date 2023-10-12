@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -7,9 +8,9 @@ using Lykke.Snow.Common;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.SqlRepositories.Entities;
+using MarginTrading.AssetService.SqlRepositories.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -354,15 +355,23 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
 
             return products.Select(ToModel).ToList();
         }
-
-        public async Task MarkAsDiscontinuedAsync(IEnumerable<string> productIds)
+        
+        public async Task MarkAsDiscontinuedAsync(ICollection<string> productIds)
         {
-            await using var context = _contextFactory.CreateDataContext();
-            var items = productIds
-                .Select((x, i) => new SqlParameter($"@p{i}", x));
+            if (productIds == null || !productIds.Any())
+                return;
+            
+            var parameters = productIds.ToArray().MapToParameters();
+
+            if (parameters.Length > SqlServerParametersExtensions.MaxParametersCount)
+                throw new ArgumentOutOfRangeException(nameof(productIds),
+                    $"Too many product ids (max {SqlServerParametersExtensions.MaxParametersCount}).");
+            
             var sql =
-                $"UPDATE [dbo].[Products] SET IsDiscontinued = 1 WHERE ProductId IN ({string.Join(", ", items.Select(x => x.ParameterName))})"; 
-            await context.Database.ExecuteSqlRawAsync(sql, items);
+                $"UPDATE [dbo].[Products] SET IsDiscontinued = 1 WHERE ProductId IN ({parameters.ToSqlInClause()})";
+            
+            await using var context = _contextFactory.CreateDataContext();
+            await context.Database.ExecuteSqlRawAsync(sql, parameters);
         }
 
         public async Task<Result<Product, ProductsErrorCodes>> ChangeSuspendFlagAsync(string id, bool value)

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 
 using MarginTrading.AssetService.Contracts.Extensions;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
@@ -25,7 +26,7 @@ namespace MarginTrading.AssetService.Tests.Contracts
         public void Test_Decimal_GetPrecision(string valueAsString, uint expectedPrecision)
         {
             // Act
-            var value = decimal.Parse(valueAsString);
+            var value = decimal.Parse(valueAsString, CultureInfo.InvariantCulture);
             var actualPrecision = value.GetPrecision();
 
             // Assert

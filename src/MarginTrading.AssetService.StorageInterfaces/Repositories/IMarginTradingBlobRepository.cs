@@ -16,5 +16,7 @@ namespace MarginTrading.AssetService.StorageInterfaces.Repositories
         Task MergeListAsync<T>(string blobContainer, string key, List<T> objects, Func<T, string> selector);
         [ItemCanBeNull]
         Task<T> ReadAsync<T>(string blobContainer, string key);
+
+        Task TempFor871mMigration(List<string> mdsCodes);
     }
 }

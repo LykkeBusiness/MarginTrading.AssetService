@@ -62,6 +62,22 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
+        public async Task TempFor871mMigration(List<string> mdsCodes)
+        {
+            using (var conn = new SqlConnection(_connectionString))
+            {
+                var sql = @$"UPDATE [dbo].[MarginTradingAccounts]
+SET AdditionalInfo = JSON_MODIFY(AdditionalInfo, '$.ShouldShow871mWarning', CAST(0 as BIT))
+WHERE IsDeleted = 0 AND Id in (SELECT DISTINCT AccountId
+FROM [dbo].[OrdersHistory]
+WHERE Status = 'Placed'
+AND AssetPairId IN (SELECT ProductId
+FROM [dbo].[Products]
+WHERE UnderlyingMdsCode IN ('{string.Join("','", mdsCodes)}')))";
+                var result = await conn.ExecuteAsync(sql);
+            }
+        }
+
         public async Task WriteAsync<T>(string blobContainer, string key, T obj)
         {
             var request = new

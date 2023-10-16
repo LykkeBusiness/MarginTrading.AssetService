@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 using Lykke.Contracts.Responses;
 using Lykke.Snow.Common;
+using Lykke.Snow.Mdm.Contracts.Api;
+using Lykke.Snow.Mdm.Contracts.Models.Requests;
+
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Core.Caches;
@@ -17,6 +20,9 @@ using MarginTrading.AssetService.Middleware;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using MoreLinq;
+
 using Asset = MarginTrading.AssetService.Contracts.LegacyAsset.Asset;
 
 namespace MarginTrading.AssetService.Controllers
@@ -33,17 +39,45 @@ namespace MarginTrading.AssetService.Controllers
         private readonly IAssetsRepository _assetsRepository;
         private readonly IConvertService _convertService;
         private readonly ILegacyAssetsService _legacyAssetsService;
+        private readonly IUnderlyingsApi _underlyingsApi;
+        private readonly IMarginTradingBlobRepository _temp;
         
         public AssetsController(
             ILegacyAssetsCache legacyAssetsCache,
             IAssetsRepository assetsRepository,
             IConvertService convertService,
-            ILegacyAssetsService legacyAssetsService)
+            ILegacyAssetsService legacyAssetsService,
+            IUnderlyingsApi underlyingsApi,
+            IMarginTradingBlobRepository temp)
         {
             _legacyAssetsCache = legacyAssetsCache;
             _assetsRepository = assetsRepository;
             _convertService = convertService;
             _legacyAssetsService = legacyAssetsService;
+            _underlyingsApi = underlyingsApi;
+            _temp = temp;
+        }
+        
+        /// <summary>
+        /// Temp api (to be deleted)
+        /// </summary>
+        [HttpPost("migrate-871m-warning")]
+        public async Task Migrage871mWarning()
+        {
+            var underlyings = await _underlyingsApi.GetAllAsync(new GetUnderlyingsRequestV2
+            {
+                Take = 0
+            });
+
+            var mdsCodes = underlyings.Underlyings
+                .Where(x => x.Eligible871M)
+                .Select(x => x.MdsCode)
+                .ToList();
+
+            foreach (var batch in mdsCodes.Batch(100))
+            {
+                await _temp.TempFor871mMigration(batch.ToList());
+            }
         }
         
         /// <summary>

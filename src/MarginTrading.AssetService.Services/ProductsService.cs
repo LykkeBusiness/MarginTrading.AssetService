@@ -240,7 +240,7 @@ namespace MarginTrading.AssetService.Services
             }
 
             await _repository.MarkAsDiscontinuedAsync(
-                toUpdate.Select(x => x.ProductId));
+                toUpdate.Select(x => x.ProductId).ToList());
 
             foreach (var product in toUpdate)
             {

@@ -1,5 +1,5 @@
 ## 2.23.0 - Nova 2. Delivery 38 (December 08, 2023)
-## What's changed
+### What's changed
 * LT-5120: Add changelog.md file.
 
 

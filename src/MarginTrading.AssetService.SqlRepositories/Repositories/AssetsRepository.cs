@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using MoreLinq;
 
 namespace MarginTrading.AssetService.SqlRepositories.Repositories
 {
@@ -37,7 +39,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 return duplicates;
             }
         }
-
+                
         public async Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync()
         {
             using (var context = _contextFactory.CreateDataContext())

@@ -36,8 +36,7 @@ namespace MarginTrading.AssetService.Services
             return result.IsSuccess ? AssetPair.CreateFromProduct(result.Value, _defaultLegalEntitySettings.DefaultLegalEntity) : null;
         }
 
-        public async Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync(IEnumerable<string> 
-        assetPairIds = null, bool onlyStarted = true)
+        public async Task<IReadOnlyList<IAssetPair>> GetAllIncludingFxParisWithFilterAsync(IEnumerable<string> assetPairIds = null, bool onlyStarted = true)
         {
             var settlementCurrency = await _settlementCurrencyService.GetSettlementCurrencyAsync();
             var products = await _productsRepository.GetByProductsIdsAsync(assetPairIds);

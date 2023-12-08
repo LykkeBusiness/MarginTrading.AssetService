@@ -23,13 +23,13 @@ namespace MarginTrading.AssetService.Contracts
         /// Get the list of asset pairs based on legal entity and matching engine mode
         /// </summary>
         [Get("/api/assetPairs")]
-        [Obsolete("Use paginated action")]
         Task<List<AssetPairContract>> List();
         
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
         /// </summary>
         [Get("/api/assetPairs/by-pages")]
+        [Obsolete("Use List since result from this method its not paginated anyway.")]
         Task<PaginatedResponse<AssetPairContract>> ListByPages(
             [Query, CanBeNull] int? skip = null, [Query, CanBeNull] int? take = null);
     }

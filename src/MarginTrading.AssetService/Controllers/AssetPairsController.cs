@@ -1,6 +1,7 @@
 ﻿// Copyright (c) 2019 Lykke Corp.
 // See the LICENSE file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,6 +56,7 @@ namespace MarginTrading.AssetService.Controllers
         /// <param name="skip"></param>
         /// <param name="take"></param>
         [HttpGet]
+        [Obsolete("Use /api/assetPairs since result from this method its not paginated anyway.")]
         [Route("by-pages")]
         public async Task<PaginatedResponse<AssetPairContract>> ListByPages([FromQuery] int? skip = null, [FromQuery] int? take = null)
         {

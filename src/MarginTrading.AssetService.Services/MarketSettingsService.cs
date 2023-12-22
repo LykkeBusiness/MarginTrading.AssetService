@@ -48,53 +48,53 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
-            var creationResult = CreateMarketSettingsWithDefaults(model, out var marketSettings);
+            var creationResult = CreateMarketSettingsWithDefaults(model);
 
             if (creationResult.IsFailed)
                 return creationResult;
 
-            var validationResult = ValidateSettings(marketSettings);
+            var validationResult = ValidateSettings(creationResult.Value);
 
             if (validationResult.IsFailed)
                 return validationResult;
 
-            var addResult = await _marketSettingsRepository.AddAsync(marketSettings);
+            var addResult = await _marketSettingsRepository.AddAsync(creationResult.Value);
 
             if (addResult.IsFailed)
                 return addResult;
 
-            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, marketSettings);
+            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, creationResult.Value);
 
-            await PublishMarketSettingsChangedEvent(null, marketSettings, username, ChangeType.Creation);
+            await PublishMarketSettingsChangedEvent(null, creationResult.Value, username, ChangeType.Creation);
 
             return new Result<MarketSettingsErrorCodes>();
         }
 
         public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
-            var creationResult = CreateMarketSettingsWithDefaults(model, out var marketSettings);
+            var creationResult = CreateMarketSettingsWithDefaults(model);
             
             if (creationResult.IsFailed)
                 return creationResult;
             
-            var currentSettings = await _marketSettingsRepository.GetByIdAsync(marketSettings.Id);
+            var currentSettings = await _marketSettingsRepository.GetByIdAsync(creationResult.Value.Id);
 
             if (currentSettings == null)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
 
-            var validationResult = ValidateSettings(marketSettings, currentSettings);
+            var validationResult = ValidateSettings(creationResult.Value, currentSettings);
 
             if (validationResult.IsFailed)
                 return validationResult;
 
-            var updateResult = await _marketSettingsRepository.UpdateAsync(marketSettings);
+            var updateResult = await _marketSettingsRepository.UpdateAsync(creationResult.Value);
 
             if (updateResult.IsFailed)
                 return updateResult;
 
-            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, marketSettings, currentSettings);
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, creationResult.Value, currentSettings);
 
-            await PublishMarketSettingsChangedEvent(currentSettings, marketSettings, username, ChangeType.Edition);
+            await PublishMarketSettingsChangedEvent(currentSettings, creationResult.Value, username, ChangeType.Edition);
 
             return new Result<MarketSettingsErrorCodes>();
         }
@@ -175,17 +175,16 @@ namespace MarginTrading.AssetService.Services
 
             return new Result<MarketSettingsErrorCodes>();
         }
-        
-        private static Result<MarketSettingsErrorCodes> CreateMarketSettingsWithDefaults(
-            MarketSettingsCreateOrUpdateDto model,
-            out MarketSettings marketSettings)
+
+        private static Result<MarketSettings, MarketSettingsErrorCodes> CreateMarketSettingsWithDefaults(
+            MarketSettingsCreateOrUpdateDto model)
         {
-            marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
+            var marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
 
             return marketSettings switch
             {
-                InvalidMarketSettings invalid => new Result<MarketSettingsErrorCodes>(invalid.ErrorCode),
-                { } => new Result<MarketSettingsErrorCodes>()
+                InvalidMarketSettings invalid => invalid.ErrorCode,
+                { } => marketSettings
             };
         }
     }

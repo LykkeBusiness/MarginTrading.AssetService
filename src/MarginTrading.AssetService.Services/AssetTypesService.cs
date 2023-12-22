@@ -12,6 +12,7 @@ using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Domain;
 using MarginTrading.AssetService.Core.Exceptions;
 using MarginTrading.AssetService.Core.Services;
+using MarginTrading.AssetService.Services.Extensions;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using AuditEventType = Lykke.Snow.Audit.AuditEventType;
 
@@ -56,14 +57,9 @@ namespace MarginTrading.AssetService.Services
 
         public async Task InsertAsync(AssetTypeWithTemplate model, string username)
         {
-            var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
-
-            if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
-                throw new BrokerSettingsDoNotExistException();
-
             await ValidateUnderlyingCategory(model.UnderlyingCategoryId);
-
-            var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
+            
+            var regulationId = await _brokerSettingsApi.GetRegulationIdOrThrowAsync(_brokerId);
 
             await ValidateRegulatoryType(model.RegulatoryTypeId, regulationId);
 
@@ -128,14 +124,9 @@ namespace MarginTrading.AssetService.Services
 
         public async Task UpdateAsync(AssetType model, string username)
         {
-            var brokerSettingsResponse = await _brokerSettingsApi.GetByIdAsync(_brokerId);
-
-            if (brokerSettingsResponse.ErrorCode == BrokerSettingsErrorCodesContract.BrokerSettingsDoNotExist)
-                throw new BrokerSettingsDoNotExistException();
-
             await ValidateUnderlyingCategory(model.UnderlyingCategoryId);
 
-            var regulationId = brokerSettingsResponse.BrokerSettings.RegulationId;
+            var regulationId = await _brokerSettingsApi.GetRegulationIdOrThrowAsync(_brokerId);
 
             await ValidateRegulatoryType(model.RegulatoryTypeId, regulationId);
 

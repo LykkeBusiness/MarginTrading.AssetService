@@ -180,40 +180,13 @@ namespace MarginTrading.AssetService.Services
             MarketSettingsCreateOrUpdateDto model,
             out MarketSettings marketSettings)
         {
-            marketSettings = null;
+            marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
 
-            try
+            return marketSettings switch
             {
-                marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
-            }
-            catch (InvalidOpenAndCloseHoursException)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidOpenAndCloseHours);
-            }
-            catch (WinterOpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes
-                    .WinterOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
-            }
-            catch (SummerOpenAndCloseWithAppliedTimezoneMustBeInTheSameDayException)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes
-                    .SummerOpenAndCloseWithAppliedTimezoneMustBeInTheSameDay);
-            }
-            catch (InvalidTimeZoneException)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidTimezone);
-            }
-            catch (InconsistentWorkingCalendarException)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InconsistentWorkingCalendar);
-            }
-            catch (InvalidWorkingDayStringException)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidHalfWorkingDayString);
-            }
-            
-            return new Result<MarketSettingsErrorCodes>();
+                InvalidMarketSettings invalid => new Result<MarketSettingsErrorCodes>(invalid.ErrorCode),
+                { } => new Result<MarketSettingsErrorCodes>()
+            };
         }
     }
 }

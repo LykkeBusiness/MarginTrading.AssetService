@@ -48,7 +48,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
-            var creationResult = CreateMarketSettingsWithDefaults(model);
+            var creationResult = CreateMarketSettings(model);
 
             if (creationResult.IsFailed)
                 return creationResult;
@@ -72,7 +72,7 @@ namespace MarginTrading.AssetService.Services
 
         public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
-            var creationResult = CreateMarketSettingsWithDefaults(model);
+            var creationResult = CreateMarketSettings(model);
             
             if (creationResult.IsFailed)
                 return creationResult;
@@ -176,10 +176,10 @@ namespace MarginTrading.AssetService.Services
             return new Result<MarketSettingsErrorCodes>();
         }
 
-        private static Result<MarketSettings, MarketSettingsErrorCodes> CreateMarketSettingsWithDefaults(
+        private static Result<MarketSettings, MarketSettingsErrorCodes> CreateMarketSettings(
             MarketSettingsCreateOrUpdateDto model)
         {
-            var marketSettings = MarketSettings.GetMarketSettingsWithDefaults(model);
+            var marketSettings = MarketSettingsFactory.FromRequest(model);
 
             return marketSettings switch
             {

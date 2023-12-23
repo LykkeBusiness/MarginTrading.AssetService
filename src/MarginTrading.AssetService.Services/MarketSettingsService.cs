@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Common.Correlation;
-using Lykke.Snow.Common.Exceptions;
 using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.MarketSettings;
@@ -46,55 +45,56 @@ namespace MarginTrading.AssetService.Services
         public Task<IReadOnlyList<MarketSettings>> GetAllMarketSettingsAsync()
             => _marketSettingsRepository.GetAllMarketSettingsAsync();
 
-        public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model, string username)
+        public async Task<Result<MarketSettingsErrorCodes>> AddAsync(MarketSettingsCreateOrUpdateDto model,
+            string username)
         {
-            var creationResult = CreateMarketSettings(model);
-
-            if (creationResult.IsFailed)
-                return creationResult;
-
-            var validationResult = ValidateSettings(creationResult.Value);
-
+            var marketSettings = MarketSettingsFactory.FromRequest(model);
+            
+            if (marketSettings is InvalidMarketSettings invalid)
+                return invalid.ErrorCode;
+            
+            var validationResult = ValidateSettings(marketSettings);
+            
             if (validationResult.IsFailed)
                 return validationResult;
-
-            var addResult = await _marketSettingsRepository.AddAsync(creationResult.Value);
-
+            
+            var addResult = await _marketSettingsRepository.AddAsync(marketSettings);
+            
             if (addResult.IsFailed)
                 return addResult;
-
-            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, creationResult.Value);
-
-            await PublishMarketSettingsChangedEvent(null, creationResult.Value, username, ChangeType.Creation);
-
+            
+            await _auditService.CreateAuditRecord(AuditEventType.Creation, username, marketSettings);
+            
+            await PublishMarketSettingsChangedEvent(null, marketSettings, username, ChangeType.Creation);
+            
             return new Result<MarketSettingsErrorCodes>();
         }
 
         public async Task<Result<MarketSettingsErrorCodes>> UpdateAsync(MarketSettingsCreateOrUpdateDto model, string username)
         {
-            var creationResult = CreateMarketSettings(model);
+            var marketSettings = MarketSettingsFactory.FromRequest(model);
             
-            if (creationResult.IsFailed)
-                return creationResult;
+            if (marketSettings is InvalidMarketSettings invalid)
+                return invalid.ErrorCode;
             
-            var currentSettings = await _marketSettingsRepository.GetByIdAsync(creationResult.Value.Id);
+            var currentSettings = await _marketSettingsRepository.GetByIdAsync(marketSettings.Id);
 
             if (currentSettings == null)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
 
-            var validationResult = ValidateSettings(creationResult.Value, currentSettings);
+            var validationResult = ValidateSettings(marketSettings, currentSettings);
 
             if (validationResult.IsFailed)
                 return validationResult;
 
-            var updateResult = await _marketSettingsRepository.UpdateAsync(creationResult.Value);
+            var updateResult = await _marketSettingsRepository.UpdateAsync(marketSettings);
 
             if (updateResult.IsFailed)
                 return updateResult;
 
-            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, creationResult.Value, currentSettings);
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, marketSettings, currentSettings);
 
-            await PublishMarketSettingsChangedEvent(currentSettings, creationResult.Value, username, ChangeType.Edition);
+            await PublishMarketSettingsChangedEvent(currentSettings, marketSettings, username, ChangeType.Edition);
 
             return new Result<MarketSettingsErrorCodes>();
         }
@@ -174,18 +174,6 @@ namespace MarginTrading.AssetService.Services
             }
 
             return new Result<MarketSettingsErrorCodes>();
-        }
-
-        private static Result<MarketSettings, MarketSettingsErrorCodes> CreateMarketSettings(
-            MarketSettingsCreateOrUpdateDto model)
-        {
-            var marketSettings = MarketSettingsFactory.FromRequest(model);
-
-            return marketSettings switch
-            {
-                InvalidMarketSettings invalid => invalid.ErrorCode,
-                { } => marketSettings
-            };
         }
     }
 }

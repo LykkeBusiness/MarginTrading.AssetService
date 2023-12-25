@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Snow.Audit;
 using Lykke.Snow.Common.Correlation;
@@ -11,9 +10,9 @@ using Lykke.Snow.Common.Model;
 using MarginTrading.AssetService.Contracts.Enums;
 using MarginTrading.AssetService.Contracts.MarketSettings;
 using MarginTrading.AssetService.Core.Domain;
+using MarginTrading.AssetService.Core.Extensions;
 using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
-using TimeZoneConverter;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -53,7 +52,7 @@ namespace MarginTrading.AssetService.Services
             if (marketSettings is InvalidMarketSettings invalid)
                 return invalid.ErrorCode;
             
-            var validationResult = ValidateSettings(marketSettings);
+            var validationResult = marketSettings.Validate();
             
             if (validationResult.IsFailed)
                 return validationResult;
@@ -81,11 +80,15 @@ namespace MarginTrading.AssetService.Services
 
             if (currentSettings == null)
                 return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.MarketSettingsDoNotExist);
-
-            var validationResult = ValidateSettings(marketSettings, currentSettings);
-
+            
+            var validationResult = marketSettings.Validate();
             if (validationResult.IsFailed)
                 return validationResult;
+
+            var isUpdateValid =
+                new MarketSettingsUpdateValidator(currentSettings, marketSettings).ValidAt(DateTime.UtcNow);
+            if (!isUpdateValid)
+                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
 
             var updateResult = await _marketSettingsRepository.UpdateAsync(marketSettings);
 
@@ -133,41 +136,6 @@ namespace MarginTrading.AssetService.Services
                 OldMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(oldSettings),
                 NewMarketSettings = _convertService.Convert<MarketSettings, MarketSettingsContract>(newSettings)
             });
-        }
-        
-        private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings newSettings, MarketSettings existingSettings = null)
-        {
-            var validationResult = newSettings.Validate();
-            
-            if (validationResult.IsFailed)
-                return validationResult;
-
-            if (existingSettings == null) 
-                return new Result<MarketSettingsErrorCodes>();
-
-            // This is the current day taking into account the timezone
-            var nowAtMarketTimeZone = existingSettings.ConvertToMarketTimeZone(DateTime.UtcNow);
-
-            var hasTradingStarted = existingSettings.MarketSchedule.Open.First() <= nowAtMarketTimeZone.TimeOfDay;
-            
-            // check holidays
-            var newHolidays = newSettings.Holidays
-                .Select(x => x.Date.Date)
-                .Except(existingSettings.Holidays);
-            var holidaysViolate = newHolidays.Contains(nowAtMarketTimeZone.Date) && hasTradingStarted;
-
-            // check half-working days
-            var newHalfWorkingDays =
-                newSettings.MarketSchedule.HalfWorkingDays.Except(existingSettings.MarketSchedule.HalfWorkingDays);
-            var halfWorkingDaysViolate =
-                newHalfWorkingDays.Any(d => d.SameCalendarDay(nowAtMarketTimeZone)) && hasTradingStarted;
-
-            if (holidaysViolate || halfWorkingDaysViolate)
-            {
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.TradingDayAlreadyStarted);
-            }
-
-            return new Result<MarketSettingsErrorCodes>();
         }
     }
 }

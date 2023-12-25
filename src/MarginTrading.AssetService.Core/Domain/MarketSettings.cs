@@ -7,8 +7,6 @@ using Lykke.Snow.Common.WorkingDays;
 
 using Newtonsoft.Json;
 
-using TimeZoneConverter;
-
 namespace MarginTrading.AssetService.Core.Domain
 {
     public class MarketSettings : IAuditableObject<AuditDataType>
@@ -34,7 +32,7 @@ namespace MarginTrading.AssetService.Core.Domain
         public AuditDataType GetAuditDataType() => AuditDataType.MarketSettings;
 
         public string GetAuditReference() => Id;
-
+        
         public string ToAuditJson() =>
             JsonConvert.SerializeObject(this,
                 new JsonSerializerSettings
@@ -43,6 +41,10 @@ namespace MarginTrading.AssetService.Core.Domain
                     Converters = new List<JsonConverter> { new WorkingDayConverter() }
                 });
 
+        /// <summary>
+        /// Checks if the market settings are consistent and valid.
+        /// </summary>
+        /// <returns></returns>
         public Result<MarketSettingsErrorCodes> Validate()
         {
             if (DividendsLong < 0 || DividendsLong > DividendsLongMaxValue)
@@ -56,11 +58,14 @@ namespace MarginTrading.AssetService.Core.Domain
 
             return new Result<MarketSettingsErrorCodes>();
         }
+        
+        
+        /// <summary>
+        /// Provides time when the market open for trading in market's timezone.
+        /// </summary>
+        /// <returns></returns>
+        public TimeSpan GetMarketOpenTime() => MarketSchedule.Open[0];
 
-        public DateTime ConvertToMarketTimeZone(DateTime dateTime)
-        {
-            var timeZone = TZConvert.GetTimeZoneInfo(MarketSchedule.TimeZoneId);
-            return TimeZoneInfo.ConvertTime(dateTime, timeZone);
-        }
+        public IEnumerable<WorkingDay> GetHalfWorkingDays() => MarketSchedule.HalfWorkingDays;
     }
 }

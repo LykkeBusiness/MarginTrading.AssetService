@@ -137,36 +137,30 @@ namespace MarginTrading.AssetService.Services
         
         private static Result<MarketSettingsErrorCodes> ValidateSettings(MarketSettings newSettings, MarketSettings existingSettings = null)
         {
-            if (newSettings.DividendsLong < 0 || newSettings.DividendsLong > 200)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsLongValue);
-
-            if (newSettings.DividendsShort < 0 || newSettings.DividendsShort > 200)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividendsShortValue);
-
-            if (newSettings.Dividends871M < 0 || newSettings.Dividends871M > 100)
-                return new Result<MarketSettingsErrorCodes>(MarketSettingsErrorCodes.InvalidDividends871MValue);
+            var validationResult = newSettings.Validate();
+            
+            if (validationResult.IsFailed)
+                return validationResult;
 
             if (existingSettings == null) 
                 return new Result<MarketSettingsErrorCodes>();
 
             // This is the current day taking into account the timezone
-            var currentDay = TimeZoneInfo.ConvertTimeFromUtc(
-                DateTime.UtcNow,
-                TZConvert.GetTimeZoneInfo(existingSettings.MarketSchedule.TimeZoneId));
+            var nowAtMarketTimeZone = existingSettings.ConvertToMarketTimeZone(DateTime.UtcNow);
 
-            var hasTradingStarted = existingSettings.MarketSchedule.Open.First() <= currentDay.TimeOfDay;
+            var hasTradingStarted = existingSettings.MarketSchedule.Open.First() <= nowAtMarketTimeZone.TimeOfDay;
             
             // check holidays
             var newHolidays = newSettings.Holidays
                 .Select(x => x.Date.Date)
                 .Except(existingSettings.Holidays);
-            var holidaysViolate = newHolidays.Contains(currentDay.Date) && hasTradingStarted;
+            var holidaysViolate = newHolidays.Contains(nowAtMarketTimeZone.Date) && hasTradingStarted;
 
             // check half-working days
             var newHalfWorkingDays =
                 newSettings.MarketSchedule.HalfWorkingDays.Except(existingSettings.MarketSchedule.HalfWorkingDays);
             var halfWorkingDaysViolate =
-                newHalfWorkingDays.Any(d => d.SameCalendarDay(currentDay)) && hasTradingStarted;
+                newHalfWorkingDays.Any(d => d.SameCalendarDay(nowAtMarketTimeZone)) && hasTradingStarted;
 
             if (holidaysViolate || halfWorkingDaysViolate)
             {

@@ -2,19 +2,20 @@
 // See the LICENSE file in the project root for more information.
 
 using System;
-using System.Linq;
 
 using Lykke.Snow.Common.WorkingDays;
 
 using MarginTrading.AssetService.Core.Constants;
+using MarginTrading.AssetService.Core.Extensions;
 
 namespace MarginTrading.AssetService.Core.Domain
 {
+
     public static class MarketSettingsFactory
     {
         public static MarketSettings FromRequest(MarketSettingsCreateOrUpdateDto model)
         {
-            var (schedule, errorCode) = TryGetMarketSchedule(model);
+            var (schedule, errorCode) = TryCreateMarketSchedule(model);
             var noError = errorCode == MarketSettingsErrorCodes.None;
             return noError
                 ? FromRequestAndSchedule(model, schedule)
@@ -33,16 +34,16 @@ namespace MarginTrading.AssetService.Core.Domain
                 Holidays = model.Holidays,
                 MarketSchedule = schedule
             };
-        
-        private static (MarketSchedule, MarketSettingsErrorCodes) TryGetMarketSchedule(
+
+        private static (MarketSchedule, MarketSettingsErrorCodes) TryCreateMarketSchedule(
             MarketSettingsCreateOrUpdateDto model)
         {
             MarketSchedule schedule = null;
             var errorCode = MarketSettingsErrorCodes.None;
             try
             {
-                var open = GetHoursOrDefault(model.Open, MarketSettingsConstants.DefaultOpen);
-                var close = GetHoursOrDefault(model.Close, MarketSettingsConstants.DefaultClose);
+                var open = model.Open.GetValueOrDefault(MarketSettingsConstants.DefaultOpen);
+                var close = model.Close.GetValueOrDefault(MarketSettingsConstants.DefaultClose);
                 var timeZoneId = GetValueOrDefault(model.Timezone, MarketSettingsConstants.DefaultTimeZone);
                 schedule = new MarketSchedule(open, close, timeZoneId, model.HalfWorkingDays);
             }
@@ -51,12 +52,9 @@ namespace MarginTrading.AssetService.Core.Domain
                 if (!MarketScheduleExceptionToErrorCode.Map.TryGetValue(e.GetType(), out errorCode))
                     throw;
             }
-            
+
             return (schedule, errorCode);
         }
-        
-        private static TimeSpan[] GetHoursOrDefault(TimeSpan[] hours, TimeSpan defaultValue) =>
-            hours.Any() ? hours : new[] { defaultValue };
 
         private static string GetValueOrDefault(string value, string defaultValue) =>
             string.IsNullOrEmpty(value) ? defaultValue : value;

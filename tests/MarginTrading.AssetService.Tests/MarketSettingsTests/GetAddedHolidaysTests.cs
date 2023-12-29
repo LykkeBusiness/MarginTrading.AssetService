@@ -27,19 +27,19 @@ namespace MarginTrading.AssetService.Tests.MarketSettingsTests
             var current = WithHolidaysOnly(Jan(1), Jan(2), Jan(3));
             var future = WithHolidaysOnly(Jan(1), Jan(2), Jan(3), Jan(4), Jan(5));
 
-            var addedHolidays = current.GetAddedHolidays(future).ToList();
+            var addedHolidays = current.AddedHolidays(future).ToList();
 
             addedHolidays.AssertLength(2);
             addedHolidays.AssertHasDays(Jan(4), Jan(5));
         }
-        
+
         [Fact]
         public void ShouldReturnHolidays_WhenMixingCurrentAndFutureHolidays()
         {
             var current = WithHolidaysOnly(Jan(1), Jan(3), Jan(5));
             var future = WithHolidaysOnly(Jan(2), Jan(4), Jan(5));
 
-            var addedHolidays = current.GetAddedHolidays(future).ToList();
+            var addedHolidays = current.AddedHolidays(future).ToList();
 
             addedHolidays.AssertLength(2);
             addedHolidays.AssertHasDays(Jan(2), Jan(4));
@@ -50,43 +50,43 @@ namespace MarginTrading.AssetService.Tests.MarketSettingsTests
         {
             var current = WithHolidaysOnly(Jan(1), Jan(2), Jan(3));
             var future = WithHolidaysOnly(Jan(1), Jan(2), Jan(3));
-            
-            var addedHolidays = current.GetAddedHolidays(future).ToList();
-            
+
+            var addedHolidays = current.AddedHolidays(future).ToList();
+
             Assert.Empty(addedHolidays);
         }
-        
+
         [Fact]
         public void ShouldReturnNothing_WhenNoHolidaysInFutureSettings()
         {
             var current = WithHolidaysOnly(Jan(1), Jan(2), Jan(3));
             var future = WithHolidaysOnly();
-            
-            var addedHolidays = current.GetAddedHolidays(future).ToList();
-            
+
+            var addedHolidays = current.AddedHolidays(future).ToList();
+
             Assert.Empty(addedHolidays);
         }
-        
+
         [Fact]
         public void ShouldReturnAll_WhenNoHolidaysInCurrentSettings()
         {
             var current = WithHolidaysOnly();
             var future = WithHolidaysOnly(Jan(1), Jan(2), Jan(3));
-            
-            var addedHolidays = current.GetAddedHolidays(future).ToList();
-            
+
+            var addedHolidays = current.AddedHolidays(future).ToList();
+
             addedHolidays.AssertLength(3);
             addedHolidays.AssertHasDays(Jan(1), Jan(2), Jan(3));
         }
-        
+
         [Fact]
         public void ShouldReturnHolidays_WhenNewHolidaysAddedInDifferentYears()
         {
             var current = WithHolidaysOnly(Feb(1, 2020), Feb(2, 2020), Feb(3, 2020));
             var future = WithHolidaysOnly(Feb(1, 2021), Feb(2, 2021), Feb(3, 2021));
-            
-            var addedHolidays = current.GetAddedHolidays(future).ToList();
-            
+
+            var addedHolidays = current.AddedHolidays(future).ToList();
+
             addedHolidays.AssertLength(3);
             addedHolidays.AssertHasDays(
                 Feb(1, 2021),
@@ -111,19 +111,19 @@ namespace MarginTrading.AssetService.Tests.MarketSettingsTests
         private static MarketSettings WithHolidaysOnly(params DateTime[] holidays) =>
             new MarketSettings { Holidays = new List<DateTime>(holidays) };
     }
-    
+
     internal static class DateTimeListAssertExtensions
     {
         private static void AssertHasDay(this IEnumerable<DateTime> source, DateTime day)
         {
             Assert.Single(source, d => d.Date.Equals(day.Date));
         }
-        
+
         internal static void AssertHasDays(this IEnumerable<DateTime> source, params DateTime[] days)
         {
             Assert.All(days, source.AssertHasDay);
         }
-        
+
         internal static void AssertLength(this IEnumerable<DateTime> source, int length)
         {
             Assert.Equal(length, source.Count());

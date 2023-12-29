@@ -14,7 +14,7 @@ namespace MarginTrading.AssetService.Core.Domain
         private const int DividendsLongMaxValue = 200;
         private const int DividendsShortMaxValue = 200;
         private const int Dividends871MMaxValue = 100;
-        
+
         public string Id { get; set; }
 
         public string Name { get; set; }
@@ -26,13 +26,13 @@ namespace MarginTrading.AssetService.Core.Domain
         public decimal? Dividends871M { get; set; }
 
         public List<DateTime> Holidays { get; set; }
-        
+
         public MarketSchedule MarketSchedule { get; set; }
-        
+
         public AuditDataType GetAuditDataType() => AuditDataType.MarketSettings;
 
         public string GetAuditReference() => Id;
-        
+
         public string ToAuditJson() =>
             JsonConvert.SerializeObject(this,
                 new JsonSerializerSettings
@@ -58,8 +58,8 @@ namespace MarginTrading.AssetService.Core.Domain
 
             return new Result<MarketSettingsErrorCodes>();
         }
-        
-        
+
+
         /// <summary>
         /// Provides time when the market open for trading in market's timezone.
         /// </summary>

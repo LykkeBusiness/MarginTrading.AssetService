@@ -17,24 +17,38 @@ namespace MarginTrading.AssetService.Core.Extensions
     {
         public static DateTime ConvertToMarketTimeZone(this MarketSettings marketSettings, DateTime dateTime)
         {
+            // TODO: probably, would be better to abstract away the time zone conversion
             var timeZone = TZConvert.GetTimeZoneInfo(marketSettings.MarketSchedule.TimeZoneId);
             return TimeZoneInfo.ConvertTime(dateTime, timeZone);
         }
 
-        public static IEnumerable<DateTime> GetAddedHolidays(this MarketSettings existingVersion,
-            MarketSettings newVersion)
+        /// <summary>
+        /// Gets the list of holidays added in the new version of the market settings. 
+        /// The comparison is based on the equality of the date portion of 
+        /// <see cref="DateTime"/> objects
+        /// </summary>
+        /// <param name="source">The base version of the market settings</param>
+        /// <param name="compareTo">The version to compare to</param>
+        /// <returns>List of <see cref="DateTime"/> objects</returns>
+        public static IEnumerable<DateTime> AddedHolidays(this MarketSettings source,
+            MarketSettings compareTo)
         {
-            var dateOnlyExistingHolidays = existingVersion.Holidays.Select(x => x.Date.Date);
-            var dateOnlyNewHolidays = newVersion.Holidays.Select(x => x.Date.Date);
-            return dateOnlyNewHolidays.Except(dateOnlyExistingHolidays);
+            var dateOnlySourceHolidays = source.Holidays.Select(x => x.Date.Date);
+            var dateOnlyNewHolidays = compareTo.Holidays.Select(x => x.Date.Date);
+            return dateOnlyNewHolidays.Except(dateOnlySourceHolidays);
         }
 
-        public static IEnumerable<WorkingDay> GetAddedHalfWorkingDays(this MarketSettings existingVersion,
-            MarketSettings newVersion)
-        {
-            return newVersion
+        /// <summary>
+        /// Gets the list of <see cref="WorkingDay"/> objects in the new version of 
+        /// the market settings. The comparison is based on the equality of the 
+        /// <see cref="WorkingDay"/> objects.
+        /// </summary>
+        /// <param name="source">The base version of the market settings</param>
+        /// <param name="compareTo">The version to compare to</param>
+        /// <returns>List of <see cref="WorkingDay"/> objects</returns>
+        public static IEnumerable<WorkingDay> AddedHalfWorkingDays(this MarketSettings source,
+            MarketSettings compareTo) => compareTo
                 .GetHalfWorkingDays()
-                .Except(existingVersion.GetHalfWorkingDays());
-        }
+                .Except(source.GetHalfWorkingDays());
     }
 }

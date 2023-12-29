@@ -42,17 +42,17 @@ namespace MarginTrading.AssetService.Core.Extensions
 
             return true;
         }
-        
+
         private bool AddedHolidaysIncludeDate(DateTime day)
         {
-            var addedHolidays = _versionInUse.GetAddedHolidays(_futureVersion);
+            var addedHolidays = _versionInUse.AddedHolidays(_futureVersion);
             var dayOnly = day.Date;
             return addedHolidays.Contains(dayOnly);
         }
 
         private bool AddedHalfWorkingDaysIncludeDate(DateTime day)
         {
-            var addedHalfWorkingDays = _versionInUse.GetAddedHalfWorkingDays(_futureVersion);
+            var addedHalfWorkingDays = _versionInUse.AddedHalfWorkingDays(_futureVersion);
             var dayOnly = day.Date;
             return addedHalfWorkingDays.Any(d => d.SameCalendarDay(dayOnly));
         }

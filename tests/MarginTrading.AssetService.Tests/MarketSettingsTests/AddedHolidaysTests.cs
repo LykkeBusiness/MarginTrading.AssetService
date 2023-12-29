@@ -19,7 +19,7 @@ namespace MarginTrading.AssetService.Tests.MarketSettingsTests
     /// On the contrary, if it ever affects the results, it means that
     /// algorithms are not implemented correctly.
     /// </summary>
-    public class GetAddedHolidaysTests
+    public class AddedHolidaysTests
     {
         [Fact]
         public void ShouldReturnHolidays_WhenNewHolidaysAdded()

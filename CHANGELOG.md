@@ -1,3 +1,9 @@
+## 2.24.0 - Nova 2. Delivery 39 (January 26, 2024)
+### What's changed
+* LT-5166: Asset service: add history of releases into changelog.md for github.
+* LT-4945: Wrong behaviour for a request get /api/assetpairs/by-pages.
+
+
 ## 2.23.0 - Nova 2. Delivery 38 (December 08, 2023)
 ### What's changed
 * LT-5120: Add changelog.md file.

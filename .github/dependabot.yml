@@ -17,6 +17,8 @@ updates:
     registries: "*"
     assignees: 
       - "tarurar"
+    reviewers:
+      - "tarurar"
     allow:
       - dependency-name: "Lykke.*"
       - dependency-name: "LykkeBiz.*"

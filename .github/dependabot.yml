@@ -6,15 +6,18 @@ registries:
   lykke:
     type: nuget-feed
     url: https://nuget-lykkecloud.azurewebsites.net/nuget
+  public:
+    type: nuget-feed
+    url: https://api.nuget.org/v3/index.json
 updates:
   - package-ecosystem: "nuget"
     directory: "/"
     schedule:
       interval: "daily"
-    registries:
-      - lykke
+    registries: "*"
     assignees: 
       - "tarurar"
     allow:
       - dependency-name: "Lykke.*"
       - dependency-name: "LykkeBiz.*"
+      - dependency-name: "MarginTrading.*"

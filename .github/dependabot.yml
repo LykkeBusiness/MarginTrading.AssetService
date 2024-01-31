@@ -23,4 +23,4 @@ updates:
       - dependency-name: "Lykke.*"
       - dependency-name: "LykkeBiz.*"
       - dependency-name: "MarginTrading.*"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 15

@@ -9,11 +9,13 @@
   <ItemGroup>
     <PackageReference Include="AsyncFriendlyStackTrace" Version="1.7.0" />
     <PackageReference Include="JetBrains.Annotations" Version="2022.3.1" />
-    <PackageReference Include="LykkeBiz.HttpClientGenerator" Version="5.6.0" />
+    <PackageReference Include="LykkeBiz.HttpClientGenerator" Version="5.6.2" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
   </ItemGroup>
 </Project>

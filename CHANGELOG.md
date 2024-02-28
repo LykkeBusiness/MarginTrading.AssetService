@@ -1,3 +1,11 @@
+## 2.25.0 - Nova 2. Delivery 40 (February 28, 2024)
+### What's changed
+* LT-5284: Step: deprecated packages validation is failed.
+* LT-5215: Update lykke.httpclientgenerator to 5.6.2.
+
+
+
+
 ## 2.24.0 - Nova 2. Delivery 39 (January 26, 2024)
 ### What's changed
 * LT-5166: Asset service: add history of releases into changelog.md for github.

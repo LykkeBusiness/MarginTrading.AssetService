@@ -34,7 +34,7 @@ namespace MarginTrading.AssetService.Services.Caches
 
                 var response = _legacyAssetsService.GetLegacyAssets().GetAwaiter().GetResult();
 
-                _cache = response.ToDictionary(a => a.AssetId, v => v);
+                _cache = response.ToDictionary(a => (string)a.AssetId, v => v);
             }
             finally
             {

@@ -184,7 +184,7 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             try
             {
                 var affectedAssets = _legacyAssetsCache.GetByFilter(getAffectedFilter);
-                var updatedAssets = await _legacyAssetsService.GetLegacyAssets(affectedAssets.Select(x => x.AssetId));
+                var updatedAssets = await _legacyAssetsService.GetLegacyAssets(affectedAssets.Select(x => (string)x.AssetId));
 
                 if (updatedAssets.Count > 0)
                 {

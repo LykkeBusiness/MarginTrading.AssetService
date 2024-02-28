@@ -4,6 +4,9 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+
+using Lykke.Snow.Domain.Assets;
+
 using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.Contracts.LegacyAsset
@@ -73,7 +76,7 @@ namespace MarginTrading.AssetService.Contracts.LegacyAsset
         public string NewsId { get; set; }
 
         [JsonProperty("productId")]
-        public string AssetId { get; set; }
+        public ProductId AssetId { get; set; }
 
         [JsonProperty("publicationRic")]
         public string PublicationRic { get; set; }

@@ -1,3 +1,10 @@
+## 2.26.0 - Nova 2. Delivery 41 (March 29, 2024)
+### What's changed
+* LT-5307: Use new type for assetid.
+
+
+
+
 ## 2.25.0 - Nova 2. Delivery 40 (February 28, 2024)
 ### What's changed
 * LT-5284: Step: deprecated packages validation is failed.

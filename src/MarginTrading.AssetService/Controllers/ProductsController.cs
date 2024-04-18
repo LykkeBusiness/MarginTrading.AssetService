@@ -58,10 +58,7 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<ErrorCodeResponse<ProductsErrorCodesContract>> UpdateAsync(string productId,
             UpdateProductRequest request)
         {
-            var product = _convertService.Convert<UpdateProductRequest, Product>(request);
-            product.ProductId = productId;
-
-            var result = await _productsService.UpdateAsync(product, request.UserName);
+            var result = await _productsService.UpdateAsync(productId, request);
 
             var response = new ErrorCodeResponse<ProductsErrorCodesContract>();
 

@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Lykke.Snow.Common.Model;
+
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Domain;
 
 namespace MarginTrading.AssetService.Core.Services
@@ -8,7 +10,7 @@ namespace MarginTrading.AssetService.Core.Services
     public interface IProductsService
     {
         Task<Result<ProductsErrorCodes>> InsertAsync(Product product, string username);
-        Task<Result<ProductsErrorCodes>> UpdateAsync(Product product, string username);
+        Task<Result<ProductsErrorCodes>> UpdateAsync(string productId, UpdateProductRequest update);
         Task<Result<ProductsErrorCodes>> DeleteAsync(string productId, string username);
         Task<Result<Product, ProductsErrorCodes>> GetByIdAsync(string productId);
         Task<Result<List<Product>, ProductsErrorCodes>> GetAllAsync(

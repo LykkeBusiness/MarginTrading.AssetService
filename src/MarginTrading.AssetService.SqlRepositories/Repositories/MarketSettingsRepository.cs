@@ -181,7 +181,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                 DividendsShort = entity.DividendsShort,
                 Dividends871M = entity.Dividends871M,
                 Holidays = entity.Holidays.Select(x => x.Date).ToList(),
-                MarketSchedule = entity.MarketSchedule.Schedule.ShiftToUtc()
+                MarketSchedule = entity.MarketSchedule.Schedule
             };
         }
     }

@@ -16,6 +16,8 @@ using MarginTrading.AssetService.Core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
+using MoreLinq;
+
 namespace MarginTrading.AssetService.Controllers
 {
     /// <summary>
@@ -68,6 +70,23 @@ namespace MarginTrading.AssetService.Controllers
         public async Task<GetAllMarketSettingsResponse> GetAllMarketSettingsAsync()
         {
             var result = await _marketSettingsService.GetAllMarketSettingsAsync();
+
+            return new GetAllMarketSettingsResponse
+            {
+                MarketSettingsContracts = result.Select(x => _convertService.Convert<MarketSettings, MarketSettingsContract>(x)).ToList()
+            };
+        }
+
+        /// <summary>
+        /// Get all market settings in utc
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("utc")]
+        [ProducesResponseType(typeof(GetAllMarketSettingsResponse), (int)HttpStatusCode.OK)]
+        public async Task<GetAllMarketSettingsResponse> GetAllMarketSettingsInUtcAsync()
+        {
+            var result = await _marketSettingsService.GetAllMarketSettingsAsync();
+            result.ForEach(x => x.MarketSchedule = x.MarketSchedule.ShiftToUtc());
 
             return new GetAllMarketSettingsResponse
             {

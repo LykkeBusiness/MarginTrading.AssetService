@@ -32,6 +32,13 @@ namespace MarginTrading.AssetService.Contracts
         Task<GetAllMarketSettingsResponse> GetAllMarketSettingsAsync();
 
         /// <summary>
+        /// Get all market settings in utc
+        /// </summary>
+        /// <returns></returns>
+        [Get("/api/market-settings/utc")]
+        Task<GetAllMarketSettingsResponse> GetAllMarketSettingsInUtcAsync();
+
+        /// <summary>
         /// Add market settings
         /// </summary>
         /// <returns></returns>

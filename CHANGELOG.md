@@ -3,14 +3,15 @@
 * LT-5307: Use new type for assetid.
 
 
+## 2.25.1 - Nova 2. Delivery 40. Hotfix 5 (May 14, 2024)
+### What's changed
+* LT-5491: Holidays notifications wrong time
 
 
 ## 2.25.0 - Nova 2. Delivery 40 (February 28, 2024)
 ### What's changed
 * LT-5284: Step: deprecated packages validation is failed.
 * LT-5215: Update lykke.httpclientgenerator to 5.6.2.
-
-
 
 
 ## 2.24.0 - Nova 2. Delivery 39 (January 26, 2024)
@@ -38,8 +39,8 @@
 * LT-4935: Add maxpositionnotional new column.
 * LT-4891: Update nugets.
 
-
 **Full change log**: https://github.com/lykkebusiness/margintrading.assetservice/compare/v2.20.2...v2.21.2
+
 
 ## 2.20.2 - Nova 2. Delivery 35
 ## What's changed

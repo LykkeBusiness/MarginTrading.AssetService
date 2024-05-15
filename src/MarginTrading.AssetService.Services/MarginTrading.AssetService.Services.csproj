@@ -23,9 +23,13 @@
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.SqlRepositories\MarginTrading.AssetService.SqlRepositories.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.SqlRepositories\MarginTrading.AssetService.SqlRepositories.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
   </ItemGroup>
 </Project>

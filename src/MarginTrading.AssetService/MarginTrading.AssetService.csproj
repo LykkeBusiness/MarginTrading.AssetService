@@ -67,9 +67,13 @@
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.9" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.SqlRepositories\MarginTrading.AssetService.SqlRepositories.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.SqlRepositories\MarginTrading.AssetService.SqlRepositories.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
   </ItemGroup>
 </Project>

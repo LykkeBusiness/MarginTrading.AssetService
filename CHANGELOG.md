@@ -1,3 +1,9 @@
+## 2.26.1 - Nova 2. Delivery 42. Hotfix 3 (May 15, 2024)
+### What's changed
+* LT-5494: Add an api for market settings in utc.
+
+
+
 ## 2.26.0 - Nova 2. Delivery 41 (March 29, 2024)
 ### What's changed
 * LT-5307: Use new type for assetid.

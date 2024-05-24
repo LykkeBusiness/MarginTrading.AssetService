@@ -17,7 +17,7 @@
     <PackageReference Include="LykkeBiz.Common" Version="8.3.0" />
     <PackageReference Include="LykkeBiz.Messaging" Version="7.1.0" />
     <PackageReference Include="LykkeBiz.Messaging.RabbitMq" Version="3.1.0" />
-    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
+    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="13.3.0" />
     <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="1.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />

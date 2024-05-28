@@ -18,7 +18,7 @@ updates:
     assignees: 
       - "tarurar"
     reviewers:
-      - "nova"
+      - "LykkeBusiness/nova"
     allow:
       - dependency-name: "Lykke.*"
       - dependency-name: "LykkeBiz.*"

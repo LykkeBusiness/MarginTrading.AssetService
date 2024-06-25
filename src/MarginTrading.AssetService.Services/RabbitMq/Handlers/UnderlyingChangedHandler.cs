@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
+
+using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Snow.Mdm.Contracts.Models.Contracts;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
 using MarginTrading.AssetService.Core.Caches;
@@ -8,7 +10,7 @@ using MarginTrading.AssetService.Core.Services;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 {
-    public class UnderlyingChangedHandler
+    public class UnderlyingChangedHandler : IMessageHandler<UnderlyingChangedEvent>
     {
         private readonly IUnderlyingsCache _underlyingsCache;
         private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;

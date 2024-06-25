@@ -6,8 +6,10 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="LykkeBiz.Common.MsSql" Version="4.3.0" />

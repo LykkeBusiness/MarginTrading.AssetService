@@ -11,8 +11,11 @@
     <PackageReference Include="Lykke.AzureStorage" Version="8.13.4" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
   </ItemGroup>
 </Project>

@@ -23,10 +23,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService\MarginTrading.AssetService.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService\MarginTrading.AssetService.csproj" />
   </ItemGroup>
 
 </Project>

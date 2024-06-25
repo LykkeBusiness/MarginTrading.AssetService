@@ -63,7 +63,7 @@ namespace MarginTrading.AssetService.Middleware
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "MIDDLEWARE: Failed to log request, Context: {Context}", requestContext); ;
+                _logger.LogError(ex, "MIDDLEWARE: Failed to log request, Context: {Context}", requestContext);
             }
             finally
             {

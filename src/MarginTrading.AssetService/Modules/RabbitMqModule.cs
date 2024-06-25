@@ -1,17 +1,21 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 using Autofac;
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
 using Lykke.RabbitMqBroker.Publisher.Strategies;
+using Lykke.RabbitMqBroker.Subscriber;
+using Lykke.RabbitMqBroker.Subscriber.Middleware.ErrorHandling;
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation.RabbitMq;
+using Lykke.Snow.Mdm.Contracts.Models.Events;
+
 using MarginTrading.AssetService.Contracts.LegacyAsset;
 using MarginTrading.AssetService.Contracts.Messages;
 using MarginTrading.AssetService.Extensions;
 using MarginTrading.AssetService.Services.RabbitMq.Handlers;
-using MarginTrading.AssetService.Services.RabbitMq.Subscribers;
 using MarginTrading.AssetService.Settings.ServiceSettings;
 
 using Microsoft.Extensions.Logging;
@@ -37,32 +41,68 @@ namespace MarginTrading.AssetService.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
+            builder.AddRabbitMqConnectionProvider();
+            
             AddRabbitPublisher<AssetUpsertedEvent>(builder, _settings.LegacyAssetUpdatedRabbitPublisherSettings);
             AddRabbitPublisher<SettingsChangedEvent>(builder, _settings.SettingsChangedRabbitMqSettings);
 
             var underlyingChangedSubScr = _settings.UnderlyingChangedRabbitSubscriptionSettings
                 .AppendToQueueName($"{_settings.BrokerId}:{_settings.InstanceId}")
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);
-            
-            builder.Register(x => new UnderlyingChangedSubscriber(x.Resolve<UnderlyingChangedHandler>(),
-                    underlyingChangedSubScr,
-                    x.Resolve<RabbitMqCorrelationManager>(),
-                    x.Resolve<ILoggerFactory>(),
-                    x.Resolve<ILogger<UnderlyingChangedSubscriber>>()))
-                .As<IStartStop>()
-                .SingleInstance();
+
+            builder.AddRabbitMqListener<UnderlyingChangedEvent, UnderlyingChangedHandler>(
+                underlyingChangedSubScr,
+                opt =>
+                {
+                    opt.SerializationFormat = SerializationFormat.Messagepack;
+                    opt.ShareConnection = true;
+                    opt.SubscriptionTemplate = SubscriptionTemplate.NoLoss;
+                },
+                (s, p) =>
+                {
+                    var loggerFactory = p.Resolve<ILoggerFactory>();
+                    var correlationManager = p.Resolve<RabbitMqCorrelationManager>();
+
+                    s.UseMiddleware(
+                            new DeadQueueMiddleware<UnderlyingChangedEvent>(
+                                loggerFactory.CreateLogger<DeadQueueMiddleware<UnderlyingChangedEvent>>()))
+                        .UseMiddleware(
+                            new ResilientErrorHandlingMiddleware<UnderlyingChangedEvent>(
+                                loggerFactory
+                                    .CreateLogger<ResilientErrorHandlingMiddleware<UnderlyingChangedEvent>>(),
+                                TimeSpan.FromSeconds(10),
+                                10))
+                        .SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
+                });
             
             var brokerSettingsSubsc = _settings.BrokerSettingsChangedSubscriptionSettings
                 .AppendToQueueName($"{_settings.BrokerId}:{_settings.InstanceId}")
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);
 
-            builder.Register(x => new BrokerSettingsChangedSubscriber(x.Resolve<BrokerSettingsChangedHandler>(),
-                    brokerSettingsSubsc,
-                    x.Resolve<RabbitMqCorrelationManager>(),
-                    x.Resolve<ILoggerFactory>(),
-                    x.Resolve<ILogger<BrokerSettingsChangedSubscriber>>()))
-                .As<IStartStop>()
-                .SingleInstance();
+            builder.AddRabbitMqListener<BrokerSettingsChangedEvent, BrokerSettingsChangedHandler>(
+                brokerSettingsSubsc,
+                opt =>
+                {
+                    opt.SerializationFormat = SerializationFormat.Messagepack;
+                    opt.ShareConnection = true;
+                    opt.SubscriptionTemplate = SubscriptionTemplate.NoLoss;
+                },
+                (s, p) =>
+                {
+                    var loggerFactory = p.Resolve<ILoggerFactory>();
+                    var correlationManager = p.Resolve<RabbitMqCorrelationManager>();
+                    
+                    s.UseMiddleware(
+                            new DeadQueueMiddleware<BrokerSettingsChangedEvent>(
+                                loggerFactory.CreateLogger<DeadQueueMiddleware<BrokerSettingsChangedEvent>>()))
+                        .UseMiddleware(
+                            new ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>(
+                                loggerFactory
+                                    .CreateLogger<ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>>(),
+                                TimeSpan.FromSeconds(10),
+                                10))
+                        .SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
+                });
         }
 
         private void AddRabbitPublisher<T>(ContainerBuilder builder,

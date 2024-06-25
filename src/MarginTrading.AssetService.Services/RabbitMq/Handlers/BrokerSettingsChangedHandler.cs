@@ -1,17 +1,24 @@
 ﻿using System.Threading.Tasks;
+
 using Common;
+
+using Lykke.RabbitMqBroker.Subscriber;
 using Lykke.Snow.Mdm.Contracts.Models.Events;
+
 using MarginTrading.AssetService.Core.Handlers;
+
 using Microsoft.Extensions.Logging;
 
 namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
 {
-    public class BrokerSettingsChangedHandler
+    public sealed class BrokerSettingsChangedHandler : IMessageHandler<BrokerSettingsChangedEvent>
     {
         private readonly ILegacyAssetsCacheUpdater _legacyAssetsCacheUpdater;
         private readonly ILogger<BrokerSettingsChangedHandler> _logger;
 
-        public BrokerSettingsChangedHandler(ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater, ILogger<BrokerSettingsChangedHandler> logger)
+        public BrokerSettingsChangedHandler(
+            ILegacyAssetsCacheUpdater legacyAssetsCacheUpdater,
+            ILogger<BrokerSettingsChangedHandler> logger)
         {
             _legacyAssetsCacheUpdater = legacyAssetsCacheUpdater;
             _logger = logger;
@@ -23,7 +30,6 @@ namespace MarginTrading.AssetService.Services.RabbitMq.Handlers
             {
                 _logger.LogInformation("Invalidating cache for all legacy assets, context: {Context}", e.ToJson());
                 await _legacyAssetsCacheUpdater.UpdateAll(e.Timestamp);
-
             }
             else
             {

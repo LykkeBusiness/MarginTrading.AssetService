@@ -180,14 +180,6 @@ namespace MarginTrading.AssetService.Modules
                 .WithParameter(new NamedParameter("assetTypesWithZeroInterestRate", _settings.CurrentValue.AssetTypesWithZeroInterestRates))
                 .SingleInstance();
 
-            builder.RegisterType<UnderlyingChangedHandler>()
-                .AsSelf()
-                .SingleInstance();      
-            
-            builder.RegisterType<BrokerSettingsChangedHandler>()
-                .AsSelf()
-                .SingleInstance();
-
             builder.RegisterType<SettlementCurrencyService>()
                 .As<ISettlementCurrencyService>()
                 .WithParameter(TypedParameter.From(_settings.CurrentValue.BrokerId))

@@ -1,22 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
     <Version>2.26.0</Version>
-    <LangVersion>8.0</LangVersion>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <NoWarn>1701;1702;CS0612;CS0618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="11.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="2.0.1" />
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="3.2.0" />
     <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="4.3.6" />
     <PackageReference Include="LykkeBiz.Common" Version="8.3.0" />
     <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="5.1.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
     <PackageReference Include="System.Linq.Async" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>

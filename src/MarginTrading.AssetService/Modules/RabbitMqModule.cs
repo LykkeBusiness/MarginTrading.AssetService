@@ -51,58 +51,51 @@ namespace MarginTrading.AssetService.Modules
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);
 
             builder.AddRabbitMqListener<UnderlyingChangedEvent, UnderlyingChangedHandler>(
-                underlyingChangedSubScr,
-                opt =>
-                {
-                    opt.SerializationFormat = SerializationFormat.Messagepack;
-                    opt.ShareConnection = true;
-                    opt.SubscriptionTemplate = SubscriptionTemplate.NoLoss;
-                },
-                (s, p) =>
-                {
-                    var loggerFactory = p.Resolve<ILoggerFactory>();
-                    var correlationManager = p.Resolve<RabbitMqCorrelationManager>();
+                    underlyingChangedSubScr,
+                    (s, p) =>
+                    {
+                        var loggerFactory = p.Resolve<ILoggerFactory>();
+                        var correlationManager = p.Resolve<RabbitMqCorrelationManager>();
 
-                    s.UseMiddleware(
-                            new DeadQueueMiddleware<UnderlyingChangedEvent>(
-                                loggerFactory.CreateLogger<DeadQueueMiddleware<UnderlyingChangedEvent>>()))
-                        .UseMiddleware(
-                            new ResilientErrorHandlingMiddleware<UnderlyingChangedEvent>(
-                                loggerFactory
-                                    .CreateLogger<ResilientErrorHandlingMiddleware<UnderlyingChangedEvent>>(),
-                                TimeSpan.FromSeconds(10),
-                                10))
-                        .SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
-                });
+                        s.UseMiddleware(
+                                new DeadQueueMiddleware<UnderlyingChangedEvent>(
+                                    loggerFactory.CreateLogger<DeadQueueMiddleware<UnderlyingChangedEvent>>()))
+                            .UseMiddleware(
+                                new ResilientErrorHandlingMiddleware<UnderlyingChangedEvent>(
+                                    loggerFactory
+                                        .CreateLogger<ResilientErrorHandlingMiddleware<UnderlyingChangedEvent>>(),
+                                    TimeSpan.FromSeconds(10),
+                                    10))
+                            .SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
+                    })
+                .AddOptions(RabbitMqListenerOptions<UnderlyingChangedEvent>.MessagePack.NoLoss)
+                .AutoStart();
+                
             
             var brokerSettingsSubsc = _settings.BrokerSettingsChangedSubscriptionSettings
                 .AppendToQueueName($"{_settings.BrokerId}:{_settings.InstanceId}")
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);
 
             builder.AddRabbitMqListener<BrokerSettingsChangedEvent, BrokerSettingsChangedHandler>(
-                brokerSettingsSubsc,
-                opt =>
-                {
-                    opt.SerializationFormat = SerializationFormat.Messagepack;
-                    opt.ShareConnection = true;
-                    opt.SubscriptionTemplate = SubscriptionTemplate.NoLoss;
-                },
-                (s, p) =>
-                {
-                    var loggerFactory = p.Resolve<ILoggerFactory>();
-                    var correlationManager = p.Resolve<RabbitMqCorrelationManager>();
-                    
-                    s.UseMiddleware(
-                            new DeadQueueMiddleware<BrokerSettingsChangedEvent>(
-                                loggerFactory.CreateLogger<DeadQueueMiddleware<BrokerSettingsChangedEvent>>()))
-                        .UseMiddleware(
-                            new ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>(
-                                loggerFactory
-                                    .CreateLogger<ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>>(),
-                                TimeSpan.FromSeconds(10),
-                                10))
-                        .SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
-                });
+                    brokerSettingsSubsc,
+                    (s, p) =>
+                    {
+                        var loggerFactory = p.Resolve<ILoggerFactory>();
+                        var correlationManager = p.Resolve<RabbitMqCorrelationManager>();
+
+                        s.UseMiddleware(
+                                new DeadQueueMiddleware<BrokerSettingsChangedEvent>(
+                                    loggerFactory.CreateLogger<DeadQueueMiddleware<BrokerSettingsChangedEvent>>()))
+                            .UseMiddleware(
+                                new ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>(
+                                    loggerFactory
+                                        .CreateLogger<ResilientErrorHandlingMiddleware<BrokerSettingsChangedEvent>>(),
+                                    TimeSpan.FromSeconds(10),
+                                    10))
+                            .SetReadHeadersAction(correlationManager.FetchCorrelationIfExists);
+                    })
+                .AddOptions(RabbitMqListenerOptions<BrokerSettingsChangedEvent>.MessagePack.NoLoss)
+                .AutoStart();
         }
 
         private void AddRabbitPublisher<T>(ContainerBuilder builder,

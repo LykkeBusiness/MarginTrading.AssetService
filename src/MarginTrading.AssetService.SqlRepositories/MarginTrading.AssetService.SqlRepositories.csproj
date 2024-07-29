@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.SqlRepositories</AssemblyName>
@@ -8,17 +8,14 @@
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="Dapper" Version="2.0.30" />
-    <PackageReference Include="LykkeBiz.Common.MsSql" Version="5.0.2" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="Dapper" />
+    <PackageReference Include="LykkeBiz.Common.MsSql" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference
-      Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
-    <ProjectReference
-      Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference
-      Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
+    <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
   </ItemGroup>
 
   <ItemGroup>

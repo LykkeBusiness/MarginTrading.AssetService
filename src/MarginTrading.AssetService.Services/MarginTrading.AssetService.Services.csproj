@@ -11,16 +11,16 @@
     <NoWarn>1701;1702;CS0612;CS0618</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="AutoMapper.Extensions.EnumMapping" Version="3.2.0" />
-    <PackageReference Include="Lykke.Snow.Mdm.Contracts" Version="4.3.6" />
-    <PackageReference Include="LykkeBiz.Common" Version="8.3.0" />
-    <PackageReference Include="LykkeBiz.Messaging" Version="7.1.0" />
-    <PackageReference Include="LykkeBiz.Messaging.RabbitMq" Version="3.1.0" />
-    <PackageReference Include="LykkeBiz.RabbitMqBroker" Version="9.2.6" />
-    <PackageReference Include="LykkeBiz.Snow.Cqrs" Version="5.1.0" />
-    <PackageReference Include="System.Linq.Async" Version="5.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="6.0.2" />
+    <PackageReference Include="AutoMapper" />
+    <PackageReference Include="AutoMapper.Extensions.EnumMapping" />
+    <PackageReference Include="Lykke.Snow.Mdm.Contracts" />
+    <PackageReference Include="LykkeBiz.Common" />
+    <PackageReference Include="LykkeBiz.Messaging" />
+    <PackageReference Include="LykkeBiz.Messaging.RabbitMq" />
+    <PackageReference Include="LykkeBiz.RabbitMqBroker" />
+    <PackageReference Include="LykkeBiz.Snow.Cqrs" />
+    <PackageReference Include="System.Linq.Async" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference

@@ -55,8 +55,6 @@
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" />
     <PackageReference Include="Lykke.Service.Session" />
     <PackageReference Include="Lykke.Snow.Common.Startup" />
-    <PackageReference Include="LykkeBiz.Messaging" />
-    <PackageReference Include="LykkeBiz.Messaging.RabbitMq" />
     <PackageReference Include="LykkeBiz.Snow.Cqrs" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.Elasticsearch" />

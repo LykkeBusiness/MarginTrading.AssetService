@@ -38,8 +38,8 @@ jobs:
           path: LykkeBusinessTools
 
       - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         uses: actions/setup-dotnet@v2
-        with:
           dotnet-version: 8.0.101
 
       - name: Restore dependencies

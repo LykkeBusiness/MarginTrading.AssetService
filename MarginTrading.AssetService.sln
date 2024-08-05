@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution items", "Solution 
 		.gitignore = .gitignore
 		README.md = README.md
 		CHANGELOG.md = CHANGELOG.md
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MarginTrading.AssetService", "src\MarginTrading.AssetService\MarginTrading.AssetService.csproj", "{E414FDB9-FEEA-4CD0-9BBA-D1541601DF29}"

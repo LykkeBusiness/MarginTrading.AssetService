@@ -1,3 +1,26 @@
+## 2.27.0 - Nova 2. Delivery 44 (August 15, 2024)
+### What's changed
+* LT-5527: Update rabbitmq broker library with new rabbitmq.client and templates.
+* LT-5455: Trading disabled button.
+
+### Deployment
+Please ensure that the mirroring policy is configured on the RabbitMQ server side for the following queues:
+- `lykke.assetservice.underlyingchanged`
+- `lykke.assetservice.brokersettingschanged`
+
+These queues require the mirroring policy to be enabled as part of our ongoing initiative to enhance system reliability. They are now classified as "no loss" queues, which necessitates proper configuration. The mirroring feature must be enabled on the RabbitMQ server side.
+
+In some cases, you may encounter an error indicating that the server-side configuration of a queue differs from the client’s expected configuration. If this occurs, please delete the queue, allowing it to be automatically recreated by the client.
+
+**Warning 1**: The "no loss" configuration is only valid if the mirroring policy is enabled on the server side.
+
+**Warning 2**: Please delete the following poison queues if they exist before running the new version of a component: 
+- `lykke.assetservice.brokersettingschanged-{...}-poison`
+- `lykke.assetservice.underlyingchanged-{...}-poison`.
+
+Please be aware that the provided queue names may include environment-specific identifiers (e.g., dev, test, prod). Be sure to replace these with the actual environment name in use. The same applies to instance names embedded within the queue names (e.g., DefaultEnv, etc.).
+
+
 ## 2.26.0 - Nova 2. Delivery 41 (March 29, 2024)
 ### What's changed
 * LT-5307: Use new type for assetid.

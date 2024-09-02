@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ using MarginTrading.AssetService.Core.Services;
 using MarginTrading.AssetService.Services.Validations.Products;
 using MarginTrading.AssetService.StorageInterfaces.Repositories;
 using Microsoft.Extensions.Logging;
+
+using Newtonsoft.Json;
 
 namespace MarginTrading.AssetService.Services
 {
@@ -55,15 +58,17 @@ namespace MarginTrading.AssetService.Services
             return result;
         }
 
-        public async Task<Result<ProductsErrorCodes>> UpdateAsync(Product product, string username)
+        public async Task<Result<ProductsErrorCodes>> UpdateAsync(string productId, UpdateProductRequest update)
         {
-            var existing = await _repository.GetByIdAsync(product.ProductId);
+            var existing = await _repository.GetByIdAsync(productId);
 
             if (!existing.IsSuccess) 
                 return existing.ToResultWithoutValue();
+
+            var product = GetProductWithUpdates(existing, update);
             
             var validationResult =
-                await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, username, existing.Value);
+                await _addOrUpdateValidationAndEnrichment.ValidateAllAsync(product, update.UserName, existing.Value);
             
             if (validationResult.IsFailed) 
                 return validationResult.ToResultWithoutValue();
@@ -75,9 +80,9 @@ namespace MarginTrading.AssetService.Services
             if (!result.IsSuccess) 
                 return result;
                 
-            await _auditService.CreateAuditRecord(AuditEventType.Edition, username, product, existing.Value);
+            await _auditService.CreateAuditRecord(AuditEventType.Edition, update.UserName, product, existing.Value);
                     
-            await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product, username);
+            await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(existing.Value, product, update.UserName);
 
             return result;
 
@@ -305,6 +310,44 @@ namespace MarginTrading.AssetService.Services
                 
             await _entityChangedSender.SendEntityEditedEvent<Product, ProductContract, ProductChangedEvent>(oldProduct, product, username);
 
+            return result;
+        }
+
+        private Product GetProductWithUpdates(Product product, UpdateProductRequest update)
+        {
+            var result = JsonConvert.DeserializeObject<Product>(JsonConvert.SerializeObject(product));
+            result.Category = update.Category;
+            result.Comments = update.Comments;
+            result.Issuer = update.Issuer;
+            result.Keywords = update.Keywords;
+            result.Market = update.Market;
+            result.Name = update.Name;
+            result.AssetType = update.AssetType;
+            result.ForceId = update.ForceId;
+            result.IsinLong = update.IsinLong;
+            result.IsinShort = update.IsinShort;
+            result.NewsId = update.NewsId;
+            result.PublicationRic = update.PublicationRic;
+            result.SettlementCurrency = update.SettlementCurrency;
+            result.TickFormula = update.TickFormula;
+            result.UnderlyingMdsCode = update.UnderlyingMdsCode;
+            result.MarketMakerAssetAccountId = update.MarketMakerAssetAccountId;
+            result.Margin = update.Margin;
+            result.Parity = update.Parity;
+            result.ContractSize = update.ContractSize;
+            result.Dividends871M = update.Dividends871M;
+            result.DividendsLong = update.DividendsLong;
+            result.DividendsShort = update.DividendsShort;
+            result.EnforceMargin = update.EnforceMargin;
+            result.HedgeCost = update.HedgeCost;
+            result.ShortPosition = update.ShortPosition;
+            result.StartDate = update.StartDate.HasValue ? DateOnly.FromDateTime(update.StartDate.Value) : (DateOnly?)null;
+            result.MaxOrderSize = update.MaxOrderSize;
+            result.MaxPositionNotional = update.MaxPositionNotional;
+            result.MaxPositionSize = update.MaxPositionSize;
+            result.MinOrderSize = update.MinOrderSize;
+            result.OvernightMarginMultiplier = update.OvernightMarginMultiplier;
+            result.MinOrderDistancePercent = update.MinOrderDistancePercent;
             return result;
         }
     }

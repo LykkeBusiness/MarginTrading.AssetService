@@ -12,6 +12,7 @@ using Lykke.Snow.Mdm.Contracts.Models.Requests;
 
 using MarginTrading.AssetService.Contracts;
 using MarginTrading.AssetService.Contracts.LegacyAsset;
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core.Caches;
 using MarginTrading.AssetService.Core.Interfaces;
 using MarginTrading.AssetService.Core.Services;
@@ -97,11 +98,11 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("discontinued-ids")]
-        public async Task<List<string>> GetDiscontinuedIds()
+        public async Task<GetDiscontinuedProductResponse> GetDiscontinuedProducts()
         {
-            var data = await _assetsRepository.GetDiscontinuedIdsAsync();
+            var data = await _assetsRepository.GetDiscontinuedProductsAsync();
 
-            return data.ToList();
+            return new GetDiscontinuedProductResponse{DiscontinuedProducts = data.ToArray()};
         }
 
         /// <summary>

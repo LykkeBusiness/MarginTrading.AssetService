@@ -68,6 +68,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Entities
         public CurrencyEntity TradingCurrency { get; set; }
         
         public DateOnly? StartDate { get; set; }
+        public DateOnly? ActualDiscontinuedDate { get; set; }
         
         public bool IsSuspended { get; set; }
         

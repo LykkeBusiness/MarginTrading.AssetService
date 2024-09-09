@@ -98,11 +98,11 @@ namespace MarginTrading.AssetService.Controllers
         /// </summary>
         [HttpGet]
         [Route("discontinued-ids")]
-        public async Task<List<DiscontinuedProduct>> GetDiscontinuedProducts()
+        public async Task<GetDiscontinuedProductResponse> GetDiscontinuedProducts()
         {
             var data = await _assetsRepository.GetDiscontinuedProductsAsync();
 
-            return data.ToList();
+            return new GetDiscontinuedProductResponse{DiscontinuedProducts = data.ToArray()};
         }
 
         /// <summary>

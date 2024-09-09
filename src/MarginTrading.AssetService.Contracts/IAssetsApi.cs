@@ -24,7 +24,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Get deleted product ids
         /// </summary>
         [Get("/api/assets/discontinued-ids")]
-        Task<List<DiscontinuedProduct>> GetDiscontinuedProducts();
+        Task<GetDiscontinuedProductResponse> GetDiscontinuedProducts();
 
         /// <summary>
         /// Returns duplicates for a given set of product isins (short, long)

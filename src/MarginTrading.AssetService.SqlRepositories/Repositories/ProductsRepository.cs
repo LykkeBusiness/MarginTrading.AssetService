@@ -368,7 +368,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
                     $"Too many product ids (max {SqlServerParametersExtensions.MaxParametersCount}).");
             
             var sql =
-                $"UPDATE [dbo].[Products] SET IsDiscontinued = 1, ActualDiscontinuedDate = GETDATE()  WHERE ProductId IN ({parameters.ToSqlInClause()})";
+                $"UPDATE [dbo].[Products] SET IsDiscontinued = 1, ActualDiscontinuedDate = GETUTCDATE()  WHERE ProductId IN ({parameters.ToSqlInClause()})";
             
             await using var context = _contextFactory.CreateDataContext();
             await context.Database.ExecuteSqlRawAsync(sql, parameters);

@@ -429,7 +429,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
 
             modelBuilder.Entity("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity", b =>
                 {
-                    b.OwnsOne("MarginTrading.AssetService.SqlRepositories.Entities.MarketScheduleEntity", "MarketSchedule", b1 =>
+                    b.OwnsOne("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity.MarketSchedule#MarginTrading.AssetService.SqlRepositories.Entities.MarketScheduleEntity", "MarketSchedule", b1 =>
                         {
                             b1.Property<string>("MarketSettingsEntityId")
                                 .HasColumnType("nvarchar(450)");
@@ -445,7 +445,7 @@ namespace MarginTrading.AssetService.SqlRepositories.Migrations
                                 .HasForeignKey("MarketSettingsEntityId");
                         });
 
-                    b.OwnsMany("MarginTrading.AssetService.SqlRepositories.Entities.HolidayEntity", "Holidays", b1 =>
+                    b.OwnsMany("MarginTrading.AssetService.SqlRepositories.Entities.MarketSettingsEntity.Holidays#MarginTrading.AssetService.SqlRepositories.Entities.HolidayEntity", "Holidays", b1 =>
                         {
                             b1.Property<DateTime>("Date")
                                 .HasColumnType("datetime2");

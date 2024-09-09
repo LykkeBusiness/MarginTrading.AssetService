@@ -77,7 +77,7 @@ namespace MarginTrading.AssetService.SqlRepositories.EntityConfigurations
 
             builder.Property(x => x.StartDate).IsRequired();
             builder.Property(x => x.IsStarted).IsRequired();
-
+            builder.Property(x => x.ActualDiscontinuedDate);
             builder.Property(x => x.Timestamp).IsRowVersion();
 
 

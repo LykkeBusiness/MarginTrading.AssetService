@@ -12,6 +12,10 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="coverlet.msbuild">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="FsCheck.Xunit" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -26,7 +30,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
     <ProjectReference Include="..\..\src\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
     <ProjectReference Include="..\..\src\MarginTrading.AssetService\MarginTrading.AssetService.csproj" />
   </ItemGroup>
 

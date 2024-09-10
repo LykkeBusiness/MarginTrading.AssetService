@@ -53,7 +53,6 @@
     <PackageReference Include="LykkeBiz.Common.ApiLibrary" />
     <PackageReference Include="LykkeBiz.Logs.Serilog" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" />
-    <PackageReference Include="Lykke.Service.Session" />
     <PackageReference Include="Lykke.Snow.Common.Startup" />
     <PackageReference Include="LykkeBiz.Snow.Cqrs" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />

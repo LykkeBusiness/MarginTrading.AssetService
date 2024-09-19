@@ -4,6 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Lykke.Common.MsSql;
 using Lykke.Snow.Common;
+
+using MarginTrading.AssetService.Contracts.Products;
 using MarginTrading.AssetService.Core;
 using MarginTrading.AssetService.Core.Constants;
 using MarginTrading.AssetService.Core.Domain;
@@ -38,13 +40,17 @@ namespace MarginTrading.AssetService.SqlRepositories.Repositories
             }
         }
 
-        public async Task<IReadOnlyList<string>> GetDiscontinuedIdsAsync()
+        public async Task<IReadOnlyList<DiscontinuedProduct>> GetDiscontinuedProductsAsync()
         {
             using (var context = _contextFactory.CreateDataContext())
             {
                 return await context.Products
                     .Where(x => x.IsDiscontinued)
-                    .Select(x => x.ProductId)
+                    .Select(x => new DiscontinuedProduct
+                    {
+                        ProductId =  x.ProductId,
+                        ActualDiscontinuedDate = x.ActualDiscontinuedDate
+                    })
                     .ToListAsync();
             }
         }

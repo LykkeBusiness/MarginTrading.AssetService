@@ -8,6 +8,8 @@ using JetBrains.Annotations;
 using Lykke.Contracts.Responses;
 
 using MarginTrading.AssetService.Contracts.LegacyAsset;
+using MarginTrading.AssetService.Contracts.Products;
+
 using Refit;
 
 namespace MarginTrading.AssetService.Contracts
@@ -22,7 +24,7 @@ namespace MarginTrading.AssetService.Contracts
         /// Get deleted product ids
         /// </summary>
         [Get("/api/assets/discontinued-ids")]
-        Task<List<string>> GetDiscontinuedIds();
+        Task<GetDiscontinuedProductResponse> GetDiscontinuedProducts();
 
         /// <summary>
         /// Returns duplicates for a given set of product isins (short, long)

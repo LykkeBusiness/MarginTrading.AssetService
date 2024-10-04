@@ -2,6 +2,7 @@
 using System.Text;
 
 using Autofac;
+
 using Lykke.RabbitMqBroker;
 using Lykke.RabbitMqBroker.Publisher;
 using Lykke.RabbitMqBroker.Publisher.Serializers;
@@ -28,10 +29,10 @@ namespace MarginTrading.AssetService.Modules
     public class RabbitMqModule : Module
     {
         private readonly AssetServiceSettings _settings;
-        
+
         private static readonly JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings
         {
-            Converters = {new StringEnumConverter()}
+            Converters = { new StringEnumConverter() }
         };
 
         public RabbitMqModule(IReloadingManager<AssetServiceSettings> settings)
@@ -42,7 +43,7 @@ namespace MarginTrading.AssetService.Modules
         protected override void Load(ContainerBuilder builder)
         {
             builder.AddRabbitMqConnectionProvider();
-            
+
             AddRabbitPublisher<AssetUpsertedEvent>(builder, _settings.LegacyAssetUpdatedRabbitPublisherSettings);
             AddRabbitPublisher<SettingsChangedEvent>(builder, _settings.SettingsChangedRabbitMqSettings);
 
@@ -70,8 +71,8 @@ namespace MarginTrading.AssetService.Modules
                     })
                 .AddOptions(RabbitMqListenerOptions<UnderlyingChangedEvent>.MessagePack.NoLoss)
                 .AutoStart();
-                
-            
+
+
             var brokerSettingsSubsc = _settings.BrokerSettingsChangedSubscriptionSettings
                 .AppendToQueueName($"{_settings.BrokerId}:{_settings.InstanceId}")
                 .AppendToDeadLetterExchangeName(_settings.BrokerId);

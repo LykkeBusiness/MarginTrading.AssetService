@@ -1,3 +1,9 @@
+## 2.28.0 - Nova 2. Delivery 46 (September 27, 2024)
+### What's changed
+* LT-5697: Discontinue product with date.
+* LT-5586: Migrate to .net 8.
+
+
 ## 2.27.0 - Nova 2. Delivery 44 (August 15, 2024)
 ### What's changed
 * LT-5527: Update rabbitmq broker library with new rabbitmq.client and templates.

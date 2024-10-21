@@ -1,5 +1,6 @@
 using System;
 
+using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
 using Lykke.Snow.Common.Correlation;

@@ -17,7 +17,7 @@
     <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.6.1" />
     <PackageVersion Include="Lykke.Snow.Audit" Version="1.2.0" />
     <PackageVersion Include="Lykke.Snow.Common.Startup" Version="4.0.0" />
-    <PackageVersion Include="Lykke.Snow.Common" Version="4.0.2" />
+    <PackageVersion Include="Lykke.Snow.Common" Version="4.0.3" />
     <PackageVersion Include="Lykke.Snow.Domain" Version="3.0.0" />
     <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="4.3.6" />
     <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
@@ -31,7 +31,7 @@
     <PackageVersion Include="MessagePack" Version="1.9.11" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.7" />
-    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageVersion Include="Moq" Version="4.8.2" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />

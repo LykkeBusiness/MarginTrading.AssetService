@@ -24,7 +24,6 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Lykke.Contracts" />
-    <PackageReference Include="Lykke.Snow.Common" />
     <PackageReference Include="Lykke.Snow.Domain" />
     <PackageReference Include="LykkeBiz.Common" />
     <PackageReference Include="Refit" />

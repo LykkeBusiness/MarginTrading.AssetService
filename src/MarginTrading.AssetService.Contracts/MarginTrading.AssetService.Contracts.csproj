@@ -25,9 +25,7 @@
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Lykke.Contracts" />
     <PackageReference Include="Lykke.Snow.Domain" />
-    <PackageReference Include="LykkeBiz.Common" />
     <PackageReference Include="Refit" />
-    <PackageReference Include="System.ComponentModel" />
   </ItemGroup>
   <ItemGroup>
     <None Remove="MarginTrading.AssetService.Contracts.xml" />

@@ -13,21 +13,20 @@
     <PackageVersion Include="JetBrains.Annotations" Version="2024.2.0" />
     <PackageVersion Include="Lykke.AzureStorage" Version="8.13.4" />
     <PackageVersion Include="Lykke.Common" Version="7.6.0" />
-    <PackageVersion Include="Lykke.Contracts" Version="3.0.0" />
+    <PackageVersion Include="Lykke.Contracts" Version="4.0.1" />
     <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.6.1" />
     <PackageVersion Include="Lykke.Snow.Audit" Version="1.2.0" />
     <PackageVersion Include="Lykke.Snow.Common.Startup" Version="4.0.0" />
-    <PackageVersion Include="Lykke.Snow.Common" Version="4.0.3" />
-    <PackageVersion Include="Lykke.Snow.Domain" Version="3.0.0" />
-    <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="4.3.6" />
+    <PackageVersion Include="Lykke.Snow.Domain" Version="4.0.0" />
+    <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="5.0.1" />
     <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
     <PackageVersion Include="LykkeBiz.Common.MsSql" Version="5.0.2" />
     <PackageVersion Include="LykkeBiz.Common" Version="8.3.0" />
     <PackageVersion Include="LykkeBiz.HttpClientGenerator" Version="6.0.0" />
     <PackageVersion Include="LykkeBiz.Logs.Serilog" Version="3.3.3" />
-    <PackageVersion Include="LykkeBiz.RabbitMqBroker" Version="15.1.1" />
+    <PackageVersion Include="LykkeBiz.RabbitMqBroker" Version="16.0.0" />
     <PackageVersion Include="LykkeBiz.SettingsReader" Version="9.0.0" />
-    <PackageVersion Include="LykkeBiz.Snow.Cqrs" Version="5.1.0" />
+    <PackageVersion Include="LykkeBiz.Snow.Cqrs" Version="7.0.1" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.2" />

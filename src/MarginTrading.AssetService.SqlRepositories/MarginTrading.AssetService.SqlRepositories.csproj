@@ -11,6 +11,7 @@
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="Dapper" />
     <PackageReference Include="LykkeBiz.Common.MsSql" />
+    <PackageReference Include="LykkeBiz.Common" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />

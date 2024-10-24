@@ -14,11 +14,11 @@
     <PackageVersion Include="Lykke.AzureStorage" Version="8.13.4" />
     <PackageVersion Include="Lykke.Common" Version="7.6.0" />
     <PackageVersion Include="Lykke.Contracts" Version="4.0.1" />
-    <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="1.6.1" />
+    <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="2.0.0" />
     <PackageVersion Include="Lykke.Snow.Audit" Version="1.2.0" />
     <PackageVersion Include="Lykke.Snow.Common.Startup" Version="4.0.0" />
     <PackageVersion Include="Lykke.Snow.Domain" Version="4.0.0" />
-    <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="5.0.1" />
+    <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="5.0.2" />
     <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
     <PackageVersion Include="LykkeBiz.Common.MsSql" Version="5.0.2" />
     <PackageVersion Include="LykkeBiz.Common" Version="8.3.0" />

@@ -37,6 +37,14 @@ namespace MarginTrading.AssetService.Controllers
             _convertService = convertService;
         }
 
+        [HttpGet("{assetPairId}")]
+        public async Task<AssetPairContract> Get(string assetPairId)
+        {
+            var asset = await _assetPairsService.GetByIdAsync(assetPairId);
+
+            return _convertService.Convert<IAssetPair, AssetPairContract>(asset);
+        }
+
         /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode
         /// </summary>

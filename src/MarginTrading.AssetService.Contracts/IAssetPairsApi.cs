@@ -20,6 +20,13 @@ namespace MarginTrading.AssetService.Contracts
     public interface IAssetPairsApi
     {
         /// <summary>
+        /// Get asset pair by id
+        /// </summary>
+        [Get("/api/assetPairs/{assetPairId}")]
+        [Obsolete("Use product api instead.")]
+        Task<AssetPairContract> Get(string assetPairId);
+        
+        /// <summary>
         /// Get the list of asset pairs based on legal entity and matching engine mode
         /// </summary>
         [Get("/api/assetPairs")]

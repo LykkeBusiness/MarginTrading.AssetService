@@ -1,3 +1,5 @@
+using System;
+
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
@@ -35,7 +37,7 @@ namespace MarginTrading.AssetService.Startup
             app.ConfigureSwagger();
             app.MapControllers();
             app.RegisterHooks();
-
+            
             return app;
         }
     }

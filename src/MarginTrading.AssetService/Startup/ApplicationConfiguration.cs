@@ -3,6 +3,7 @@ using System;
 using Lykke.Common.Api.Contract.Responses;
 using Lykke.Common.ApiLibrary.Middleware;
 using Lykke.HttpClientGenerator;
+using Lykke.SettingsReader.SettingsTemplate;
 using Lykke.Snow.Common.Correlation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
@@ -37,7 +38,8 @@ namespace MarginTrading.AssetService.Startup
             app.ConfigureSwagger();
             app.MapControllers();
             app.RegisterHooks();
-            
+            app.AddSettingsTemplateEndpoint();
+
             return app;
         }
     }

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Reflection;
 using Lykke.Logs.Serilog;
@@ -15,13 +16,18 @@ namespace MarginTrading.AssetService.Startup
         {
             builder.Environment.ContentRootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-            var configuration = builder.Configuration
+            var configurationBuilder = builder.Configuration
                 .SetBasePath(builder.Environment.ContentRootPath)
                 .AddSerilogJson(builder.Environment)
                 .AddUserSecrets<Program>()
-                .AddHttpSourceConfiguration()
-                .AddEnvironmentVariables()
-                .Build();
+                .AddEnvironmentVariables();
+
+            if (Environment.GetEnvironmentVariable("SettingsUrl")?.StartsWith("http") ?? false)
+            {
+                configurationBuilder.AddHttpSourceConfiguration();
+            }
+
+            var configuration = configurationBuilder.Build();
 
             var settingsManager = configuration.LoadSettings<AppSettings>(_ => { });
 

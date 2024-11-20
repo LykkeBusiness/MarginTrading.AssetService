@@ -22,7 +22,7 @@
     <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
     <PackageVersion Include="LykkeBiz.Common.MsSql" Version="5.0.2" />
     <PackageVersion Include="LykkeBiz.Common" Version="8.3.0" />
-    <PackageVersion Include="LykkeBiz.HttpClientGenerator" Version="6.0.0" />
+    <PackageVersion Include="LykkeBiz.HttpClientGenerator" Version="7.0.0" />
     <PackageVersion Include="LykkeBiz.Logs.Serilog" Version="3.3.3" />
     <PackageVersion Include="LykkeBiz.RabbitMqBroker" Version="16.0.0" />
     <PackageVersion Include="LykkeBiz.SettingsReader" Version="9.2.0" />
@@ -33,7 +33,7 @@
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.0" />
     <PackageVersion Include="Moq" Version="4.8.2" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageVersion Include="Refit" Version="5.2.1" />
+    <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />
     <PackageVersion Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.6.2" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2" />

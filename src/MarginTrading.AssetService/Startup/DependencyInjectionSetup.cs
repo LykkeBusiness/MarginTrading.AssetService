@@ -2,6 +2,7 @@ using System;
 using System.IO;
 
 using Lykke.HttpClientGenerator.Infrastructure;
+using Lykke.SettingsReader.SettingsTemplate;
 using Lykke.Snow.Common.AssemblyLogging;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Cqrs;
@@ -21,7 +22,7 @@ namespace MarginTrading.AssetService.Startup
     {
         private static readonly string ApiName = "Nova 2 Assets API";
 
-        public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services, 
+        public static IServiceCollection RegisterInfrastructureServices(this IServiceCollection services,
             ClientSettings assetServiceClientConfiguration)
         {
             services.AddAssemblyLogger();
@@ -64,7 +65,9 @@ namespace MarginTrading.AssetService.Startup
             services.AddApplicationInsightsTelemetry();
 
             services.AddTransient<IValidationApiExceptionHandler, DefaultValidationApiExceptionHandler>();
-            
+
+            services.AddSettingsTemplateGenerator();
+
             return services;
         }
     }

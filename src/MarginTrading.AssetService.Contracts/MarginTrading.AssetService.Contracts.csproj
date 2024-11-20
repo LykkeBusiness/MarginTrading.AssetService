@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>13.1.0</Version>
+    <Version>14.0.0</Version>
     <Description>Contracts package for MarginTrading.AssetService API</Description>
     <PackageId>Lykke.MarginTrading.AssetService.Contracts</PackageId>
   </PropertyGroup>

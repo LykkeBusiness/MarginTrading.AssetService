@@ -1,10 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
-    <Version>2.28.0</Version>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Version>2.29.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AsyncFriendlyStackTrace" />
@@ -13,7 +10,8 @@
     <PackageReference Include="Newtonsoft.Json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
+    <ProjectReference
+      Include="..\..\src\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
     <ProjectReference Include="..\..\src\MarginTrading.AssetService.Services\MarginTrading.AssetService.Services.csproj" />
   </ItemGroup>
 </Project>

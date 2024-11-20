@@ -1,14 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
-    <Version>2.28.0</Version>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <NoWarn>1701;1702;CS0612;CS0618</NoWarn>
+    <Version>2.29.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" />

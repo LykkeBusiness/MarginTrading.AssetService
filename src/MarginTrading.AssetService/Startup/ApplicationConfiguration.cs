@@ -38,7 +38,7 @@ namespace MarginTrading.AssetService.Startup
             app.ConfigureSwagger();
             app.MapControllers();
             app.RegisterHooks();
-            app.AddSettingsTemplateEndpoint();
+            app.MapSettingsTemplate();
 
             return app;
         }

@@ -1,11 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.SqlRepositories</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.SqlRepositories</RootNamespace>
-    <Version>2.26.5</Version>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Version>2.29.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" />
@@ -16,7 +13,8 @@
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
   </ItemGroup>
 
   <ItemGroup>

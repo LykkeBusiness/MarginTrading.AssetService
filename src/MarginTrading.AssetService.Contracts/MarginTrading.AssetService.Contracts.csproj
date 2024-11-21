@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <Version>1.0.0</Version>
     <Description>Contracts package for MarginTrading.AssetService API</Description>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageId>Lykke.MarginTrading.AssetService.Contracts</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageVersion>1.0.0</PackageVersion>
   </PropertyGroup>
   <PropertyGroup>
     <IsLocalBuild Condition="'$(IsLocalBuild)' == ''">false</IsLocalBuild>

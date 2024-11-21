@@ -6,7 +6,7 @@
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageId>Lykke.MarginTrading.AssetService.Contracts</PackageId>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
   <PropertyGroup>
     <IsLocalBuild Condition="'$(IsLocalBuild)' == ''">false</IsLocalBuild>

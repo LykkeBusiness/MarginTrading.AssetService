@@ -16,7 +16,7 @@
     <PackageVersion Include="Lykke.Contracts" Version="4.0.1" />
     <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="3.0.0" />
     <PackageVersion Include="Lykke.Snow.Audit" Version="1.2.0" />
-    <PackageVersion Include="Lykke.Snow.Common.Startup" Version="4.0.0" />
+    <PackageVersion Include="Lykke.Snow.Common.Startup" Version="5.0.0" />
     <PackageVersion Include="Lykke.Snow.Domain" Version="4.0.0" />
     <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="6.0.0" />
     <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
@@ -35,9 +35,9 @@
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageVersion Include="Refit" Version="8.0.0" />
     <PackageVersion Include="Serilog.Sinks.Elasticsearch" Version="8.4.1" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.6.2" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.6.2" />
-    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.6.2" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.Newtonsoft" Version="6.7.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.7.0" />
+    <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.7.0" />
     <PackageVersion Include="System.Linq.Async" Version="5.0.0" />
     <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="xunit" Version="2.9.0" />

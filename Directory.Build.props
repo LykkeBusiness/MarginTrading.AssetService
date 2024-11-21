@@ -7,6 +7,7 @@
         <Company>Lykke Business</Company>
         <PublishRepositoryUrl>true</PublishRepositoryUrl>
         <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
         <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
         <Nullable>disable</Nullable>
         <RepositoryUrl>https://github.com/LykkeBusiness/MarginTrading.AssetService</RepositoryUrl>

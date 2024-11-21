@@ -14,7 +14,7 @@
     <PackageVersion Include="Lykke.AzureStorage" Version="8.13.4" />
     <PackageVersion Include="Lykke.Common" Version="7.6.0" />
     <PackageVersion Include="Lykke.Contracts" Version="4.0.1" />
-    <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="2.0.0" />
+    <PackageVersion Include="Lykke.MarginTrading.BookKeeper.Contracts" Version="3.0.0" />
     <PackageVersion Include="Lykke.Snow.Audit" Version="1.2.0" />
     <PackageVersion Include="Lykke.Snow.Common.Startup" Version="4.0.0" />
     <PackageVersion Include="Lykke.Snow.Domain" Version="4.0.0" />

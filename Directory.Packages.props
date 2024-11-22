@@ -18,7 +18,7 @@
     <PackageVersion Include="Lykke.Snow.Audit" Version="1.2.0" />
     <PackageVersion Include="Lykke.Snow.Common.Startup" Version="5.0.0" />
     <PackageVersion Include="Lykke.Snow.Domain" Version="4.0.0" />
-    <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="6.0.0" />
+    <PackageVersion Include="Lykke.Snow.Mdm.Contracts" Version="6.0.1" />
     <PackageVersion Include="LykkeBiz.Common.ApiLibrary" Version="5.0.0" />
     <PackageVersion Include="LykkeBiz.Common.MsSql" Version="5.0.2" />
     <PackageVersion Include="LykkeBiz.Common" Version="8.3.0" />

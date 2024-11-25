@@ -3,7 +3,6 @@
     <Version>2.29.0</Version>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
   </ItemGroup>
   <ItemGroup>

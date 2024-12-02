@@ -8,11 +8,17 @@ on:
         required: true
         type: string
         default: "master"
+  workflow_dispatch:
+    inputs:
+      base_branch:
+        description: "Base branch name to compare against"
+        required: true
+        type: string
+        default: "master"
       compare_branch:
         description: "Branch to compare against the base branch"
         required: false
         type: string
-    workflow_dispatch:
 
 jobs:
   migration_check:

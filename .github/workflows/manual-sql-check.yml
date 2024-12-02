@@ -1,0 +1,70 @@
+name: Manual SQL migrations convention check
+
+on:
+  workflow_call:
+    inputs:
+      base_branch:
+        description: "Base branch name to compare against"
+        required: true
+        type: string
+        default: "master"
+      compare_branch:
+        description: "Branch to compare against the base branch"
+        required: false
+        type: string
+    workflow_dispatch:
+
+jobs:
+  migration_check:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set comparison branch
+        run: |
+          if [[ -z "${{ inputs.compare_branch }}" ]]; then
+            compare_branch=${{ github.ref_name }}
+          else
+            compare_branch=${{ inputs.compare_branch }}
+          fi
+          echo "Comparing $compare_branch against ${{ inputs.base_branch }}"
+          git fetch origin $compare_branch
+          git fetch origin ${{ inputs.base_branch }}
+
+      - name: Find added or modified migration files
+        id: find-migration-files
+        run: |
+          migration_files=$(git diff --name-only origin/${{ inputs.base_branch }} origin/$compare_branch -- '*.sql' | grep 'migration.sql' || true)
+          echo "Migration files found: $migration_files"
+          echo "migration_files=$migration_files" >> $GITHUB_ENV
+
+      - name: Check for corresponding rollback files
+        run: |
+          if [[ -z "$migration_files" ]]; then
+            echo "No migration files found. Exiting."
+            exit 0
+          fi
+
+          missing_rollback_files=()
+          for migration_file in $migration_files; do
+            rollback_file="${migration_file/_migration.sql/_migration_rollback.sql}"
+            if [[ ! -f $rollback_file ]]; then
+              missing_rollback_files+=("$rollback_file")
+            fi
+          done
+
+          if [[ ${#missing_rollback_files[@]} -ne 0 ]]; then
+            echo "❌ Missing rollback files:"
+            printf '%s\n' "${missing_rollback_files[@]}"
+            echo "::error title=Missing Rollback Files::The following rollback files are missing: ${missing_rollback_files[*]}"
+            exit 1
+          fi
+
+          echo "✅ All migration files have corresponding rollback files."
+
+        shell: bash

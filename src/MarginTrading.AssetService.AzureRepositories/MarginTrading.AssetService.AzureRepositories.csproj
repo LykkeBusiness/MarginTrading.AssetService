@@ -1,18 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
     <AssemblyName>MarginTrading.AssetService.AzureRepositories</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.AzureRepositories</RootNamespace>
-    <Version>2.26.5</Version>
-    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <Version>2.29.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" />
     <PackageReference Include="Lykke.AzureStorage" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />
-    <ProjectReference Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
+    <ProjectReference
+      Include="..\MarginTrading.AssetService.StorageInterfaces\MarginTrading.AssetService.StorageInterfaces.csproj" />
   </ItemGroup>
 </Project>

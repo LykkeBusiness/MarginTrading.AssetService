@@ -1,0 +1,28 @@
+<Project>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Authors>Lykke Business Team</Authors>
+        <Company>Lykke Business</Company>
+        <Copyright>Copyright © Lykke Business 2024</Copyright>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+        <Nullable>disable</Nullable>
+        <RepositoryUrl>https://github.com/LykkeBusiness/MarginTrading.AssetService</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+        <NoWarn>1701;1702;1705;CA2007</NoWarn>
+        <!-- Configure static code analysis -->
+        <AnalysisLevel>latest</AnalysisLevel>
+        <AnalysisMode>All</AnalysisMode>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <CodeAnalysisTreatWarningsAsErrors>true</CodeAnalysisTreatWarningsAsErrors>
+        <RunAnalyzersDuringBuild>true</RunAnalyzersDuringBuild>
+        <RunAnalyzersDuringLiveAnalysis>true</RunAnalyzersDuringLiveAnalysis>
+        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <EnableNETAnalyzers>true</EnableNETAnalyzers>
+        <ReportAnalyzer>true</ReportAnalyzer>
+    </PropertyGroup>
+</Project>

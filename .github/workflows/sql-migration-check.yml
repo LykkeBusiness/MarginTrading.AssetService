@@ -1,4 +1,4 @@
-name: "SQL Migrations Check"
+name: SQL Migrations Check
 
 on:
   pull_request:

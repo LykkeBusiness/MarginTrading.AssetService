@@ -1,8 +1,9 @@
-name: SQL Migrations Check
+name: SQL Migration Check
 
 on:
   pull_request:
-    branches: ["master"]
+    branches:
+      - master
 
 jobs:
   call-reusable:

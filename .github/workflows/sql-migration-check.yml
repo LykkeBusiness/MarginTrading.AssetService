@@ -1,0 +1,12 @@
+name: SQL Migrations Check
+
+on:
+  pull_request:
+    branches: ["master"]
+
+jobs:
+  call-reusable:
+    uses: LykkeBusiness/.github/workflows/sql-migration-check/workflow.yml@master
+    with:
+      base_branch: "${{ github.base_ref }}"
+      compare_branch: "${{ github.head_ref }}"

@@ -1,4 +1,4 @@
-name: SQL Migration Check
+name: SQL Check
 
 on:
   pull_request:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   call-reusable:
-    uses: LykkeBusiness/.github/.github/workflows/sql-migration-check.yml@master
+    uses: LykkeBusiness/.github/.github/workflows/sql-check.yml@master
     with:
       base_branch: "${{ github.base_ref }}"
       compare_branch: "${{ github.head_ref }}"

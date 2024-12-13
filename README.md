@@ -56,4 +56,158 @@ All variables and value constraints are default. For instance, to set host URL t
 
 Settings schema is:
 <!-- MARKDOWN-AUTO-DOCS:START (CODE:src=./template.json) -->
+<!-- The below code snippet is automatically added from ./template.json -->
+```json
+{
+  "APP_UID": "Integer",
+  "ASPNETCORE_ENVIRONMENT": "String",
+  "ENVIRONMENT": "String",
+  "Kestrel": {
+    "EndPoints": {
+      "Http": {
+        "Url": "String"
+      }
+    }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Microsoft": "String"
+    }
+  },
+  "MarginTradingAssetService": {
+    "AssetTypesWithZeroInterestRates": [
+      "String"
+    ],
+    "BrokerId": "String",
+    "BrokerSettingsChangedSubscriptionSettings": {
+      "ConnectionString": "String",
+      "DeadLetterExchangeName": "String",
+      "ExchangeName": "String",
+      "IsDurable": "Boolean",
+      "QueueName": "String",
+      "RoutingKey": "String"
+    },
+    "CandlesSharding": {
+      "Shards": [
+        {
+          "Name": "String",
+          "Pattern": "String"
+        }
+      ]
+    },
+    "CorporateActionsService": {
+      "ApiKey": "String",
+      "ServiceUrl": "String"
+    },
+    "Cqrs": {
+      "ConnectionString": "String",
+      "EnvironmentName": "String",
+      "RetryDelay": "DateTime"
+    },
+    "Db": {
+      "DataConnString": "String",
+      "LogsConnString": "String",
+      "StorageMode": "String"
+    },
+    "DefaultRateSettings": {
+      "DefaultOnBehalfSettings": {
+        "Commission": "Double",
+        "CommissionAsset": "String",
+        "LegalEntity": "String"
+      },
+      "DefaultOrderExecutionSettings": {
+        "CommissionAsset": "String",
+        "CommissionCap": "Integer",
+        "CommissionFloor": "Double",
+        "CommissionRate": "Double",
+        "LegalEntity": "String"
+      },
+      "DefaultOvernightSwapSettings": {
+        "FixRate": "Double",
+        "RepoSurchargePercent": "Integer",
+        "VariableRateBase": "String",
+        "VariableRateQuote": "String"
+      }
+    },
+    "InstanceId": "String",
+    "LegacyAssetUpdatedRabbitPublisherSettings": {
+      "ConnectionString": "String",
+      "ExchangeName": "String"
+    },
+    "LegalEntityDefaults": {
+      "DefaultLegalEntity": "String"
+    },
+    "MdmService": {
+      "ApiKey": "String",
+      "ServiceUrl": "String"
+    },
+    "RequestLoggerSettings": {
+      "Enabled": "Boolean",
+      "EnabledForGet": "Boolean",
+      "MaxPartSize": "Integer"
+    },
+    "SettingsChangedRabbitMqSettings": {
+      "ConnectionString": "String",
+      "ExchangeName": "String"
+    },
+    "TradingInstrumentDefaults": {
+      "CommissionCurrency": "String",
+      "CommissionMax": "Integer",
+      "CommissionMin": "Integer",
+      "CommissionRate": "Integer",
+      "DealMaxLimit": "Integer",
+      "DealMinLimit": "Integer",
+      "Delta": "Integer",
+      "LeverageInit": "Integer",
+      "LeverageMaintenance": "Integer",
+      "PositionLimit": "Integer",
+      "SwapLong": "Integer",
+      "SwapShort": "Integer"
+    },
+    "UnderlyingChangedRabbitSubscriptionSettings": {
+      "ConnectionString": "String",
+      "DeadLetterExchangeName": "String",
+      "ExchangeName": "String",
+      "IsDurable": "Boolean",
+      "QueueName": "String",
+      "RoutingKey": "String"
+    },
+    "UseSerilog": "Boolean"
+  },
+  "MarginTradingAssetServiceClient": {
+    "ApiKey": "String",
+    "ServiceUrl": "String"
+  },
+  "serilog": {
+    "Enrich": [
+      "String"
+    ],
+    "minimumLevel": {
+      "default": "String"
+    },
+    "Properties": {
+      "Application": "String"
+    },
+    "Using": [
+      "String"
+    ],
+    "writeTo": [
+      {
+        "Args": {
+          "configure": [
+            {
+              "Args": {
+                "outputTemplate": "String"
+              },
+              "Name": "String"
+            }
+          ]
+        },
+        "Name": "String"
+      }
+    ]
+  },
+  "TZ": "String"
+}
+```
 <!-- MARKDOWN-AUTO-DOCS:END -->

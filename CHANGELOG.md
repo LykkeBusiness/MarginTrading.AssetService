@@ -1,3 +1,17 @@
+## [[TBD]] ([[DATE]])
+### What's changed
+* LT-5968: Add missed migration and rollback scripts
+
+**WARNING**: these scripts were provided in the JIRA task.
+There's no need to apply the migration twice.
+The scripts are included in this release for historical reasons.
+
+### Migration: <<<[MIGRATION]_ActualDiscontinuedDate_1.sql>>> [MANUAL]
+### Migration: <<<[MIGRATION]_ActualDiscontinuedDate_2.sql>>> [MANUAL]
+
+### Rollback: <<<[ROLLBACK]_20240906125527_Product_ActualDiscontinuedDate.sql>>>
+
+
 ## 2.29.0 - Nova 2. Delivery 47 (November 15, 2024)
 ### What's changed
 * LT-5859: Add new method: get assetpaircontract by id.

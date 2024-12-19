@@ -7,6 +7,7 @@ on:
 
 jobs:
   sql-policy:
+    name: SQL Policy Check
     uses: LykkeBusiness/.github/.github/workflows/sql-policy.yml@master
     with:
       base_branch: "${{ github.base_ref }}"

@@ -1,4 +1,4 @@
-name: SQL Check
+name: SQL Policy Check
 
 on:
   pull_request:

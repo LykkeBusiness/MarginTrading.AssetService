@@ -1,3 +1,9 @@
+## 2.30.0 - Nova 2. Delivery 48 (December 20, 2024)
+### What's changed
+* LT-5916: Update refit to 8.x version.
+* LT-5882: Keep schema for appsettings.json up to date.
+
+
 ## 2.29.0 - Nova 2. Delivery 47 (November 15, 2024)
 ### What's changed
 * LT-5859: Add new method: get assetpaircontract by id.

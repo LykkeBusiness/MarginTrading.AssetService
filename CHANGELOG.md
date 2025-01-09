@@ -1,3 +1,6 @@
+### Rollback: <<<[ROLLBACK]_20241216115201_TestMigration3.sql>>>
+
+
 ## 2.30.0 - Nova 2. Delivery 48 (December 20, 2024)
 ### What's changed
 * LT-5916: Update refit to 8.x version.

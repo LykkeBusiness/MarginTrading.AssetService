@@ -1,4 +1,4 @@
-### Rollback: <<<[ROLLBACK]_20241216115201_TestMigration3.sql>>>
+### Rollback: <<<[ROLLBACK]_2024121611520_TestMigration3.sql>>>
 
 
 ## 2.30.0 - Nova 2. Delivery 48 (December 20, 2024)

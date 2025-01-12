@@ -24,7 +24,7 @@
     <PackageVersion Include="LykkeBiz.Common" Version="8.3.0" />
     <PackageVersion Include="LykkeBiz.HttpClientGenerator" Version="7.0.0" />
     <PackageVersion Include="LykkeBiz.Logs.Serilog" Version="3.3.3" />
-    <PackageVersion Include="LykkeBiz.RabbitMqBroker" Version="16.0.0" />
+    <PackageVersion Include="LykkeBiz.RabbitMqBroker" Version="16.2.1" />
     <PackageVersion Include="LykkeBiz.SettingsReader" Version="9.2.0" />
     <PackageVersion Include="LykkeBiz.Snow.Cqrs" Version="7.0.1" />
     <PackageVersion Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0" />

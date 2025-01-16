@@ -1,0 +1,2108 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>MarginTrading.AssetService.Contracts</name>
+    </assembly>
+    <members>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetPair.AssetPairContract">
+            <summary>
+            AssetPair contract
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetPair.AssetPairContract.IsSuspended">
+            <summary>
+            Flag will not be changed on API call, only MTCore can change it
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetPair.AssetPairUpdateRequest">
+            <summary> 
+            AssetPair update request. Properties are updated only if value != null. 
+            </summary> 
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest">
+            <summary>
+            Request to add asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest.Username">
+            <summary>
+            Name of the user who sent the request
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest.RegulatoryTypeId">
+            <summary>
+            Id of the related regulatory type from Mdm
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest.Id">
+            <summary>
+            Id of the asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest.AssetTypeTemplateId">
+            <summary>
+            Id of existing asset type which will be used as template for regulatory settings creation
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest.UnderlyingCategoryId">
+            <summary>
+            Id of the underlying category for the asset type
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.AssetTypeCache">
+            <summary>
+            Asset types cache
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.AssetTypeContract">
+            <summary>
+            Contract for asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AssetTypeContract.Id">
+            <summary>
+            Id of asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AssetTypeContract.RegulatoryTypeId">
+            <summary>
+            Id of the related regulatory type from MDM
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.AssetTypeContract.UnderlyingCategoryId">
+            <summary>
+            Id of the underlying category for the asset type
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.GetAllAssetTypesResponse">
+            <summary>
+            Response model to get all asset types
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.GetAllAssetTypesResponse.AssetTypes">
+            <summary>
+            Collection of asset types
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.GetAssetTypeByIdResponse">
+            <summary>
+            Response model to get AssetType by ID
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.GetAssetTypeByIdResponse.AssetType">
+            <summary>
+            Asset type model
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.IAssetTypeCache">
+            <summary>
+            Asset type cache interface
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest">
+            <summary>
+            Request model to update asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest.RegulatoryTypeId">
+            <summary>
+            Id of the related regulatory type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest.Username">
+            <summary>
+            Name of the user who sent the request
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest.UnderlyingCategoryId">
+            <summary>
+            Id of the underlying category for the asset type
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Audit.AuditContract">
+            <summary>
+            Contract for audit
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.Timestamp">
+            <summary>
+            Timestamp
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.CorrelationId">
+            <summary>
+            Correlation Id
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.UserName">
+            <summary>
+            Name of the user who did the change
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.Type">
+            <summary>
+            Type of the operation
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.DataType">
+            <summary>
+            Type of the data
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.DataReference">
+            <summary>
+            Reference data
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.AuditContract.DataDiff">
+            <summary>
+            The difference between old and new
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Audit.GetAuditLogsResponse">
+            <summary>
+            Response model for audit logs
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Audit.GetAuditLogsResponse.AuditLogs">
+            <summary>
+            collection of audit logs
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Candles.CandlesConsumerSettingsContract">
+            <summary>
+            The candles consumer sharding settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Candles.CandlesConsumerSettingsContract.Name">
+            <summary>
+            The name of the shard
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Candles.CandlesConsumerSettingsContract.Pattern">
+            <summary>
+            The shard regular expression pattern
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Candles.CandlesProducerSettingsContract">
+            <summary>
+            Candles producer sharding settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Candles.CandlesProducerSettingsContract.Shards">
+            <summary>
+             The list of shards
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Candles.CandlesProducerSettingsContract.DefaultShardName">
+            <summary>
+            The default shard name
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Candles.CandlesShardSettingsContract">
+            <summary>
+            The candles publication shard settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Candles.CandlesShardSettingsContract.Name">
+            <summary>
+            The name of the shard
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Candles.CandlesShardSettingsContract.Pattern">
+            <summary>
+            The shard regular expression pattern
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest">
+            <summary>
+            Request to add client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest.RegulatoryProfileId">
+            <summary>
+            Id of the related regulation
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest.Id">
+            <summary>
+            Id of the client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest.Username">
+            <summary>
+            Name of the user who sent the request
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest.IsDefault">
+            <summary>
+            Is the new regulatory profile default
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest.ClientProfileTemplateId">
+            <summary>
+            Id of existing client profile which will be used as template for settings creation
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfiles.ClientProfileContract">
+            <summary>
+            Contract for client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.ClientProfileContract.Id">
+            <summary>
+            Id of the client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.ClientProfileContract.RegulatoryProfileId">
+            <summary>
+            Id of the regulatory profile from MDM
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.ClientProfileContract.IsDefault">
+            <summary>
+            Is this the default broker profile
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfiles.GetAllClientProfilesResponse">
+            <summary>
+            Response model to get all client profiles
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.GetAllClientProfilesResponse.ClientProfiles">
+            <summary>
+            Collection of client profiles
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfiles.GetClientProfileByIdResponse">
+            <summary>
+            Response model to get client profile by id
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.GetClientProfileByIdResponse.ClientProfile">
+            <summary>
+            Client profile model
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest">
+            <summary>
+            Request to update client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest.RegulatoryProfileId">
+            <summary>
+            Id of the related regulatory profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest.Username">
+            <summary>
+            Name of the user who sent the request
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest.IsDefault">
+            <summary>
+            Is the client profile default
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest.RegulatoryProfileId">
+            <summary>
+            Regulatory profile id
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest.RegulatoryTypeId">
+            <summary>
+            Regulatory type id
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest.MarginMin">
+            <summary>
+            Minimum margin
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest.IsAvailable">
+            <summary>
+            Is regulation available
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsCache">
+            <summary>
+            Client profile settings cache
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract">
+            <summary>
+            Broker regulatory settings contract
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.ClientProfileId">
+            <summary>
+            Id of the client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.AssetTypeId">
+            <summary>
+            Id of the asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.Margin">
+            <summary>
+            Margin rate
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.ExecutionFeesFloor">
+            <summary>
+            Execution fees floor value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.ExecutionFeesCap">
+            <summary>
+            Execution fees cap value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.ExecutionFeesRate">
+            <summary>
+            Execution fees rate value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.FinancingFeesRate">
+            <summary>
+            Financing fees rate value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.OnBehalfFee">
+            <summary>
+            Phone fees value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.IsAvailable">
+            <summary>
+            Sets the availability of asset type for trading
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.RegulatoryProfileId">
+            <summary>
+            Id of the regulatory profile of the client profile
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.ClientProfileSettingsContract.RegulatoryTypeId">
+            <summary>
+            Id of the regulatory type of the asset type
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.GetAllClientProfileSettingsResponse">
+            <summary>
+            Response model to get all client profile settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.GetAllClientProfileSettingsResponse.ClientProfileSettings">
+            <summary>
+            Collection of settings
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.GetClientProfileSettingsByIdsResponse">
+            <summary>
+            Response model to get client profile settings by ids
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.GetClientProfileSettingsByIdsResponse.ClientProfileSettings">
+            <summary>
+            Client profile settings
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.GetDefaultClientProfileSettingsResponse">
+            <summary>
+            Response model to get default client profile settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.GetDefaultClientProfileSettingsResponse.ClientProfileSettings">
+            <summary>
+            Client profile settings
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest">
+            <summary>
+            Request model to update regulatory settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.Username">
+            <summary>
+            Username of the user who is trying to update
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.Margin">
+            <summary>
+            Minimum margin value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.ExecutionFeesFloor">
+            <summary>
+            Execution fees floor value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.ExecutionFeesCap">
+            <summary>
+            Execution fees cap value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.ExecutionFeesRate">
+            <summary>
+            Execution fees rate value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.FinancingFeesRate">
+            <summary>
+            Financing fees rate value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.OnBehalfFee">
+            <summary>
+            Phone fees value
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest.IsAvailable">
+            <summary>
+            Are settings available
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Messages.SettingsChangedEvent.ChangedEntityId">
+            <summary>
+            Contain ID if a single entity was changed, null in case of batch update/insert
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Core.UserRequest.UserName">
+            <summary>
+            Name of the user who sent the request
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.DependencyInjectionExtensions.AddClientProfileSettingsCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers <see cref="T:MarginTrading.AssetService.Contracts.ClientProfileSettings.IClientProfileSettingsCache"/> in the .NET Core DI Container.
+            Requires <see cref="T:MarginTrading.AssetService.Contracts.IClientProfileSettingsApi"/> to be registered.
+            </summary>
+            <param name="services"></param>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.DependencyInjectionExtensions.AddAssetTypesCache(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers <see cref="T:MarginTrading.AssetService.Contracts.AssetTypes.IAssetTypeCache"/> in the .NET Core DI Container.
+            Requires <see cref="T:MarginTrading.AssetService.Contracts.IAssetTypesApi"/> to be registered.
+            </summary>
+            <param name="services"></param>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IAssetPairsApi">
+            <summary>
+            Asset pairs management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetPairsApi.Get(System.String)">
+            <summary>
+            Get asset pair by id
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetPairsApi.List">
+            <summary>
+            Get the list of asset pairs based on legal entity and matching engine mode
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetPairsApi.ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Get the list of asset pairs based on legal entity and matching engine mode, with optional pagination
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IAssetsApi">
+            <summary>
+            Assets management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.GetDiscontinuedProducts">
+            <summary>
+            Get deleted product ids
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.GetDuplicatedIsins(System.String[])">
+            <summary>
+            Returns duplicates for a given set of product isins (short, long)
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.List">
+            <summary>
+            Get the list of assets
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Get the list of assets with optional pagination
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.Get(System.String)">
+            <summary>
+            Get the asset
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.GetLegacyAssets">
+            <summary>
+            Get the list of legacy assets
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetsApi.GetLegacyAssetById(System.String,System.Boolean)">
+            <summary>
+            Get legacy asset by id
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetTypesApi.GetAssetTypeByIdAsync(System.String)">
+            <summary>
+            Get asset type by id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetTypesApi.GetAssetTypesAsync">
+            <summary>
+            Get all asset types
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetTypesApi.AddAssetTypeAsync(MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest)">
+            <summary>
+            Adds new asset type to the system
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetTypesApi.UpdateAssetTypeAsync(System.String,MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest)">
+            <summary>
+            Updates existing asset type
+            </summary>
+            <param name="id"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetTypesApi.DeleteAssetTypeAsync(System.String,System.String)">
+            <summary>
+            Delete asset type
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAssetTypesApi.IsRegulatoryTypeAssignedToAnyAssetTypeAsync(System.String)">
+            <summary>
+            Check if there is any asset type with this regulatory type id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IAuditApi.GetAuditTrailAsync(MarginTrading.AssetService.Contracts.Audit.GetAuditLogsRequest,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Get audit logs
+            </summary>
+            <param name="request"></param>
+            <param name="skip"></param>
+            <param name="take"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IBaseCache`1">
+            <summary>
+            Base cache interface
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IBaseCache`1.StartAsync">
+            <summary>
+            Initialize cache
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IBaseCache`1.TryGetValue(System.String,`0@)">
+            <summary>
+            Get item by key
+            </summary>
+            <param name="key"></param>
+            <param name="result"></param>
+            <returns>
+            True if item was found
+            </returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IBaseCache`1.AddOrUpdate(`0)">
+            <summary>
+            Adds or updates item in cache
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IBaseCache`1.Remove(`0)">
+            <summary>
+            Removes item from cache
+            </summary>
+            <returns>
+            True if item was removed
+            </returns>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ICandlesSettingsApi">
+            <summary>
+            The candles sharding shared settings
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ICandlesSettingsApi.GetProducerSettingsAsync">
+            <summary>
+            Get candles producer settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ICandlesSettingsApi.GetConsumerSettingsAsync(System.String)">
+            <summary>
+            Get candles consumer settings
+            </summary>
+            <param name="shardName">The shard name to get settings for</param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfilesApi.GetClientProfileByIdAsync(System.String)">
+            <summary>
+            Get client profile by id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfilesApi.GetClientProfilesAsync">
+            <summary>
+            Get all client profiles
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfilesApi.AddClientProfileAsync(MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest)">
+            <summary>
+            Adds new broker regulatory profile to the system
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfilesApi.UpdateClientProfileAsync(System.String,MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest)">
+            <summary>
+            Updates existing client profile
+            </summary>
+            <param name="id"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfilesApi.DeleteClientProfileAsync(System.String,System.String)">
+            <summary>
+            Delete a client profile
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfilesApi.IsRegulatoryProfileAssignedToAnyClientProfileAsync(System.String)">
+            <summary>
+            Check if there is any client profile with this regulatory profile id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfileSettingsApi.GetClientProfileSettingsByIdsAsync(System.String,System.String)">
+            <summary>
+            Get client profile settings by ids
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfileSettingsApi.GetClientProfileSettingsByRegulationAsync">
+            <summary>
+            Get all client profile settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfileSettingsApi.GetDefaultProfileSettings(System.String)">
+            <summary>
+            Get default client profile settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfileSettingsApi.UpdateClientProfileSettingsAsync(MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest,System.String,System.String)">
+            <summary>
+            Updates existing client settings
+            </summary>
+            <param name="request"></param>
+            <param name="profileId"></param>
+            <param name="typeId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IClientProfileSettingsApi.WillViolateRegulationConstraintAsync(MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest)">
+            <summary>
+            Check if changes in regulatory settings will violate constraints for any entity
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IMarketsApi">
+            <summary>
+            Markets management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketsApi.List">
+            <summary>
+            Get the list of Markets
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketsApi.Get(System.String)">
+            <summary>
+            Get the market
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IMarketSettingsApi">
+            <summary>
+            Api for market settings
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketSettingsApi.GetByIdAsync(System.String)">
+            <summary>
+            Get market settings by id
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketSettingsApi.GetAllMarketSettingsAsync">
+            <summary>
+            Get all market settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketSettingsApi.GetAllMarketSettingsInUtcAsync">
+            <summary>
+            Get all market settings in utc
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketSettingsApi.AddMarketSettingsAsync(MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest)">
+            <summary>
+            Add market settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketSettingsApi.UpdateMarketSettingsAsync(MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest,System.String)">
+            <summary>
+            Update market settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IMarketSettingsApi.DeleteMarketSettingsAsync(System.String,System.String)">
+            <summary>
+            Delete market settings
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductCategoriesApi.UpsertAsync(MarginTrading.AssetService.Contracts.ProductCategories.AddProductCategoryRequest)">
+            <summary>
+            Tries to create a list of product categories by transforming the category string and creating all subcategories
+            Already created categories are ignored
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductCategoriesApi.DeleteAsync(System.String,MarginTrading.AssetService.Contracts.ProductCategories.DeleteProductCategoryRequest)">
+            <summary>
+            Deletes a product category. Only works on leaf nodes that do not have attached products
+            </summary>
+            <param name="id"></param>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductCategoriesApi.GetAllAsync">
+            <summary>
+            Gets a list of all product categories 
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductCategoriesApi.GetByIdAsync(System.String)">
+            <summary>
+            Gets a product category by its id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductCategoriesApi.Validate(MarginTrading.AssetService.Contracts.ProductCategories.ValidateProductCategoriesRequest)">
+            <summary>
+            Validates a list of categories with products
+            Also checks data in db
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.AddAsync(MarginTrading.AssetService.Contracts.Products.AddProductRequest)">
+            <summary>
+            Creates new Product
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.UpdateAsync(System.String,MarginTrading.AssetService.Contracts.Products.UpdateProductRequest)">
+            <summary>
+            Updates existing Product
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.DeleteAsync(System.String,MarginTrading.AssetService.Contracts.Products.DeleteProductRequest)">
+            <summary>
+            Deletes existing Product
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.GetByIdAsync(System.String)">
+            <summary>
+            Gets Product by productId
+            </summary>
+            <param name="productId"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.GetAllAsync(MarginTrading.AssetService.Contracts.Products.GetProductsRequest)">
+            <summary>
+            Gets all Products with pagination
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.ChangeFrozenStatusAsync(System.String,MarginTrading.AssetService.Contracts.Products.ChangeProductFrozenStatusRequest)">
+            <summary>
+            Update product freeze status
+            </summary>
+            <param name="productId">The product id</param>
+            <param name="request">Freeze details</param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.ChangeFrozenStatusMultipleAsync(MarginTrading.AssetService.Contracts.Products.ChangeMultipleProductFrozenStatusRequest)">
+            <summary>
+            Update multiple products with same freeze details
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.GetAllCountAsync(MarginTrading.AssetService.Contracts.Products.GetProductsCountRequest)">
+            <summary>
+            Gets products count for particular request
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.UpdateBatchAsync(MarginTrading.AssetService.Contracts.Products.UpdateProductBatchRequest)">
+            <summary>
+            Updates a list of products
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IProductsApi.DeleteBatchAsync(MarginTrading.AssetService.Contracts.Products.DeleteProductBatchRequest)">
+            <summary>
+            Deletes a list of products by their productIds
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IRateSettingsApi">
+            <summary>
+            Commission rate settings management.
+            SettingsChangedEvent is generated on change.
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IRateSettingsApi.GetOvernightSwapRatesAsync">
+            <summary>
+            Get overnight swap rates
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IRateSettingsApi.GetOvernightSwapRatesAsync(System.String)">
+            <summary>
+            Get overnight swap rates for asset pair id
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IRateSettingsApi.GetOvernightSwapRatesAsync(System.String[])">
+            <summary>	
+            Get overnight swap rates for asset pair id	
+            </summary>	
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IScheduleSettingsApi">
+            <summary>
+            Schedule settings management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IScheduleSettingsApi.List(System.String)">
+            <summary>
+            Get the list of schedule settings. Optional filter by market may be applied.
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IScheduleSettingsApi.StateList(System.String[])">
+            <summary>
+            Get the list of compiled schedule settings based on array of asset pairs
+            </summary>
+            <param name="assetPairIds">Null by default</param>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IScheduleSettingsApi.GetMarketsInfo(System.String[],System.Nullable{System.DateTime})">
+            <summary>
+            Get current trading day info for markets. Platform schedule (with PlatformScheduleMarketId) overrides all others.
+            </summary>
+            <param name="marketIds">Optional. List of market Id's.</param>
+            <param name="date">Timestamp of check (allows to check as at any moment of time</param>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IScheduleSettingsApi.GetPlatformInfo(System.Nullable{System.DateTime})">
+            <summary>
+            Get current platform trading info: is trading enabled, and last trading day.
+            If interval has only date component i.e. time is 00:00:00.000, then previous day is returned.
+            </summary>
+            <param name="date">Timestamp of check (allows to check as at any moment of time</param>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.IServiceMaintenanceApi">
+            <summary>
+            MT Core service maintenance management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IServiceMaintenanceApi.Get">
+            <summary>
+            Get current service state
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.IServiceMaintenanceApi.Post(System.Boolean)">
+            <summary>
+            Switch maintenance mode
+            </summary>
+            <param name="enabled"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITickFormulasApi.GetByIdAsync(System.String)">
+            <summary>
+            Get tick formula by id
+            </summary>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITickFormulasApi.GetAllAsync">
+            <summary>
+            Get all tick formulas
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITickFormulasApi.AddAsync(MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest)">
+            <summary>
+            Adds new tick formula
+            </summary>
+            <param name="request"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITickFormulasApi.UpdateAsync(MarginTrading.AssetService.Contracts.TickFormula.UpdateTickFormulaRequest,System.String)">
+            <summary>
+            Updates existing tick formula
+            </summary>
+            <param name="request"></param>
+            <param name="id"></param>
+            <returns></returns>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITickFormulasApi.DeleteAsync(System.String,System.String)">
+            <summary>
+            Delete tick formula
+            </summary>
+            <param name="id"></param>
+            <param name="username"></param>
+            <returns></returns>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ITradingConditionsApi">
+            <summary>
+            Trading conditions management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingConditionsApi.List(System.Nullable{System.Boolean})">
+            <summary>
+            Get the list of trading conditions
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingConditionsApi.Get(System.String)">
+            <summary>
+            Get the trading condition
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingConditionsApi.GetByClientProfileId(System.String)">
+            <summary>
+            Get the trading condition by client profile id
+            </summary>
+            <param name="clientProfileId">The client profile id</param>
+            <returns></returns>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ITradingInstrumentsApi">
+            <summary>
+            Trading instruments management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingInstrumentsApi.List(System.String)">
+            <summary>
+            Get the list of trading instruments
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingInstrumentsApi.ListByPages(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Get the list of trading instruments with optional pagination
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingInstrumentsApi.Get(System.String,System.String)">
+            <summary>
+            Get trading instrument
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingInstrumentsApi.CheckProductsUnavailableForTradingCondition(MarginTrading.AssetService.Contracts.TradingConditions.CheckProductsUnavailableForTradingConditionRequest)">
+            <summary>
+            Returns trading instruments that are not available for a given client profile
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.ITradingRoutesApi">
+            <summary>
+            Trading route management
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingRoutesApi.List">
+            <summary>
+            Get the list of trading routes
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingRoutesApi.ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <summary>
+            Get the list of trading routes, with optional pagination
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingRoutesApi.Insert(MarginTrading.AssetService.Contracts.Routes.MatchingEngineRouteContract)">
+            <summary>
+            Create new trading route
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingRoutesApi.Get(System.String)">
+            <summary>
+            Get the trading route
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingRoutesApi.Update(System.String,MarginTrading.AssetService.Contracts.Routes.MatchingEngineRouteContract)">
+            <summary>
+            Update the trading route
+            </summary>
+        </member>
+        <member name="M:MarginTrading.AssetService.Contracts.ITradingRoutesApi.Delete(System.String)">
+            <summary>
+            Delete the trading route
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.Asset.Underlying">
+            <summary>
+            Represents an underlying object.
+            Mapped from the normalized data after deserialization.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.Asset.TickFormulaDetails">
+            <summary>
+            Represents a tick formula object.
+            Mapped from the normalized data after deserialization.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.Asset.DisplayPrecision">
+            <summary>
+            Gets or sets the DisplayPrecision (accuracy).
+            It's currently hardcoded as per the requirements.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest.ExpiryDateFrom">
+            <summary>
+            Expiry date of the product from, if product has a end date or a maturity date.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest.ExpiryDateTo">
+            <summary>
+            Expiry date of the product to, if product has a end date or a maturity date.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest.UnderlyingIsIn">
+            <summary>
+            Ref.file underlyings ISIN
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest.UnderlyingType">
+            <summary>
+            Ref.file underlyings Type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest.MdsCode">
+            <summary>
+            MDS code
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest.AssetName">
+            <summary>
+            Asset name
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.Underlying.MarketDetails">
+            <summary>
+            Represents a market object.
+            Mapped from the normalized data after deserialization.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.Underlying.InterestRates">
+            <summary>
+            Represents a collection of interest rate objects.
+            Mapped from the normalized data after deserialization.
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.LegacyAsset.Underlying.AvailableClientProfiles">
+            <summary>
+            List of client profiles with their settings available for this asset type
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.DividendsLong">
+            <summary>
+            Dividends long
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.DividendsShort">
+            <summary>
+            Dividends short
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Dividends871M">
+            <summary>
+            Dividends 871M
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Open">
+            <summary>
+            When the trading day opens
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Close">
+            <summary>
+            When the trading day closes
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Timezone">
+            <summary>
+            Timezone
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Holidays">
+            <summary>
+            List of holidays for the broker
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.Username">
+            <summary>
+            Username of the user who adds the settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest.HalfWorkingDays">
+            <summary>
+            List of half working days
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.GetAllMarketSettingsResponse.MarketSettingsContracts">
+            <summary>
+            Collection of market settings
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.MarketSettings.GetMarketSettingsByIdResponse">
+            <summary>
+            Response model to get market settings by ids
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.GetMarketSettingsByIdResponse.MarketSettings">
+            <summary>
+            MarketSettings
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract">
+            <summary>
+            Market settings contract
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Id">
+            <summary>
+            Id
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.DividendsLong">
+            <summary>
+            Dividends long
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.DividendsShort">
+            <summary>
+            Dividends short
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Dividends871M">
+            <summary>
+            Dividends 871M
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Open">
+            <summary>
+            When the trading day opens
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Close">
+            <summary>
+            When the trading day closes
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Timezone">
+            <summary>
+            Timezone
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.Holidays">
+            <summary>
+            List of holidays
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.MarketSettingsContract.MarketSchedule">
+            <summary>
+            Market schedule settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Name">
+            <summary>
+            Name
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.DividendsLong">
+            <summary>
+            Dividends long
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.DividendsShort">
+            <summary>
+            Dividends short
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Dividends871M">
+            <summary>
+            Dividends 871M
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Open">
+            <summary>
+            When the trading day opens
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Close">
+            <summary>
+            When the trading day closes
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Timezone">
+            <summary>
+            Timezone
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Holidays">
+            <summary>
+            List of holidays for the broker
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.Username">
+            <summary>
+            Username of the user who updates the settings
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest.HalfWorkingDays">
+            <summary>
+            List of half working days
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.ProductCategories.ProductCategoryChangedEvent.OriginalCategoryName">
+            <summary>
+            Unformatted category name, only filled on create events
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Scheduling.ScheduleConstraintContract">
+            <summary>
+            3 cases are valid: {Time}, {DateTime}, {DayOfWeekTime}
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Scheduling.ScheduleSettingsContract">
+            <summary>
+            Start and End constraints must be of the same type.
+            Types are described in ScheduleConstraintContract type description.
+            </summary>
+        </member>
+        <member name="T:MarginTrading.AssetService.Contracts.Scheduling.TradingDayInfoContract">
+            <summary>
+            Current trading day info
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Scheduling.TradingDayInfoContract.LastTradingDay">
+            <summary>
+            Trading day that was active last: current if enabled, interval.Start.Date if disabled
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Scheduling.TradingDayInfoContract.IsTradingEnabled">
+            <summary>
+            Is trading enabled currently
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.Scheduling.TradingDayInfoContract.NextTradingDayStart">
+            <summary>
+             Timestamp when next trading day with start
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest.Id">
+            <summary>
+            id of the tick formula
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest.PdlLadders">
+            <summary>
+            PdlTicks ladders
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest.PdlTicks">
+            <summary>
+            Pdl ticks
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest.Username">
+            <summary>
+            Username
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.GetAllTickFormulasResponse.TickFormulas">
+            <summary>
+            Collection of tick formulas
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.GetTickFormulaByIdResponse.TickFormula">
+            <summary>
+            Tick formula contract
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.GetTickFormulaByIdResponse.Error">
+            <summary>
+            Error code
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.TickFormulaContract.Id">
+            <summary>
+            id of the tick formula
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.TickFormulaContract.PdlLadders">
+            <summary>
+            PdlTicks ladders
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.TickFormulaContract.PdlTicks">
+            <summary>
+            Pdl ticks
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.UpdateTickFormulaRequest.PdlLadders">
+            <summary>
+            PdlTicks ladders
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.UpdateTickFormulaRequest.PdlTicks">
+            <summary>
+            Pdl ticks
+            </summary>
+        </member>
+        <member name="P:MarginTrading.AssetService.Contracts.TickFormula.UpdateTickFormulaRequest.Username">
+            <summary>
+            Username
+            </summary>
+        </member>
+        <member name="T:Refit.Implementation.Generated">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.MarginTrading#AssetService#Contracts#IAssetPairsApi#Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.MarginTrading#AssetService#Contracts#IAssetPairsApi#List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetPairsApi.MarginTrading#AssetService#Contracts#IAssetPairsApi#ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.GetDiscontinuedProducts">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.GetDuplicatedIsins(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.GetLegacyAssets">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.GetLegacyAssetById(System.String,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.SearchLegacyAssets(MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#GetDiscontinuedProducts">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#GetDuplicatedIsins(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#GetLegacyAssets">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#GetLegacyAssetById(System.String,System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetsApi.MarginTrading#AssetService#Contracts#IAssetsApi#SearchLegacyAssets(MarginTrading.AssetService.Contracts.LegacyAsset.SearchLegacyAssetsRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.GetAssetTypeByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.GetAssetTypesAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.AddAssetTypeAsync(MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.UpdateAssetTypeAsync(System.String,MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.DeleteAssetTypeAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.IsRegulatoryTypeAssignedToAnyAssetTypeAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.MarginTrading#AssetService#Contracts#IAssetTypesApi#GetAssetTypeByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.MarginTrading#AssetService#Contracts#IAssetTypesApi#GetAssetTypesAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.MarginTrading#AssetService#Contracts#IAssetTypesApi#AddAssetTypeAsync(MarginTrading.AssetService.Contracts.AssetTypes.AddAssetTypeRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.MarginTrading#AssetService#Contracts#IAssetTypesApi#UpdateAssetTypeAsync(System.String,MarginTrading.AssetService.Contracts.AssetTypes.UpdateAssetTypeRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.MarginTrading#AssetService#Contracts#IAssetTypesApi#DeleteAssetTypeAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAssetTypesApi.MarginTrading#AssetService#Contracts#IAssetTypesApi#IsRegulatoryTypeAssignedToAnyAssetTypeAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAuditApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAuditApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAuditApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAuditApi.GetAuditTrailAsync(MarginTrading.AssetService.Contracts.Audit.GetAuditLogsRequest,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIAuditApi.MarginTrading#AssetService#Contracts#IAuditApi#GetAuditTrailAsync(MarginTrading.AssetService.Contracts.Audit.GetAuditLogsRequest,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi.GetProducerSettingsAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi.GetConsumerSettingsAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi.MarginTrading#AssetService#Contracts#ICandlesSettingsApi#GetProducerSettingsAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICandlesSettingsApi.MarginTrading#AssetService#Contracts#ICandlesSettingsApi#GetConsumerSettingsAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.GetClientProfileByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.GetClientProfilesAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.AddClientProfileAsync(MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.UpdateClientProfileAsync(System.String,MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.DeleteClientProfileAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.IsRegulatoryProfileAssignedToAnyClientProfileAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.MarginTrading#AssetService#Contracts#IClientProfilesApi#GetClientProfileByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.MarginTrading#AssetService#Contracts#IClientProfilesApi#GetClientProfilesAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.MarginTrading#AssetService#Contracts#IClientProfilesApi#AddClientProfileAsync(MarginTrading.AssetService.Contracts.ClientProfiles.AddClientProfileRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.MarginTrading#AssetService#Contracts#IClientProfilesApi#UpdateClientProfileAsync(System.String,MarginTrading.AssetService.Contracts.ClientProfiles.UpdateClientProfileRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.MarginTrading#AssetService#Contracts#IClientProfilesApi#DeleteClientProfileAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfilesApi.MarginTrading#AssetService#Contracts#IClientProfilesApi#IsRegulatoryProfileAssignedToAnyClientProfileAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.GetClientProfileSettingsByIdsAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.GetClientProfileSettingsByRegulationAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.GetDefaultProfileSettings(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.UpdateClientProfileSettingsAsync(MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.WillViolateRegulationConstraintAsync(MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.MarginTrading#AssetService#Contracts#IClientProfileSettingsApi#GetClientProfileSettingsByIdsAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.MarginTrading#AssetService#Contracts#IClientProfileSettingsApi#GetClientProfileSettingsByRegulationAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.MarginTrading#AssetService#Contracts#IClientProfileSettingsApi#GetDefaultProfileSettings(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.MarginTrading#AssetService#Contracts#IClientProfileSettingsApi#UpdateClientProfileSettingsAsync(MarginTrading.AssetService.Contracts.ClientProfileSettings.UpdateClientProfileSettingsRequest,System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIClientProfileSettingsApi.MarginTrading#AssetService#Contracts#IClientProfileSettingsApi#WillViolateRegulationConstraintAsync(MarginTrading.AssetService.Contracts.ClientProfileSettings.CheckRegulationConstraintViolationRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.AddAsync(MarginTrading.AssetService.Contracts.Currencies.AddCurrencyRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.UpdateAsync(System.String,MarginTrading.AssetService.Contracts.Currencies.UpdateCurrencyRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.DeleteAsync(System.String,MarginTrading.AssetService.Contracts.Currencies.DeleteCurrencyRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.GetAllAsync(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.MarginTrading#AssetService#Contracts#ICurrenciesApi#AddAsync(MarginTrading.AssetService.Contracts.Currencies.AddCurrencyRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.MarginTrading#AssetService#Contracts#ICurrenciesApi#UpdateAsync(System.String,MarginTrading.AssetService.Contracts.Currencies.UpdateCurrencyRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.MarginTrading#AssetService#Contracts#ICurrenciesApi#DeleteAsync(System.String,MarginTrading.AssetService.Contracts.Currencies.DeleteCurrencyRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.MarginTrading#AssetService#Contracts#ICurrenciesApi#GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsICurrenciesApi.MarginTrading#AssetService#Contracts#ICurrenciesApi#GetAllAsync(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi.List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi.MarginTrading#AssetService#Contracts#IMarketsApi#List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketsApi.MarginTrading#AssetService#Contracts#IMarketsApi#Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.GetAllMarketSettingsAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.GetAllMarketSettingsInUtcAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.AddMarketSettingsAsync(MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.UpdateMarketSettingsAsync(MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.DeleteMarketSettingsAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.MarginTrading#AssetService#Contracts#IMarketSettingsApi#GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.MarginTrading#AssetService#Contracts#IMarketSettingsApi#GetAllMarketSettingsAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.MarginTrading#AssetService#Contracts#IMarketSettingsApi#GetAllMarketSettingsInUtcAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.MarginTrading#AssetService#Contracts#IMarketSettingsApi#AddMarketSettingsAsync(MarginTrading.AssetService.Contracts.MarketSettings.AddMarketSettingsRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.MarginTrading#AssetService#Contracts#IMarketSettingsApi#UpdateMarketSettingsAsync(MarginTrading.AssetService.Contracts.MarketSettings.UpdateMarketSettingsRequest,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIMarketSettingsApi.MarginTrading#AssetService#Contracts#IMarketSettingsApi#DeleteMarketSettingsAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.UpsertAsync(MarginTrading.AssetService.Contracts.ProductCategories.AddProductCategoryRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.DeleteAsync(System.String,MarginTrading.AssetService.Contracts.ProductCategories.DeleteProductCategoryRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.GetAllAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.Validate(MarginTrading.AssetService.Contracts.ProductCategories.ValidateProductCategoriesRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.MarginTrading#AssetService#Contracts#IProductCategoriesApi#UpsertAsync(MarginTrading.AssetService.Contracts.ProductCategories.AddProductCategoryRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.MarginTrading#AssetService#Contracts#IProductCategoriesApi#DeleteAsync(System.String,MarginTrading.AssetService.Contracts.ProductCategories.DeleteProductCategoryRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.MarginTrading#AssetService#Contracts#IProductCategoriesApi#GetAllAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.MarginTrading#AssetService#Contracts#IProductCategoriesApi#GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductCategoriesApi.MarginTrading#AssetService#Contracts#IProductCategoriesApi#Validate(MarginTrading.AssetService.Contracts.ProductCategories.ValidateProductCategoriesRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.AddAsync(MarginTrading.AssetService.Contracts.Products.AddProductRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.UpdateAsync(System.String,MarginTrading.AssetService.Contracts.Products.UpdateProductRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.DeleteAsync(System.String,MarginTrading.AssetService.Contracts.Products.DeleteProductRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.GetAllAsync(MarginTrading.AssetService.Contracts.Products.GetProductsRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.ChangeFrozenStatusAsync(System.String,MarginTrading.AssetService.Contracts.Products.ChangeProductFrozenStatusRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.ChangeFrozenStatusMultipleAsync(MarginTrading.AssetService.Contracts.Products.ChangeMultipleProductFrozenStatusRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.GetAllCountAsync(MarginTrading.AssetService.Contracts.Products.GetProductsCountRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.UpdateBatchAsync(MarginTrading.AssetService.Contracts.Products.UpdateProductBatchRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.DeleteBatchAsync(MarginTrading.AssetService.Contracts.Products.DeleteProductBatchRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarkMultipleAsDiscontinuedAsync(MarginTrading.AssetService.Contracts.Products.MarkProductsAsDiscontinuedRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.ChangeTradingDisabledStatusAsync(System.String,MarginTrading.AssetService.Contracts.Products.ChangeProductTradingDisabledStatusRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#AddAsync(MarginTrading.AssetService.Contracts.Products.AddProductRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#UpdateAsync(System.String,MarginTrading.AssetService.Contracts.Products.UpdateProductRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#DeleteAsync(System.String,MarginTrading.AssetService.Contracts.Products.DeleteProductRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#GetAllAsync(MarginTrading.AssetService.Contracts.Products.GetProductsRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#ChangeFrozenStatusAsync(System.String,MarginTrading.AssetService.Contracts.Products.ChangeProductFrozenStatusRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#ChangeFrozenStatusMultipleAsync(MarginTrading.AssetService.Contracts.Products.ChangeMultipleProductFrozenStatusRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#GetAllCountAsync(MarginTrading.AssetService.Contracts.Products.GetProductsCountRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#UpdateBatchAsync(MarginTrading.AssetService.Contracts.Products.UpdateProductBatchRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#DeleteBatchAsync(MarginTrading.AssetService.Contracts.Products.DeleteProductBatchRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#MarkMultipleAsDiscontinuedAsync(MarginTrading.AssetService.Contracts.Products.MarkProductsAsDiscontinuedRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIProductsApi.MarginTrading#AssetService#Contracts#IProductsApi#ChangeTradingDisabledStatusAsync(System.String,MarginTrading.AssetService.Contracts.Products.ChangeProductTradingDisabledStatusRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.GetOvernightSwapRatesAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.GetOvernightSwapRatesAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.GetOvernightSwapRatesAsync(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.MarginTrading#AssetService#Contracts#IRateSettingsApi#GetOvernightSwapRatesAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.MarginTrading#AssetService#Contracts#IRateSettingsApi#GetOvernightSwapRatesAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIRateSettingsApi.MarginTrading#AssetService#Contracts#IRateSettingsApi#GetOvernightSwapRatesAsync(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.List(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.StateList(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.GetMarketsInfo(System.String[],System.Nullable{System.DateTime})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.GetPlatformInfo(System.Nullable{System.DateTime})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.MarginTrading#AssetService#Contracts#IScheduleSettingsApi#List(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.MarginTrading#AssetService#Contracts#IScheduleSettingsApi#StateList(System.String[])">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.MarginTrading#AssetService#Contracts#IScheduleSettingsApi#GetMarketsInfo(System.String[],System.Nullable{System.DateTime})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIScheduleSettingsApi.MarginTrading#AssetService#Contracts#IScheduleSettingsApi#GetPlatformInfo(System.Nullable{System.DateTime})">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi.Get">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi.Post(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi.MarginTrading#AssetService#Contracts#IServiceMaintenanceApi#Get">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsIServiceMaintenanceApi.MarginTrading#AssetService#Contracts#IServiceMaintenanceApi#Post(System.Boolean)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.GetAllAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.AddAsync(MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.UpdateAsync(MarginTrading.AssetService.Contracts.TickFormula.UpdateTickFormulaRequest,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.DeleteAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.MarginTrading#AssetService#Contracts#ITickFormulasApi#GetByIdAsync(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.MarginTrading#AssetService#Contracts#ITickFormulasApi#GetAllAsync">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.MarginTrading#AssetService#Contracts#ITickFormulasApi#AddAsync(MarginTrading.AssetService.Contracts.TickFormula.AddTickFormulaRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.MarginTrading#AssetService#Contracts#ITickFormulasApi#UpdateAsync(MarginTrading.AssetService.Contracts.TickFormula.UpdateTickFormulaRequest,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITickFormulasApi.MarginTrading#AssetService#Contracts#ITickFormulasApi#DeleteAsync(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.List(System.Nullable{System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.GetByClientProfileId(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.MarginTrading#AssetService#Contracts#ITradingConditionsApi#List(System.Nullable{System.Boolean})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.MarginTrading#AssetService#Contracts#ITradingConditionsApi#Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingConditionsApi.MarginTrading#AssetService#Contracts#ITradingConditionsApi#GetByClientProfileId(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.List(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.ListByPages(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.Get(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.CheckProductsUnavailableForTradingCondition(MarginTrading.AssetService.Contracts.TradingConditions.CheckProductsUnavailableForTradingConditionRequest)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.MarginTrading#AssetService#Contracts#ITradingInstrumentsApi#List(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.MarginTrading#AssetService#Contracts#ITradingInstrumentsApi#ListByPages(System.String,System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.MarginTrading#AssetService#Contracts#ITradingInstrumentsApi#Get(System.String,System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingInstrumentsApi.MarginTrading#AssetService#Contracts#ITradingInstrumentsApi#CheckProductsUnavailableForTradingCondition(MarginTrading.AssetService.Contracts.TradingConditions.CheckProductsUnavailableForTradingConditionRequest)">
+            <inheritdoc />
+        </member>
+        <member name="T:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi">
+            <inheritdoc />
+        </member>
+        <member name="P:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.Client">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.#ctor(System.Net.Http.HttpClient,Refit.IRequestBuilder)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.Insert(MarginTrading.AssetService.Contracts.Routes.MatchingEngineRouteContract)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.Update(System.String,MarginTrading.AssetService.Contracts.Routes.MatchingEngineRouteContract)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.Delete(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.MarginTrading#AssetService#Contracts#ITradingRoutesApi#List">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.MarginTrading#AssetService#Contracts#ITradingRoutesApi#ListByPages(System.Nullable{System.Int32},System.Nullable{System.Int32})">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.MarginTrading#AssetService#Contracts#ITradingRoutesApi#Insert(MarginTrading.AssetService.Contracts.Routes.MatchingEngineRouteContract)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.MarginTrading#AssetService#Contracts#ITradingRoutesApi#Get(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.MarginTrading#AssetService#Contracts#ITradingRoutesApi#Update(System.String,MarginTrading.AssetService.Contracts.Routes.MatchingEngineRouteContract)">
+            <inheritdoc />
+        </member>
+        <member name="M:Refit.Implementation.Generated.MarginTradingAssetServiceContractsITradingRoutesApi.MarginTrading#AssetService#Contracts#ITradingRoutesApi#Delete(System.String)">
+            <inheritdoc />
+        </member>
+    </members>
+</doc>

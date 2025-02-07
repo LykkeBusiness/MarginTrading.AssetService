@@ -1,3 +1,8 @@
+## 2.31.0 - Nova 2. Delivery 49 (February 07, 2025)
+### What's changed
+* LT-6000: Update rabbitmqbroker in margintrading.assetservice.
+
+
 ## 2.29.1 - Nova 2. Delivery 47. Hotfix 2 (January 16, 2025)
 ### What's changed
 * LT-5991: Bump LykkeBiz.RabbitMqBroker to 8.11.1

@@ -2,7 +2,7 @@
   <PropertyGroup>
     <AssemblyName>MarginTrading.AssetService.Services</AssemblyName>
     <RootNamespace>MarginTrading.AssetService.Services</RootNamespace>
-    <Version>2.27.3</Version>
+    <Version>2.31.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" />

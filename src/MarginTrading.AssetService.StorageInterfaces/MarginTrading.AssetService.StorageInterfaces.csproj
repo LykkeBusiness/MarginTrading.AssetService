@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Version>2.27.3</Version>
+    <Version>2.31.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MarginTrading.AssetService.Core\MarginTrading.AssetService.Core.csproj" />

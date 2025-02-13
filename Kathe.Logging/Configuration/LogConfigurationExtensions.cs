@@ -2,7 +2,6 @@
 
 using Kathe.LogEnrichment.Correlation;
 using Kathe.LogEnrichment.Correlation.Serilog;
-using Kathe.LogEnrichment.Exceptions;
 
 using Microsoft.Extensions.Configuration;
 
@@ -68,7 +67,6 @@ public static class LogConfigurationExtensions
         
         loggerConfiguration = loggerConfiguration
             .Enrich.WithProperty(LogConfiguration.ApplicationNameProperty, applicationName)
-            .Enrich.With<ExceptionFormattingEnricher>()
             .Enrich.With(new CorrelationLogEventEnricher(new CorrelationContextAccessor()))
             .Enrich.FromLogContext();
 

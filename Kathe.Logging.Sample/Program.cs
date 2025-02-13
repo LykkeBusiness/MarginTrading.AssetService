@@ -10,14 +10,10 @@ using Microsoft.Extensions.Logging;
 using Serilog;
 
 
-var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string>
-{
-    { LogConfigurationExtensions.Conventions.Configuration.BrokerId, "test-broker" },
-    { LogConfigurationExtensions.Conventions.Environment.AspnetCore, "local" },
-    { LogConfigurationExtensions.Conventions.Environment.SeqUrl, "http://138.201.190.36:5341" },
-    { LogConfigurationExtensions.Conventions.Environment.SeqApiKey, "Rj83s0Ao4y18iwI0b726" },
-    { LogConfigurationExtensions.Conventions.Environment.Nova, "LOCAL-MISHA" },
-}).Build();
+var configuration = new ConfigurationBuilder()
+    .AddInMemoryCollection(new Dictionary<string, string> { { LogConfigurationExtensions.Conventions.Configuration.BrokerId, "test-broker" } })
+    .AddJsonFile("appsettings.json")
+    .Build();
 
 var logger = LogConfiguration.BuildSerilogLogger(configuration, "LocalTestingConsole");
 new HostBuilder()
@@ -25,7 +21,8 @@ new HostBuilder()
         services =>
         {
             services.AddEnrichedLogging();
-            services.AddSingleton((new KatheLoggingOptions()).All());
+            services.AddHttpClient();
+            services.Configure<KatheLoggingOptions>(configuration.GetSection("KatheLogging"));
         })
     .ConfigureWebHost(
         webHost =>
@@ -42,26 +39,32 @@ new HostBuilder()
                         applicationBuilder.Use(
                             next => async context =>
                             {
-                                context.RequestServices.GetService<ILogger<Program>>().LogTrace("Trace message");
-                                context.RequestServices.GetService<ILogger<Program>>().LogDebug("Debug message");
-                                context.RequestServices.GetService<ILogger<Program>>().LogInformation("Information message");
-                                context.RequestServices.GetService<ILogger<Program>>().LogWarning("Warning message");
-                                context.RequestServices.GetService<ILogger<Program>>().LogError("Error message");
-                                context.RequestServices.GetService<ILogger<Program>>().LogCritical("Critical message");
+                                if (context.Request.Path == "/favicon.ico")
+                                    return;
+                                ILogger<Program> log = context.RequestServices.GetService<ILogger<Program>>();
+                                
+                                log.LogTrace("Trace message");
+                                log.LogDebug("Debug message");
+                                log.LogInformation("Information message");
+                                log.LogWarning("Warning message");
                                 try
                                 {
                                     throw new Exception("Something goes very wrong");
                                 }
                                 catch (Exception e)
                                 {
-                                    context.RequestServices.GetService<ILogger<Program>>().LogError(e, "Error happened");
+                                    log.LogError(e, "Error happened");
                                 }
-                                await context.Response.WriteAsync("hi");
+
+                                log.LogCritical("Fatal Error message");
+
+                                var response = await context.RequestServices.GetService<HttpClient>().GetAsync("http://google.com");
                                 
-                                throw new Exception("Critical fail.");
+                                await context.Response.WriteAsync($"google says {response.StatusCode}");
                             });
-                    })
-                .Build()
-                .Run();
-        });
+                    });
+
+        })
+    .Build()
+    .Run();
     

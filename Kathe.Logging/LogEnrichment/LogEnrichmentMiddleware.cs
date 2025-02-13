@@ -42,7 +42,7 @@ namespace Kathe.LogEnrichment
                 
                 await next(context);
 
-                LogLevel logLevel = stopwatch.Elapsed > TimeSpan.FromSeconds(1)
+                LogLevel logLevel = stopwatch.Elapsed > TimeSpan.FromSeconds(_options.RequestSecondsDurationThreshold)
                     ? LogLevel.Warning
                     : context.Response.StatusCode switch
                     {

@@ -10,6 +10,11 @@
         public bool LogIncomingRequests { get; set; }
 
         /// <summary>
+        /// After how many seconds request handling will be logged as a warning
+        /// </summary>
+        public int RequestSecondsDurationThreshold { get; set; } = 3;
+        
+        /// <summary>
         /// Should outgoing requests be logged?
         /// Setting this flag to false short circuits the
         /// ShouldLogOutgoingRequest delegate

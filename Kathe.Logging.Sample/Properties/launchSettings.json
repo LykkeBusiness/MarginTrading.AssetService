@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json.schemastore.org/launchsettings.json",
+  "profiles": {
+    "Kathe.Logging.Sample": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "NOVA_ENVIRONMENT": "misha-local",
+        "SEQ_URL": "http://138.201.190.36:5341",
+        "SEQ_API_KEY": "Rj83s0Ao4y18iwI0b726"
+      }
+    }
+  }
+}

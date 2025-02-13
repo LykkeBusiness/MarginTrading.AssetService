@@ -12,7 +12,7 @@ using Serilog;
 
 var configuration = new ConfigurationBuilder()
     .AddInMemoryCollection(new Dictionary<string, string> { { LogConfigurationExtensions.Conventions.Configuration.BrokerId, "test-broker" } })
-    .AddJsonFile("appsettings.json")
+    .AddJsonFile("appsettings.serilog.json")
     .Build();
 
 var logger = LogConfiguration.BuildSerilogLogger(configuration, "LocalTestingConsole");

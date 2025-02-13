@@ -10,6 +10,8 @@ namespace MarginTrading.AssetService
 {
     internal sealed class Program
     {
+        public static string ApplicationName => "AssetService";
+
         public static async Task Main(string[] args)
         {
             if (EF.IsDesignTime) {

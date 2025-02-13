@@ -29,7 +29,7 @@ namespace MarginTrading.AssetService.Startup
                 Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName,
                 ex => ex.ToString(), false);
 #else
-            app.UseLykkeMiddleware("Asset Service", ex => new ErrorResponse {ErrorMessage = ex.Message}, false);
+            app.UseLykkeMiddleware(Program.ApplicationName, ex => new ErrorResponse {ErrorMessage = ex.Message}, false);
 #endif
             app.UseRefitExceptionHandler();
             app.UseRouting();

@@ -1,7 +1,5 @@
-using System;
-using System.Threading.Tasks;
+using Kathe;
 
-using Lykke.Logs.Serilog;
 using Lykke.Snow.Common.Startup;
 
 using Serilog;
@@ -17,8 +15,10 @@ namespace MarginTrading.AssetService.Startup
                 FailureWrapper.InitializeForHostRestart();
 
                 await FailureWrapper.RetryAsync(startAction, LogStartupException);
-            }, "asset");
+            }, Program.ApplicationName);
         }
+        
+       
         
         private static void LogStartupException(Exception e, uint attemptLeft)
         {

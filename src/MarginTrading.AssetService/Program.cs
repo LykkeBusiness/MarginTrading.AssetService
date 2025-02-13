@@ -12,6 +12,8 @@ namespace MarginTrading.AssetService
 {
     internal sealed class Program
     {
+        public static string ApplicationName => "AssetService";
+
         public static async Task Main(string[] args)
         {
             await StartupWrapper.StartAsync(async () =>

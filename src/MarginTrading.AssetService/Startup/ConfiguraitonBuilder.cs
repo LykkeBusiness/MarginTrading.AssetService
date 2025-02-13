@@ -1,9 +1,11 @@
-using System;
-using System.IO;
 using System.Reflection;
-using Lykke.Logs.Serilog;
+
+using Kathe;
+using Kathe.Configuration;
+
 using Lykke.SettingsReader;
 using Lykke.SettingsReader.ConfigurationProvider;
+
 using MarginTrading.AssetService.Settings;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;

@@ -4,6 +4,9 @@ using System.Reflection;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 
+using Kathe;
+using Kathe.Configuration;
+
 using Lykke.SettingsReader;
 using Lykke.Snow.Common.Correlation;
 using Lykke.Snow.Common.Correlation.Serilog;
@@ -25,51 +28,33 @@ namespace MarginTrading.AssetService.Startup
         public static IHostBuilder ConfigureHost(
             this WebApplicationBuilder builder,
             IConfiguration configuration,
-            IReloadingManager<AppSettings> settings) =>
-            builder.Host
+            IReloadingManager<AppSettings> settings)
+        {
+            return builder.Host
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureContainer<ContainerBuilder>((ctx, cBuilder) =>
-                {
-                    var assetSettings =
-                        settings.Nested(x => x.MarginTradingAssetService);
-
-                    var isTestEnv = ctx.HostingEnvironment.IsEnvironment("test");
-                    settings.CurrentValue.ValidateSettings(checkDependencies: !isTestEnv).GetAwaiter().GetResult();
-
-                    cBuilder.RegisterModule(new ServiceModule(assetSettings));
-                    if (!isTestEnv)
+                .ConfigureContainer<ContainerBuilder>(
+                    (ctx, cBuilder) =>
                     {
-                        cBuilder.RegisterModule(new ClientsModule(settings));
-                        cBuilder.RegisterModule(new MsSqlModule(assetSettings));
-                        cBuilder.RegisterModule(new CqrsModule(
-                            assetSettings.CurrentValue.Cqrs,
-                            assetSettings.CurrentValue.InstanceId));
-                        cBuilder.RegisterModule(new RabbitMqModule(assetSettings));
-                    }
-                })
-                .UseSerilog((_, cfg) =>
-                {
-                    var a = typeof(Program).Assembly;
-                    var title =
-                        a.GetCustomAttribute<AssemblyTitleAttribute>()?.Title ??
-                        string.Empty;
-                    var version =
-                        a.GetCustomAttribute<
-                                AssemblyInformationalVersionAttribute>()
-                            ?.InformationalVersion ?? string.Empty;
-                    var environment =
-                        Environment.GetEnvironmentVariable(
-                            "ASPNETCORE_ENVIRONMENT") ?? string.Empty;
+                        var assetSettings =
+                            settings.Nested(x => x.MarginTradingAssetService);
 
-                    cfg.ReadFrom.Configuration(configuration)
-                        .Enrich.WithProperty("Application", title)
-                        .Enrich.WithProperty("Version", version)
-                        .Enrich.WithProperty("Environment", environment)
-                        .Enrich.WithProperty("BrokerId",
-                            settings.CurrentValue.MarginTradingAssetService
-                                .BrokerId)
-                        .Enrich.With(new CorrelationLogEventEnricher(
-                            "CorrelationId", new CorrelationContextAccessor()));
-                });
+                        // todo: what is this for? @andrey @misha
+                        var isTestEnv = ctx.HostingEnvironment.IsEnvironment("test");
+                        settings.CurrentValue.ValidateSettings(checkDependencies: !isTestEnv).GetAwaiter().GetResult();
+
+                        cBuilder.RegisterModule(new ServiceModule(assetSettings));
+                        if (!isTestEnv)
+                        {
+                            cBuilder.RegisterModule(new ClientsModule(settings));
+                            cBuilder.RegisterModule(new MsSqlModule(assetSettings));
+                            cBuilder.RegisterModule(
+                                new CqrsModule(
+                                    assetSettings.CurrentValue.Cqrs,
+                                    assetSettings.CurrentValue.InstanceId));
+                            cBuilder.RegisterModule(new RabbitMqModule(assetSettings));
+                        }
+                    })
+                .UseSerilog(LogConfiguration.BuildSerilogLogger(configuration, Program.ApplicationName));
+        }
     }
 }

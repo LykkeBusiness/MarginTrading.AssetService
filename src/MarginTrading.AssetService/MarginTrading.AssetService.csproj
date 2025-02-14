@@ -9,9 +9,6 @@
     <UserSecretsId>F7428201-B7F7-4571-9ABD-71ADEBF71654</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <None Update="appsettings.Serilog.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="appsettings.test.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -39,17 +36,16 @@
   <ItemGroup>
     <PackageReference Include="Lykke.Common" />
     <PackageReference Include="LykkeBiz.Common.ApiLibrary" />
-    <PackageReference Include="LykkeBiz.Logs.Serilog" />
     <PackageReference Include="Lykke.MarginTrading.BookKeeper.Contracts" />
     <PackageReference Include="Lykke.Snow.Common.Startup" />
     <PackageReference Include="LykkeBiz.Snow.Cqrs" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" />
-    <PackageReference Include="Serilog.Sinks.Elasticsearch" />
     <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Kathe.Logging\Kathe.Logging.csproj" />
     <ProjectReference
       Include="..\MarginTrading.AssetService.Contracts\MarginTrading.AssetService.Contracts.csproj" />
     <ProjectReference

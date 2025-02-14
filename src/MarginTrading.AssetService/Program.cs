@@ -19,7 +19,7 @@ namespace MarginTrading.AssetService
                 return;
             }
             
-            await StartupWrapper.StartAsync(async () =>
+            await new StartupWrapper().StartAsync(async () =>
             {
                 var builder = WebApplication.CreateBuilder(args);
 

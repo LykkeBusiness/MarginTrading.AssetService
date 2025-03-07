@@ -1,4 +1,4 @@
-## 2.32.0 - Nova 2. Delivery 50 ([[DATE]])
+## 2.33.0 - Nova 2. Delivery 50 (March 07, 2025)
 ### What's changed
 * LT-5968: Add missed migration and rollback scripts
 
